@@ -2,19 +2,29 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { runInAction } from 'mobx';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { LoginPage } from '@/pages/auth/LoginPage';
+import { httpClient } from '@/api/http';
 import { authStore } from '@/stores/auth.store';
 
 describe('LoginPage', () => {
+  let requestMock: vi.SpyInstance;
+
   beforeEach(() => {
-    vi.restoreAllMocks();
+    if (!requestMock) {
+      requestMock = vi.spyOn(httpClient, 'request');
+    }
+    requestMock.mockReset();
     resetStoreState();
   });
 
   afterEach(() => {
     cleanup();
-    vi.unstubAllGlobals();
+  });
+
+  afterAll(() => {
+    requestMock.mockRestore();
   });
 
   it('рендерит форму входа', () => {
@@ -27,8 +37,9 @@ describe('LoginPage', () => {
   });
 
   it('отправляет форму и редиректит после 200', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(successResponse({ status: 200, body: {} }));
-    vi.stubGlobal('fetch', fetchMock);
+    requestMock.mockResolvedValueOnce(
+      successResponse({ status: 200, data: {}, config: { method: 'post' } })
+    );
 
     const router = renderLoginPage();
     const user = userEvent.setup();
@@ -40,16 +51,15 @@ describe('LoginPage', () => {
     await user.type(passwordInput, 'secret123');
     await user.click(screen.getByRole('button', { name: 'Войти' }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    expect(fetchMock).toHaveBeenCalledWith(
-      '/api/v1/auth/login',
+    await waitFor(() => expect(requestMock).toHaveBeenCalledTimes(1));
+    expect(requestMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({
+        url: '/api/v1/auth/login',
+        method: 'post',
+        data: {
           email: 'editor@example.com',
           password: 'secret123',
-          remember: true,
-        }),
+        },
       })
     );
 
@@ -57,14 +67,12 @@ describe('LoginPage', () => {
   });
 
   it('показывает сообщение об ошибке при 401', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      successResponse({
+    requestMock.mockRejectedValueOnce(
+      errorResponse({
         status: 401,
-        body: { title: 'Unauthorized', status: 401 },
-        contentType: 'application/problem+json',
+        data: { title: 'Unauthorized', status: 401 },
       })
     );
-    vi.stubGlobal('fetch', fetchMock);
 
     renderLoginPage();
     const user = userEvent.setup();
@@ -82,18 +90,16 @@ describe('LoginPage', () => {
   });
 
   it('подсвечивает поля при 422', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      successResponse({
+    requestMock.mockRejectedValueOnce(
+      errorResponse({
         status: 422,
-        body: {
+        data: {
           title: 'Validation Failed',
           status: 422,
           errors: { email: ['Неверный формат email'] },
         },
-        contentType: 'application/problem+json',
       })
     );
-    vi.stubGlobal('fetch', fetchMock);
 
     renderLoginPage();
     const user = userEvent.setup();
@@ -112,9 +118,8 @@ describe('LoginPage', () => {
   });
 
   it('блокирует кнопку, пока запрос выполняется', async () => {
-    const deferred = createDeferred<Response>();
-    const fetchMock = vi.fn().mockReturnValue(deferred.promise);
-    vi.stubGlobal('fetch', fetchMock);
+    const deferred = createDeferred<AxiosResponse>();
+    requestMock.mockReturnValue(deferred.promise);
 
     renderLoginPage();
     const user = userEvent.setup();
@@ -132,7 +137,7 @@ describe('LoginPage', () => {
     deferred.resolve(
       successResponse({
         status: 200,
-        body: {},
+        data: {},
       })
     );
 
@@ -150,29 +155,44 @@ function renderLoginPage() {
   );
 
   render(<RouterProvider router={router} />);
-  runInAction(() => {
-    authStore.returnTo = '/entries';
-  });
 
   return router;
 }
 
-function successResponse({
+function successResponse<T>({
   status,
-  body,
-  contentType = 'application/json',
+  data,
+  config,
 }: {
   status: number;
-  body?: unknown;
-  contentType?: string;
-}) {
-  const payload = body === undefined ? null : JSON.stringify(body);
-  return new Response(payload, {
+  data?: T;
+  config?: Partial<AxiosRequestConfig>;
+}): AxiosResponse<T> {
+  return {
+    data: data as T,
     status,
-    headers: {
-      'Content-Type': contentType,
+    statusText: '',
+    headers: {},
+    config: {
+      url: '',
+      method: 'post',
+      headers: {},
+      ...(config ?? {}),
     },
-  });
+    request: {},
+  };
+}
+
+function errorResponse<T>({ status, data }: { status: number; data?: T }) {
+  return {
+    isAxiosError: true,
+    toJSON: () => ({}),
+    name: 'AxiosError',
+    message: 'Request failed',
+    config: { headers: {}, method: 'post', url: '' },
+    code: status >= 500 ? 'ERR_BAD_RESPONSE' : 'ERR_BAD_REQUEST',
+    response: successResponse({ status, data }),
+  };
 }
 
 function resetStoreState() {
@@ -181,7 +201,7 @@ function resetStoreState() {
     authStore.pending = false;
     authStore.error = null;
     authStore.fieldErrors = {};
-    authStore.setReturnTo(null);
+    authStore.setOverlay(null);
   });
 }
 

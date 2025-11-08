@@ -16,5 +16,11 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false, // Автоматически найдет свободный порт, если 5173 занят
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
 });

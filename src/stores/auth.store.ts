@@ -1,105 +1,90 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import { http, type HttpError } from '@/api/http';
+import { makeAutoObservable } from 'mobx';
+import type { AuthUser, LoginDto } from '@/api/auth';
+import { logout as logoutRequest } from '@/api/auth';
+import { loginWithCsrfRetry } from '@/services/auth';
+import { isHttpError } from '@/utils/http-error';
 
-type LoginDto = {
-  email: string;
-  password: string;
-  remember?: boolean;
-};
 type LoginField = 'email' | 'password';
 
 export class AuthStore {
   isAuthenticated = false;
   pending = false;
   error: string | null = null;
-  returnTo: string | null = null;
+  overlayType: 'login' | null = 'login';
   fieldErrors: Partial<Record<LoginField, string>> = {};
+  user: AuthUser | null = null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
-  setReturnTo(path: string | null) {
-    this.returnTo = path;
+  setPending(value: boolean) {
+    this.pending = value;
+  }
+
+  setAuthenticated(value: boolean) {
+    this.isAuthenticated = value;
+  }
+
+  setError(message: string | null) {
+    this.error = message;
+  }
+
+  setFieldErrors(errors: Partial<Record<LoginField, string>>) {
+    this.fieldErrors = errors;
+  }
+
+  setUser(user: AuthUser | null) {
+    this.user = user;
+  }
+
+  setOverlay(type: typeof this.overlayType) {
+    this.overlayType = type;
   }
 
   resetError() {
-    this.error = null;
-    this.fieldErrors = {};
+    this.setError(null);
+    this.setFieldErrors({});
   }
 
   async login(dto: LoginDto): Promise<boolean> {
-    this.pending = true;
-    this.error = null;
-    this.fieldErrors = {};
+    this.setPending(true);
+    this.resetError();
 
     try {
-      await this.performLogin(dto);
-      runInAction(() => {
-        this.isAuthenticated = true;
-      });
+      const { user } = await loginWithCsrfRetry(dto);
+      this.setUser(user);
+      this.setAuthenticated(true);
+      this.setOverlay(null);
       return true;
     } catch (error) {
       this.assignErrorMessage(error);
       return false;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
+      this.setPending(false);
     }
   }
 
-  async logout(): Promise<void> {
+  async logout(options: { all?: boolean } = {}): Promise<void> {
     try {
-      await fetch('/api/v1/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await logoutRequest(options);
     } finally {
-      runInAction(() => {
-        this.isAuthenticated = false;
-        this.returnTo = null;
-        this.error = null;
-      });
+      this.setAuthenticated(false);
+      this.setError(null);
+      this.setUser(null);
+      this.setOverlay('login');
     }
-  }
-
-  private async performLogin(dto: LoginDto, { retriedCsrf = false } = {}): Promise<void> {
-    try {
-      await http<unknown>('/api/v1/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(dto),
-      });
-    } catch (error) {
-      if (!retriedCsrf && isHttpError(error) && (error.status === 419 || error.status === 403)) {
-        await this.obtainCsrfCookie();
-        await this.performLogin(dto, { retriedCsrf: true });
-        return;
-      }
-      throw error;
-    }
-  }
-
-  private async obtainCsrfCookie(): Promise<void> {
-    await fetch('/api/v1/auth/csrf', {
-      method: 'GET',
-      credentials: 'include',
-    });
   }
 
   private assignErrorMessage(error: unknown): void {
     if (!isHttpError(error)) {
-      runInAction(() => {
-        this.error = 'Ошибка входа';
-      });
+      this.setError('Ошибка входа');
       return;
     }
 
     if (error.status === 401) {
-      runInAction(() => {
-        this.error = 'Неверный email или пароль';
-        this.fieldErrors = {};
-      });
+      this.setError('Неверный email или пароль');
+      this.setFieldErrors({});
       return;
     }
 
@@ -108,15 +93,9 @@ export class AuthStore {
     const hasFieldErrors = Object.keys(mappedFieldErrors).length > 0;
     const problemTitle = error.problem?.title;
 
-    runInAction(() => {
-      this.fieldErrors = mappedFieldErrors;
-      this.error = hasFieldErrors ? null : (problemTitle ?? 'Ошибка входа');
-    });
+    this.setFieldErrors(mappedFieldErrors);
+    this.setError(hasFieldErrors ? null : (problemTitle ?? 'Ошибка входа'));
   }
-}
-
-function isHttpError(error: unknown): error is HttpError {
-  return typeof error === 'object' && error !== null && 'status' in error;
 }
 
 function mapProblemErrors(

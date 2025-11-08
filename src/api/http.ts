@@ -1,3 +1,4 @@
+import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type { ProblemJson } from '@/types/problem-json';
 
 export interface HttpError extends Error {
@@ -6,50 +7,71 @@ export interface HttpError extends Error {
   raw?: string;
 }
 
-type HttpInit = RequestInit & { body?: BodyInit | null };
+const client = axios.create({
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
 
-export async function http<T>(input: RequestInfo | URL, init: HttpInit = {}): Promise<T> {
-  const response = await fetch(input, decorateInit(init));
+export const httpClient = client;
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  if (response.ok) {
-    return (await response.json()) as T;
-  }
+type HttpConfig = AxiosRequestConfig;
 
-  throw await buildError(response);
-}
-
-function decorateInit(init: HttpInit): RequestInit {
-  const headers = new Headers(init.headers);
-  if (!headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
-  }
-
-  return {
-    ...init,
-    headers,
-    credentials: 'include',
-  };
-}
-
-async function buildError(response: Response): Promise<HttpError> {
-  const contentType = response.headers.get('content-type') ?? '';
-
-  if (contentType.includes('application/problem+json')) {
-    const problem = (await response.json()) as ProblemJson;
-    const error: HttpError = Object.assign(new Error(problem.title ?? 'Request failed'), {
-      status: response.status,
-      problem,
+export async function http<T>(url: string, config: HttpConfig = {}): Promise<T> {
+  try {
+    const response = await httpClient.request<T>({
+      url,
+      ...config,
     });
-    return error;
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return response.data;
+  } catch (error) {
+    throw buildError(error);
+  }
+}
+
+function buildError(error: unknown): HttpError {
+  if (axios.isAxiosError(error)) {
+    return fromAxiosError(error);
   }
 
-  const raw = await response.text();
-  const error: HttpError = Object.assign(new Error('Request failed'), {
-    status: response.status,
+  return Object.assign(new Error('Request failed'), {
+    status: 0,
+  });
+}
+
+function fromAxiosError(error: AxiosError): HttpError {
+  const response = error.response as AxiosResponse<unknown> | undefined;
+  const status = response?.status ?? 0;
+  const data = response?.data;
+
+  if (isProblemJson(data)) {
+    return Object.assign(new Error(data.title ?? 'Request failed'), {
+      status,
+      problem: data,
+    });
+  }
+
+  const raw = typeof data === 'string' ? data : error.message;
+  return Object.assign(new Error('Request failed'), {
+    status,
     raw,
   });
-  return error;
+}
+
+function isProblemJson(payload: unknown): payload is ProblemJson {
+  if (typeof payload !== 'object' || payload === null) {
+    return false;
+  }
+
+  return (
+    'errors' in payload ||
+    'title' in payload ||
+    'type' in payload ||
+    'status' in payload ||
+    'detail' in payload
+  );
 }
