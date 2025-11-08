@@ -1,0 +1,5 @@
+set -e
+
+npm run docs:gen
+npm run docs:check
+npm run lint-staged
