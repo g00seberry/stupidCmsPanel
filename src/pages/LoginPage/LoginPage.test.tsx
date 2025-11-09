@@ -4,12 +4,14 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { runInAction } from 'mobx';
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { LoginPage } from '@/pages/auth/LoginPage';
+import { AxiosHeaders } from 'axios';
+import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { httpClient } from '@/api/http';
-import { authStore } from '@/stores/auth.store';
+import { authStore } from '@/AuthStore';
 
 describe('LoginPage', () => {
-  let requestMock: vi.SpyInstance;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let requestMock: any;
 
   beforeEach(() => {
     if (!requestMock) {
@@ -38,7 +40,11 @@ describe('LoginPage', () => {
 
   it('отправляет форму и редиректит после 200', async () => {
     requestMock.mockResolvedValueOnce(
-      successResponse({ status: 200, data: {}, config: { method: 'post' } })
+      successResponse({
+        status: 200,
+        data: { user: { id: 1, email: 'editor@example.com', name: 'Editor' } },
+        config: { method: 'post' },
+      })
     );
 
     const router = renderLoginPage();
@@ -81,7 +87,7 @@ describe('LoginPage', () => {
     const [passwordInput] = screen.getAllByLabelText('Пароль');
 
     await user.type(emailInput, 'editor@example.com');
-    await user.type(passwordInput, 'wrong');
+    await user.type(passwordInput, 'wrongpass');
     await user.click(screen.getByRole('button', { name: 'Войти' }));
 
     await waitFor(() =>
@@ -89,7 +95,7 @@ describe('LoginPage', () => {
     );
   });
 
-  it('подсвечивает поля при 422', async () => {
+  it('подсвечивает поля при серверной ошибке 422', async () => {
     requestMock.mockRejectedValueOnce(
       errorResponse({
         status: 422,
@@ -107,7 +113,7 @@ describe('LoginPage', () => {
     const [emailInput] = screen.getAllByLabelText('Email');
     const [passwordInput] = screen.getAllByLabelText('Пароль');
 
-    await user.type(emailInput, 'bad');
+    await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'secret123');
     await user.click(screen.getByRole('button', { name: 'Войти' }));
 
@@ -115,6 +121,44 @@ describe('LoginPage', () => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       expect(screen.getByText('Неверный формат email', { selector: 'span' })).toBeInTheDocument();
     });
+  });
+
+  it('показывает клиентскую валидацию для невалидного email', async () => {
+    renderLoginPage();
+    const user = userEvent.setup();
+
+    const [emailInput] = screen.getAllByLabelText('Email');
+    const [passwordInput] = screen.getAllByLabelText('Пароль');
+
+    await user.type(emailInput, 'bad');
+    await user.type(passwordInput, 'secret123');
+    await user.click(screen.getByRole('button', { name: 'Войти' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Некорректный email', { selector: 'span' })).toBeInTheDocument();
+    });
+
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it('показывает клиентскую валидацию для короткого пароля', async () => {
+    renderLoginPage();
+    const user = userEvent.setup();
+
+    const [emailInput] = screen.getAllByLabelText('Email');
+    const [passwordInput] = screen.getAllByLabelText('Пароль');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'short');
+    await user.click(screen.getByRole('button', { name: 'Войти' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Пароль должен содержать минимум 8 символов', { selector: 'span' })
+      ).toBeInTheDocument();
+    });
+
+    expect(requestMock).not.toHaveBeenCalled();
   });
 
   it('блокирует кнопку, пока запрос выполняется', async () => {
@@ -137,7 +181,7 @@ describe('LoginPage', () => {
     deferred.resolve(
       successResponse({
         status: 200,
-        data: {},
+        data: { user: { id: 1, email: 'editor@example.com', name: 'Editor' } },
       })
     );
 
@@ -172,11 +216,11 @@ function successResponse<T>({
     data: data as T,
     status,
     statusText: '',
-    headers: {},
+    headers: new AxiosHeaders(),
     config: {
       url: '',
       method: 'post',
-      headers: {},
+      headers: new AxiosHeaders() as any,
       ...(config ?? {}),
     },
     request: {},
@@ -189,7 +233,7 @@ function errorResponse<T>({ status, data }: { status: number; data?: T }) {
     toJSON: () => ({}),
     name: 'AxiosError',
     message: 'Request failed',
-    config: { headers: {}, method: 'post', url: '' },
+    config: { headers: new AxiosHeaders() as any, method: 'post', url: '' },
     code: status >= 500 ? 'ERR_BAD_RESPONSE' : 'ERR_BAD_REQUEST',
     response: successResponse({ status, data }),
   };
@@ -201,7 +245,7 @@ function resetStoreState() {
     authStore.pending = false;
     authStore.error = null;
     authStore.fieldErrors = {};
-    authStore.setOverlay(null);
+    authStore.user = null;
   });
 }
 

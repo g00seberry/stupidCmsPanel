@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
-import type { ProblemJson } from '@/types/problem-json';
+import type { ProblemJson } from '@/types/ProblemJson';
 
 export interface HttpError extends Error {
   status: number;

@@ -10,7 +10,6 @@ export class AuthStore {
   isAuthenticated = false;
   pending = false;
   error: string | null = null;
-  overlayType: 'login' | null = 'login';
   fieldErrors: Partial<Record<LoginField, string>> = {};
   user: AuthUser | null = null;
 
@@ -38,10 +37,6 @@ export class AuthStore {
     this.user = user;
   }
 
-  setOverlay(type: typeof this.overlayType) {
-    this.overlayType = type;
-  }
-
   resetError() {
     this.setError(null);
     this.setFieldErrors({});
@@ -55,7 +50,6 @@ export class AuthStore {
       const { user } = await loginWithCsrfRetry(dto);
       this.setUser(user);
       this.setAuthenticated(true);
-      this.setOverlay(null);
       return true;
     } catch (error) {
       this.assignErrorMessage(error);
@@ -72,7 +66,6 @@ export class AuthStore {
       this.setAuthenticated(false);
       this.setError(null);
       this.setUser(null);
-      this.setOverlay('login');
     }
   }
 
