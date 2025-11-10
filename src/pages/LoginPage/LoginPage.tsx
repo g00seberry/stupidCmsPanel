@@ -1,18 +1,24 @@
+import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStore } from '@/AuthStore';
+import type { ZLoginField } from '@/types/auth';
 import { zLoginDto } from '@/types/auth';
 
 type LocationState = {
   returnTo?: string;
 };
 
+type FormValues = {
+  email: string;
+  password: string;
+};
+
 export const LoginPage = observer(() => {
   const navigate = useNavigate();
   const location = useLocation() as { state?: LocationState };
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form] = Form.useForm<FormValues>();
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const returnTo = location.state?.returnTo ?? '/entries';
@@ -22,11 +28,13 @@ export const LoginPage = observer(() => {
     return () => authStore.resetError();
   }, []);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const emailError = validationErrors.email ?? authStore.fieldErrors.email ?? '';
+  const passwordError = validationErrors.password ?? authStore.fieldErrors.password ?? '';
+
+  const handleSubmit = async (values: FormValues) => {
     setValidationErrors({});
 
-    const result = zLoginDto.safeParse({ email, password });
+    const result = zLoginDto.safeParse(values);
 
     if (!result.success) {
       const errors: Record<string, string> = {};
@@ -44,85 +52,108 @@ export const LoginPage = observer(() => {
     if (ok) {
       navigate(returnTo, { replace: true });
     }
-  }
+  };
+
+  const handleValuesChange = (changedValues: Partial<FormValues>) => {
+    const field = Object.keys(changedValues)[0] as keyof FormValues | undefined;
+    if (!field) return;
+
+    setValidationErrors(prev => {
+      if (!prev[field]) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+
+    if (authStore.fieldErrors[field as ZLoginField]) {
+      const next = { ...authStore.fieldErrors };
+      delete next[field as ZLoginField];
+      authStore.setFieldErrors(next);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow"
-        noValidate
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        backgroundColor: '#f5f5f5',
+      }}
+    >
+      <Card
+        style={{ width: 360, maxWidth: '100%' }}
+        styles={{ body: { padding: 24 } }}
+        variant="outlined"
       >
-        <h1 className="text-2xl font-semibold text-center">Вход в админку</h1>
+        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>
+          Вход в админку
+        </Typography.Title>
 
         {authStore.error && (
-          <div
+          <Alert
             role="alert"
-            className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-          >
-            {authStore.error}
-          </div>
+            type="error"
+            message={authStore.error}
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
         )}
 
-        <label className="block space-y-1">
-          <span className="text-sm font-medium text-gray-700">Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={event => setEmail(event.target.value)}
-            className={`mt-1 w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${
-              validationErrors.email || authStore.fieldErrors.email
-                ? 'border-red-400'
-                : 'border-gray-300'
-            }`}
-            autoComplete="email"
-            required
-            maxLength={255}
-          />
-          {(validationErrors.email || authStore.fieldErrors.email) && (
-            <span className="text-xs text-red-600">
-              {validationErrors.email || authStore.fieldErrors.email}
-            </span>
-          )}
-        </label>
-
-        <label className="block space-y-1">
-          <span className="text-sm font-medium text-gray-700">Пароль</span>
-          <input
-            type="password"
-            value={password}
-            onChange={event => setPassword(event.target.value)}
-            className={`mt-1 w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${
-              validationErrors.password || authStore.fieldErrors.password
-                ? 'border-red-400'
-                : 'border-gray-300'
-            }`}
-            autoComplete="current-password"
-            required
-            minLength={8}
-          />
-          {(validationErrors.password || authStore.fieldErrors.password) && (
-            <span className="text-xs text-red-600">
-              {validationErrors.password || authStore.fieldErrors.password}
-            </span>
-          )}
-        </label>
-
-        <button
-          type="submit"
-          disabled={authStore.pending}
-          className="w-full rounded bg-black px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+        <Form<FormValues>
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          onValuesChange={handleValuesChange}
+          initialValues={{ email: '', password: '' }}
+          autoComplete="on"
+          requiredMark={false}
+          noValidate
         >
-          {authStore.pending ? 'Вход…' : 'Войти'}
-        </button>
+          <Form.Item
+            label="Email"
+            name="email"
+            validateStatus={emailError ? 'error' : undefined}
+            help={emailError || undefined}
+          >
+            <Input type="email" autoComplete="email" maxLength={255} />
+          </Form.Item>
 
-        <p className="text-center text-xs text-gray-500">
+          <Form.Item
+            label="Пароль"
+            name="password"
+            validateStatus={passwordError ? 'error' : undefined}
+            help={passwordError || undefined}
+          >
+            <Input.Password autoComplete="current-password" minLength={8} />
+          </Form.Item>
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={authStore.pending}
+            disabled={authStore.pending}
+            aria-label={authStore.pending ? 'Вход…' : 'Войти'}
+          >
+            {authStore.pending ? 'Вход…' : 'Войти'}
+          </Button>
+        </Form>
+
+        <Typography.Paragraph
+          style={{ textAlign: 'center', marginTop: 16, fontSize: 12 }}
+          type="secondary"
+        >
           Проблемы со входом?{' '}
-          <Link to="#" className="font-medium text-gray-700 underline">
+          <Link to="#" style={{ fontWeight: 500 }}>
             Обратитесь к администратору
           </Link>
-        </p>
-      </form>
+        </Typography.Paragraph>
+      </Card>
     </div>
   );
 });

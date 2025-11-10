@@ -5,9 +5,8 @@ export type ZLoginField = z.infer<typeof zLoginField>;
 
 export const zLoginDto = z.object({
   email: z
-    .string()
-    .min(1, { message: 'Email обязателен' })
     .email({ message: 'Некорректный email' })
+    .min(1, { message: 'Email обязателен' })
     .max(255, { message: 'Email не должен превышать 255 символов' }),
   password: z
     .string()
@@ -18,7 +17,7 @@ export type ZLoginDto = z.infer<typeof zLoginDto>;
 
 export const zAuthUser = z.object({
   id: z.number(),
-  email: z.string().email(),
+  email: z.email(),
   name: z.string(),
 });
 export type ZAuthUser = z.infer<typeof zAuthUser>;

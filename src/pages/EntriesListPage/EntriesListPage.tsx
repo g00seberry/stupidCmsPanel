@@ -1,18 +1,26 @@
+import { Card, Space, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
 
 export const EntriesListPage = observer(() => {
   return (
-    <div className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-semibold text-gray-900">Страницы</h1>
-        <p className="text-sm text-gray-600">
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div>
+        <Typography.Title level={3} style={{ marginBottom: 8 }}>
+          Страницы
+        </Typography.Title>
+        <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
           Список материалов CMS. Реализация загрузки данных появится в отдельной задаче.
-        </p>
-      </header>
-      <div className="rounded border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500">
-        Здесь будет таблица записей.
+        </Typography.Paragraph>
       </div>
-    </div>
+
+      <Card
+        style={{ borderStyle: 'dashed', borderColor: '#d9d9d9', backgroundColor: '#ffffff' }}
+        styles={{ body: { padding: 24 } }}
+        variant="outlined"
+      >
+        <Typography.Text type="secondary">Здесь будет таблица записей.</Typography.Text>
+      </Card>
+    </Space>
   );
 });
 

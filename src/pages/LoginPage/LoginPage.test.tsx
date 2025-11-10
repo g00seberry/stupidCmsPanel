@@ -119,7 +119,7 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-      expect(screen.getByText('Неверный формат email', { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText('Неверный формат email')).toBeInTheDocument();
     });
   });
 
@@ -135,7 +135,7 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Войти' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Некорректный email', { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText('Некорректный email')).toBeInTheDocument();
     });
 
     expect(requestMock).not.toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Пароль должен содержать минимум 8 символов', { selector: 'span' })
+        screen.getByText('Пароль должен содержать минимум 8 символов')
       ).toBeInTheDocument();
     });
 

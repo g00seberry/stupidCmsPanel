@@ -1,24 +1,54 @@
+import { Layout, Typography } from 'antd';
 import LoginPage from '@/pages/LoginPage/LoginPage';
 import { routes } from '@/routes';
 import { authStore } from '@/AuthStore';
 import { observer } from 'mobx-react-lite';
 import { useRoutes } from 'react-router-dom';
 
+const { Header, Content } = Layout;
+
 export const App = observer(() => {
   const element = useRoutes(routes);
+
   if (!authStore.isAuthenticated) {
     return <LoginPage />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">CMS Admin</h1>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header
+        style={{
+          backgroundColor: '#ffffff',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            maxWidth: 1120,
+            margin: '0 auto',
+            padding: '0 24px',
+          }}
+        >
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            CMS Admin
+          </Typography.Title>
         </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{element}</main>
-    </div>
+      </Header>
+      <Content
+        style={{
+          flex: 1,
+          width: '100%',
+          maxWidth: 1120,
+          margin: '0 auto',
+          padding: '32px 24px',
+        }}
+      >
+        {element}
+      </Content>
+    </Layout>
   );
 });
 

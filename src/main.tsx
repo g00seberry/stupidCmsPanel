@@ -1,3 +1,5 @@
+import 'antd/dist/reset.css';
+import { App as AntdApp, ConfigProvider } from 'antd';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,8 +8,18 @@ import '@/styles.css';
 
 createRoot(document.getElementById('app')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorBgLayout: '#f5f5f5',
+        },
+      }}
+    >
+      <AntdApp>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </AntdApp>
+    </ConfigProvider>
   </StrictMode>
 );
