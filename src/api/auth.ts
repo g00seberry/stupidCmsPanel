@@ -1,6 +1,6 @@
 import { http } from '@/api/http';
 import { zAuthUser, zLoginDto, zLoginResponse } from '@/types/auth';
-import type { ZAuthUser, ZLoginDto, ZLoginResponse } from '@/types/auth';
+import type { LogoutOptions, ZAuthUser, ZLoginDto, ZLoginResponse } from '@/types/auth';
 
 /**
  * Выполняет попытку входа пользователя с указанными данными.
@@ -20,7 +20,7 @@ export const login = async (dto: ZLoginDto): Promise<ZLoginResponse> => {
  * Завершает пользовательскую сессию.
  * @param options Параметры завершения сессии.
  */
-export const logout = async (options: { all?: boolean } = {}): Promise<void> => {
+export const logout = async (options: LogoutOptions = {}): Promise<void> => {
   await http<unknown>('/api/v1/auth/logout', {
     method: 'post',
     data: options.all ? { all: true } : undefined,

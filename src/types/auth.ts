@@ -10,6 +10,11 @@ export const zLoginField = z.enum(['email', 'password']);
 export type ZLoginField = z.infer<typeof zLoginField>;
 
 /**
+ * Ошибки валидации полей формы авторизации.
+ */
+export type LoginFieldErrors = Partial<Record<ZLoginField, string>>;
+
+/**
  * Данные, требуемые для входа пользователя.
  */
 export const zLoginDto = z.object({
@@ -50,3 +55,10 @@ export const zLoginResponse = z.object({
  * Тип ответа на запрос авторизации.
  */
 export type ZLoginResponse = z.infer<typeof zLoginResponse>;
+
+/**
+ * Параметры завершения пользовательской сессии.
+ */
+export interface LogoutOptions {
+  all?: boolean;
+}

@@ -1,15 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { zProblemJson } from '@/types/ProblemJson';
-import type { ZProblemJson } from '@/types/ProblemJson';
-
-/**
- * Структура ошибки, возвращаемой HTTP-клиентом.
- */
-export interface HttpError extends Error {
-  status: number;
-  problem?: ZProblemJson;
-  raw?: string;
-}
+import type { HttpError } from '@/types/HttpError';
 
 const client = axios.create({
   headers: { 'Content-Type': 'application/json' },

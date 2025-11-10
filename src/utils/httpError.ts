@@ -1,4 +1,4 @@
-import type { HttpError } from '@/api/http';
+import type { HttpError } from '@/types/HttpError';
 
 /**
  * Проверяет, является ли ошибка экземпляром `HttpError`.

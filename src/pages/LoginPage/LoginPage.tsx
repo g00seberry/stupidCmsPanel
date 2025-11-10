@@ -1,10 +1,8 @@
-import { Alert, Button, Card, Form, Input, Typography } from 'antd';
-import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStore } from '@/AuthStore';
-import type { ZLoginField } from '@/types/auth';
 import { zLoginDto } from '@/types/auth';
+import { Button, Card, Form, Input, Typography } from 'antd';
+import { observer } from 'mobx-react-lite';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 /**
  * Дополнительные параметры навигации, сохраняемые при редиректе на форму входа.
@@ -28,25 +26,14 @@ export const LoginPage = observer(() => {
   const navigate = useNavigate();
   const location = useLocation() as { state?: LocationState };
   const [form] = Form.useForm<FormValues>();
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const returnTo = location.state?.returnTo ?? '/entries';
-
-  useEffect(() => {
-    authStore.resetError();
-    return () => authStore.resetError();
-  }, []);
-
-  const emailError = validationErrors.email ?? authStore.fieldErrors.email ?? '';
-  const passwordError = validationErrors.password ?? authStore.fieldErrors.password ?? '';
 
   /**
    * Обрабатывает сабмит формы и выполняет валидацию.
    * @param values Текущие значения полей формы.
    */
   const handleSubmit = async (values: FormValues) => {
-    setValidationErrors({});
-
     const result = zLoginDto.safeParse(values);
 
     if (!result.success) {
@@ -57,37 +44,13 @@ export const LoginPage = observer(() => {
           errors[field] = issue.message;
         }
       });
-      setValidationErrors(errors);
+
       return;
     }
 
     const ok = await authStore.login(result.data);
     if (ok) {
       navigate(returnTo, { replace: true });
-    }
-  };
-
-  /**
-   * Сбрасывает сообщения об ошибках при изменении значений полей.
-   * @param changedValues Обновлённые значения отдельных полей.
-   */
-  const handleValuesChange = (changedValues: Partial<FormValues>) => {
-    const field = Object.keys(changedValues)[0] as keyof FormValues | undefined;
-    if (!field) return;
-
-    setValidationErrors(prev => {
-      if (!prev[field]) {
-        return prev;
-      }
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-
-    if (authStore.fieldErrors[field as ZLoginField]) {
-      const next = { ...authStore.fieldErrors };
-      delete next[field as ZLoginField];
-      authStore.setFieldErrors(next);
     }
   };
 
@@ -111,41 +74,20 @@ export const LoginPage = observer(() => {
           Вход в админку
         </Typography.Title>
 
-        {authStore.error && (
-          <Alert
-            role="alert"
-            type="error"
-            message={authStore.error}
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
-        )}
-
         <Form<FormValues>
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
-          onValuesChange={handleValuesChange}
           initialValues={{ email: '', password: '' }}
           autoComplete="on"
           requiredMark={false}
           noValidate
         >
-          <Form.Item
-            label="Email"
-            name="email"
-            validateStatus={emailError ? 'error' : undefined}
-            help={emailError || undefined}
-          >
+          <Form.Item label="Email" name="email">
             <Input type="email" autoComplete="email" maxLength={255} />
           </Form.Item>
 
-          <Form.Item
-            label="Пароль"
-            name="password"
-            validateStatus={passwordError ? 'error' : undefined}
-            help={passwordError || undefined}
-          >
+          <Form.Item label="Пароль" name="password">
             <Input.Password autoComplete="current-password" minLength={8} />
           </Form.Item>
 

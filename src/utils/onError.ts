@@ -1,5 +1,5 @@
+import { isHttpError } from '@/utils/httpError';
 import { notification } from 'antd';
-import { isHttpError } from '@/utils/http-error';
 
 /**
  * Дополнительные параметры уведомления об ошибке.
@@ -14,9 +14,10 @@ type OnErrorOptions = {
  * @param options Настройки отображения уведомления.
  */
 export const onError = (error: unknown, options: OnErrorOptions = {}): void => {
-  const { message = 'Ошибка' } = options;
+  const { message: fallbackMessage = 'Ошибка' } = options;
 
   let description: string | undefined;
+  let notificationMessage: string | null = fallbackMessage;
 
   if (isHttpError(error)) {
     description = error.problem?.detail ?? error.problem?.title ?? error.raw ?? undefined;
@@ -26,8 +27,10 @@ export const onError = (error: unknown, options: OnErrorOptions = {}): void => {
     description = error;
   }
 
-  notification.error({
-    message,
-    description,
-  });
+  if (notificationMessage) {
+    notification.error({
+      message: notificationMessage,
+      description,
+    });
+  }
 };
