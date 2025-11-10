@@ -1,13 +1,11 @@
-import { makeAutoObservable } from 'mobx';
-import { logout as logoutRequest } from '@/api/auth';
-import { loginWithCsrfRetry } from '@/services/auth';
-import { zLoginField } from '@/types/auth';
+import { login, logout as logoutRequest } from '@/api/auth';
 import type { ZAuthUser, ZLoginDto, ZLoginField } from '@/types/auth';
+import { zLoginField } from '@/types/auth';
 import type { ZProblemJson } from '@/types/ProblemJson';
 import { isHttpError } from '@/utils/http-error';
+import { makeAutoObservable } from 'mobx';
 
 export class AuthStore {
-  isAuthenticated = false;
   pending = false;
   error: string | null = null;
   fieldErrors: Partial<Record<ZLoginField, string>> = {};
@@ -19,10 +17,6 @@ export class AuthStore {
 
   setPending(value: boolean) {
     this.pending = value;
-  }
-
-  setAuthenticated(value: boolean) {
-    this.isAuthenticated = value;
   }
 
   setError(message: string | null) {
@@ -42,14 +36,17 @@ export class AuthStore {
     this.setFieldErrors({});
   }
 
+  get isAuthenticated(): boolean {
+    return this.user !== null;
+  }
+
   async login(dto: ZLoginDto): Promise<boolean> {
     this.setPending(true);
     this.resetError();
 
     try {
-      const { user } = await loginWithCsrfRetry(dto);
-      this.setUser(user);
-      this.setAuthenticated(true);
+      const resp = await login(dto);
+      this.setUser(resp.user);
       return true;
     } catch (error) {
       this.assignErrorMessage(error);
@@ -63,7 +60,6 @@ export class AuthStore {
     try {
       await logoutRequest(options);
     } finally {
-      this.setAuthenticated(false);
       this.setError(null);
       this.setUser(null);
     }
