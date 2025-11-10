@@ -1,9 +1,10 @@
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
-import type { ProblemJson } from '@/types/ProblemJson';
+import { zProblemJson } from '@/types/ProblemJson';
+import type { ZProblemJson } from '@/types/ProblemJson';
 
 export interface HttpError extends Error {
   status: number;
-  problem?: ProblemJson;
+  problem?: ZProblemJson;
   raw?: string;
 }
 
@@ -48,10 +49,12 @@ function fromAxiosError(error: AxiosError): HttpError {
   const status = response?.status ?? 0;
   const data = response?.data;
 
-  if (isProblemJson(data)) {
-    return Object.assign(new Error(data.title ?? 'Request failed'), {
+  const parsedProblem = zProblemJson.safeParse(data);
+  if (parsedProblem.success) {
+    const problem = parsedProblem.data;
+    return Object.assign(new Error(problem.title ?? 'Request failed'), {
       status,
-      problem: data,
+      problem,
     });
   }
 
@@ -60,18 +63,4 @@ function fromAxiosError(error: AxiosError): HttpError {
     status,
     raw,
   });
-}
-
-function isProblemJson(payload: unknown): payload is ProblemJson {
-  if (typeof payload !== 'object' || payload === null) {
-    return false;
-  }
-
-  return (
-    'errors' in payload ||
-    'title' in payload ||
-    'type' in payload ||
-    'status' in payload ||
-    'detail' in payload
-  );
 }

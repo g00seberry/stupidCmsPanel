@@ -1,17 +1,17 @@
 import { makeAutoObservable } from 'mobx';
-import type { AuthUser, LoginDto } from '@/api/auth';
 import { logout as logoutRequest } from '@/api/auth';
 import { loginWithCsrfRetry } from '@/services/auth';
+import { zLoginField } from '@/types/auth';
+import type { ZAuthUser, ZLoginDto, ZLoginField } from '@/types/auth';
+import type { ZProblemJson } from '@/types/ProblemJson';
 import { isHttpError } from '@/utils/http-error';
-
-type LoginField = 'email' | 'password';
 
 export class AuthStore {
   isAuthenticated = false;
   pending = false;
   error: string | null = null;
-  fieldErrors: Partial<Record<LoginField, string>> = {};
-  user: AuthUser | null = null;
+  fieldErrors: Partial<Record<ZLoginField, string>> = {};
+  user: ZAuthUser | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -29,11 +29,11 @@ export class AuthStore {
     this.error = message;
   }
 
-  setFieldErrors(errors: Partial<Record<LoginField, string>>) {
+  setFieldErrors(errors: Partial<Record<ZLoginField, string>>) {
     this.fieldErrors = errors;
   }
 
-  setUser(user: AuthUser | null) {
+  setUser(user: ZAuthUser | null) {
     this.user = user;
   }
 
@@ -42,7 +42,7 @@ export class AuthStore {
     this.setFieldErrors({});
   }
 
-  async login(dto: LoginDto): Promise<boolean> {
+  async login(dto: ZLoginDto): Promise<boolean> {
     this.setPending(true);
     this.resetError();
 
@@ -91,21 +91,16 @@ export class AuthStore {
   }
 }
 
-function mapProblemErrors(
-  errors: Record<string, string[]> | undefined
-): Partial<Record<LoginField, string>> {
+function mapProblemErrors(errors: ZProblemJson['errors']): Partial<Record<ZLoginField, string>> {
   if (!errors) return {};
 
-  return (['email', 'password'] satisfies LoginField[]).reduce<Partial<Record<LoginField, string>>>(
-    (acc, field) => {
-      const message = errors[field]?.at(0);
-      if (message) {
-        acc[field] = message;
-      }
-      return acc;
-    },
-    {}
-  );
+  return zLoginField.options.reduce<Partial<Record<ZLoginField, string>>>((acc, field) => {
+    const message = errors[field]?.at(0);
+    if (message) {
+      acc[field] = message;
+    }
+    return acc;
+  }, {});
 }
 
 export const authStore = new AuthStore();

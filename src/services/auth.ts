@@ -1,4 +1,5 @@
-import { login, fetchCsrfToken, type LoginDto, type LoginResponse } from '@/api/auth';
+import { login, fetchCsrfToken } from '@/api/auth';
+import type { ZLoginDto, ZLoginResponse } from '@/types/auth';
 import { isHttpError } from '@/utils/http-error';
 
 type LoginRetryOptions = {
@@ -6,9 +7,9 @@ type LoginRetryOptions = {
 };
 
 export async function loginWithCsrfRetry(
-  dto: LoginDto,
+  dto: ZLoginDto,
   { retriedCsrf = false }: LoginRetryOptions = {}
-): Promise<LoginResponse> {
+): Promise<ZLoginResponse> {
   try {
     return await login(dto);
   } catch (error) {
@@ -20,4 +21,3 @@ export async function loginWithCsrfRetry(
     throw error;
   }
 }
-

@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStore } from '@/AuthStore';
-import { loginDtoSchema } from '@/api/auth';
+import { zLoginDto } from '@/types/auth';
 
 type LocationState = {
   returnTo?: string;
@@ -26,7 +26,7 @@ export const LoginPage = observer(() => {
     event.preventDefault();
     setValidationErrors({});
 
-    const result = loginDtoSchema.safeParse({ email, password });
+    const result = zLoginDto.safeParse({ email, password });
 
     if (!result.success) {
       const errors: Record<string, string> = {};
