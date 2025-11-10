@@ -1,12 +1,15 @@
 import { Layout, Typography } from 'antd';
-import LoginPage from '@/pages/LoginPage/LoginPage';
-import { routes } from '@/routes';
-import { authStore } from '@/AuthStore';
 import { observer } from 'mobx-react-lite';
 import { useRoutes } from 'react-router-dom';
+import { authStore } from '@/AuthStore';
+import { LoginPage } from '@/pages/LoginPage/LoginPage';
+import { routes } from '@/routes';
 
 const { Header, Content } = Layout;
 
+/**
+ * Корневой компонент приложения CMS.
+ */
 export const App = observer(() => {
   const element = useRoutes(routes);
 
@@ -51,5 +54,3 @@ export const App = observer(() => {
     </Layout>
   );
 });
-
-export default App;

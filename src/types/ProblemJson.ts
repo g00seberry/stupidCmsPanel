@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/**
+ * Схема ответа в формате RFC 7807 (Problem Details for HTTP APIs).
+ */
 export const zProblemJson = z
   .object({
     type: z.string().optional(),
@@ -11,4 +14,7 @@ export const zProblemJson = z
   })
   .catchall(z.unknown());
 
+/**
+ * Тип данных Problem JSON.
+ */
 export type ZProblemJson = z.infer<typeof zProblemJson>;

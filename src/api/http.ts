@@ -2,6 +2,9 @@ import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from '
 import { zProblemJson } from '@/types/ProblemJson';
 import type { ZProblemJson } from '@/types/ProblemJson';
 
+/**
+ * Структура ошибки, возвращаемой HTTP-клиентом.
+ */
 export interface HttpError extends Error {
   status: number;
   problem?: ZProblemJson;
@@ -15,9 +18,18 @@ const client = axios.create({
 
 export const httpClient = client;
 
+/**
+ * Конфигурация запроса HTTP-клиента.
+ */
 type HttpConfig = AxiosRequestConfig;
 
-export async function http<T>(url: string, config: HttpConfig = {}): Promise<T> {
+/**
+ * Выполняет HTTP-запрос с настройками по умолчанию и обработкой ошибок.
+ * @param url Адрес запроса.
+ * @param config Дополнительная конфигурация запроса.
+ * @returns Данные ответа API.
+ */
+export const http = async <T>(url: string, config: HttpConfig = {}): Promise<T> => {
   try {
     const response = await httpClient.request<T>({
       url,
@@ -32,9 +44,14 @@ export async function http<T>(url: string, config: HttpConfig = {}): Promise<T> 
   } catch (error) {
     throw buildError(error);
   }
-}
+};
 
-function buildError(error: unknown): HttpError {
+/**
+ * Преобразует произвольную ошибку в `HttpError`.
+ * @param error Ошибка HTTP-запроса.
+ * @returns Стандартизированная ошибка.
+ */
+const buildError = (error: unknown): HttpError => {
   if (axios.isAxiosError(error)) {
     return fromAxiosError(error);
   }
@@ -42,9 +59,14 @@ function buildError(error: unknown): HttpError {
   return Object.assign(new Error('Request failed'), {
     status: 0,
   });
-}
+};
 
-function fromAxiosError(error: AxiosError): HttpError {
+/**
+ * Преобразует `AxiosError` в `HttpError` с попыткой чтения Problem JSON.
+ * @param error Ошибка Axios.
+ * @returns Стандартизированная ошибка.
+ */
+const fromAxiosError = (error: AxiosError): HttpError => {
   const response = error.response as AxiosResponse<unknown> | undefined;
   const status = response?.status ?? 0;
   const data = response?.data;
@@ -63,4 +85,4 @@ function fromAxiosError(error: AxiosError): HttpError {
     status,
     raw,
   });
-}
+};

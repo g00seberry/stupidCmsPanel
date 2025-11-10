@@ -189,7 +189,11 @@ describe('LoginPage', () => {
   });
 });
 
-function renderLoginPage() {
+/**
+ * Рендерит страницу входа в тестовом роутере.
+ * @returns Экземпляр роутера для управления переходами.
+ */
+const renderLoginPage = () => {
   const router = createMemoryRouter(
     [
       { path: '/login', element: <LoginPage /> },
@@ -201,9 +205,14 @@ function renderLoginPage() {
   render(<RouterProvider router={router} />);
 
   return router;
-}
+};
 
-function successResponse<T>({
+/**
+ * Создаёт успешный ответ Axios для подмены HTTP-запросов.
+ * @param params Параметры ответа.
+ * @returns Смоделированный ответ Axios.
+ */
+const successResponse = <T,>({
   status,
   data,
   config,
@@ -211,7 +220,7 @@ function successResponse<T>({
   status: number;
   data?: T;
   config?: Partial<AxiosRequestConfig>;
-}): AxiosResponse<T> {
+}): AxiosResponse<T> => {
   return {
     data: data as T,
     status,
@@ -225,9 +234,14 @@ function successResponse<T>({
     },
     request: {},
   };
-}
+};
 
-function errorResponse<T>({ status, data }: { status: number; data?: T }) {
+/**
+ * Создаёт ошибочный ответ Axios для проверки обработки ошибок.
+ * @param params Параметры ошибки.
+ * @returns Объект, имитирующий `AxiosError`.
+ */
+const errorResponse = <T,>({ status, data }: { status: number; data?: T }) => {
   return {
     isAxiosError: true,
     toJSON: () => ({}),
@@ -237,19 +251,25 @@ function errorResponse<T>({ status, data }: { status: number; data?: T }) {
     code: status >= 500 ? 'ERR_BAD_RESPONSE' : 'ERR_BAD_REQUEST',
     response: successResponse({ status, data }),
   };
-}
+};
 
-function resetStoreState() {
+/**
+ * Сбрасывает состояние стора авторизации перед запуском теста.
+ */
+const resetStoreState = () => {
   runInAction(() => {
-    authStore.isAuthenticated = false;
     authStore.pending = false;
     authStore.error = null;
     authStore.fieldErrors = {};
     authStore.user = null;
   });
-}
+};
 
-function createDeferred<T>() {
+/**
+ * Создаёт обещание с ручным управлением завершением.
+ * @returns Объект с обещанием и функциями `resolve`/`reject`.
+ */
+const createDeferred = <T,>() => {
   let resolve!: (value: T | PromiseLike<T>) => void;
   let reject!: (reason?: unknown) => void;
   const promise = new Promise<T>((res, rej) => {
@@ -257,4 +277,4 @@ function createDeferred<T>() {
     reject = rej;
   });
   return { promise, resolve, reject };
-}
+};

@@ -1,6 +1,9 @@
 import { Card, Space, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
 
+/**
+ * Заглушка страницы со списком записей CMS.
+ */
 export const EntriesListPage = observer(() => {
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -23,5 +26,3 @@ export const EntriesListPage = observer(() => {
     </Space>
   );
 });
-
-export default EntriesListPage;

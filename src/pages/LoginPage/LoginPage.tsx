@@ -6,15 +6,24 @@ import { authStore } from '@/AuthStore';
 import type { ZLoginField } from '@/types/auth';
 import { zLoginDto } from '@/types/auth';
 
+/**
+ * Дополнительные параметры навигации, сохраняемые при редиректе на форму входа.
+ */
 type LocationState = {
   returnTo?: string;
 };
 
+/**
+ * Значения формы авторизации.
+ */
 type FormValues = {
   email: string;
   password: string;
 };
 
+/**
+ * Страница авторизации администратора.
+ */
 export const LoginPage = observer(() => {
   const navigate = useNavigate();
   const location = useLocation() as { state?: LocationState };
@@ -31,6 +40,10 @@ export const LoginPage = observer(() => {
   const emailError = validationErrors.email ?? authStore.fieldErrors.email ?? '';
   const passwordError = validationErrors.password ?? authStore.fieldErrors.password ?? '';
 
+  /**
+   * Обрабатывает сабмит формы и выполняет валидацию.
+   * @param values Текущие значения полей формы.
+   */
   const handleSubmit = async (values: FormValues) => {
     setValidationErrors({});
 
@@ -54,6 +67,10 @@ export const LoginPage = observer(() => {
     }
   };
 
+  /**
+   * Сбрасывает сообщения об ошибках при изменении значений полей.
+   * @param changedValues Обновлённые значения отдельных полей.
+   */
   const handleValuesChange = (changedValues: Partial<FormValues>) => {
     const field = Object.keys(changedValues)[0] as keyof FormValues | undefined;
     if (!field) return;
@@ -157,5 +174,3 @@ export const LoginPage = observer(() => {
     </div>
   );
 });
-
-export default LoginPage;
