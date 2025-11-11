@@ -4,17 +4,12 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from '@/App';
-import '@/styles.css';
+import '@/styles.less';
+import { themeConfig } from '@/themeConfig';
 
 createRoot(document.getElementById('app')!).render(
   <StrictMode>
-    <ConfigProvider
-      theme={{
-        token: {
-          colorBgLayout: '#f5f5f5',
-        },
-      }}
-    >
+    <ConfigProvider theme={themeConfig}>
       <AntdApp>
         <BrowserRouter>
           <App />

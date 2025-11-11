@@ -47,8 +47,10 @@ export class AuthStore {
     this.setPending(true);
     try {
       const resp = await getCurrentUser();
+
       this.setUser(resp);
     } catch (error) {
+      this.setUser(null);
       onError(error);
     } finally {
       this.setPending(false);

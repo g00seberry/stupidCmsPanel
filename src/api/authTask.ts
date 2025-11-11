@@ -1,8 +1,7 @@
-import { authStore } from '@/AuthStore';
 import { refresh } from '@/api/apiAuth';
-import axios, { type AxiosResponse } from 'axios';
-
-let authWait: Promise<AxiosResponse<void>> | null = null;
+import { authStore } from '@/AuthStore';
+export type ApiResponseWithStatus = { status: number };
+let authWait: Promise<ApiResponseWithStatus> | null = null;
 
 /**
  * Выполняет запрос к API с автоматическим обновлением токенов при 401 ответе.
@@ -10,30 +9,50 @@ let authWait: Promise<AxiosResponse<void>> | null = null;
  * @returns Ответ API после возможного обновления токенов.
  * @throws HttpError Если обновить токены не удалось.
  */
-export const authTask = async <R extends AxiosResponse>(task: () => Promise<R>): Promise<R> => {
-  try {
-    return await task();
-  } catch (error) {
-    if (!axios.isAxiosError(error) || !error.response || error.response.status !== 401) {
-      throw error;
-    }
+export const authTask = async <R extends ApiResponseWithStatus>(
+  task: () => Promise<R>
+): Promise<R> => {
+  let resp: R;
 
+  try {
+    resp = await task();
+  } catch (candidateError: unknown) {
+    if (candidateError && typeof candidateError === 'object' && 'response' in candidateError) {
+      const error = candidateError as { response: R };
+      resp = error.response;
+
+      if (resp.status !== 401) {
+        throw candidateError;
+      }
+    } else {
+      throw candidateError;
+    }
+  }
+
+  if (resp.status === 401) {
     authWait = authWait ?? refresh();
 
     try {
       const refreshResponse = await authWait;
-      authWait = null;
 
       if (refreshResponse.status !== 200) {
         authStore.setUser(null);
-        throw refreshResponse;
+        throw new Error('Authorization required');
       }
     } catch (error) {
-      authWait = null;
       authStore.setUser(null);
       throw error;
+    } finally {
+      authWait = null;
     }
 
-    return task();
+    resp = await task();
+
+    if (resp.status === 401) {
+      authStore.setUser(null);
+      throw new Error('Authorization required');
+    }
   }
+
+  return resp;
 };

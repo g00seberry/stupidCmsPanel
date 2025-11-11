@@ -40,5 +40,5 @@ export const logout = async (options: LogoutOptions = {}): Promise<void> => {
  * @returns HTTP-ответ refresh-эндпоинта.
  */
 export const refresh = (): Promise<AxiosResponse<void>> => {
-  return rest.post<void>(getAuthUrl('/refresh'));
+  return axios.post<void>(getAuthUrl('/refresh'));
 };

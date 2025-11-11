@@ -2,7 +2,8 @@ import { authStore } from '@/AuthStore';
 import { zLoginDto } from '@/types/auth';
 import { Button, Card, Form, Input, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styles from './loginPage.module.less';
 
 /**
  * Дополнительные параметры навигации, сохраняемые при редиректе на форму входа.
@@ -55,22 +56,9 @@ export const LoginPage = observer(() => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        backgroundColor: '#f5f5f5',
-      }}
-    >
-      <Card
-        style={{ width: 360, maxWidth: '100%' }}
-        styles={{ body: { padding: 24 } }}
-        variant="outlined"
-      >
-        <Typography.Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>
+    <div className={styles.page}>
+      <Card className={styles.card} variant="outlined">
+        <Typography.Title level={3} className={styles.title}>
           Вход в админку
         </Typography.Title>
 
@@ -102,16 +90,6 @@ export const LoginPage = observer(() => {
             {authStore.pending ? 'Вход…' : 'Войти'}
           </Button>
         </Form>
-
-        <Typography.Paragraph
-          style={{ textAlign: 'center', marginTop: 16, fontSize: 12 }}
-          type="secondary"
-        >
-          Проблемы со входом?{' '}
-          <Link to="#" style={{ fontWeight: 500 }}>
-            Обратитесь к администратору
-          </Link>
-        </Typography.Paragraph>
       </Card>
     </div>
   );

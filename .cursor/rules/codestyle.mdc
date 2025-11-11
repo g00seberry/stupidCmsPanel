@@ -16,7 +16,7 @@ alwaysApply: true
 
 ## 1) Именование и структура файлов
 
-- **По умолчанию**: `camelCase.ts` / `camelCase.tsx`.
+- **По умолчанию**: `camelCase.ts` / `camelCase.tsx` / `camelCase.module.less`.
 - **Одна сущность в файле** → имя файла = имя сущности (с сохранением регистра):  
   пример:
   ```ts
