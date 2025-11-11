@@ -4,6 +4,7 @@ import { useRoutes } from 'react-router-dom';
 import { authStore } from '@/AuthStore';
 import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { routes } from '@/routes';
+import { useEffect } from 'react';
 
 const { Header, Content } = Layout;
 
@@ -12,6 +13,10 @@ const { Header, Content } = Layout;
  */
 export const App = observer(() => {
   const element = useRoutes(routes);
+
+  useEffect(() => {
+    authStore.init();
+  }, []);
 
   if (!authStore.isAuthenticated) {
     return <LoginPage />;
