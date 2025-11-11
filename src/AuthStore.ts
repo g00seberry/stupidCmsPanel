@@ -1,7 +1,7 @@
-import { login, logout as logoutRequest } from '@/api/auth';
 import type { LogoutOptions, ZAuthUser, ZLoginDto } from '@/types/auth';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
+import { getCurrentUser, login, logout } from './api/apiAuth';
 
 /**
  * Состояние авторизации администратора и операции входа/выхода.
@@ -41,6 +41,21 @@ export class AuthStore {
   }
 
   /**
+   * Инициализирует состояние авторизации.
+   */
+  async init() {
+    this.setPending(true);
+    try {
+      const resp = await getCurrentUser();
+      this.setUser(resp);
+    } catch (error) {
+      onError(error);
+    } finally {
+      this.setPending(false);
+    }
+  }
+
+  /**
    * Выполняет попытку входа и обновляет состояние в зависимости от результата.
    * @param dto Данные формы входа.
    * @returns `true`, если вход выполнен успешно.
@@ -68,7 +83,7 @@ export class AuthStore {
    */
   async logout(options: LogoutOptions = {}): Promise<void> {
     try {
-      await logoutRequest(options);
+      await logout(options);
     } finally {
       this.setUser(null);
     }

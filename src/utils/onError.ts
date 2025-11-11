@@ -1,5 +1,5 @@
-import { isHttpError } from '@/utils/httpError';
 import { notification } from 'antd';
+import axios from 'axios';
 
 /**
  * Дополнительные параметры уведомления об ошибке.
@@ -19,10 +19,8 @@ export const onError = (error: unknown, options: OnErrorOptions = {}): void => {
   let description: string | undefined;
   let notificationMessage: string | null = fallbackMessage;
 
-  if (isHttpError(error)) {
-    description = error.problem?.detail ?? error.problem?.title ?? error.raw ?? undefined;
-  } else if (error instanceof Error) {
-    description = error.message;
+  if (axios.isAxiosError(error)) {
+    description = error.response?.data?.detail ?? error.message;
   } else if (typeof error === 'string') {
     description = error;
   }
