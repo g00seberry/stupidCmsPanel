@@ -26,3 +26,4 @@ docs/node_modules
 *.njsproj
 *.sln
 *.sw?
+/easy-forge-wizard-main

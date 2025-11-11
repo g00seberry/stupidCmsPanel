@@ -64,15 +64,12 @@ export class AuthStore {
    */
   async login(dto: ZLoginDto): Promise<boolean> {
     this.setPending(true);
-
     try {
       const resp = await login(dto);
       this.setUser(resp.user);
       return true;
     } catch (error) {
-      onError(error, {
-        message: 'Ошибка входа',
-      });
+      onError(error);
       return false;
     } finally {
       this.setPending(false);
