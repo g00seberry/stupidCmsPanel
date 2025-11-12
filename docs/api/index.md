@@ -1,21 +1,18 @@
 # API Документация
 
-Автогенерировано из TypeScript кода с помощью TypeDoc.
-
-
 ## Modules
 
-- [api/apiAuth](/api/apiAuth/README)
-- [api/apiPostTypes](/api/apiPostTypes/README)
-- [api/apiUtils](/api/apiUtils/README)
-- [api/authTask](/api/authTask/README)
-- [api/rest](/api/rest/README)
-- [AuthStore](/api/AuthStore/README)
-- [pages/PostTypeEditorPage/PostTypeEditorStore](/api/pages/PostTypeEditorPage/PostTypeEditorStore/README)
-- [services/notificationService](/api/services/notificationService/README)
-- [types/auth](/api/types/auth/README)
-- [types/postTypes](/api/types/postTypes/README)
-- [types/ZProblemJson](/api/types/ZProblemJson/README)
-- [utils/debounce](/api/utils/debounce/README)
-- [utils/joinClassNames](/api/utils/joinClassNames/README)
-- [utils/onError](/api/utils/onError/README)
+- [api/apiAuth](/api/api/apiAuth/)
+- [api/apiPostTypes](/api/api/apiPostTypes/)
+- [api/apiUtils](/api/api/apiUtils/)
+- [api/authTask](/api/api/authTask/)
+- [api/rest](/api/api/rest/)
+- [AuthStore](/api/AuthStore/)
+- [pages/PostTypeEditorPage/PostTypeEditorStore](/api/pages/PostTypeEditorPage/PostTypeEditorStore/)
+- [services/notificationService](/api/services/notificationService/)
+- [types/auth](/api/types/auth/)
+- [types/postTypes](/api/types/postTypes/)
+- [types/ZProblemJson](/api/types/ZProblemJson/)
+- [utils/debounce](/api/utils/debounce/)
+- [utils/joinClassNames](/api/utils/joinClassNames/)
+- [utils/onError](/api/utils/onError/)
