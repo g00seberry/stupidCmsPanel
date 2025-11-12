@@ -1,5 +1,5 @@
 import { rest } from '@/api/rest';
-import { zEntriesResponse } from '@/types/entries';
+import { zEntriesResponse, zEntriesStatusesResponse } from '@/types/entries';
 import type { ZEntry, ZEntriesListParams } from '@/types/entries';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 
@@ -10,7 +10,9 @@ const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${pat
  * @param params Параметры запроса списка записей.
  * @returns Объект с query-параметрами для Axios.
  */
-const buildQueryParams = (params: ZEntriesListParams): Record<string, string | number | number[]> => {
+const buildQueryParams = (
+  params: ZEntriesListParams
+): Record<string, string | number | number[]> => {
   const queryParams: Record<string, string | number | number[]> = {};
 
   if (params.post_type) {
@@ -76,7 +78,9 @@ const buildQueryParams = (params: ZEntriesListParams): Record<string, string | n
  * console.log(result.data); // Массив записей
  * console.log(result.meta.total); // Общее количество
  */
-export const listEntries = async (params: ZEntriesListParams = {}): Promise<{
+export const listEntries = async (
+  params: ZEntriesListParams = {}
+): Promise<{
   data: ZEntry[];
   links: ZPaginationLinks;
   meta: ZPaginationMeta;
@@ -91,3 +95,15 @@ export const listEntries = async (params: ZEntriesListParams = {}): Promise<{
   };
 };
 
+/**
+ * Загружает список возможных статусов для записей.
+ * @returns Массив строк со статусами записей.
+ * @example
+ * const statuses = await getEntriesStatuses();
+ * console.log(statuses); // ['draft', 'published']
+ */
+export const getEntriesStatuses = async (): Promise<string[]> => {
+  const response = await rest.get(getAdminEntriesUrl('/statuses'));
+  const parsed = zEntriesStatusesResponse.parse(response.data);
+  return parsed.data;
+};

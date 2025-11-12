@@ -56,6 +56,16 @@ export const EntriesListPage = observer(() => {
   }, [filterStore.values, postTypeSlug, store]);
 
   /**
+   * Маппинг статусов на отображаемые названия и цвета.
+   */
+  const statusMap: Record<string, { text: string; color: string }> = {
+    draft: { text: 'Черновик', color: 'default' },
+    published: { text: 'Опубликовано', color: 'success' },
+    scheduled: { text: 'Запланировано', color: 'processing' },
+    trashed: { text: 'Удалено', color: 'error' },
+  };
+
+  /**
    * Конфигурация полей фильтрации.
    */
   const filterFields = useMemo(
@@ -76,16 +86,17 @@ export const EntriesListPage = observer(() => {
         element: (
           <Select style={{ width: 180 }}>
             <Select.Option value="all">Все статусы</Select.Option>
-            <Select.Option value="draft">Черновик</Select.Option>
-            <Select.Option value="published">Опубликовано</Select.Option>
-            <Select.Option value="scheduled">Запланировано</Select.Option>
-            <Select.Option value="trashed">Удалено</Select.Option>
+            {store.statuses.map(status => (
+              <Select.Option key={status} value={status}>
+                {statusMap[status]?.text || status}
+              </Select.Option>
+            ))}
           </Select>
         ),
         formItemProps: { initialValue: 'all' },
       },
     ],
-    []
+    [store.statuses, statusMap]
   );
 
   /**
@@ -131,12 +142,6 @@ export const EntriesListPage = observer(() => {
         key: 'status',
         width: 120,
         render: (status: string) => {
-          const statusMap: Record<string, { text: string; color: string }> = {
-            draft: { text: 'Черновик', color: 'default' },
-            published: { text: 'Опубликовано', color: 'success' },
-            scheduled: { text: 'Запланировано', color: 'processing' },
-            trashed: { text: 'Удалено', color: 'error' },
-          };
           const statusInfo = statusMap[status] || { text: status, color: 'default' };
           return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
         },
@@ -156,7 +161,7 @@ export const EntriesListPage = observer(() => {
         render: (date: string | undefined) => (date ? new Date(date).toLocaleString('ru-RU') : '-'),
       },
     ],
-    []
+    [statusMap]
   );
 
   const pageTitle = postType ? `Записи: ${postType.name}` : 'Записи';

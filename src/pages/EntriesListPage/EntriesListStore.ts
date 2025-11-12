@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
-import { listEntries } from '@/api/apiEntries';
+import { listEntries, getEntriesStatuses } from '@/api/apiEntries';
 import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
+import { onError } from '@/utils/onError';
 import type { ZEntry, ZEntriesListParams } from '@/types/entries';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 
@@ -11,6 +12,12 @@ import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 export class EntriesListStore {
   /** Универсальный загрузчик пагинированных данных. */
   private readonly loader: PaginatedDataLoader<ZEntry, ZEntriesListParams>;
+
+  /** Массив возможных статусов записей. */
+  statuses: string[] = [];
+
+  /** Флаг выполнения запроса загрузки статусов. */
+  statusesPending = false;
 
   constructor() {
     const defaultFilters: ZEntriesListParams = {
@@ -115,8 +122,31 @@ export class EntriesListStore {
    * @param postType Slug типа контента для фильтрации.
    */
   async initialize(postType?: string): Promise<void> {
-    await this.loader.initialize(
-      postType !== undefined ? ({ post_type: postType } as Partial<ZEntriesListParams>) : undefined
-    );
+    await Promise.all([
+      this.loadStatuses(),
+      this.loader.initialize(
+        postType !== undefined
+          ? ({ post_type: postType } as Partial<ZEntriesListParams>)
+          : undefined
+      ),
+    ]);
+  }
+
+  /**
+   * Загружает список возможных статусов для записей.
+   */
+  async loadStatuses(): Promise<void> {
+    if (this.statusesPending || this.statuses.length > 0) {
+      return;
+    }
+
+    this.statusesPending = true;
+    try {
+      this.statuses = await getEntriesStatuses();
+    } catch (error) {
+      onError(error);
+    } finally {
+      this.statusesPending = false;
+    }
   }
 }

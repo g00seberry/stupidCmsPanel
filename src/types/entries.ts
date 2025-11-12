@@ -73,6 +73,19 @@ export const zEntriesResponse = z.object({
 export type ZEntriesResponse = z.infer<typeof zEntriesResponse>;
 
 /**
+ * Схема валидации ответа API со списком возможных статусов записей.
+ */
+export const zEntriesStatusesResponse = z.object({
+  /** Массив возможных статусов записей. */
+  data: z.array(z.string()),
+});
+
+/**
+ * Тип ответа API со списком возможных статусов записей.
+ */
+export type ZEntriesStatusesResponse = z.infer<typeof zEntriesStatusesResponse>;
+
+/**
  * Параметры запроса списка записей.
  */
 export type ZEntriesListParams = {
