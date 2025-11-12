@@ -1,4 +1,4 @@
-import { createPostType, getPostType, updatePostType } from '@/api/apiPostTypes';
+import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
@@ -141,6 +141,32 @@ export class PostTypeEditorStore {
     } catch (error) {
       onError(error);
       return null;
+    } finally {
+      this.setPending(false);
+    }
+  }
+
+  /**
+   * Удаляет тип контента.
+   * @param slug Slug типа контента для удаления.
+   * @param force Если `true`, каскадно удаляет все записи этого типа.
+   * @returns `true`, если удаление выполнено успешно.
+   * @throws Ошибка 409 (CONFLICT), если тип содержит записи и `force=false`.
+   */
+  async deletePostType(slug: string, force = false): Promise<boolean> {
+    this.setPending(true);
+    try {
+      await deletePostType(slug, force);
+      notificationService.showSuccess({ message: 'Тип контента удалён' });
+      return true;
+    } catch (error) {
+      // Пробрасываем ошибку 409 для обработки в компоненте
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError.response?.status === 409) {
+        throw error;
+      }
+      onError(error);
+      return false;
     } finally {
       this.setPending(false);
     }

@@ -60,3 +60,23 @@ export const updatePostType = async (
   const response = await rest.put(getAdminPostTypesUrl(`/${slug}`), parsedPayload);
   return zPostTypeResponse.parse(response.data).data;
 };
+
+/**
+ * Удаляет тип контента.
+ * @param slug Slug типа контента для удаления.
+ * @param force Если `true`, каскадно удаляет все записи этого типа. По умолчанию `false`.
+ * @returns `true`, если удаление выполнено успешно.
+ * @throws Ошибка, если тип контента не найден или содержит записи (без `force=true`).
+ * @example
+ * // Обычное удаление (не удалит, если есть записи)
+ * await deletePostType('article');
+ *
+ * // Каскадное удаление (удалит тип и все его записи)
+ * await deletePostType('article', true);
+ */
+export const deletePostType = async (slug: string, force = false): Promise<boolean> => {
+  const url = getAdminPostTypesUrl(`/${slug}`);
+  const config = force ? { params: { force: '1' } } : undefined;
+  await rest.delete(url, config);
+  return true;
+};

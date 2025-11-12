@@ -1,11 +1,13 @@
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { Button, Card, Form, Input, Spin } from 'antd';
-import { Check, Info } from 'lucide-react';
+import { App, Button, Card, Form, Input, Spin } from 'antd';
+import { Check, Info, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
+import axios from 'axios';
+import { zProblemJson } from '@/types/ZProblemJson';
 
 /**
  * Форма создания и редактирования типа контента CMS.
@@ -14,6 +16,7 @@ export const PostTypeEditorPage = observer(() => {
   const { slug } = useParams<{ slug?: string }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
+  const { modal } = App.useApp();
   const isEditMode = slug !== 'new' && slug !== undefined;
   const store = useMemo(() => new PostTypeEditorStore(), [slug]);
   const nameValue = Form.useWatch('name', form);
@@ -51,6 +54,56 @@ export const PostTypeEditorPage = observer(() => {
     navigate(PageUrl.ContentTypes);
   }, [navigate]);
 
+  /**
+   * Обрабатывает удаление типа контента с подтверждением и обработкой ошибок.
+   */
+  const handleDelete = useCallback(async () => {
+    if (!slug || !isEditMode) {
+      return;
+    }
+
+    modal.confirm({
+      title: 'Удалить тип контента?',
+      content: 'Это действие нельзя отменить. Все данные типа контента будут удалены.',
+      okText: 'Удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          const success = await store.deletePostType(slug, false);
+          if (success) {
+            navigate(PageUrl.ContentTypes);
+          }
+        } catch (error) {
+          // Обработка ошибки 409 (CONFLICT) - тип содержит записи
+          if (axios.isAxiosError(error) && error.response?.status === 409) {
+            const problemResult = zProblemJson.safeParse(error.response?.data);
+            const entriesCount =
+              problemResult.success && typeof problemResult.data.meta?.entries_count === 'number'
+                ? problemResult.data.meta.entries_count
+                : null;
+
+            modal.confirm({
+              title: 'Невозможно удалить тип контента',
+              content: entriesCount
+                ? `Тип контента содержит ${entriesCount} ${entriesCount === 1 ? 'запись' : 'записей'}. Вы можете удалить тип контента вместе со всеми записями.`
+                : 'Тип контента содержит записи. Вы можете удалить тип контента вместе со всеми записями.',
+              okText: 'Удалить всё',
+              okType: 'danger',
+              cancelText: 'Отмена',
+              onOk: async () => {
+                const forceSuccess = await store.deletePostType(slug, true);
+                if (forceSuccess) {
+                  navigate(PageUrl.ContentTypes);
+                }
+              },
+            });
+          }
+        }
+      },
+    });
+  }, [slug, isEditMode, navigate, store, modal]);
+
   return (
     <div className="min-h-screen bg-background w-full">
       {/* Breadcrumbs and action buttons */}
@@ -70,6 +123,16 @@ export const PostTypeEditorPage = observer(() => {
               </span>
             </div>
             <div className="flex items-center gap-3">
+              {isEditMode && (
+                <Button
+                  danger
+                  onClick={handleDelete}
+                  loading={store.pending}
+                  icon={<Trash2 className="w-4 h-4" />}
+                >
+                  Удалить
+                </Button>
+              )}
               <Button onClick={handleCancel}>Отмена</Button>
               <Button
                 type="primary"
