@@ -1,58 +1,21 @@
 import { authStore } from '@/AuthStore';
-import { zLoginDto } from '@/types/auth';
 import { Button, Card, Form, Input, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './loginPage.module.less';
-
-/**
- * Дополнительные параметры навигации, сохраняемые при редиректе на форму входа.
- */
-type LocationState = {
-  returnTo?: string;
-};
-
-/**
- * Значения формы авторизации.
- */
-type FormValues = {
-  email: string;
-  password: string;
-};
+import type { ZLoginDto } from '@/types/auth';
 
 /**
  * Страница авторизации администратора.
  */
 export const LoginPage = observer(() => {
-  const navigate = useNavigate();
-  const location = useLocation() as { state?: LocationState };
-  const [form] = Form.useForm<FormValues>();
-
-  const returnTo = location.state?.returnTo ?? '/entries';
-
+  const [form] = Form.useForm<ZLoginDto>();
+  const btnText = authStore.pending ? 'Вход…' : 'Войти';
   /**
    * Обрабатывает сабмит формы и выполняет валидацию.
    * @param values Текущие значения полей формы.
    */
-  const handleSubmit = async (values: FormValues) => {
-    const result = zLoginDto.safeParse(values);
-
-    if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.issues.forEach(issue => {
-        const field = issue.path[0];
-        if (field && typeof field === 'string') {
-          errors[field] = issue.message;
-        }
-      });
-
-      return;
-    }
-
-    const ok = await authStore.login(result.data);
-    if (ok) {
-      navigate(returnTo, { replace: true });
-    }
+  const handleSubmit = async (values: ZLoginDto) => {
+    authStore.login(values);
   };
 
   return (
@@ -62,20 +25,26 @@ export const LoginPage = observer(() => {
           Вход в админку
         </Typography.Title>
 
-        <Form<FormValues>
+        <Form<ZLoginDto>
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{ email: '', password: '' }}
           autoComplete="on"
-          requiredMark={false}
-          noValidate
         >
-          <Form.Item label="Email" name="email">
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{ required: true, message: 'Email обязателен' }]}
+          >
             <Input type="email" autoComplete="email" maxLength={255} />
           </Form.Item>
 
-          <Form.Item label="Пароль" name="password">
+          <Form.Item
+            label="Пароль"
+            name="password"
+            rules={[{ required: true, message: 'Пароль обязателен' }]}
+          >
             <Input.Password autoComplete="current-password" minLength={8} />
           </Form.Item>
 
@@ -85,9 +54,9 @@ export const LoginPage = observer(() => {
             block
             loading={authStore.pending}
             disabled={authStore.pending}
-            aria-label={authStore.pending ? 'Вход…' : 'Войти'}
+            aria-label={btnText}
           >
-            {authStore.pending ? 'Вход…' : 'Войти'}
+            {btnText}
           </Button>
         </Form>
       </Card>

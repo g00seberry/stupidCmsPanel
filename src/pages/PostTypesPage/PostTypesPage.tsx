@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { listPostTypes } from '@/api/apiPostTypes';
 import type { ZPostType } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
+import { buildUrl, PageUrl } from '@/PageUrl';
 
 /**
  * Страница со списком типов контента CMS.
@@ -48,7 +49,7 @@ export const PostTypesPage = () => {
             <div className="flex items-center gap-3">
               <Button
                 type="primary"
-                onClick={() => navigate('/content-types/new')}
+                onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: 'new' }))}
                 icon={<Plus className="w-4 h-4" />}
               >
                 Создать тип
@@ -74,7 +75,9 @@ export const PostTypesPage = () => {
                 key={postType.slug}
                 className="p-6 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1"
                 hoverable
-                onClick={() => navigate(`/content-types/${postType.slug}`)}
+                onClick={() =>
+                  navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug }))
+                }
               >
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>

@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { FileType, Image, LayoutDashboard, Search, Settings, Tags } from 'lucide-react';
+import { PageUrl } from '@/PageUrl';
 
 /**
  * Пункт навигации сайдбара.
@@ -45,27 +46,27 @@ export interface HeaderLink {
  * Основные ссылки в разделе «Управление контентом».
  */
 export const sidebarLinks: readonly SidebarLink[] = [
-  { title: 'Dashboard', url: '/', icon: LayoutDashboard, exact: true },
-  { title: 'Media', url: '/media', icon: Image },
-  { title: 'Taxonomies', url: '/taxonomies', icon: Tags },
-  { title: 'Content Types', url: '/content-types', icon: FileType },
-  { title: 'SEO', url: '/seo', icon: Search },
+  { title: 'Dashboard', url: PageUrl.Dashboard, icon: LayoutDashboard, exact: true },
+  { title: 'Media', url: PageUrl.Media, icon: Image },
+  { title: 'Taxonomies', url: PageUrl.Taxonomies, icon: Tags },
+  { title: 'Content Types', url: PageUrl.ContentTypes, icon: FileType },
+  { title: 'SEO', url: PageUrl.Seo, icon: Search },
 ] as const;
 
 /**
  * Системные ссылки в нижнем блоке сайдбара.
  */
 export const systemSidebarLinks: readonly SidebarLink[] = [
-  { title: 'Настройки', url: '/settings', icon: Settings },
+  { title: 'Настройки', url: PageUrl.Settings, icon: Settings },
 ] as const;
 
 /**
  * Ссылки основного горизонтального меню.
  */
 export const headerLinks: readonly HeaderLink[] = [
-  { title: 'Dashboard', url: '/', exact: true },
-  { title: 'Media', url: '/media' },
-  { title: 'Taxonomies', url: '/taxonomies' },
-  { title: 'Content Types', url: '/content-types' },
-  { title: 'SEO', url: '/seo' },
+  { title: 'Dashboard', url: PageUrl.Dashboard, exact: true },
+  { title: 'Media', url: PageUrl.Media },
+  { title: 'Taxonomies', url: PageUrl.Taxonomies },
+  { title: 'Content Types', url: PageUrl.ContentTypes },
+  { title: 'SEO', url: PageUrl.Seo },
 ] as const;

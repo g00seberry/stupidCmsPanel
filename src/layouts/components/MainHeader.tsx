@@ -1,6 +1,7 @@
+import { authStore } from '@/AuthStore';
 import type { HeaderLink } from '@/layouts/layoutNavigation';
 import { joinClassNames } from '@/utils/joinClassNames';
-import { ChevronDown, LogOut, Menu, Sliders } from 'lucide-react';
+import { ChevronDown, LogOut, Sliders } from 'lucide-react';
 import type { FC } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -13,22 +14,6 @@ export interface PropsMainHeader {
    * Ссылки для навигации.
    */
   readonly links: ReadonlyArray<HeaderLink>;
-  /**
-   * Коллбэк переключения состояния сайдбара.
-   */
-  readonly onToggleSidebar?: () => void;
-  /**
-   * Коллбэк выхода из приложения.
-   */
-  readonly onLogout: () => void;
-  /**
-   * Имя пользователя.
-   */
-  readonly userName?: string;
-  /**
-   * Email пользователя.
-   */
-  readonly userEmail?: string;
 }
 
 /**
@@ -37,7 +22,9 @@ export interface PropsMainHeader {
  * @returns Разметку шапки страницы.
  */
 export const MainHeader: FC<PropsMainHeader> = props => {
-  const { links, onLogout, onToggleSidebar, userEmail, userName } = props;
+  const { links } = props;
+  const { name: userName, email: userEmail } = authStore.user ?? {};
+
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -72,23 +59,12 @@ export const MainHeader: FC<PropsMainHeader> = props => {
 
   const handleLogout = () => {
     setIsProfileMenuOpen(false);
-    onLogout();
+    authStore.logout();
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
       <div className="flex h-14 items-center px-4 gap-4">
-        {onToggleSidebar ? (
-          <button
-            type="button"
-            className="text-primary-foreground hover:bg-primary-foreground/10 flex h-9 w-9 items-center justify-center rounded-md"
-            onClick={onToggleSidebar}
-            aria-label="Переключить сайдбар"
-          >
-            <Menu className="h-5 w-5" aria-hidden />
-          </button>
-        ) : null}
-
         <div className="flex items-center gap-2">
           <Sliders className="h-5 w-5" aria-hidden />
           <span className="font-semibold text-lg">CMS</span>

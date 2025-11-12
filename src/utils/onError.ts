@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { zProblemJson } from '@/types/ProblemJson';
+import { zProblemJson } from '@/types/ZProblemJson';
 import { notificationService } from '@/services/notificationService';
 
 /**

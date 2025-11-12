@@ -1,20 +1,6 @@
 import { z } from 'zod';
 
 /**
- * Поля формы авторизации пользователя.
- */
-export const zLoginField = z.enum(['email', 'password']);
-/**
- * Тип поля формы авторизации.
- */
-export type ZLoginField = z.infer<typeof zLoginField>;
-
-/**
- * Ошибки валидации полей формы авторизации.
- */
-export type LoginFieldErrors = Partial<Record<ZLoginField, string>>;
-
-/**
  * Данные, требуемые для входа пользователя.
  */
 export const zLoginDto = z.object({

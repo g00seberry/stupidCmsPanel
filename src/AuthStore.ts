@@ -7,6 +7,7 @@ import { getCurrentUser, login, logout } from './api/apiAuth';
  * Состояние авторизации администратора и операции входа/выхода.
  */
 export class AuthStore {
+  relogin = false;
   pending = false;
   user: ZAuthUser | null = null;
 
@@ -23,6 +24,14 @@ export class AuthStore {
    */
   setPending(value: boolean) {
     this.pending = value;
+  }
+
+  /**
+   * Устанавливает флаг выполнения запроса релогина.
+   * @param value Новое значение флага.
+   */
+  setRelogin(value: boolean) {
+    this.relogin = value;
   }
 
   /**
@@ -44,6 +53,7 @@ export class AuthStore {
    * Инициализирует состояние авторизации.
    */
   async init() {
+    this.setRelogin(true);
     this.setPending(true);
     try {
       const resp = await getCurrentUser();
@@ -54,6 +64,7 @@ export class AuthStore {
       onError(error);
     } finally {
       this.setPending(false);
+      this.setRelogin(false);
     }
   }
 

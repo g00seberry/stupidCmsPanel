@@ -5,6 +5,7 @@ import { MainLayout } from '@/layouts/MainLayout';
 import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { routes } from '@/routes';
 import { useEffect } from 'react';
+import { Spin } from 'antd';
 
 /**
  * Корневой компонент приложения CMS.
@@ -16,17 +17,13 @@ export const App = observer(() => {
     authStore.init();
   }, []);
 
+  if (authStore.relogin) {
+    return <Spin />;
+  }
+
   if (!authStore.isAuthenticated) {
     return <LoginPage />;
   }
 
-  return (
-    <MainLayout
-      userName={authStore.user?.name}
-      userEmail={authStore.user?.email}
-      onLogout={() => authStore.logout()}
-    >
-      {element}
-    </MainLayout>
-  );
+  return <MainLayout>{element}</MainLayout>;
 });

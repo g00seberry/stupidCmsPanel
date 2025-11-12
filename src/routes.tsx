@@ -3,16 +3,16 @@ import { EntriesListPage } from '@/pages/EntriesListPage/EntriesListPage';
 import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { PostTypeEditorPage } from '@/pages/PostTypeEditorPage/PostTypeEditorPage';
 import { PostTypesPage } from '@/pages/PostTypesPage/PostTypesPage';
+import { PageUrl } from '@/PageUrl';
 
 /**
  * Маршруты приложения CMS.
  */
 export const routes = [
-  { path: '/login', element: <LoginPage /> },
-  { path: '/', element: <Navigate to="/entries" replace /> },
-  { path: '/entries', element: <EntriesListPage /> },
-  { path: '/content-types', element: <PostTypesPage /> },
-  { path: '/content-types/new', element: <PostTypeEditorPage /> },
-  { path: '/content-types/:slug', element: <PostTypeEditorPage /> },
-  { path: '*', element: <Navigate to="/entries" replace /> },
+  { path: PageUrl.Login, element: <LoginPage /> },
+  { path: PageUrl.Dashboard, element: <Navigate to={PageUrl.Entries} replace /> },
+  { path: PageUrl.Entries, element: <EntriesListPage /> },
+  { path: PageUrl.ContentTypes, element: <PostTypesPage /> },
+  { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },
+  { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

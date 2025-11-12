@@ -6,6 +6,7 @@ import { createPostType, getPostType, updatePostType } from '@/api/apiPostTypes'
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
+import { buildUrl, PageUrl } from '@/PageUrl';
 
 interface FormValues {
   readonly name: string;
@@ -70,12 +71,10 @@ const parseOptionsJson = (rawValue: string): Record<string, unknown> => {
  * Форма создания и редактирования типа контента CMS.
  */
 export const PostTypeEditorPage = () => {
-  const { slug: slugParam } = useParams<{ slug?: string }>();
+  const { slug } = useParams<{ slug?: string }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
-  const isEditMode = typeof slugParam === 'string';
-
-  const [originalSlug, setOriginalSlug] = useState<string | null>(slugParam ?? null);
+  const isEditMode = slug !== 'new' && slug !== undefined;
   const [initialLoading, setInitialLoading] = useState<boolean>(isEditMode);
   const [pending, setPending] = useState(false);
 
@@ -88,19 +87,18 @@ export const PostTypeEditorPage = () => {
     const load = async () => {
       setInitialLoading(true);
       try {
-        const postType = await getPostType(slugParam);
-        setOriginalSlug(postType.slug);
+        const postType = await getPostType(slug);
         form.setFieldsValue(toFormValues(postType));
       } catch (error) {
         onError(error);
-        navigate('/content-types');
+        navigate(PageUrl.ContentTypes);
       } finally {
         setInitialLoading(false);
       }
     };
 
     void load();
-  }, [form, isEditMode, navigate, slugParam]);
+  }, [form, isEditMode, navigate, slug]);
 
   /**
    * Сохраняет изменения формы.
@@ -133,18 +131,16 @@ export const PostTypeEditorPage = () => {
 
       try {
         const nextPostType =
-          isEditMode && originalSlug
-            ? await updatePostType(originalSlug, payload)
-            : await createPostType(payload);
+          isEditMode && slug ? await updatePostType(slug, payload) : await createPostType(payload);
 
         const successMessage = isEditMode ? 'Тип контента обновлён' : 'Тип контента создан';
         notificationService.showSuccess({ message: successMessage });
-
-        setOriginalSlug(nextPostType.slug);
         form.setFieldsValue(toFormValues(nextPostType, payload.template ?? ''));
 
-        if (!isEditMode || nextPostType.slug !== slugParam) {
-          navigate(`/content-types/${nextPostType.slug}`, { replace: false });
+        if (!isEditMode || nextPostType.slug !== slug) {
+          navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: nextPostType.slug }), {
+            replace: false,
+          });
         }
       } catch (error) {
         onError(error);
@@ -152,11 +148,11 @@ export const PostTypeEditorPage = () => {
         setPending(false);
       }
     },
-    [form, isEditMode, navigate, originalSlug, slugParam]
+    [form, isEditMode, navigate, slug]
   );
 
   const handleCancel = useCallback(() => {
-    navigate('/content-types');
+    navigate(PageUrl.ContentTypes);
   }, [navigate]);
 
   return (
@@ -168,7 +164,7 @@ export const PostTypeEditorPage = () => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span
                 className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate('/content-types')}
+                onClick={() => navigate(PageUrl.ContentTypes)}
               >
                 Типы контента
               </span>

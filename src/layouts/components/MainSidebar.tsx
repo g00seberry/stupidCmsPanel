@@ -1,8 +1,8 @@
-import { ChevronLeft, LogOut } from 'lucide-react';
-import type { FC } from 'react';
-import { Link } from 'react-router-dom';
 import type { SidebarLink } from '@/layouts/layoutNavigation';
 import { joinClassNames } from '@/utils/joinClassNames';
+import { ChevronLeft } from 'lucide-react';
+import type { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * Пропсы компонента бокового меню.
@@ -25,10 +25,6 @@ export interface PropsMainSidebar {
    */
   readonly onToggle: () => void;
   /**
-   * Коллбэк выхода из приложения.
-   */
-  readonly onLogout: () => void;
-  /**
    * Проверяет, активен ли указанный путь.
    * @param path Проверяемый путь.
    * @returns Признак активности.
@@ -42,7 +38,7 @@ export interface PropsMainSidebar {
  * @returns Разметку сайдбара.
  */
 export const MainSidebar: FC<PropsMainSidebar> = props => {
-  const { isActivePath, isCollapsed, links, onLogout, onToggle, systemLinks } = props;
+  const { isActivePath, isCollapsed, links, onToggle, systemLinks } = props;
 
   const containerClassName = joinClassNames(
     'border-r bg-card transition-all duration-300 flex flex-col',
@@ -52,10 +48,6 @@ export const MainSidebar: FC<PropsMainSidebar> = props => {
   const linkClassName = joinClassNames(
     'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-foreground hover:bg-muted'
   );
-
-  const handleLogout = () => {
-    onLogout();
-  };
 
   return (
     <aside className={containerClassName}>
@@ -133,19 +125,6 @@ export const MainSidebar: FC<PropsMainSidebar> = props => {
             </Link>
           );
         })}
-
-        <button
-          type="button"
-          className={joinClassNames(
-            linkClassName,
-            'text-destructive hover:text-destructive hover:bg-destructive/10',
-            isCollapsed && 'justify-center'
-          )}
-          onClick={handleLogout}
-        >
-          <LogOut className="h-5 w-5 flex-shrink-0" aria-hidden />
-          {isCollapsed ? null : <span className="text-sm">Выйти</span>}
-        </button>
       </div>
     </aside>
   );
