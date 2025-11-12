@@ -1,104 +1,48 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Button, Card, Form, Input, Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, Info } from 'lucide-react';
-import { createPostType, getPostType, updatePostType } from '@/api/apiPostTypes';
-import { notificationService } from '@/services/notificationService';
-import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
-import { onError } from '@/utils/onError';
+import { observer } from 'mobx-react-lite';
 import { buildUrl, PageUrl } from '@/PageUrl';
-
-interface FormValues {
-  readonly name: string;
-  readonly slug: string;
-  readonly template: string;
-  readonly options_json: string;
-}
-
-const defaultFormValues: FormValues = {
-  name: '',
-  slug: '',
-  template: '',
-  options_json: '',
-};
+import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
 
 const optionsPlaceholder = '{\n  "fields": {}\n}';
 
 /**
- * Преобразует данные типа контента в значения формы.
- * @param postType Тип контента, полученный из API.
- * @returns Значения формы, готовые к отображению пользователю.
- */
-const toFormValues = (postType: ZPostType, fallbackTemplate = ''): FormValues => {
-  const options = postType.options_json ?? {};
-
-  return {
-    name: postType.name,
-    slug: postType.slug,
-    template: postType.template ?? fallbackTemplate ?? '',
-    options_json: JSON.stringify(options, null, 2),
-  };
-};
-
-/**
- * Преобразует строку с JSON в объект настроек типа контента.
- * @param rawValue Строка из текстового поля.
- * @returns Объект настроек.
- * @throws Ошибка, если в строке содержится некорректный JSON или не-объект.
- */
-const parseOptionsJson = (rawValue: string): Record<string, unknown> => {
-  const trimmed = rawValue.trim();
-
-  if (trimmed.length === 0) {
-    return {};
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(trimmed);
-  } catch {
-    throw new Error('Поле «Настройки» должно содержать корректный JSON.');
-  }
-
-  if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
-    throw new Error('Поле «Настройки» должно описывать JSON-объект.');
-  }
-
-  return parsed as Record<string, unknown>;
-};
-
-/**
  * Форма создания и редактирования типа контента CMS.
  */
-export const PostTypeEditorPage = () => {
+export const PostTypeEditorPage = observer(() => {
   const { slug } = useParams<{ slug?: string }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
   const isEditMode = slug !== 'new' && slug !== undefined;
-  const [initialLoading, setInitialLoading] = useState<boolean>(isEditMode);
-  const [pending, setPending] = useState(false);
+  const store = useMemo(() => new PostTypeEditorStore(), [slug]);
+  const nameValue = Form.useWatch('name', form);
 
   useEffect(() => {
-    if (!isEditMode) {
-      form.setFieldsValue(defaultFormValues);
-      return;
+    form.setFieldsValue(store.formValues);
+  }, [store.formValues]);
+
+  useEffect(() => {
+    if (slug && isEditMode) {
+      void store.loadPostType(slug).then(() => {
+        form.setFieldsValue(store.formValues);
+      });
     }
+  }, [slug, store]);
 
-    const load = async () => {
-      setInitialLoading(true);
-      try {
-        const postType = await getPostType(slug);
-        form.setFieldsValue(toFormValues(postType));
-      } catch (error) {
-        onError(error);
-        navigate(PageUrl.ContentTypes);
-      } finally {
-        setInitialLoading(false);
+  /**
+   * Обрабатывает изменение названия и синхронизирует slug с формой.
+   */
+  useEffect(() => {
+    if (isEditMode) return;
+    if (nameValue !== undefined && typeof nameValue === 'string') {
+      store.handleNameChange(nameValue);
+      if (store.formValues.slug !== form.getFieldValue('slug')) {
+        form.setFieldValue('slug', store.formValues.slug);
       }
-    };
-
-    void load();
-  }, [form, isEditMode, navigate, slug]);
+    }
+  }, [nameValue, form, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -106,54 +50,32 @@ export const PostTypeEditorPage = () => {
    */
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      setPending(true);
-
-      let options: Record<string, unknown>;
-      try {
-        options = parseOptionsJson(values.options_json);
-      } catch (jsonError) {
-        setPending(false);
-        form.setFields([
-          {
-            name: 'options_json',
-            errors: [jsonError instanceof Error ? jsonError.message : 'Некорректный JSON'],
-          },
-        ]);
-        return;
-      }
-
-      const payload: ZPostTypePayload = {
-        slug: values.slug.trim(),
-        name: values.name.trim(),
-        template: values.template.trim() || undefined,
-        options_json: options,
-      };
-
-      try {
-        const nextPostType =
-          isEditMode && slug ? await updatePostType(slug, payload) : await createPostType(payload);
-
-        const successMessage = isEditMode ? 'Тип контента обновлён' : 'Тип контента создан';
-        notificationService.showSuccess({ message: successMessage });
-        form.setFieldsValue(toFormValues(nextPostType, payload.template ?? ''));
-
-        if (!isEditMode || nextPostType.slug !== slug) {
+      store.savePostType(values, isEditMode, slug).then(nextPostType => {
+        if (nextPostType) {
+          form.setFieldsValue(store.formValues);
           navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: nextPostType.slug }), {
             replace: false,
           });
         }
-      } catch (error) {
-        onError(error);
-      } finally {
-        setPending(false);
-      }
+      });
     },
-    [form, isEditMode, navigate, slug]
+    [isEditMode, navigate, slug, store]
   );
 
   const handleCancel = useCallback(() => {
     navigate(PageUrl.ContentTypes);
   }, [navigate]);
+
+  /**
+   * Обрабатывает изменение slug и обновляет store.
+   */
+  const handleSlugChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      store.handleSlugChange(value);
+    },
+    [store]
+  );
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -178,7 +100,7 @@ export const PostTypeEditorPage = () => {
               <Button
                 type="primary"
                 onClick={() => form.submit()}
-                loading={pending}
+                loading={store.pending}
                 icon={<Check className="w-4 h-4" />}
               >
                 Сохранить
@@ -189,7 +111,7 @@ export const PostTypeEditorPage = () => {
       </div>
 
       <div className="px-6 py-8 w-full max-w-[1400px] mx-auto">
-        {initialLoading ? (
+        {store.initialLoading ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />
           </div>
@@ -197,7 +119,7 @@ export const PostTypeEditorPage = () => {
           <Form<FormValues>
             form={form}
             layout="vertical"
-            initialValues={defaultFormValues}
+            initialValues={store.formValues}
             onFinish={handleSubmit}
           >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -248,7 +170,11 @@ export const PostTypeEditorPage = () => {
                         ]}
                         className="mb-0"
                       >
-                        <Input placeholder="article" disabled={initialLoading || pending} />
+                        <Input
+                          placeholder="article"
+                          disabled={store.initialLoading || store.pending}
+                          onChange={handleSlugChange}
+                        />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
                         <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -329,4 +255,4 @@ export const PostTypeEditorPage = () => {
       </div>
     </div>
   );
-};
+});
