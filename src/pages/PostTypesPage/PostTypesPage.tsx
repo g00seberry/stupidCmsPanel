@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Spin } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, List } from 'lucide-react';
 import { listPostTypes } from '@/api/apiPostTypes';
 import type { ZPostType } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
@@ -73,11 +73,7 @@ export const PostTypesPage = () => {
             {postTypes.map(postType => (
               <Card
                 key={postType.slug}
-                className="p-6 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1"
-                hoverable
-                onClick={() =>
-                  navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug }))
-                }
+                className="p-6 transition-all hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>
@@ -89,6 +85,16 @@ export const PostTypesPage = () => {
                       Обновлено: {new Date(postType.updated_at).toLocaleDateString('ru-RU')}
                     </p>
                   )}
+                  <div className="flex gap-2 pt-2">
+                    <Link to={buildUrl(PageUrl.EntriesByType, { postType: postType.slug })}>
+                      <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
+                        Записи
+                      </Button>
+                    </Link>
+                    <Link to={buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug })}>
+                      <Button size="small">Редактировать</Button>
+                    </Link>
+                  </div>
                 </div>
               </Card>
             ))}

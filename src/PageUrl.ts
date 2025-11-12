@@ -11,6 +11,7 @@ export const PageUrl = {
   Settings: '/settings',
   Login: '/login',
   Entries: '/entries',
+  EntriesByType: '/entries/:postType',
 } as const;
 
 /**

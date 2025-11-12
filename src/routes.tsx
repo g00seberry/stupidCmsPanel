@@ -11,6 +11,7 @@ import { PageUrl } from '@/PageUrl';
 export const routes = [
   { path: PageUrl.Login, element: <LoginPage /> },
   { path: PageUrl.Dashboard, element: <Navigate to={PageUrl.Entries} replace /> },
+  { path: PageUrl.EntriesByType, element: <EntriesListPage /> },
   { path: PageUrl.Entries, element: <EntriesListPage /> },
   { path: PageUrl.ContentTypes, element: <PostTypesPage /> },
   { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },

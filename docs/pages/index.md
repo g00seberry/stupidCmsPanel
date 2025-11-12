@@ -10,6 +10,7 @@
 | `/content-types/:slug` | `PostTypeEditorPage` |
 | `/` | `-` |
 | `/entries` | `EntriesListPage` |
+| `/entries/:postType` | `EntriesListPage` |
 | `/login` | `LoginPage` |
 | `/media` | `-` |
 | `/seo` | `-` |
@@ -22,6 +23,7 @@
 ### EntriesListPage
 
 - `EntriesListPage.tsx`
+- `EntriesListStore.ts`
 
 ### LoginPage
 
