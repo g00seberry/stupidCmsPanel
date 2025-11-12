@@ -1,7 +1,8 @@
 import { createEntry, getEntry, updateEntry } from '@/api/apiEntries';
-import { getTemplates } from '@/api/apiUtils';
+import { getTemplates } from '@/api/apiTemplates';
 import { notificationService } from '@/services/notificationService';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
+import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
 import { serverDate, viewDate } from '@/utils/dateUtils';
 import { makeAutoObservable } from 'mobx';
@@ -56,7 +57,7 @@ export class EntryEditorStore {
   formValues: FormValues = defaultFormValues;
   initialLoading = false;
   pending = false;
-  templates: string[] = [];
+  templates: ZTemplate[] = [];
   loadingTemplates = false;
 
   /**

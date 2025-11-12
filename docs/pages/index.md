@@ -11,6 +11,7 @@
 | `/` | `-` |
 | `/entries` | `EntriesListPage` |
 | `/entries/:postType` | `EntriesListPage` |
+| `/entries/:postType/:id` | `EntryEditorPage` |
 | `/login` | `LoginPage` |
 | `/media` | `-` |
 | `/seo` | `-` |
@@ -24,6 +25,11 @@
 
 - `EntriesListPage.tsx`
 - `EntriesListStore.ts`
+
+### EntryEditorPage
+
+- `EntryEditorPage.tsx`
+- `EntryEditorStore.ts`
 
 ### LoginPage
 

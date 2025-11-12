@@ -1,7 +1,8 @@
 import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
-import { getTemplates } from '@/api/apiUtils';
+import { getTemplates } from '@/api/apiTemplates';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
+import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
@@ -46,7 +47,7 @@ export class PostTypeEditorStore {
   initialLoading = false;
   pending = false;
   slugManuallyEdited = false;
-  templates: string[] = [];
+  templates: ZTemplate[] = [];
   loadingTemplates = false;
 
   /**

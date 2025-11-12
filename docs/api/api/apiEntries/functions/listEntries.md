@@ -6,7 +6,7 @@
 
 > **listEntries**(`params`): `Promise`\<\{ `data`: `object`[]; `links`: \{ `first`: `string` \| `null`; `last`: `string` \| `null`; `next`: `string` \| `null`; `prev`: `string` \| `null`; \}; `meta`: \{ `current_page`: `number`; `last_page`: `number`; `per_page`: `number`; `total`: `number`; \}; \}\>
 
-Defined in: [src/api/apiEntries.ts:79](https://github.com/g00seberry/stupidCmsPanel/blob/f5e0a6f8d01c6850a00f37cc5f41071d99d211a6/src/api/apiEntries.ts#L79)
+Defined in: [src/api/apiEntries.ts:86](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/api/apiEntries.ts#L86)
 
 Загружает список записей с фильтрами и пагинацией.
 

@@ -6,7 +6,7 @@
 
 > **debounce**\<`T`, `A`\>(`fn`): (`delay`, `args`) => `Promise`\<`T`\>
 
-Defined in: [src/utils/debounce.ts:6](https://github.com/g00seberry/stupidCmsPanel/blob/f5e0a6f8d01c6850a00f37cc5f41071d99d211a6/src/utils/debounce.ts#L6)
+Defined in: [src/utils/debounce.ts:6](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/utils/debounce.ts#L6)
 
 Создаёт debounced-версию функции, откладывающую выполнение на указанную задержку.
 

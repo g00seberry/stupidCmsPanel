@@ -6,7 +6,7 @@
 
 > **login**(`params`): `Promise`\<\{ `user`: \{ `email`: `string`; `id`: `number`; `name`: `string`; \}; \}\>
 
-Defined in: [src/api/apiAuth.ts:35](https://github.com/g00seberry/stupidCmsPanel/blob/f5e0a6f8d01c6850a00f37cc5f41071d99d211a6/src/api/apiAuth.ts#L35)
+Defined in: [src/api/apiAuth.ts:35](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/api/apiAuth.ts#L35)
 
 Выполняет запрос на вход пользователя.
 

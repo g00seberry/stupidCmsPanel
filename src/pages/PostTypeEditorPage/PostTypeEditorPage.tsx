@@ -229,8 +229,8 @@ export const PostTypeEditorPage = observer(() => {
                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                           }
                           options={store.templates.map(template => ({
-                            value: template,
-                            label: template,
+                            value: template.name,
+                            label: template.name,
                           }))}
                         />
                       </Form.Item>

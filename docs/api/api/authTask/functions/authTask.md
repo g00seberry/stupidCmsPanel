@@ -6,7 +6,7 @@
 
 > **authTask**\<`R`\>(`task`): `Promise`\<`R`\>
 
-Defined in: [src/api/authTask.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/f5e0a6f8d01c6850a00f37cc5f41071d99d211a6/src/api/authTask.ts#L25)
+Defined in: [src/api/authTask.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/api/authTask.ts#L25)
 
 Выполняет запрос к API с автоматическим обновлением токенов при 401 ответе.
 Предотвращает параллельные запросы на обновление токенов через механизм блокировки.
