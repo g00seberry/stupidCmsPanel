@@ -1,6 +1,11 @@
 import { rest } from '@/api/rest';
-import { zEntriesResponse, zEntriesStatusesResponse } from '@/types/entries';
-import type { ZEntry, ZEntriesListParams } from '@/types/entries';
+import {
+  zEntriesResponse,
+  zEntriesStatusesResponse,
+  zEntryResponse,
+  zEntryPayload,
+} from '@/types/entries';
+import type { ZEntry, ZEntriesListParams, ZEntryPayload } from '@/types/entries';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
@@ -105,5 +110,57 @@ export const listEntries = async (
 export const getEntriesStatuses = async (): Promise<string[]> => {
   const response = await rest.get(getAdminEntriesUrl('/statuses'));
   const parsed = zEntriesStatusesResponse.parse(response.data);
+  return parsed.data;
+};
+
+/**
+ * Загружает сведения о конкретной записи по ID.
+ * @param id Уникальный идентификатор записи.
+ * @returns Запись, прошедшая валидацию схемой `zEntry`.
+ * @example
+ * const entry = await getEntry(42);
+ * console.log(entry.title); // 'Headless CMS launch checklist'
+ */
+export const getEntry = async (id: number): Promise<ZEntry> => {
+  const response = await rest.get(getAdminEntriesUrl(`/${id}`));
+  const parsed = zEntryResponse.parse(response.data);
+  return parsed.data;
+};
+
+/**
+ * Создаёт новую запись.
+ * @param payload Данные новой записи.
+ * @returns Созданная запись.
+ * @example
+ * const newEntry = await createEntry({
+ *   post_type: 'article',
+ *   title: 'Headless CMS launch checklist',
+ *   slug: 'launch-checklist',
+ *   content_json: { hero: { title: 'Launch' } },
+ *   meta_json: { title: 'Launch', description: 'Checklist' }
+ * });
+ */
+export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
+  const parsedPayload = zEntryPayload.parse(payload);
+  const response = await rest.post(getAdminEntriesUrl(''), parsedPayload);
+  const parsed = zEntryResponse.parse(response.data);
+  return parsed.data;
+};
+
+/**
+ * Обновляет существующую запись.
+ * @param id Идентификатор записи для обновления.
+ * @param payload Новые значения полей записи.
+ * @returns Обновлённая запись.
+ * @example
+ * const updatedEntry = await updateEntry(42, {
+ *   title: 'Updated checklist',
+ *   content_json: { body: { blocks: [] } }
+ * });
+ */
+export const updateEntry = async (id: number, payload: ZEntryPayload): Promise<ZEntry> => {
+  const parsedPayload = zEntryPayload.parse(payload);
+  const response = await rest.put(getAdminEntriesUrl(`/${id}`), parsedPayload);
+  const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
 };

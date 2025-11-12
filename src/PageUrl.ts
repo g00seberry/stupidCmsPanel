@@ -12,6 +12,7 @@ export const PageUrl = {
   Login: '/login',
   Entries: '/entries',
   EntriesByType: '/entries/:postType',
+  EntryEdit: '/entries/:postType/:id',
 } as const;
 
 /**

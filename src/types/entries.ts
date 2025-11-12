@@ -118,3 +118,57 @@ export type ZEntriesListParams = {
   /** Номер страницы (>=1). По умолчанию: 1. */
   page?: number;
 };
+
+/**
+ * Схема валидации ответа API с одной записью.
+ */
+export const zEntryResponse = z.object({
+  /** Данные записи. */
+  data: zEntry,
+});
+
+/**
+ * Тип ответа API с одной записью.
+ */
+export type ZEntryResponse = z.infer<typeof zEntryResponse>;
+
+/**
+ * Схема валидации данных для создания или обновления записи.
+ * @example
+ * const payload: ZEntryPayload = {
+ *   post_type: 'article',
+ *   title: 'Headless CMS launch checklist',
+ *   slug: 'launch-checklist',
+ *   content_json: { hero: { title: 'Launch' } },
+ *   meta_json: { title: 'Launch', description: 'Checklist' },
+ *   is_published: false,
+ *   published_at: '2025-02-10T08:00:00Z',
+ *   template_override: 'templates.landing',
+ *   term_ids: [3, 8]
+ * };
+ */
+export const zEntryPayload = z.object({
+  /** Тип контента записи (slug типа). Обязателен при создании. */
+  post_type: z.string().optional(),
+  /** Заголовок записи. */
+  title: z.string().min(1),
+  /** URL-friendly идентификатор записи. */
+  slug: z.string().min(1),
+  /** Содержимое записи в формате JSON. */
+  content_json: z.record(z.string(), z.unknown()).nullish().optional(),
+  /** Метаданные записи в формате JSON. */
+  meta_json: z.record(z.string(), z.unknown()).nullish().optional(),
+  /** Флаг публикации записи. */
+  is_published: z.boolean().optional(),
+  /** Дата публикации в формате ISO 8601. Может быть `null`. */
+  published_at: z.string().nullable().optional(),
+  /** Переопределение шаблона для записи. Может быть `null`. */
+  template_override: z.string().nullable().optional(),
+  /** Массив ID терминов для связи с записью. */
+  term_ids: z.array(z.number()).optional(),
+});
+
+/**
+ * Тип данных для создания или обновления записи.
+ */
+export type ZEntryPayload = z.infer<typeof zEntryPayload>;

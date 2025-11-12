@@ -13,6 +13,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { ZEntry } from '@/types/entries';
 import { PaginatedTable } from '@/components/PaginatedTable';
 import { FilterForm, FilterFormStore } from '@/components/FilterForm';
+import { viewDate } from '@/utils/dateUtils';
 
 const { Title, Paragraph } = Typography;
 
@@ -119,8 +120,9 @@ export const EntriesListPage = observer(() => {
           <Button
             type="link"
             onClick={() => {
-              // TODO: Переход на страницу редактирования записи
-              console.log('Edit entry:', record.id);
+              if (postTypeSlug) {
+                navigate(buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(record.id) }));
+              }
             }}
           >
             {text}
@@ -151,17 +153,23 @@ export const EntriesListPage = observer(() => {
         dataIndex: 'published_at',
         key: 'published_at',
         width: 180,
-        render: (date: string | null) => (date ? new Date(date).toLocaleString('ru-RU') : '-'),
+        render: (date: string | null) => {
+          const dayjsDate = viewDate(date);
+          return dayjsDate ? dayjsDate.format('DD.MM.YYYY HH:mm') : '-';
+        },
       },
       {
         title: 'Обновлено',
         dataIndex: 'updated_at',
         key: 'updated_at',
         width: 180,
-        render: (date: string | undefined) => (date ? new Date(date).toLocaleString('ru-RU') : '-'),
+        render: (date: string | undefined) => {
+          const dayjsDate = viewDate(date ?? null);
+          return dayjsDate ? dayjsDate.format('DD.MM.YYYY HH:mm') : '-';
+        },
       },
     ],
-    [statusMap]
+    [statusMap, postTypeSlug, navigate]
   );
 
   const pageTitle = postType ? `Записи: ${postType.name}` : 'Записи';
@@ -199,16 +207,17 @@ export const EntriesListPage = observer(() => {
               <span className="text-foreground font-medium">Записи</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                type="primary"
-                icon={<Plus className="w-4 h-4" />}
-                onClick={() => {
-                  // TODO: Переход на страницу создания записи
-                  console.log('Create new entry');
-                }}
-              >
-                Создать запись
-              </Button>
+              {postTypeSlug && (
+                <Button
+                  type="primary"
+                  icon={<Plus className="w-4 h-4" />}
+                  onClick={() => {
+                    navigate(buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: 'new' }));
+                  }}
+                >
+                  Создать запись
+                </Button>
+              )}
             </div>
           </div>
         </div>
