@@ -1,7 +1,11 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { authTask } from '@/api/authTask';
 
-axios.defaults.withCredentials = true;
+const client = axios.create({
+  withCredentials: true,
+  xsrfCookieName: 'cms_csrf',
+  xsrfHeaderName: 'X-CSRF-Token',
+});
 
 /**
  * Выполняет HTTP-запрос, гарантируя обработку 401 ответов.
@@ -23,7 +27,7 @@ export const rest = {
    * @returns Ответ Axios с данными типа `T`.
    */
   get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return runWithAuth(() => axios.get<T>(url, config));
+    return runWithAuth(() => client.get<T>(url, config));
   },
   /**
    * Выполняет POST-запрос.
@@ -37,7 +41,7 @@ export const rest = {
     data?: D,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
-    return runWithAuth(() => axios.post<T, AxiosResponse<T>, D>(url, data, config));
+    return runWithAuth(() => client.post<T, AxiosResponse<T>, D>(url, data, config));
   },
   /**
    * Выполняет PUT-запрос.
@@ -51,7 +55,7 @@ export const rest = {
     data?: D,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<T>> {
-    return runWithAuth(() => axios.put<T, AxiosResponse<T>, D>(url, data, config));
+    return runWithAuth(() => client.put<T, AxiosResponse<T>, D>(url, data, config));
   },
   /**
    * Выполняет DELETE-запрос.
@@ -60,13 +64,6 @@ export const rest = {
    * @returns Ответ Axios с данными типа `T`.
    */
   delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return runWithAuth(() => axios.delete<T>(url, config));
+    return runWithAuth(() => client.delete<T>(url, config));
   },
-} as const;
-
-/**
- * Настройки сериализации параметров для axios.
- */
-export const stdParamsSerializer = {
-  indexes: null,
 } as const;

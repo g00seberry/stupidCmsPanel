@@ -27,5 +27,17 @@ export const notificationService = {
 
     notification.error(config);
   },
+  /**
+   * Показывает уведомление об успешном завершении операции.
+   * @param config Параметры уведомления.
+   */
+  showSuccess: (config: NotificationArgsProps): void => {
+    if (currentApi) {
+      currentApi.success(config);
+      return;
+    }
+
+    notification.success(config);
+  },
 } as const;
 

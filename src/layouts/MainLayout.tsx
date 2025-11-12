@@ -70,9 +70,7 @@ export const MainLayout: FC<PropsMainLayout> = props => {
           userName={userName}
         />
 
-        <main className="flex flex-1 flex-col">
-          <div className="flex-1 px-4 py-6 lg:px-8">{children}</div>
-        </main>
+        <main className="flex flex-1 flex-col">{children}</main>
       </div>
     </div>
   );
