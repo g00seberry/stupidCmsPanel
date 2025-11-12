@@ -98,14 +98,6 @@ export class PostTypeEditorStore {
   }
 
   /**
-   * Устанавливает флаг ручного редактирования slug.
-   * @param value Новое значение флага.
-   */
-  setSlugManuallyEdited(value: boolean): void {
-    this.slugManuallyEdited = value;
-  }
-
-  /**
    * Сбрасывает форму к значениям по умолчанию.
    */
   resetForm(): void {
@@ -126,15 +118,6 @@ export class PostTypeEditorStore {
     if (newSlug) {
       this.setFormField('slug', newSlug);
     }
-  }
-
-  /**
-   * Обрабатывает изменение slug и обновляет флаг ручного редактирования.
-   * @param value Новое значение slug.
-   */
-  handleSlugChange(value: string): void {
-    const trimmed = value.trim();
-    this.setSlugManuallyEdited(trimmed.length > 0);
   }
 
   /**

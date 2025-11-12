@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { SlugInput } from '@/components/SlugInput';
+import { buildUrl, PageUrl } from '@/PageUrl';
 import { Button, Card, Form, Input, Spin } from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Check, Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { buildUrl, PageUrl } from '@/PageUrl';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
-
-const optionsPlaceholder = '{\n  "fields": {}\n}';
 
 /**
  * Форма создания и редактирования типа контента CMS.
@@ -32,19 +31,6 @@ export const PostTypeEditorPage = observer(() => {
   }, [slug, store]);
 
   /**
-   * Обрабатывает изменение названия и синхронизирует slug с формой.
-   */
-  useEffect(() => {
-    if (isEditMode) return;
-    if (nameValue !== undefined && typeof nameValue === 'string') {
-      store.handleNameChange(nameValue);
-      if (store.formValues.slug !== form.getFieldValue('slug')) {
-        form.setFieldValue('slug', store.formValues.slug);
-      }
-    }
-  }, [nameValue, form, isEditMode, store]);
-
-  /**
    * Сохраняет изменения формы.
    * @param values Текущие значения формы АнтД.
    */
@@ -65,17 +51,6 @@ export const PostTypeEditorPage = observer(() => {
   const handleCancel = useCallback(() => {
     navigate(PageUrl.ContentTypes);
   }, [navigate]);
-
-  /**
-   * Обрабатывает изменение slug и обновляет store.
-   */
-  const handleSlugChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      store.handleSlugChange(value);
-    },
-    [store]
-  );
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -132,11 +107,7 @@ export const PostTypeEditorPage = observer(() => {
                     {/* Name */}
                     <div className="space-y-2">
                       <Form.Item
-                        label={
-                          <span className="text-base">
-                            Название <span className="text-destructive">*</span>
-                          </span>
-                        }
+                        label="Название"
                         name="name"
                         rules={[
                           { required: true, message: 'Название обязательно.' },
@@ -154,11 +125,7 @@ export const PostTypeEditorPage = observer(() => {
                     {/* Slug */}
                     <div className="space-y-2">
                       <Form.Item
-                        label={
-                          <span className="text-base">
-                            Slug <span className="text-destructive">*</span>
-                          </span>
-                        }
+                        label="Slug"
                         name="slug"
                         rules={[
                           { required: true, message: 'Slug обязателен.' },
@@ -170,10 +137,11 @@ export const PostTypeEditorPage = observer(() => {
                         ]}
                         className="mb-0"
                       >
-                        <Input
+                        <SlugInput
+                          from={nameValue ?? ''}
+                          holdOnChange={isEditMode}
                           placeholder="article"
                           disabled={store.initialLoading || store.pending}
-                          onChange={handleSlugChange}
                         />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
@@ -184,51 +152,13 @@ export const PostTypeEditorPage = observer(() => {
 
                     {/* Template */}
                     <div className="space-y-2">
-                      <Form.Item
-                        label={
-                          <span className="text-base">
-                            Шаблон{' '}
-                            <span className="text-muted-foreground text-sm">(необязательно)</span>
-                          </span>
-                        }
-                        name="template"
-                        className="mb-0"
-                      >
+                      <Form.Item label="Шаблон" name="template" className="mb-0">
                         <Input placeholder="single-article" />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground">
                         Имя шаблона для отображения записей этого типа контента
                       </p>
                     </div>
-                  </div>
-                </Card>
-
-                {/* JSON Settings */}
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold mb-4">Дополнительные настройки</h2>
-
-                  <div className="space-y-2">
-                    <Form.Item
-                      label={
-                        <span className="text-base">
-                          Настройки (JSON){' '}
-                          <span className="text-muted-foreground text-sm">(необязательно)</span>
-                        </span>
-                      }
-                      name="options_json"
-                      className="mb-0"
-                    >
-                      <Input.TextArea
-                        rows={8}
-                        placeholder={optionsPlaceholder}
-                        spellCheck={false}
-                        className="font-mono text-sm"
-                      />
-                    </Form.Item>
-                    <p className="text-sm text-muted-foreground">
-                      Дополнительные настройки типа контента в формате JSON. Настройки принимают
-                      JSON-объект.
-                    </p>
                   </div>
                 </Card>
               </div>

@@ -1,9 +1,8 @@
-export const debounce =
-  <T, A>(fn: (args: A) => T) =>
-  (delay: number, args: A) => {
-    let timeout: NodeJS.Timeout;
+export const debounce = <T, A>(fn: (args: A) => T) => {
+  let timeout: NodeJS.Timeout;
+  return (delay: number, args: A) => {
+    clearTimeout(timeout);
     const task = new Promise<T>(resolve => {
-      clearTimeout(timeout);
       timeout = setTimeout(() => {
         resolve(fn(args));
       }, delay);
@@ -11,3 +10,4 @@ export const debounce =
 
     return task;
   };
+};
