@@ -1,11 +1,17 @@
 import { rest } from '@/api/rest';
 import { z } from 'zod';
 
+/**
+ * Схема ответа API генерации slug.
+ */
 const zSlugifyResponse = z.object({
   base: z.string(),
   unique: z.string(),
 });
 
+/**
+ * Тип ответа API генерации slug.
+ */
 export type ZSlugifyResponse = z.infer<typeof zSlugifyResponse>;
 
 /**

@@ -18,17 +18,17 @@ export const PostTypeEditorPage = observer(() => {
   const store = useMemo(() => new PostTypeEditorStore(), [slug]);
   const nameValue = Form.useWatch('name', form);
 
+  // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
     form.setFieldsValue(store.formValues);
-  }, [store.formValues]);
+  }, [form, store.formValues]);
 
+  // Загрузка данных при изменении slug в режиме редактирования
   useEffect(() => {
     if (slug && isEditMode) {
-      void store.loadPostType(slug).then(() => {
-        form.setFieldsValue(store.formValues);
-      });
+      void store.loadPostType(slug);
     }
-  }, [slug, store]);
+  }, [slug, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -36,14 +36,13 @@ export const PostTypeEditorPage = observer(() => {
    */
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      store.savePostType(values, isEditMode, slug).then(nextPostType => {
-        if (nextPostType) {
-          form.setFieldsValue(store.formValues);
-          navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: nextPostType.slug }), {
-            replace: false,
-          });
-        }
-      });
+      const nextPostType = await store.savePostType(values, isEditMode, slug);
+      if (nextPostType) {
+        // Форма автоматически обновится через первый useEffect при изменении store.formValues
+        navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: nextPostType.slug }), {
+          replace: false,
+        });
+      }
     },
     [isEditMode, navigate, slug, store]
   );

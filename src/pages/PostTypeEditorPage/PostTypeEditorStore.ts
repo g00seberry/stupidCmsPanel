@@ -1,19 +1,8 @@
 import { createPostType, getPostType, updatePostType } from '@/api/apiPostTypes';
-import { slugify } from '@/api/apiUtils';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
-import { debounce } from '@/utils/debounce';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
-
-const slugifyDebounced = debounce<Promise<string | undefined>, string>(async (name: string) => {
-  const trimmedName = name as string;
-  if (trimmedName.length === 0) {
-    return;
-  }
-  const result = await slugify(trimmedName);
-  return result.base;
-});
 
 /**
  * Значения формы редактора типа контента.
@@ -103,21 +92,6 @@ export class PostTypeEditorStore {
   resetForm(): void {
     this.formValues = defaultFormValues;
     this.slugManuallyEdited = false;
-  }
-
-  /**
-   * Обрабатывает изменение названия и генерирует slug при необходимости.
-   * @param name Новое значение названия.
-   * @param isEditMode Режим редактирования (в режиме редактирования slug не генерируется автоматически).
-   */
-  async handleNameChange(name: string): Promise<void> {
-    if (this.initialLoading || this.pending) {
-      return;
-    }
-    const newSlug = await slugifyDebounced(300, name);
-    if (newSlug) {
-      this.setFormField('slug', newSlug);
-    }
   }
 
   /**

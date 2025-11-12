@@ -1,6 +1,14 @@
 import { refresh } from '@/api/apiAuth';
 import { authStore } from '@/AuthStore';
+
+/**
+ * HTTP-ответ с обязательным полем статуса.
+ */
 export type ApiResponseWithStatus = { status: number };
+
+/**
+ * Промис обновления токенов авторизации. Используется для предотвращения параллельных запросов на обновление токенов.
+ */
 let authWait: Promise<ApiResponseWithStatus> | null = null;
 
 /**
