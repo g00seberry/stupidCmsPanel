@@ -1,6 +1,9 @@
 import { rest } from '@/api/rest';
 import { z } from 'zod';
 
+const getAdminUtilsUrl = (part: string) => {
+  return `/api/v1/admin/utils${part}`;
+};
 /**
  * Схема ответа API генерации slug.
  */
@@ -26,12 +29,33 @@ export type ZSlugifyResponse = z.infer<typeof zSlugifyResponse>;
  * console.log(result.unique); // 'moya-pervaya-statya-1' (если базовый занят)
  */
 export const slugify = async (title: string, postType?: string): Promise<ZSlugifyResponse> => {
-  const params = new URLSearchParams({ title });
-  if (postType) {
-    params.append('postType', postType);
-  }
-
-  const response = await rest.get<ZSlugifyResponse>(`/api/v1/admin/utils/slugify?${params.toString()}`);
+  const response = await rest.get<ZSlugifyResponse>(getAdminUtilsUrl('/slugify'), {
+    params: { title, postType },
+  });
   return zSlugifyResponse.parse(response.data);
 };
 
+/**
+ * Схема ответа API получения списка шаблонов.
+ */
+const zTemplatesResponse = z.object({
+  data: z.array(z.string()),
+});
+
+/**
+ * Тип ответа API получения списка шаблонов.
+ */
+export type ZTemplatesResponse = z.infer<typeof zTemplatesResponse>;
+
+/**
+ * Получает список доступных шаблонов через API.
+ * @returns Массив имён шаблонов.
+ * @example
+ * const templates = await getTemplates();
+ * console.log(templates); // ['pages.show', 'home.default', 'welcome']
+ */
+export const getTemplates = async (): Promise<string[]> => {
+  const response = await rest.get<ZTemplatesResponse>(getAdminUtilsUrl('/templates'));
+  const parsed = zTemplatesResponse.parse(response.data);
+  return parsed.data;
+};

@@ -1,6 +1,6 @@
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { App, Button, Card, Form, Input, Spin } from 'antd';
+import { App, Button, Card, Form, Input, Spin, Select } from 'antd';
 import { Check, Info, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -25,6 +25,11 @@ export const PostTypeEditorPage = observer(() => {
   useEffect(() => {
     form.setFieldsValue(store.formValues);
   }, [form, store.formValues]);
+
+  // Загрузка списка шаблонов
+  useEffect(() => {
+    void store.loadTemplates();
+  }, [store]);
 
   // Загрузка данных при изменении slug в режиме редактирования
   useEffect(() => {
@@ -215,7 +220,19 @@ export const PostTypeEditorPage = observer(() => {
                     {/* Template */}
                     <div className="space-y-2">
                       <Form.Item label="Шаблон" name="template" className="mb-0">
-                        <Input placeholder="single-article" />
+                        <Select
+                          placeholder="Выберите шаблон"
+                          allowClear
+                          showSearch
+                          loading={store.loadingTemplates}
+                          filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                          }
+                          options={store.templates.map(template => ({
+                            value: template,
+                            label: template,
+                          }))}
+                        />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground">
                         Имя шаблона для отображения записей этого типа контента

@@ -1,6 +1,6 @@
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { Button, Card, DatePicker, Form, Input, Switch, Spin } from 'antd';
+import { Button, Card, DatePicker, Form, Input, Switch, Spin, Select } from 'antd';
 import { Check, Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -36,6 +36,11 @@ export const EntryEditorPage = observer(() => {
         .finally(() => setLoadingPostType(false));
     }
   }, [postTypeSlug]);
+
+  // Загрузка списка шаблонов
+  useEffect(() => {
+    void store.loadTemplates();
+  }, [store]);
 
   // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
@@ -228,7 +233,19 @@ export const EntryEditorPage = observer(() => {
                         name="template_override"
                         className="mb-0"
                       >
-                        <Input placeholder="templates.landing" />
+                        <Select
+                          placeholder="Выберите шаблон"
+                          allowClear
+                          showSearch
+                          loading={store.loadingTemplates}
+                          filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                          }
+                          options={store.templates.map(template => ({
+                            value: template,
+                            label: template,
+                          }))}
+                        />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground">
                         Имя шаблона для переопределения шаблона типа контента

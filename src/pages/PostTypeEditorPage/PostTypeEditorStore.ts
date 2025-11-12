@@ -1,4 +1,5 @@
 import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
+import { getTemplates } from '@/api/apiUtils';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
@@ -45,6 +46,8 @@ export class PostTypeEditorStore {
   initialLoading = false;
   pending = false;
   slugManuallyEdited = false;
+  templates: string[] = [];
+  loadingTemplates = false;
 
   /**
    * Создаёт экземпляр стора редактора типа контента.
@@ -92,6 +95,23 @@ export class PostTypeEditorStore {
   resetForm(): void {
     this.formValues = defaultFormValues;
     this.slugManuallyEdited = false;
+  }
+
+  /**
+   * Загружает список доступных шаблонов.
+   */
+  async loadTemplates(): Promise<void> {
+    if (this.loadingTemplates || this.templates.length > 0) {
+      return;
+    }
+    this.loadingTemplates = true;
+    try {
+      this.templates = await getTemplates();
+    } catch (error) {
+      onError(error);
+    } finally {
+      this.loadingTemplates = false;
+    }
   }
 
   /**

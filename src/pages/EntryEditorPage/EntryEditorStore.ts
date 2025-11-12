@@ -1,4 +1,5 @@
 import { createEntry, getEntry, updateEntry } from '@/api/apiEntries';
+import { getTemplates } from '@/api/apiUtils';
 import { notificationService } from '@/services/notificationService';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
 import { onError } from '@/utils/onError';
@@ -55,6 +56,8 @@ export class EntryEditorStore {
   formValues: FormValues = defaultFormValues;
   initialLoading = false;
   pending = false;
+  templates: string[] = [];
+  loadingTemplates = false;
 
   /**
    * Создаёт экземпляр стора редактора записи.
@@ -101,6 +104,23 @@ export class EntryEditorStore {
    */
   resetForm(): void {
     this.formValues = defaultFormValues;
+  }
+
+  /**
+   * Загружает список доступных шаблонов.
+   */
+  async loadTemplates(): Promise<void> {
+    if (this.loadingTemplates || this.templates.length > 0) {
+      return;
+    }
+    this.loadingTemplates = true;
+    try {
+      this.templates = await getTemplates();
+    } catch (error) {
+      onError(error);
+    } finally {
+      this.loadingTemplates = false;
+    }
   }
 
   /**
