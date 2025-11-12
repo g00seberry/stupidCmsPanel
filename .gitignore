@@ -27,3 +27,6 @@ docs/node_modules
 *.sln
 *.sw?
 /easy-forge-wizard-main
+
+# Docs generation lock file
+.docs-gen-lock

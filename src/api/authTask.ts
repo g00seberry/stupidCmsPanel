@@ -13,9 +13,14 @@ let authWait: Promise<ApiResponseWithStatus> | null = null;
 
 /**
  * Выполняет запрос к API с автоматическим обновлением токенов при 401 ответе.
+ * Предотвращает параллельные запросы на обновление токенов через механизм блокировки.
+ * Если после обновления токенов запрос всё ещё возвращает 401, пользователь разлогинивается.
  * @param task Функция, выполняющая HTTP-запрос.
  * @returns Ответ API после возможного обновления токенов.
- * @throws HttpError Если обновить токены не удалось.
+ * @throws {Error} Если обновить токены не удалось или пользователь не авторизован.
+ * @example
+ * const response = await authTask(() => axios.get('/api/v1/protected'));
+ * // Если получили 401, токены автоматически обновятся и запрос повторится
  */
 export const authTask = async <R extends ApiResponseWithStatus>(
   task: () => Promise<R>

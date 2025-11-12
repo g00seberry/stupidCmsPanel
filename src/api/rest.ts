@@ -18,6 +18,21 @@ const runWithAuth = async <R extends AxiosResponse>(task: () => Promise<R>): Pro
 
 /**
  * Унифицированный API-клиент с поддержкой автоматического обновления токенов.
+ * Все запросы автоматически обрабатывают 401 ошибки, пытаясь обновить токены.
+ * Использует CSRF защиту через cookies и заголовки.
+ * @example
+ * // GET запрос
+ * const response = await rest.get<User>('/api/v1/users/1');
+ * console.log(response.data);
+ *
+ * // POST запрос
+ * const newUser = await rest.post<User>('/api/v1/users', { name: 'John' });
+ *
+ * // PUT запрос
+ * const updated = await rest.put<User>('/api/v1/users/1', { name: 'Jane' });
+ *
+ * // DELETE запрос
+ * await rest.delete('/api/v1/users/1');
  */
 export const rest = {
   /**

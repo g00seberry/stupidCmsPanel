@@ -13,7 +13,15 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,less}\" \"*.{ts,js}\" \"*.config.{ts,js}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,less}\" \"*.{ts,js}\" \"*.config.{ts,js}\"",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "docs:clean": "tsx scripts/clean-docs.ts",
+    "docs:gen:api": "typedoc --options typedoc.json && tsx scripts/gen-api-index.ts",
+    "docs:gen:components": "tsx scripts/gen-components-docs.ts",
+    "docs:gen:pages": "tsx scripts/gen-pages-docs.ts",
+    "docs:gen": "npm run docs:clean && npm run docs:gen:api && npm run docs:gen:components && npm run docs:gen:pages",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "npm run docs:gen && vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -21,26 +29,33 @@
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/node": "^22.10.1",
-    "autoprefixer": "^10.4.21",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "fs-extra": "^11.3.2",
+    "globby": "^15.0.0",
     "husky": "^9.1.7",
     "jsdom": "^27.1.0",
     "less": "^4.4.2",
     "lint-staged": "^15.4.3",
     "postcss": "^8.4.49",
     "prettier": "^3.6.2",
+    "react-docgen-typescript": "^2.4.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.20.6",
+    "typedoc": "^0.28.14",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
     "vite": "^7.1.7",
+    "vitepress": "^1.6.4",
     "vitest": "^2.1.5"
   },
   "dependencies": {
@@ -60,6 +75,9 @@
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
       "npm run lint"
+    ],
+    "src/**/*.{ts,tsx}": [
+      "tsx scripts/gen-docs-if-needed.ts"
     ]
   }
 }

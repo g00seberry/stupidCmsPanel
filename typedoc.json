@@ -1,0 +1,25 @@
+{
+  "entryPoints": [
+    "src/api/**/*.ts",
+    "src/utils/**/*.ts",
+    "src/types/**/*.ts",
+    "src/**/*Store.ts",
+    "src/services/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.*",
+    "**/__mocks__/**",
+    "**/node_modules/**",
+    "src/test/**"
+  ],
+  "plugin": ["typedoc-plugin-markdown"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "readme": "none",
+  "hideBreadcrumbs": true,
+  "categorizeByGroup": false,
+  "tsconfig": "tsconfig.json",
+  "githubPages": false,
+  "out": "docs/api"
+}
+

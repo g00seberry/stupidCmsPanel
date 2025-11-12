@@ -7,6 +7,11 @@ const getAdminPostTypesUrl = (path: string): string => `/api/v1/admin/post-types
 /**
  * Загружает список доступных типов контента.
  * @returns Массив типов контента, прошедших валидацию схемой `zPostType`.
+ * @example
+ * const postTypes = await listPostTypes();
+ * postTypes.forEach(type => {
+ *   console.log(`${type.name} (${type.slug})`);
+ * });
  */
 export const listPostTypes = async (): Promise<ZPostType[]> => {
   const response = await rest.get(getAdminPostTypesUrl(''));
@@ -27,6 +32,13 @@ export const getPostType = async (slug: string): Promise<ZPostType> => {
  * Создаёт новый тип контента.
  * @param payload Данные нового типа контента.
  * @returns Созданный тип контента.
+ * @example
+ * const newType = await createPostType({
+ *   slug: 'article',
+ *   name: 'Статья',
+ *   template: 'article-template',
+ *   options_json: { allowComments: true }
+ * });
  */
 export const createPostType = async (payload: ZPostTypePayload): Promise<ZPostType> => {
   const parsedPayload = zPostTypePayload.parse(payload);
