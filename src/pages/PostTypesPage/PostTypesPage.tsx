@@ -59,7 +59,7 @@ export const PostTypesPage = () => {
         </div>
       </div>
 
-      <div className="px-6 py-8 w-full max-w-[1400px] mx-auto">
+      <div className="px-6 py-8 w-full">
         {pending ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />
