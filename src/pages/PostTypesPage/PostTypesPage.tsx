@@ -73,7 +73,7 @@ export const PostTypesPage = () => {
             {postTypes.map(postType => (
               <Card
                 key={postType.slug}
-                className="p-6 transition-all hover:shadow-lg hover:-translate-y-1"
+                className="transition-all hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>

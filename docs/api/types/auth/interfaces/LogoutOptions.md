@@ -4,7 +4,7 @@
 
 # Interface: LogoutOptions
 
-Defined in: [src/types/auth.ts:72](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/types/auth.ts#L72)
+Defined in: [src/types/auth.ts:72](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/auth.ts#L72)
 
 Параметры завершения пользовательской сессии.
 
@@ -24,7 +24,7 @@ await logout({ all: true });
 
 > `optional` **all**: `boolean`
 
-Defined in: [src/types/auth.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/types/auth.ts#L77)
+Defined in: [src/types/auth.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/auth.ts#L77)
 
 Если `true`, завершает все активные сессии пользователя на всех устройствах.
 По умолчанию `false` - завершается только текущая сессия.

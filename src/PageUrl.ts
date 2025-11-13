@@ -5,6 +5,8 @@ export const PageUrl = {
   Dashboard: '/',
   Media: '/media',
   Taxonomies: '/taxonomies',
+  TaxonomiesEdit: '/taxonomies/:slug',
+  TermsByTaxonomy: '/taxonomies/:taxonomy/terms',
   ContentTypes: '/content-types',
   ContentTypesEdit: '/content-types/:slug',
   Seo: '/seo',

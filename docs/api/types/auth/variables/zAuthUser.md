@@ -6,7 +6,7 @@
 
 > `const` **zAuthUser**: `ZodObject`\<\{ `email`: `ZodEmail`; `id`: `ZodNumber`; `name`: `ZodString`; \}, `$strip`\>
 
-Defined in: [src/types/auth.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/types/auth.ts#L38)
+Defined in: [src/types/auth.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/auth.ts#L38)
 
 Схема валидации данных пользователя, возвращаемых API.
 

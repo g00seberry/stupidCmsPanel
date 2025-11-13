@@ -6,7 +6,7 @@
 
 > **slugify**(`title`, `postType?`): `Promise`\<\{ `base`: `string`; `unique`: `string`; \}\>
 
-Defined in: [src/api/apiUtils.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/api/apiUtils.ts#L19)
+Defined in: [src/api/apiUtils.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/api/apiUtils.ts#L19)
 
 Генерирует slug из заголовка через API.
 Создаёт URL-friendly строку из текста и проверяет уникальность.

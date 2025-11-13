@@ -6,6 +6,6 @@
 
 > **ZEntry** = `z.infer`\<*typeof* [`zEntry`](../variables/zEntry.md)\>
 
-Defined in: [src/types/entries.ts:56](https://github.com/g00seberry/stupidCmsPanel/blob/27012560dfe0763ffb49762123a25e0268e43694/src/types/entries.ts#L56)
+Defined in: [src/types/entries.ts:56](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/entries.ts#L56)
 
 Тип данных одной записи CMS.
