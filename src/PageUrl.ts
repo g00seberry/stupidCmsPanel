@@ -7,6 +7,7 @@ export const PageUrl = {
   Taxonomies: '/taxonomies',
   TaxonomiesEdit: '/taxonomies/:slug',
   TermsByTaxonomy: '/taxonomies/:taxonomy/terms',
+  TermEdit: '/taxonomies/:taxonomy/terms/:id',
   ContentTypes: '/content-types',
   ContentTypesEdit: '/content-types/:slug',
   Seo: '/seo',

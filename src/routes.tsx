@@ -6,6 +6,8 @@ import { PostTypeEditorPage } from '@/pages/PostTypeEditorPage/PostTypeEditorPag
 import { PostTypesPage } from '@/pages/PostTypesPage/PostTypesPage';
 import { TaxonomiesPage } from '@/pages/TaxonomiesPage/TaxonomiesPage';
 import { TaxonomiesEditorPage } from '@/pages/TaxonomiesEditorPage/TaxonomiesEditorPage';
+import { TermsPage } from '@/pages/TermsPage/TermsPage';
+import { TermEditorPage } from '@/pages/TermEditorPage/TermEditorPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -21,5 +23,7 @@ export const routes = [
   { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },
   { path: PageUrl.Taxonomies, element: <TaxonomiesPage /> },
   { path: PageUrl.TaxonomiesEdit, element: <TaxonomiesEditorPage /> },
+  { path: PageUrl.TermsByTaxonomy, element: <TermsPage /> },
+  { path: PageUrl.TermEdit, element: <TermEditorPage /> },
   { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

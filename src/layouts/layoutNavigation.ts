@@ -50,7 +50,6 @@ export const sidebarLinks: readonly SidebarLink[] = [
   { title: 'Media', url: PageUrl.Media, icon: Image },
   { title: 'Taxonomies', url: PageUrl.Taxonomies, icon: Tags },
   { title: 'Content Types', url: PageUrl.ContentTypes, icon: FileType },
-  { title: 'SEO', url: PageUrl.Seo, icon: Search },
 ] as const;
 
 /**
@@ -68,5 +67,4 @@ export const headerLinks: readonly HeaderLink[] = [
   { title: 'Media', url: PageUrl.Media },
   { title: 'Taxonomies', url: PageUrl.Taxonomies },
   { title: 'Content Types', url: PageUrl.ContentTypes },
-  { title: 'SEO', url: PageUrl.Seo },
 ] as const;
