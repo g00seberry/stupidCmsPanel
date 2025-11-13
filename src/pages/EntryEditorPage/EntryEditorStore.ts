@@ -159,11 +159,11 @@ export class EntryEditorStore {
       }
 
       const payload: ZEntryPayload = {
-        title: values.title.trim(),
-        slug: values.slug.trim(),
+        title: (values.title || '').trim(),
+        slug: (values.slug || '').trim(),
         is_published: values.is_published,
         published_at: serverDate(values.published_at),
-        template_override: values.template_override.trim() || null,
+        template_override: (values.template_override || '').trim() || null,
         ...(postType && { post_type: postType }),
       };
 
