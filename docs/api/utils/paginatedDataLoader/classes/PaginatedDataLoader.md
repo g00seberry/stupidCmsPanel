@@ -4,7 +4,7 @@
 
 # Class: PaginatedDataLoader\<TData, TParams\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L49)
+Defined in: [src/utils/paginatedDataLoader.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L49)
 
 Универсальный загрузчик пагинированных данных.
 Управляет состоянием загрузки, данными и пагинацией для любого типа сущностей.
@@ -40,7 +40,7 @@ console.log(loader.data); // Массив записей
 
 > **new PaginatedDataLoader**\<`TData`, `TParams`\>(`loadFn`, `defaultFilters`): `PaginatedDataLoader`\<`TData`, `TParams`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:70](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L70)
+Defined in: [src/utils/paginatedDataLoader.ts:70](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L70)
 
 Создаёт экземпляр загрузчика пагинированных данных.
 
@@ -68,7 +68,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:70](https://github.com/g00seberry/
 
 > **data**: `TData`[] = `[]`
 
-Defined in: [src/utils/paginatedDataLoader.ts:51](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L51)
+Defined in: [src/utils/paginatedDataLoader.ts:51](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L51)
 
 Массив загруженных данных.
 
@@ -78,7 +78,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:51](https://github.com/g00seberry/
 
 > **filters**: `TParams`
 
-Defined in: [src/utils/paginatedDataLoader.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L61)
+Defined in: [src/utils/paginatedDataLoader.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L61)
 
 Текущие параметры фильтрации.
 
@@ -88,7 +88,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:61](https://github.com/g00seberry/
 
 > **initialLoading**: `boolean` = `false`
 
-Defined in: [src/utils/paginatedDataLoader.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L59)
+Defined in: [src/utils/paginatedDataLoader.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L59)
 
 Флаг начальной загрузки данных.
 
@@ -98,7 +98,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:59](https://github.com/g00seberry/
 
 > **paginationLinks**: \{ `first`: `string` \| `null`; `last`: `string` \| `null`; `next`: `string` \| `null`; `prev`: `string` \| `null`; \} \| `null` = `null`
 
-Defined in: [src/utils/paginatedDataLoader.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L55)
+Defined in: [src/utils/paginatedDataLoader.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L55)
 
 Ссылки пагинации.
 
@@ -138,7 +138,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:55](https://github.com/g00seberry/
 
 > **paginationMeta**: \{ `current_page`: `number`; `last_page`: `number`; `per_page`: `number`; `total`: `number`; \} \| `null` = `null`
 
-Defined in: [src/utils/paginatedDataLoader.ts:53](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L53)
+Defined in: [src/utils/paginatedDataLoader.ts:53](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L53)
 
 Метаданные пагинации.
 
@@ -178,7 +178,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:53](https://github.com/g00seberry/
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/utils/paginatedDataLoader.ts:57](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L57)
+Defined in: [src/utils/paginatedDataLoader.ts:57](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L57)
 
 Флаг выполнения запроса загрузки.
 
@@ -188,7 +188,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:57](https://github.com/g00seberry/
 
 > **goToPage**(`page`): `Promise`\<`void`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:114](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L114)
+Defined in: [src/utils/paginatedDataLoader.ts:114](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L114)
 
 Переходит на указанную страницу.
 
@@ -210,7 +210,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:114](https://github.com/g00seberry
 
 > **initialize**(`initialFilters?`): `Promise`\<`void`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:131](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L131)
+Defined in: [src/utils/paginatedDataLoader.ts:131](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L131)
 
 Инициализирует загрузку данных при первом открытии страницы.
 
@@ -232,7 +232,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:131](https://github.com/g00seberry
 
 > **load**(): `Promise`\<`void`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:79](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L79)
+Defined in: [src/utils/paginatedDataLoader.ts:79](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L79)
 
 Загружает данные с текущими фильтрами.
 
@@ -246,7 +246,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:79](https://github.com/g00seberry/
 
 > **resetFilters**(`defaultFilters`): `Promise`\<`void`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:122](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L122)
+Defined in: [src/utils/paginatedDataLoader.ts:122](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L122)
 
 Сбрасывает фильтры к значениям по умолчанию.
 
@@ -268,7 +268,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:122](https://github.com/g00seberry
 
 > **setFilters**(`filters`): `Promise`\<`void`\>
 
-Defined in: [src/utils/paginatedDataLoader.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/paginatedDataLoader.ts#L105)
+Defined in: [src/utils/paginatedDataLoader.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/paginatedDataLoader.ts#L105)
 
 Устанавливает фильтры и перезагружает данные.
 

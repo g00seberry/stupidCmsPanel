@@ -6,7 +6,7 @@
 
 > **onError**(`error`): `void`
 
-Defined in: [src/utils/onError.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/onError.ts#L9)
+Defined in: [src/utils/onError.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/onError.ts#L9)
 
 Показывает уведомление об ошибке и извлекает описание из разных источников.
 

@@ -4,9 +4,9 @@
 
 # Variable: zPostTypePayload
 
-> `const` **zPostTypePayload**: `ZodObject`\<\{ `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodRecord`\<`ZodString`, `ZodUnknown`\>\>; `slug`: `ZodString`; `template`: `ZodNullable`\<`ZodOptional`\<`ZodString`\>\>; \}, `$strip`\>
+> `const` **zPostTypePayload**: `ZodObject`\<\{ `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodRecord`\<`ZodString`, `ZodUnknown`\>\>; `slug`: `ZodString`; \}, `$strip`\>
 
-Defined in: [src/types/postTypes.ts:47](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/postTypes.ts#L47)
+Defined in: [src/types/postTypes.ts:43](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/postTypes.ts#L43)
 
 Схема валидации данных для создания или обновления типа контента.
 
@@ -14,9 +14,8 @@ Defined in: [src/types/postTypes.ts:47](https://github.com/g00seberry/stupidCmsP
 
 ```ts
 const payload: ZPostTypePayload = {
-  slug: 'article',
-  name: 'Статья',
-  template: 'article-template',
-  options_json: { allowComments: true }
+  slug: 'product',
+  name: 'Products',
+  options_json: { fields: { price: { type: 'number' } } }
 };
 ```

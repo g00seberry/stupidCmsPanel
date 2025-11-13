@@ -6,7 +6,7 @@
 
 > `const` **notificationService**: `object`
 
-Defined in: [src/services/notificationService.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/services/notificationService.ts#L10)
+Defined in: [src/services/notificationService.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/services/notificationService.ts#L10)
 
 Сервис интеграции с уведомлениями Ant Design.
 

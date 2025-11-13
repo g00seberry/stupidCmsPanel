@@ -4,9 +4,9 @@
 
 # Variable: zPostType
 
-> `const` **zPostType**: `ZodObject`\<\{ `created_at`: `ZodOptional`\<`ZodString`\>; `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodOptional`\<`ZodNullable`\<`ZodRecord`\<`ZodString`, `ZodUnknown`\>\>\>\>; `slug`: `ZodString`; `template`: `ZodNullable`\<`ZodOptional`\<`ZodString`\>\>; `updated_at`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>
+> `const` **zPostType**: `ZodObject`\<\{ `created_at`: `ZodOptional`\<`ZodString`\>; `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodRecord`\<`ZodString`, `ZodUnknown`\>\>; `slug`: `ZodString`; `updated_at`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>
 
-Defined in: [src/types/postTypes.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/types/postTypes.ts#L16)
+Defined in: [src/types/postTypes.ts:15](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/postTypes.ts#L15)
 
 Схема валидации типа контента CMS.
 Тип контента определяет структуру и настройки для записей определённого вида.
@@ -16,10 +16,9 @@ Defined in: [src/types/postTypes.ts:16](https://github.com/g00seberry/stupidCmsP
 ```ts
 const postType: ZPostType = {
   slug: 'article',
-  name: 'Статья',
-  template: 'article-template',
-  options_json: { allowComments: true },
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-02T00:00:00Z'
+  name: 'Articles',
+  options_json: { fields: { price: { type: 'number' } } },
+  created_at: '2025-01-10T12:45:00+00:00',
+  updated_at: '2025-01-10T12:45:00+00:00'
 };
 ```

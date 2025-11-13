@@ -4,9 +4,9 @@
 
 # Function: updatePostType()
 
-> **updatePostType**(`slug`, `payload`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\> \| `null`; `slug`: `string`; `template?`: `string` \| `null`; `updated_at?`: `string`; \}\>
+> **updatePostType**(`slug`, `payload`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \}\>
 
-Defined in: [src/api/apiPostTypes.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/api/apiPostTypes.ts#L55)
+Defined in: [src/api/apiPostTypes.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiPostTypes.ts#L54)
 
 Обновляет существующий тип контента.
 
@@ -40,14 +40,8 @@ Defined in: [src/api/apiPostTypes.ts:55](https://github.com/g00seberry/stupidCms
 
 Уникальный идентификатор типа контента. Не может быть пустым.
 
-#### template?
-
-`string` \| `null` = `...`
-
-Имя шаблона для рендеринга. Может быть `null` или `undefined`.
-
 ## Returns
 
-`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\> \| `null`; `slug`: `string`; `template?`: `string` \| `null`; `updated_at?`: `string`; \}\>
+`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \}\>
 
 Обновлённый тип контента.

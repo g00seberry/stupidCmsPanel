@@ -6,7 +6,7 @@
 
 > **getCurrentUser**(): `Promise`\<\{ `email`: `string`; `id`: `number`; `name`: `string`; \}\>
 
-Defined in: [src/api/apiAuth.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/api/apiAuth.ts#L18)
+Defined in: [src/api/apiAuth.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiAuth.ts#L18)
 
 Загружает данные текущего авторизованного пользователя.
 Используется для проверки авторизации и получения информации о пользователе.

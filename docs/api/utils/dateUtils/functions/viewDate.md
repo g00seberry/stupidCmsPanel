@@ -6,7 +6,7 @@
 
 > **viewDate**(`date`): `Dayjs` \| `null`
 
-Defined in: [src/utils/dateUtils.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/fe7f757c8d344112764acce75b3b19ea24059bb9/src/utils/dateUtils.ts#L39)
+Defined in: [src/utils/dateUtils.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/dateUtils.ts#L39)
 
 Преобразует дату из формата сервера (ISO 8601 строка) в формат представления (Dayjs объект).
 

@@ -16,7 +16,9 @@
 | `/media` | `-` |
 | `/seo` | `-` |
 | `/settings` | `-` |
-| `/taxonomies` | `-` |
+| `/taxonomies` | `TaxonomiesPage` |
+| `/taxonomies/:slug` | `TaxonomiesEditorPage` |
+| `/taxonomies/:taxonomy/terms` | `-` |
 | `article` | `-` |
 
 ## Структура файлов
@@ -43,4 +45,13 @@
 ### PostTypesPage
 
 - `PostTypesPage.tsx`
+
+### TaxonomiesEditorPage
+
+- `TaxonomiesEditorPage.tsx`
+- `TaxonomiesEditorStore.ts`
+
+### TaxonomiesPage
+
+- `TaxonomiesPage.tsx`
 
