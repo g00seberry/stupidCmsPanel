@@ -26,11 +26,6 @@ export const PostTypeEditorPage = observer(() => {
     form.setFieldsValue(store.formValues);
   }, [form, store.formValues]);
 
-  // Загрузка списка шаблонов
-  useEffect(() => {
-    void store.loadTemplates();
-  }, [store]);
-
   // Загрузка данных при изменении slug в режиме редактирования
   useEffect(() => {
     if (slug && isEditMode) {
@@ -214,28 +209,6 @@ export const PostTypeEditorPage = observer(() => {
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
                         <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
                         <span>Уникальный идентификатор типа контента в URL</span>
-                      </p>
-                    </div>
-
-                    {/* Template */}
-                    <div className="space-y-2">
-                      <Form.Item label="Шаблон" name="template" className="mb-0">
-                        <Select
-                          placeholder="Выберите шаблон"
-                          allowClear
-                          showSearch
-                          loading={store.loadingTemplates}
-                          filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                          }
-                          options={store.templates.map(template => ({
-                            value: template.name,
-                            label: template.name,
-                          }))}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Имя шаблона для отображения записей этого типа контента
                       </p>
                     </div>
                   </div>

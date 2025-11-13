@@ -14,8 +14,6 @@ import type { Dayjs } from 'dayjs';
 export interface FormValues {
   readonly title: string;
   readonly slug: string;
-  readonly content_json: string;
-  readonly meta_json: string;
   readonly is_published: boolean;
   readonly published_at: Dayjs | null;
   readonly template_override: string;
@@ -24,8 +22,6 @@ export interface FormValues {
 const defaultFormValues: FormValues = {
   title: '',
   slug: '',
-  content_json: '',
-  meta_json: '',
   is_published: false,
   published_at: null,
   template_override: '',
@@ -37,13 +33,9 @@ const defaultFormValues: FormValues = {
  * @returns Значения формы, готовые к отображению пользователю.
  */
 const toFormValues = (entry: ZEntry): FormValues => {
-  const contentJson = entry.content_json ?? {};
-  const metaJson = entry.meta_json ?? {};
   return {
     title: entry.title,
     slug: entry.slug,
-    content_json: JSON.stringify(contentJson, null, 2),
-    meta_json: JSON.stringify(metaJson, null, 2),
     is_published: entry.is_published,
     published_at: viewDate(entry.published_at),
     template_override: entry.template_override ?? '',
@@ -166,39 +158,9 @@ export class EntryEditorStore {
         return null;
       }
 
-      let contentJson: Record<string, unknown> | null = null;
-      let metaJson: Record<string, unknown> | null = null;
-
-      // Парсим JSON поля
-      if (values.content_json.trim()) {
-        try {
-          contentJson = JSON.parse(values.content_json);
-        } catch (error) {
-          notificationService.showError({
-            message: 'Ошибка валидации',
-            description: 'Неверный формат JSON в поле content_json',
-          });
-          return null;
-        }
-      }
-
-      if (values.meta_json.trim()) {
-        try {
-          metaJson = JSON.parse(values.meta_json);
-        } catch (error) {
-          notificationService.showError({
-            message: 'Ошибка валидации',
-            description: 'Неверный формат JSON в поле meta_json',
-          });
-          return null;
-        }
-      }
-
       const payload: ZEntryPayload = {
         title: values.title.trim(),
         slug: values.slug.trim(),
-        content_json: contentJson ?? undefined,
-        meta_json: metaJson ?? undefined,
         is_published: values.is_published,
         published_at: serverDate(values.published_at),
         template_override: values.template_override.trim() || null,

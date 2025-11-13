@@ -1,8 +1,6 @@
 import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
-import { getTemplates } from '@/api/apiTemplates';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
-import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
@@ -12,30 +10,22 @@ import { makeAutoObservable } from 'mobx';
 export interface FormValues {
   readonly name: string;
   readonly slug: string;
-  readonly template: string;
-  readonly options_json: string;
 }
 
 const defaultFormValues: FormValues = {
   name: '',
   slug: '',
-  template: '',
-  options_json: '',
 };
 
 /**
  * Преобразует данные типа контента в значения формы.
  * @param postType Тип контента, полученный из API.
- * @param fallbackTemplate Значение шаблона по умолчанию.
  * @returns Значения формы, готовые к отображению пользователю.
  */
 const toFormValues = (postType: ZPostType): FormValues => {
-  const options = postType.options_json ?? {};
   return {
     name: postType.name,
     slug: postType.slug,
-    template: postType.template ?? '',
-    options_json: JSON.stringify(options, null, 2),
   };
 };
 
@@ -47,8 +37,6 @@ export class PostTypeEditorStore {
   initialLoading = false;
   pending = false;
   slugManuallyEdited = false;
-  templates: ZTemplate[] = [];
-  loadingTemplates = false;
 
   /**
    * Создаёт экземпляр стора редактора типа контента.
@@ -99,23 +87,6 @@ export class PostTypeEditorStore {
   }
 
   /**
-   * Загружает список доступных шаблонов.
-   */
-  async loadTemplates(): Promise<void> {
-    if (this.loadingTemplates || this.templates.length > 0) {
-      return;
-    }
-    this.loadingTemplates = true;
-    try {
-      this.templates = await getTemplates();
-    } catch (error) {
-      onError(error);
-    } finally {
-      this.loadingTemplates = false;
-    }
-  }
-
-  /**
    * Загружает данные типа контента для редактирования.
    * @param slug Slug типа контента.
    */
@@ -144,10 +115,10 @@ export class PostTypeEditorStore {
     currentSlug?: string
   ): Promise<ZPostType | null> {
     this.setPending(true);
+
     const payload: ZPostTypePayload = {
       slug: values.slug.trim(),
       name: values.name.trim(),
-      template: values.template.trim() || undefined,
       options_json: {},
     };
     try {

@@ -10,8 +10,6 @@ import { getPostType } from '@/api/apiPostTypes';
 import { onError } from '@/utils/onError';
 import type { ZPostType } from '@/types/postTypes';
 
-const { TextArea } = Input;
-
 /**
  * Страница создания и редактирования записи CMS.
  */
@@ -195,34 +193,6 @@ export const EntryEditorPage = observer(() => {
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
                         <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
                         <span>URL-friendly идентификатор записи</span>
-                      </p>
-                    </div>
-
-                    {/* Content JSON */}
-                    <div className="space-y-2">
-                      <Form.Item label="Содержимое (JSON)" name="content_json" className="mb-0">
-                        <TextArea
-                          rows={10}
-                          placeholder='{"hero": {"title": "Заголовок"}, "body": {"blocks": []}}'
-                          style={{ fontFamily: 'monospace' }}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Содержимое записи в формате JSON
-                      </p>
-                    </div>
-
-                    {/* Meta JSON */}
-                    <div className="space-y-2">
-                      <Form.Item label="Метаданные (JSON)" name="meta_json" className="mb-0">
-                        <TextArea
-                          rows={6}
-                          placeholder='{"title": "Мета заголовок", "description": "Мета описание"}'
-                          style={{ fontFamily: 'monospace' }}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Метаданные записи в формате JSON (SEO и т.д.)
                       </p>
                     </div>
 

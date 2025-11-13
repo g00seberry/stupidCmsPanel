@@ -6,11 +6,10 @@ import { z } from 'zod';
  * @example
  * const postType: ZPostType = {
  *   slug: 'article',
- *   name: 'Статья',
- *   template: 'article-template',
- *   options_json: { allowComments: true },
- *   created_at: '2024-01-01T00:00:00Z',
- *   updated_at: '2024-01-02T00:00:00Z'
+ *   name: 'Articles',
+ *   options_json: { fields: { price: { type: 'number' } } },
+ *   created_at: '2025-01-10T12:45:00+00:00',
+ *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
  */
 export const zPostType = z.object({
@@ -18,10 +17,8 @@ export const zPostType = z.object({
   slug: z.string(),
   /** Отображаемое название типа контента. */
   name: z.string(),
-  /** Имя шаблона для рендеринга записей этого типа. Может быть `null`. */
-  template: z.string().optional().nullable(),
   /** Дополнительные настройки типа контента в формате JSON. */
-  options_json: z.record(z.string(), z.unknown()).nullish().default(null),
+  options_json: z.record(z.string(), z.unknown()).default({}),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -38,10 +35,9 @@ export type ZPostType = z.infer<typeof zPostType>;
  * Схема валидации данных для создания или обновления типа контента.
  * @example
  * const payload: ZPostTypePayload = {
- *   slug: 'article',
- *   name: 'Статья',
- *   template: 'article-template',
- *   options_json: { allowComments: true }
+ *   slug: 'product',
+ *   name: 'Products',
+ *   options_json: { fields: { price: { type: 'number' } } }
  * };
  */
 export const zPostTypePayload = z.object({
@@ -49,8 +45,6 @@ export const zPostTypePayload = z.object({
   slug: z.string().min(1),
   /** Отображаемое название типа контента. Не может быть пустым. */
   name: z.string().min(1),
-  /** Имя шаблона для рендеринга. Может быть `null` или `undefined`. */
-  template: z.string().optional().nullable(),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */
   options_json: z.record(z.string(), z.unknown()).default({}),
 });

@@ -34,10 +34,9 @@ export const getPostType = async (slug: string): Promise<ZPostType> => {
  * @returns Созданный тип контента.
  * @example
  * const newType = await createPostType({
- *   slug: 'article',
- *   name: 'Статья',
- *   template: 'article-template',
- *   options_json: { allowComments: true }
+ *   slug: 'product',
+ *   name: 'Products',
+ *   options_json: { fields: { price: { type: 'number' } } }
  * });
  */
 export const createPostType = async (payload: ZPostTypePayload): Promise<ZPostType> => {
