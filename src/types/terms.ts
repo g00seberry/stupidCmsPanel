@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
 
 /**
- * Схема валидации термина таксономии CMS.
+ * Базовая схема валидации термина таксономии CMS.
  * Термин представляет собой конкретное значение внутри таксономии (например, "Guides" в таксономии "Categories").
  * @example
  * const term: ZTerm = {
@@ -10,13 +10,14 @@ import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
  *   taxonomy: 'category',
  *   name: 'Guides',
  *   slug: 'guides',
+ *   parent_id: null,
  *   meta_json: {},
  *   created_at: '2025-01-10T12:00:00+00:00',
  *   updated_at: '2025-01-10T12:00:00+00:00',
  *   deleted_at: null
  * };
  */
-export const zTerm = z.object({
+const zTermBase = z.object({
   /** Уникальный идентификатор термина. */
   id: z.number(),
   /** Slug таксономии, к которой принадлежит термин. */
@@ -25,6 +26,8 @@ export const zTerm = z.object({
   name: z.string(),
   /** URL-friendly идентификатор термина. */
   slug: z.string(),
+  /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
+  parent_id: z.number().nullable().optional(),
   /** Дополнительные метаданные термина в формате JSON. */
   meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Дата создания в формате ISO 8601. */
@@ -36,10 +39,54 @@ export const zTerm = z.object({
 });
 
 /**
+ * Схема валидации термина таксономии CMS.
+ */
+export const zTerm = zTermBase;
+
+/**
+ * Схема валидации термина с вложенными дочерними терминами (для tree response).
+ * Используется только в ответах эндпоинта `/tree`.
+ * @example
+ * const termTree: ZTermTree = {
+ *   id: 1,
+ *   taxonomy: 'category',
+ *   name: 'Технологии',
+ *   slug: 'tech',
+ *   parent_id: null,
+ *   children: [
+ *     {
+ *       id: 2,
+ *       taxonomy: 'category',
+ *       name: 'Laravel',
+ *       slug: 'laravel',
+ *       parent_id: 1,
+ *       children: []
+ *     }
+ *   ],
+ *   meta_json: {},
+ *   created_at: '2025-01-10T12:00:00+00:00',
+ *   updated_at: '2025-01-10T12:00:00+00:00'
+ * };
+ */
+export const zTermTree: z.ZodType<any> = zTermBase.extend({
+  /** Массив дочерних терминов. Присутствует только в ответах эндпоинта `/tree`. */
+  children: z.lazy(() => z.array(zTermTree)).default([]),
+});
+
+/**
  * Тип данных одного термина.
  * Используется для представления термина в приложении.
  */
 export type ZTerm = z.infer<typeof zTerm>;
+
+/**
+ * Тип данных термина с вложенными дочерними терминами.
+ * Используется для представления дерева терминов.
+ */
+export type ZTermTree = ZTerm & {
+  /** Массив дочерних терминов. Присутствует только в ответах эндпоинта `/tree`. */
+  children: ZTermTree[];
+};
 
 /**
  * Схема валидации данных для создания или обновления термина.
@@ -47,6 +94,7 @@ export type ZTerm = z.infer<typeof zTerm>;
  * const payload: ZTermPayload = {
  *   name: 'Guides',
  *   slug: 'guides',
+ *   parent_id: 1,
  *   meta_json: { color: '#ffcc00' }
  * };
  */
@@ -55,6 +103,8 @@ export const zTermPayload = z.object({
   name: z.string().min(1),
   /** URL-friendly идентификатор термина. Не может быть пустым. */
   slug: z.string().min(1),
+  /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
+  parent_id: z.number().nullable().optional(),
   /** Дополнительные метаданные в формате JSON. По умолчанию пустой объект. */
   meta_json: z.record(z.string(), z.unknown()).default({}),
   /** ID записи, к которой нужно привязать термин при создании. */
@@ -100,3 +150,10 @@ export const zTermResponse = z.object({
   data: zTerm,
 });
 
+/**
+ * Ответ API с деревом терминов (для эндпоинта `/tree`).
+ */
+export const zTermsTreeResponse = z.object({
+  /** Массив корневых терминов с вложенными дочерними терминами. */
+  data: z.array(zTermTree),
+});

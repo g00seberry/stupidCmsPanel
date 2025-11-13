@@ -1,36 +1,34 @@
-import { listTerms } from '@/api/apiTerms';
 import { getTaxonomy } from '@/api/apiTaxonomies';
-import type { ListTermsParams, ZTerm } from '@/types/terms';
+import { getTermsTree } from '@/api/apiTerms';
 import type { ZTaxonomy } from '@/types/taxonomies';
-import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
+import type { ZTermTree } from '@/types/terms';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
-const defaultFilters: ListTermsParams = {
-  page: 1,
-  per_page: 10,
-};
-
 /**
  * Store для управления состоянием списка терминов таксономии.
- * Обеспечивает загрузку, фильтрацию и пагинацию терминов.
+ * Обеспечивает загрузку иерархии терминов.
  */
 export class TermsListStore {
-  /** Универсальный загрузчик пагинированных данных. */
-  loader: PaginatedDataLoader<ZTerm, ListTermsParams> | null = null;
+  /** Дерево терминов таксономии. */
+  termsTree: ZTermTree[] = [];
 
   /** Данные текущей таксономии. */
   taxonomy: ZTaxonomy | null = null;
 
   /** Флаг выполнения запроса загрузки таксономии. */
-  loadingTaxonomy = false;
+  loading = false;
 
   setTaxonomy(taxonomy: ZTaxonomy): void {
     this.taxonomy = taxonomy;
   }
 
-  setLoadingTaxonomy(loadingTaxonomy: boolean): void {
-    this.loadingTaxonomy = loadingTaxonomy;
+  setLoading(loading: boolean): void {
+    this.loading = loading;
+  }
+
+  setTermsTree(tree: ZTermTree[]): void {
+    this.termsTree = tree;
   }
 
   constructor() {
@@ -42,18 +40,15 @@ export class TermsListStore {
    * @param taxonomySlug Slug таксономии для фильтрации.
    */
   async initialize(taxonomySlug: string): Promise<void> {
-    this.setLoadingTaxonomy(true);
+    this.setLoading(true);
     try {
       this.setTaxonomy(await getTaxonomy(taxonomySlug));
-      this.loader = new PaginatedDataLoader(
-        async params => listTerms(taxonomySlug, params),
-        defaultFilters
-      );
-      await this.loader.load();
+      const tree = await getTermsTree(taxonomySlug);
+      this.setTermsTree(tree);
     } catch (error) {
       onError(error);
     } finally {
-      this.setLoadingTaxonomy(false);
+      this.setLoading(false);
     }
   }
 }

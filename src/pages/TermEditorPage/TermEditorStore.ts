@@ -10,11 +10,13 @@ import { makeAutoObservable } from 'mobx';
 export interface FormValues {
   readonly name: string;
   readonly slug: string;
+  readonly parent_id: number | null;
 }
 
 const defaultFormValues: FormValues = {
   name: '',
   slug: '',
+  parent_id: null,
 };
 
 /**
@@ -26,6 +28,7 @@ const toFormValues = (term: ZTerm): FormValues => {
   return {
     name: term.name,
     slug: term.slug,
+    parent_id: term.parent_id ?? null,
   };
 };
 
@@ -111,6 +114,7 @@ export class TermEditorStore {
     const payload: ZTermPayload = {
       name: values.name.trim(),
       slug: values.slug.trim(),
+      parent_id: values.parent_id ?? undefined,
       meta_json: {},
     };
     try {

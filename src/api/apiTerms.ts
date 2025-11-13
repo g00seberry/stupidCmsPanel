@@ -1,6 +1,6 @@
 import { rest } from '@/api/rest';
-import { zTermsResponse, zTermResponse, zTermPayload } from '@/types/terms';
-import type { ZTerm, ZTermPayload, ListTermsParams } from '@/types/terms';
+import { zTermsResponse, zTermResponse, zTermPayload, zTermsTreeResponse } from '@/types/terms';
+import type { ZTerm, ZTermPayload, ListTermsParams, ZTermTree } from '@/types/terms';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 
 const getAdminTermsUrl = (path: string): string => `/api/v1/admin/taxonomies${path}`;
@@ -33,6 +33,23 @@ export const listTerms = async (
 };
 
 /**
+ * Загружает дерево терминов для указанной таксономии.
+ * Возвращает иерархическую структуру с вложенными дочерними терминами.
+ * Используется для отображения иерархических таксономий.
+ * @param taxonomySlug Slug таксономии, для которой нужно получить дерево терминов.
+ * @returns Массив корневых терминов с вложенными дочерними терминами.
+ * @example
+ * const tree = await getTermsTree('category');
+ * // tree[0] - корневой термин
+ * // tree[0].children - дочерние термины
+ * // tree[0].children[0].children - внуки и т.д.
+ */
+export const getTermsTree = async (taxonomySlug: string): Promise<ZTermTree[]> => {
+  const response = await rest.get(getAdminTermsUrl(`/${taxonomySlug}/terms/tree`));
+  return zTermsTreeResponse.parse(response.data).data;
+};
+
+/**
  * Загружает сведения о конкретном термине.
  * @param termId Уникальный идентификатор термина.
  * @returns Термин, прошедший валидацию схемой `zTerm`.
@@ -54,10 +71,7 @@ export const getTerm = async (termId: number): Promise<ZTerm> => {
  *   meta_json: { color: '#ffcc00' }
  * });
  */
-export const createTerm = async (
-  taxonomySlug: string,
-  payload: ZTermPayload
-): Promise<ZTerm> => {
+export const createTerm = async (taxonomySlug: string, payload: ZTermPayload): Promise<ZTerm> => {
   const parsedPayload = zTermPayload.parse(payload);
   const response = await rest.post(getAdminTermsUrl(`/${taxonomySlug}/terms`), parsedPayload);
   return zTermResponse.parse(response.data).data;
@@ -69,10 +83,7 @@ export const createTerm = async (
  * @param payload Новые значения полей термина.
  * @returns Обновлённый термин.
  */
-export const updateTerm = async (
-  termId: number,
-  payload: ZTermPayload
-): Promise<ZTerm> => {
+export const updateTerm = async (termId: number, payload: ZTermPayload): Promise<ZTerm> => {
   const parsedPayload = zTermPayload.parse(payload);
   const response = await rest.put(`/api/v1/admin/terms/${termId}`, parsedPayload);
   return zTermResponse.parse(response.data).data;
@@ -97,4 +108,3 @@ export const deleteTerm = async (termId: number, forceDetach = false): Promise<b
   await rest.delete(url, config);
   return true;
 };
-

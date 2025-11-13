@@ -1,28 +1,74 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { App, Button, Card, Empty, Spin, Tag, Input, Space } from 'antd';
-import { Plus, Search, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { App, Button, Card, Empty, Spin, Tag, Tree } from 'antd';
+import type { DataNode } from 'antd/es/tree';
+import { Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { deleteTerm } from '@/api/apiTerms';
-import type { ZTerm } from '@/types/terms';
 import { onError } from '@/utils/onError';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { viewDate } from '@/utils/dateUtils';
 import axios from 'axios';
 import { notificationService } from '@/services/notificationService';
-import type { ColumnsType } from 'antd/es/table';
-import { PaginatedTable } from '@/components/PaginatedTable';
-import { FilterForm, FilterFormStore } from '@/components/FilterForm';
 import { TermsListStore } from './TermsListStore';
+import type { ZTermTree } from '@/types/terms';
+
+/**
+ * Преобразует дерево терминов в формат для Tree компонента.
+ * @param tree Дерево терминов.
+ * @param taxonomySlug Slug таксономии для ссылок редактирования.
+ * @param onDelete Обработчик удаления термина.
+ * @returns Массив узлов для Tree компонента.
+ */
+const convertTermsTreeToTreeData = (
+  tree: ZTermTree[],
+  taxonomySlug: string,
+  onDelete: (term: ZTermTree) => void
+): DataNode[] => {
+  const convertNode = (node: ZTermTree): DataNode => {
+    const children = node.children?.map(convertNode) ?? [];
+
+    return {
+      key: node.id,
+      title: (
+        <div className="flex items-center justify-between gap-4 group">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="font-medium text-foreground">{node.name}</span>
+            <code className="text-xs text-muted-foreground truncate">{node.slug}</code>
+          </div>
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Link to={buildUrl(PageUrl.TermEdit, { taxonomy: taxonomySlug, id: String(node.id) })}>
+              <Button type="text" size="small" icon={<Edit className="w-3 h-3" />} />
+            </Link>
+            <Button
+              type="text"
+              danger
+              size="small"
+              icon={<Trash2 className="w-3 h-3" />}
+              onClick={e => {
+                e.stopPropagation();
+                onDelete(node);
+              }}
+            />
+          </div>
+        </div>
+      ),
+      ...(children.length > 0 ? { children } : {}),
+    };
+  };
+
+  return tree.map(convertNode);
+};
 
 /**
  * Страница со списком терминов таксономии CMS.
+ * Отображает термины в виде иерархического дерева.
  */
 export const TermsPage = observer(() => {
   const { taxonomy: taxonomySlug } = useParams<{ taxonomy: string }>();
   const store = useMemo(() => new TermsListStore(), []);
-  const filterStore = useMemo(() => new FilterFormStore({}), []);
   const { modal } = App.useApp();
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
   // Инициализация загрузки данных
   useEffect(() => {
@@ -31,137 +77,75 @@ export const TermsPage = observer(() => {
     }
   }, [taxonomySlug, store]);
 
-  // Реакция на изменение фильтров
-  useEffect(() => {
-    const values = filterStore.values;
-    const q = values.q as string | undefined;
-    void store.loader?.setFilters({ q, page: 1 });
-  }, [filterStore.values]);
-
   /**
    * Обрабатывает удаление термина с подтверждением и обработкой ошибок.
    * @param term Термин для удаления.
    */
-  const handleDelete = async (term: ZTerm): Promise<void> => {
-    modal.confirm({
-      title: 'Удалить термин?',
-      content: `Вы уверены, что хотите удалить термин "${term.name}"? Это действие нельзя отменить.`,
-      okText: 'Удалить',
-      okType: 'danger',
-      cancelText: 'Отмена',
-      onOk: async () => {
-        try {
-          await deleteTerm(term.id, false);
-          notificationService.showSuccess({ message: 'Термин удалён' });
-          if (taxonomySlug) {
-            void store.loader?.load();
-          }
-        } catch (error) {
-          // Обработка ошибки 409 (CONFLICT) - термин привязан к записям
-          if (axios.isAxiosError(error) && error.response?.status === 409) {
-            modal.confirm({
-              title: 'Невозможно удалить термин',
-              content:
-                'Термин привязан к записям. Вы можете удалить термин с автоматической отвязкой от всех записей.',
-              okText: 'Удалить и отвязать',
-              okType: 'danger',
-              cancelText: 'Отмена',
-              onOk: async () => {
-                try {
-                  await deleteTerm(term.id, true);
-                  notificationService.showSuccess({
-                    message: 'Термин удалён и отвязан от записей',
-                  });
-                  if (taxonomySlug) {
-                    void store.loader?.load();
+  const handleDelete = useCallback(
+    async (term: ZTermTree): Promise<void> => {
+      modal.confirm({
+        title: 'Удалить термин?',
+        content: `Вы уверены, что хотите удалить термин "${term.name}"? Это действие нельзя отменить.`,
+        okText: 'Удалить',
+        okType: 'danger',
+        cancelText: 'Отмена',
+        onOk: async () => {
+          try {
+            await deleteTerm(term.id, false);
+            notificationService.showSuccess({ message: 'Термин удалён' });
+            if (taxonomySlug) {
+              void store.initialize(taxonomySlug);
+            }
+          } catch (error) {
+            // Обработка ошибки 409 (CONFLICT) - термин привязан к записям
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
+              modal.confirm({
+                title: 'Невозможно удалить термин',
+                content:
+                  'Термин привязан к записям. Вы можете удалить термин с автоматической отвязкой от всех записей.',
+                okText: 'Удалить и отвязать',
+                okType: 'danger',
+                cancelText: 'Отмена',
+                onOk: async () => {
+                  try {
+                    await deleteTerm(term.id, true);
+                    notificationService.showSuccess({
+                      message: 'Термин удалён и отвязан от записей',
+                    });
+                    if (taxonomySlug) {
+                      void store.initialize(taxonomySlug);
+                    }
+                  } catch (forceError) {
+                    onError(forceError);
                   }
-                } catch (forceError) {
-                  onError(forceError);
-                }
-              },
-            });
-          } else {
-            onError(error);
+                },
+              });
+            } else {
+              onError(error);
+            }
           }
-        }
-      },
-    });
-  };
-
-  /**
-   * Конфигурация полей фильтрации.
-   */
-  const filterFields = useMemo(
-    () => [
-      {
-        name: 'q',
-        element: (
-          <Input
-            placeholder="Поиск по названию или slug"
-            prefix={<Search className="w-4 h-4 text-muted-foreground" />}
-            allowClear
-          />
-        ),
-        className: 'flex-1 min-w-[200px]',
-      },
-    ],
-    []
+        },
+      });
+    },
+    [modal, taxonomySlug, store]
   );
 
   /**
-   * Колонки таблицы терминов.
+   * Преобразует дерево терминов в формат для Tree компонента.
    */
-  const columns: ColumnsType<ZTerm> = useMemo(
-    () => [
-      {
-        title: 'Название',
-        dataIndex: 'name',
-        key: 'name',
-        render: (text: string, record: ZTerm) => (
-          <div>
-            <div className="font-medium text-foreground">{text}</div>
-            <code className="text-xs text-muted-foreground">{record.slug}</code>
-          </div>
-        ),
-      },
-      {
-        title: 'Обновлено',
-        dataIndex: 'updated_at',
-        key: 'updated_at',
-        render: (date: string | undefined) =>
-          date ? viewDate(date)?.format('DD.MM.YYYY HH:mm') || '-' : '-',
-      },
-      {
-        title: 'Действия',
-        key: 'actions',
-        render: (_: unknown, record: ZTerm) => (
-          <Space>
-            {taxonomySlug && (
-              <Link
-                to={buildUrl(PageUrl.TermEdit, { taxonomy: taxonomySlug, id: String(record.id) })}
-              >
-                <Button type="link" size="small" icon={<Edit className="w-4 h-4" />}>
-                  Редактировать
-                </Button>
-              </Link>
-            )}
-            <Button
-              type="link"
-              danger
-              size="small"
-              icon={<Trash2 className="w-4 h-4" />}
-              onClick={() => {
-                void handleDelete(record);
-              }}
-            >
-              Удалить
-            </Button>
-          </Space>
-        ),
-      },
-    ],
-    [taxonomySlug]
-  );
+  const treeData = useMemo(() => {
+    if (!taxonomySlug || !store.termsTree.length) {
+      return [];
+    }
+    return convertTermsTreeToTreeData(store.termsTree, taxonomySlug, handleDelete);
+  }, [store.termsTree, taxonomySlug, handleDelete]);
+
+  /**
+   * Обрабатывает раскрытие/сворачивание узлов дерева.
+   */
+  const handleExpand = useCallback((keys: React.Key[]) => {
+    setExpandedKeys(keys);
+  }, []);
 
   if (!taxonomySlug) {
     return (
@@ -185,7 +169,7 @@ export const TermsPage = observer(() => {
                 Таксономии
               </Link>
               <span>/</span>
-              {store.loadingTaxonomy ? (
+              {store.loading ? (
                 <Spin size="small" />
               ) : (
                 <span className="text-foreground">{store.taxonomy?.label || taxonomySlug}</span>
@@ -225,18 +209,26 @@ export const TermsPage = observer(() => {
           </div>
         )}
 
-        {/* Фильтры */}
-        <FilterForm store={filterStore} fields={filterFields} cardClassName="mb-6" />
-
-        {/* Таблица */}
-        {store.loader && (
-          <PaginatedTable
-            loader={store.loader}
-            columns={columns}
-            rowKey="id"
-            emptyText="Термины отсутствуют"
-          />
-        )}
+        {/* Иерархия терминов */}
+        <Card>
+          {store.loading ? (
+            <div className="flex justify-center py-12">
+              <Spin size="large" />
+            </div>
+          ) : treeData.length === 0 ? (
+            <Empty description="Термины отсутствуют" />
+          ) : (
+            <Tree
+              treeData={treeData}
+              defaultExpandAll
+              expandedKeys={expandedKeys}
+              selectedKeys={selectedKeys}
+              onExpand={handleExpand}
+              onSelect={setSelectedKeys}
+              blockNode
+            />
+          )}
+        </Card>
       </div>
     </div>
   );
