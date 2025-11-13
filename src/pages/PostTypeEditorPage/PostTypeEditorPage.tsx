@@ -1,13 +1,13 @@
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { App, Button, Card, Form, Input, Spin, Select } from 'antd';
+import { zProblemJson } from '@/types/ZProblemJson';
+import { App, Button, Card, Form, Input, Spin } from 'antd';
+import axios from 'axios';
 import { Check, Info, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
-import axios from 'axios';
-import { zProblemJson } from '@/types/ZProblemJson';
 
 /**
  * Форма создания и редактирования типа контента CMS.
