@@ -7,6 +7,7 @@ import { onError } from '@/utils/onError';
 import { serverDate, viewDate } from '@/utils/dateUtils';
 import { makeAutoObservable } from 'mobx';
 import type { Dayjs } from 'dayjs';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Значения формы редактора записи.
@@ -93,13 +94,6 @@ export class EntryEditorStore {
   }
 
   /**
-   * Сбрасывает форму к значениям по умолчанию.
-   */
-  resetForm(): void {
-    this.formValues = defaultFormValues;
-  }
-
-  /**
    * Загружает список доступных шаблонов.
    */
   async loadTemplates(): Promise<void> {
@@ -120,7 +114,7 @@ export class EntryEditorStore {
    * Загружает данные записи для редактирования.
    * @param id ID записи.
    */
-  async loadEntry(id: number): Promise<void> {
+  async loadEntry(id: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
       const entry = await getEntry(id);
@@ -144,7 +138,7 @@ export class EntryEditorStore {
   async saveEntry(
     values: FormValues,
     isEditMode: boolean,
-    entryId?: number,
+    entryId?: ZId,
     postType?: string
   ): Promise<ZEntry | null> {
     this.setPending(true);

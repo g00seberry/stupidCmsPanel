@@ -1,10 +1,9 @@
 import { getTermsTree, listTerms } from '@/api/apiTerms';
 import { getTaxonomy } from '@/api/apiTaxonomies';
 import type { ZTerm, ZTermTree } from '@/types/terms';
-import type { ZTaxonomy } from '@/types/taxonomies';
 import { onError } from '@/utils/onError';
 import { Checkbox, Empty, Input, Spin, Tree } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { DataNode } from 'antd/es/tree';
 import { zId, type ZId } from '@/types/ZId';
 
@@ -27,33 +26,43 @@ export type PropsTermSelector = {
 };
 
 /**
- * Преобразует дерево термов в формат данных для Tree компонента Ant Design.
- * @param tree Массив корневых термов с вложенными дочерними терминами.
- * @param disabledIds Массив ID отключённых термов.
- * @returns Массив узлов дерева для Tree компонента.
+ * Преобразует термы в формат данных для Tree компонента Ant Design.
  */
-const buildTreeData = (tree: ZTermTree[], disabledIds: ZId[]): DataNode[] => {
-  return tree.map(term => ({
-    title: term.name,
-    key: String(term.id),
-    disabled: disabledIds.includes(term.id),
-    children: buildTreeData(term.children || [], disabledIds),
+const buildTreeData = (items: (ZTermTree | ZTerm)[], disabledIds: ZId[]): DataNode[] =>
+  items.map(item => ({
+    title: item.name,
+    key: String(item.id),
+    disabled: disabledIds.includes(item.id),
+    children:
+      'children' in item && item.children ? buildTreeData(item.children, disabledIds) : undefined,
   }));
+
+/**
+ * Извлекает все термы из дерева в плоский список.
+ */
+const extractAllTerms = (tree: ZTermTree[]): ZTerm[] => {
+  const result: ZTerm[] = [];
+  const traverse = (items: ZTermTree[]) => {
+    items.forEach(item => {
+      result.push({ ...item, children: undefined } as ZTerm);
+      if (item.children) traverse(item.children);
+    });
+  };
+  traverse(tree);
+  return result;
 };
 
 /**
- * Преобразует плоский список термов в формат данных для Tree компонента Ant Design.
- * @param terms Массив термов.
- * @param disabledIds Массив ID отключённых термов.
- * @returns Массив узлов дерева для Tree компонента.
+ * Фильтрует дерево термов по поисковому запросу.
  */
-const buildFlatTreeData = (terms: ZTerm[], disabledIds: ZId[]): DataNode[] => {
-  return terms.map(term => ({
-    title: term.name,
-    key: String(term.id),
-    disabled: disabledIds.includes(term.id),
-  }));
-};
+const filterTree = (tree: ZTermTree[], query: string): ZTermTree[] =>
+  tree
+    .map(term => {
+      const matches = term.name.toLowerCase().includes(query);
+      const children = term.children ? filterTree(term.children, query) : [];
+      return matches || children.length > 0 ? { ...term, children } : null;
+    })
+    .filter((term): term is ZTermTree => term !== null);
 
 /**
  * Компонент выбора термов из таксономии.
@@ -67,62 +76,24 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
   disabled = false,
   multiple = true,
 }) => {
-  const [taxonomy, setTaxonomy] = useState<ZTaxonomy | null>(null);
+  const [hierarchical, setHierarchical] = useState(false);
   const [terms, setTerms] = useState<ZTerm[]>([]);
   const [tree, setTree] = useState<ZTermTree[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIds, setSelectedIds] = useState<ZId[]>(selectedTermIds);
 
-  // Синхронизация внутреннего состояния с пропсом selectedTermIds
   useEffect(() => {
-    setSelectedIds(selectedTermIds);
-  }, [selectedTermIds]);
-
-  // Загрузка информации о таксономии
-  useEffect(() => {
-    const loadTaxonomy = async () => {
-      try {
-        const data = await getTaxonomy(taxonomyId);
-        setTaxonomy(data);
-      } catch (error) {
-        onError(error);
-      }
-    };
-
-    void loadTaxonomy();
-  }, [taxonomyId]);
-
-  // Загрузка термов таксономии
-  useEffect(() => {
-    const loadTerms = async () => {
-      if (!taxonomyId) {
-        return;
-      }
-
+    const load = async () => {
       setLoading(true);
       try {
-        if (taxonomy?.hierarchical) {
-          // Для иерархических таксономий загружаем дерево
+        const taxonomyData = await getTaxonomy(taxonomyId);
+        setHierarchical(taxonomyData.hierarchical);
+
+        if (taxonomyData.hierarchical) {
           const treeData = await getTermsTree(taxonomyId);
           setTree(treeData);
-          // Извлекаем все термы из дерева для фильтрации
-          const allTerms: ZTerm[] = [];
-          const traverse = (terms: ZTermTree[]) => {
-            for (const term of terms) {
-              allTerms.push({
-                ...term,
-                children: undefined,
-              } as ZTerm);
-              if (term.children && term.children.length > 0) {
-                traverse(term.children);
-              }
-            }
-          };
-          traverse(treeData);
-          setTerms(allTerms);
+          setTerms(extractAllTerms(treeData));
         } else {
-          // Для неиерархических таксономий загружаем плоский список
           const result = await listTerms(taxonomyId, { per_page: 100 });
           setTerms(result.data);
           setTree([]);
@@ -133,114 +104,36 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
         setLoading(false);
       }
     };
+    void load();
+  }, [taxonomyId]);
 
-    void loadTerms();
-  }, [taxonomyId, taxonomy?.hierarchical]);
+  const disabledIds = allowedTermIds
+    ? terms.filter(t => !allowedTermIds.includes(t.id)).map(t => t.id)
+    : [];
+  const query = searchQuery.toLowerCase();
+  const filteredTerms = query ? terms.filter(t => t.name.toLowerCase().includes(query)) : terms;
+  const filteredTree = query && hierarchical ? filterTree(tree, query) : tree;
+  const treeData = buildTreeData(hierarchical ? filteredTree : filteredTerms, disabledIds);
 
-  // Фильтрация термов по поисковому запросу
-  const filteredTerms = useMemo(() => {
-    if (!searchQuery) {
-      return terms;
-    }
-
-    const query = searchQuery.toLowerCase();
-    return terms.filter(term => term.name.toLowerCase().includes(query));
-  }, [terms, searchQuery]);
-
-  // Фильтрация дерева по поисковому запросу
-  const filteredTree = useMemo(() => {
-    if (!searchQuery || !taxonomy?.hierarchical) {
-      return tree;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filterTree = (terms: ZTermTree[]): ZTermTree[] => {
-      return terms
-        .map(term => {
-          const matches = term.name.toLowerCase().includes(query);
-          const filteredChildren = term.children ? filterTree(term.children) : [];
-
-          if (matches || filteredChildren.length > 0) {
-            return {
-              ...term,
-              children: filteredChildren,
-            };
-          }
-          return null;
-        })
-        .filter((term): term is ZTermTree => term !== null);
-    };
-
-    return filterTree(tree);
-  }, [tree, searchQuery, taxonomy?.hierarchical]);
-
-  // Определение отключённых термов
-  const disabledIds = useMemo(() => {
-    if (!allowedTermIds) {
-      return [];
-    }
-    return terms.filter(term => !allowedTermIds.includes(term.id)).map(term => term.id);
-  }, [terms, allowedTermIds]);
-
-  /**
-   * Обрабатывает переключение выбора терма.
-   * @param termId ID терма для переключения.
-   */
-  const handleToggleTerm = (termId: ZId) => {
-    if (disabled || disabledIds.includes(termId)) {
-      return;
-    }
-
-    let newSelected: ZId[];
-
-    if (multiple) {
-      // Множественный выбор
-      newSelected = selectedIds.includes(termId)
-        ? selectedIds.filter(id => id !== termId)
-        : [...selectedIds, termId];
-    } else {
-      // Одиночный выбор
-      newSelected = selectedIds.includes(termId) ? [] : [termId];
-    }
-
-    setSelectedIds(newSelected);
-    onChange?.(newSelected);
+  const handleTreeCheck = (
+    checkedKeysValue: React.Key[] | { checked: React.Key[]; halfChecked: React.Key[] }
+  ) => {
+    if (disabled) return;
+    const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;
+    onChange?.(keys.map(key => zId.parse(key)));
   };
 
-  // Построение данных для Tree компонента
-  const treeData = useMemo(() => {
-    if (taxonomy?.hierarchical) {
-      return buildTreeData(filteredTree, disabledIds);
-    }
-    return buildFlatTreeData(filteredTerms, disabledIds);
-  }, [taxonomy?.hierarchical, filteredTree, filteredTerms, disabledIds]);
-
-  // Преобразование selectedIds в формат для Tree (checkedKeys)
-  const checkedKeys = useMemo(() => {
-    return selectedIds.map(String);
-  }, [selectedIds]);
-
-  // Обработка изменения выбранных узлов дерева
-  const handleTreeCheck = (
-    checkedKeysValue:
-      | React.Key[]
-      | {
-          checked: React.Key[];
-          halfChecked: React.Key[];
-        }
-  ) => {
-    if (disabled) {
-      return;
-    }
-
-    // Ant Design Tree может возвращать объект с checked и halfChecked, или просто массив
-    const checkedKeys = Array.isArray(checkedKeysValue)
-      ? checkedKeysValue
-      : checkedKeysValue.checked;
-
-    const checkedIds = checkedKeys.map(key => zId.parse(key));
-    setSelectedIds(checkedIds);
-    onChange?.(checkedIds);
+  const handleToggleTerm = (termId: ZId) => {
+    if (disabled || disabledIds.includes(termId)) return;
+    const isSelected = selectedTermIds.includes(termId);
+    const newSelected = multiple
+      ? isSelected
+        ? selectedTermIds.filter(id => id !== termId)
+        : [...selectedTermIds, termId]
+      : isSelected
+        ? []
+        : [termId];
+    onChange?.(newSelected);
   };
 
   if (loading) {
@@ -251,13 +144,12 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     );
   }
 
-  if (terms.length === 0 && tree.length === 0) {
+  if (terms.length === 0) {
     return <Empty description="Термы отсутствуют" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
   }
 
   return (
     <div className="space-y-4">
-      {/* Поиск */}
       <Input
         placeholder="Поиск по названию..."
         value={searchQuery}
@@ -266,11 +158,10 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
         allowClear
       />
 
-      {/* Дерево или список термов */}
-      {taxonomy?.hierarchical ? (
+      {hierarchical ? (
         <Tree
           treeData={treeData}
-          checkedKeys={checkedKeys}
+          checkedKeys={selectedTermIds}
           onCheck={handleTreeCheck}
           checkable
           blockNode
@@ -283,7 +174,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
           {filteredTerms.map(term => (
             <div key={term.id} className="flex items-center">
               <Checkbox
-                checked={selectedIds.includes(term.id)}
+                checked={selectedTermIds.includes(term.id)}
                 disabled={disabled || disabledIds.includes(term.id)}
                 onChange={() => handleToggleTerm(term.id)}
               >
@@ -294,10 +185,9 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
         </div>
       )}
 
-      {/* Информация о выбранных термах */}
-      {selectedIds.length > 0 && (
+      {selectedTermIds.length > 0 && (
         <div className="text-sm text-muted-foreground">
-          Выбрано: {selectedIds.length} из {terms.length}
+          Выбрано: {selectedTermIds.length} из {terms.length}
         </div>
       )}
     </div>

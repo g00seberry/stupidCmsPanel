@@ -1,5 +1,5 @@
 import { SlugInput } from '@/components/SlugInput';
-import { EntryTermsManager } from '@/components/EntryTermsManager';
+import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsManager';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { Button, Card, DatePicker, Form, Input, Switch, Spin, Select } from 'antd';
 import { Check, Info } from 'lucide-react';
@@ -10,6 +10,7 @@ import { EntryEditorStore, type FormValues } from './EntryEditorStore';
 import { getPostType } from '@/api/apiPostTypes';
 import { onError } from '@/utils/onError';
 import type { ZPostType } from '@/types/postTypes';
+import { getTaxonomiesFromOptions } from '@/utils/postTypeOptions';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -18,8 +19,7 @@ export const EntryEditorPage = observer(() => {
   const { postType: postTypeSlug, id } = useParams<{ postType?: string; id?: string }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
-  const isEditMode = id !== 'new' && id !== undefined;
-  const entryId = isEditMode ? Number.parseInt(id, 10) : undefined;
+  const isEditMode = id !== 'new';
   const store = useMemo(() => new EntryEditorStore(), [id]);
   const titleValue = Form.useWatch('title', form);
   const [postType, setPostType] = useState<ZPostType | null>(null);
@@ -48,10 +48,10 @@ export const EntryEditorPage = observer(() => {
 
   // Загрузка данных при изменении id в режиме редактирования
   useEffect(() => {
-    if (entryId && isEditMode) {
-      void store.loadEntry(entryId);
+    if (isEditMode && id) {
+      void store.loadEntry(id);
     }
-  }, [entryId, isEditMode, store]);
+  }, [id, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -62,8 +62,8 @@ export const EntryEditorPage = observer(() => {
       if (!postTypeSlug) {
         return;
       }
-      const nextEntry = await store.saveEntry(values, isEditMode, entryId, postTypeSlug);
-      if (nextEntry && isEditMode && entryId) {
+      const nextEntry = await store.saveEntry(values, isEditMode, id, postTypeSlug);
+      if (nextEntry && isEditMode && id) {
         // При редактировании остаёмся на странице
         navigate(
           buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(nextEntry.id) }),
@@ -77,7 +77,7 @@ export const EntryEditorPage = observer(() => {
         );
       }
     },
-    [isEditMode, navigate, postTypeSlug, entryId, store]
+    [isEditMode, navigate, postTypeSlug, id, store]
   );
 
   const handleCancel = useCallback(() => {
@@ -224,17 +224,6 @@ export const EntryEditorPage = observer(() => {
                     </div>
                   </div>
                 </Card>
-
-                {/* Термы записи (только в режиме редактирования) */}
-                {isEditMode && entryId && (
-                  <Card className="p-6">
-                    <EntryTermsManager
-                      entryId={entryId}
-                      allowedTaxonomies={postType?.options_json?.taxonomies}
-                      disabled={store.pending || store.initialLoading}
-                    />
-                  </Card>
-                )}
               </div>
 
               {/* Sidebar */}
@@ -264,6 +253,16 @@ export const EntryEditorPage = observer(() => {
                     <p className="text-sm text-muted-foreground">Дата и время публикации записи</p>
                   </div>
                 </Card>
+                {/* Термы записи (только в режиме редактирования) */}
+                {isEditMode && id && (
+                  <Card className="p-6">
+                    <EntryTermsManager
+                      entryId={id}
+                      allowedTaxonomies={getTaxonomiesFromOptions(postType?.options_json)}
+                      disabled={store.pending || store.initialLoading}
+                    />
+                  </Card>
+                )}
               </div>
             </div>
           </Form>

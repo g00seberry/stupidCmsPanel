@@ -130,7 +130,7 @@ export const getEntriesStatuses = async (): Promise<string[]> => {
  * const entry = await getEntry(42);
  * console.log(entry.title); // 'Headless CMS launch checklist'
  */
-export const getEntry = async (id: number): Promise<ZEntry> => {
+export const getEntry = async (id: ZId): Promise<ZEntry> => {
   const response = await rest.get(getAdminEntriesUrl(`/${id}`));
   const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
@@ -167,7 +167,7 @@ export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
  *   content_json: { body: { blocks: [] } }
  * });
  */
-export const updateEntry = async (id: number, payload: ZEntryPayload): Promise<ZEntry> => {
+export const updateEntry = async (id: ZId, payload: ZEntryPayload): Promise<ZEntry> => {
   const parsedPayload = zEntryPayload.parse(payload);
   const response = await rest.put(getAdminEntriesUrl(`/${id}`), parsedPayload);
   const parsed = zEntryResponse.parse(response.data);
