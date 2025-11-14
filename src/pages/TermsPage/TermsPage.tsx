@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
+import { deleteTerm, updateTerm } from '@/api/apiTerms';
+import { buildUrl, PageUrl } from '@/PageUrl';
+import { notificationService } from '@/services/notificationService';
+import type { ZTermTree } from '@/types/terms';
+import { onError } from '@/utils/onError';
 import { App, Button, Card, Empty, Spin, Tag, Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
-import { Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
-import { deleteTerm, updateTerm } from '@/api/apiTerms';
-import { onError } from '@/utils/onError';
-import { buildUrl, PageUrl } from '@/PageUrl';
 import axios from 'axios';
-import { notificationService } from '@/services/notificationService';
+import { ArrowLeft, Edit, Plus, Trash2 } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { TermsListStore } from './TermsListStore';
-import type { ZTermTree } from '@/types/terms';
 
 /**
  * Находит термин в дереве по ID.
@@ -88,7 +88,6 @@ export const TermsPage = observer(() => {
   const { taxonomy: taxonomySlug } = useParams<{ taxonomy: string }>();
   const store = useMemo(() => new TermsListStore(), []);
   const { modal } = App.useApp();
-  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
   // Инициализация загрузки данных
@@ -160,13 +159,6 @@ export const TermsPage = observer(() => {
     }
     return convertTermsTreeToTreeData(store.termsTree, taxonomySlug, handleDelete);
   }, [store.termsTree, taxonomySlug, handleDelete]);
-
-  /**
-   * Обрабатывает раскрытие/сворачивание узлов дерева.
-   */
-  const handleExpand = useCallback((keys: React.Key[]) => {
-    setExpandedKeys(keys);
-  }, []);
 
   /**
    * Обрабатывает перетаскивание узла дерева и обновляет parent_id термина.
@@ -329,9 +321,7 @@ export const TermsPage = observer(() => {
             <Tree
               treeData={treeData}
               defaultExpandAll
-              expandedKeys={expandedKeys}
               selectedKeys={selectedKeys}
-              onExpand={handleExpand}
               onSelect={setSelectedKeys}
               onDrop={handleDrop}
               draggable={store.taxonomy?.hierarchical}
