@@ -107,8 +107,6 @@ export const zTermPayload = z.object({
   parent_id: z.number().nullable().optional(),
   /** Дополнительные метаданные в формате JSON. По умолчанию пустой объект. */
   meta_json: z.unknown(),
-  /** ID записи, к которой нужно привязать термин при создании. */
-  attach_entry_id: z.number().optional(),
 });
 
 /**
