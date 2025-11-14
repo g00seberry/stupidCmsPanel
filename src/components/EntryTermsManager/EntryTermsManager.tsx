@@ -4,8 +4,8 @@ import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import { TermList } from '../TermList';
-import { TermSelector } from '../TermSelector';
 import { EntryTermsManagerStore } from './EntryTermsManagerStore';
+import { TermSelector } from './TermSelector';
 
 /**
  * Пропсы компонента управления термами записи.
@@ -82,7 +82,8 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
           title="Добавить термы"
           open={store.modalVisible}
           onCancel={handleCloseModal}
-          okText="Добавить"
+          onOk={handleCloseModal}
+          okText="Ок"
           cancelText="Отмена"
           okButtonProps={{ disabled: store.loading }}
           width={800}
@@ -106,9 +107,14 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
                 <TermSelector
                   taxonomyId={store.selectedTaxonomy}
                   selectedTermIds={store.currentTermIds}
-                  onChange={ids => store.addTerms(ids)}
+                  onChange={(termId, checked) => {
+                    if (checked) {
+                      void store.addTerm(termId);
+                    } else {
+                      void store.removeTerm(termId);
+                    }
+                  }}
                   disabled={disabled || store.loading}
-                  multiple
                 />
               </div>
             ) : (

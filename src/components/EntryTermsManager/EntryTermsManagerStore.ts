@@ -103,15 +103,15 @@ export class EntryTermsManagerStore {
   }
 
   /**
-   * Добавляет термы к записи.
-   * @param selectedTermIds Массив ID выбранных термов для добавления.
+   * Добавляет терм к записи.
+   * @param termId ID терма для добавления.
    */
-  async addTerms(selectedTermIds: ZId[]): Promise<void> {
-    if (!this.entryId || selectedTermIds.length === 0) return;
+  async addTerm(termId: ZId): Promise<void> {
+    if (!this.entryId) return;
 
     this.loading = true;
     try {
-      const data = await attachEntryTerms(this.entryId, selectedTermIds);
+      const data = await attachEntryTerms(this.entryId, [termId]);
       this.entryTerms = data;
     } catch (error) {
       onError(error);
