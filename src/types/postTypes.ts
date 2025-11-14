@@ -1,4 +1,26 @@
 import { z } from 'zod';
+import { zId } from './ZId';
+
+/**
+ * Схема валидации options_json типа контента.
+ * Содержит настройки типа контента, включая список разрешённых таксономий.
+ * @example
+ * const options: ZPostTypeOptions = {
+ *   taxonomies: ['categories', 'tags'],
+ *   fields: { price: { type: 'number' } }
+ * };
+ */
+export const zPostTypeOptions = z
+  .object({
+    /** Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии. */
+    taxonomies: z.array(zId).optional().default([]),
+  })
+  .catchall(z.unknown());
+
+/**
+ * Тип данных options_json типа контента.
+ */
+export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
 
 /**
  * Схема валидации типа контента CMS.
@@ -7,7 +29,7 @@ import { z } from 'zod';
  * const postType: ZPostType = {
  *   slug: 'article',
  *   name: 'Articles',
- *   options_json: { fields: { price: { type: 'number' } } },
+ *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } },
  *   created_at: '2025-01-10T12:45:00+00:00',
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
@@ -18,7 +40,7 @@ export const zPostType = z.object({
   /** Отображаемое название типа контента. */
   name: z.string(),
   /** Дополнительные настройки типа контента в формате JSON. */
-  options_json: z.record(z.string(), z.unknown()).default({}),
+  options_json: zPostTypeOptions.default({ taxonomies: [] }),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -37,7 +59,7 @@ export type ZPostType = z.infer<typeof zPostType>;
  * const payload: ZPostTypePayload = {
  *   slug: 'product',
  *   name: 'Products',
- *   options_json: { fields: { price: { type: 'number' } } }
+ *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } }
  * };
  */
 export const zPostTypePayload = z.object({
@@ -46,7 +68,7 @@ export const zPostTypePayload = z.object({
   /** Отображаемое название типа контента. Не может быть пустым. */
   name: z.string().min(1),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */
-  options_json: z.record(z.string(), z.unknown()).default({}),
+  options_json: zPostTypeOptions.default({ taxonomies: [] }),
 });
 
 /**

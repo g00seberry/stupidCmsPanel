@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zId } from './ZId';
 
 /**
  * Схема валидации таксономии CMS.
@@ -14,6 +15,8 @@ import { z } from 'zod';
  * };
  */
 export const zTaxonomy = z.object({
+  /** Уникальный идентификатор таксономии. */
+  id: zId,
   /** Уникальный идентификатор таксономии (URL-friendly строка). */
   slug: z.string(),
   /** Отображаемое название таксономии. */

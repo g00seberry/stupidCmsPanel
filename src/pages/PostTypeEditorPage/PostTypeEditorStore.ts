@@ -1,7 +1,13 @@
 import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
+import {
+  getDefaultOptions,
+  getTaxonomiesFromOptions,
+  setTaxonomiesInOptions,
+} from '@/utils/postTypeOptions';
 import { makeAutoObservable } from 'mobx';
 
 /**
@@ -10,11 +16,13 @@ import { makeAutoObservable } from 'mobx';
 export interface FormValues {
   readonly name: string;
   readonly slug: string;
+  readonly taxonomies: ZId[];
 }
 
 const defaultFormValues: FormValues = {
   name: '',
   slug: '',
+  taxonomies: [],
 };
 
 /**
@@ -26,6 +34,7 @@ const toFormValues = (postType: ZPostType): FormValues => {
   return {
     name: postType.name,
     slug: postType.slug,
+    taxonomies: getTaxonomiesFromOptions(postType.options_json),
   };
 };
 
@@ -37,6 +46,8 @@ export class PostTypeEditorStore {
   initialLoading = false;
   pending = false;
   slugManuallyEdited = false;
+  /** Текущий тип контента, загруженный из API. */
+  currentPostType: ZPostType | null = null;
 
   /**
    * Создаёт экземпляр стора редактора типа контента.
@@ -79,11 +90,11 @@ export class PostTypeEditorStore {
   }
 
   /**
-   * Сбрасывает форму к значениям по умолчанию.
+   * Устанавливает текущий тип контента.
+   * @param postType Тип контента для установки.
    */
-  resetForm(): void {
-    this.formValues = defaultFormValues;
-    this.slugManuallyEdited = false;
+  setCurrentPostType(postType: ZPostType | null): void {
+    this.currentPostType = postType;
   }
 
   /**
@@ -94,6 +105,7 @@ export class PostTypeEditorStore {
     this.setInitialLoading(true);
     try {
       const postType = await getPostType(slug);
+      this.setCurrentPostType(postType);
       this.setFormValues(toFormValues(postType));
     } catch (error) {
       onError(error);
@@ -103,7 +115,26 @@ export class PostTypeEditorStore {
   }
 
   /**
+   * Создаёт payload для сохранения типа контента из значений формы.
+   * Сохраняет текущий options_json и обновляет таксономии из формы.
+   * @param values Значения формы.
+   * @returns Payload для создания или обновления типа контента.
+   * @private
+   */
+  private buildPayload(values: FormValues): ZPostTypePayload {
+    const currentOptions = this.currentPostType?.options_json || getDefaultOptions();
+    const updatedOptions = setTaxonomiesInOptions(currentOptions, values.taxonomies);
+
+    return {
+      slug: values.slug.trim(),
+      name: values.name.trim(),
+      options_json: updatedOptions,
+    };
+  }
+
+  /**
    * Сохраняет тип контента (создаёт новый или обновляет существующий).
+   * @param values Значения формы.
    * @param isEditMode Режим редактирования.
    * @param currentSlug Текущий slug (для режима редактирования).
    * @returns Обновлённый тип контента.
@@ -116,11 +147,8 @@ export class PostTypeEditorStore {
   ): Promise<ZPostType | null> {
     this.setPending(true);
 
-    const payload: ZPostTypePayload = {
-      slug: values.slug.trim(),
-      name: values.name.trim(),
-      options_json: {},
-    };
+    const payload = this.buildPayload(values);
+
     try {
       const nextPostType =
         isEditMode && currentSlug
@@ -128,6 +156,7 @@ export class PostTypeEditorStore {
           : await createPostType(payload);
       const successMessage = isEditMode ? 'Тип контента обновлён' : 'Тип контента создан';
       notificationService.showSuccess({ message: successMessage });
+      this.setCurrentPostType(nextPostType);
       this.setFormValues(toFormValues(nextPostType));
       return nextPostType;
     } catch (error) {

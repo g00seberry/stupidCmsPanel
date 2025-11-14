@@ -1,4 +1,5 @@
 import { SlugInput } from '@/components/SlugInput';
+import { TaxonomySelector } from '@/components/TaxonomySelector';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Spin } from 'antd';
@@ -213,6 +214,14 @@ export const PostTypeEditorPage = observer(() => {
                     </div>
                   </div>
                 </Card>
+
+                {/* Таксономии */}
+                <Card className="p-6">
+                  <h2 className="text-2xl font-semibold mb-6">Таксономии</h2>
+                  <Form.Item name="taxonomies" label="Таксономии">
+                    <TaxonomySelector />
+                  </Form.Item>
+                </Card>
               </div>
 
               {/* Sidebar */}
@@ -227,6 +236,10 @@ export const PostTypeEditorPage = observer(() => {
                     <p>
                       После создания типа контента вы сможете добавлять записи этого типа и
                       настраивать их поля.
+                    </p>
+                    <p>
+                      Вы можете ограничить список таксономий, доступных для этого типа контента.
+                      Если ничего не выбрано, не будет доступно ни одной таксономии.
                     </p>
                   </div>
                 </Card>

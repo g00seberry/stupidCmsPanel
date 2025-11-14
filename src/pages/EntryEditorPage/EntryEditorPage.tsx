@@ -1,4 +1,5 @@
 import { SlugInput } from '@/components/SlugInput';
+import { EntryTermsManager } from '@/components/EntryTermsManager';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { Button, Card, DatePicker, Form, Input, Switch, Spin, Select } from 'antd';
 import { Check, Info } from 'lucide-react';
@@ -223,6 +224,17 @@ export const EntryEditorPage = observer(() => {
                     </div>
                   </div>
                 </Card>
+
+                {/* Термы записи (только в режиме редактирования) */}
+                {isEditMode && entryId && (
+                  <Card className="p-6">
+                    <EntryTermsManager
+                      entryId={entryId}
+                      allowedTaxonomies={postType?.options_json?.taxonomies}
+                      disabled={store.pending || store.initialLoading}
+                    />
+                  </Card>
+                )}
               </div>
 
               {/* Sidebar */}
