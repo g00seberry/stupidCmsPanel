@@ -27,8 +27,6 @@ export type PropsEntryTermsManager = {
 export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
   ({ entryId, allowedTaxonomies = [], disabled = false }) => {
     const store = useMemo(() => new EntryTermsManagerStore(), []);
-
-    console.log(store.selectedTermIds);
     useEffect(() => {
       store.initialize(entryId, allowedTaxonomies);
     }, [store, entryId, allowedTaxonomies]);
