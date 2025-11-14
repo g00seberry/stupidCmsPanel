@@ -2,7 +2,7 @@ import type { ZId } from '@/types/ZId';
 import { Button, Empty, Modal, Select, Spin } from 'antd';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { TermList } from '../TermList';
 import { TermSelector } from '../TermSelector';
 import { EntryTermsManagerStore } from './EntryTermsManagerStore';
@@ -13,8 +13,6 @@ import { EntryTermsManagerStore } from './EntryTermsManagerStore';
 export type PropsEntryTermsManager = {
   /** ID записи, для которой управляются термы. */
   entryId: ZId;
-  /** Массив ID разрешённых таксономий из post_type.options_json.taxonomies. Если пуст или отсутствует, разрешены все таксономии. */
-  allowedTaxonomies?: ZId[];
   /** Флаг отключения компонента. */
   disabled?: boolean;
 };
@@ -25,11 +23,12 @@ export type PropsEntryTermsManager = {
  * Показывает только термы из разрешённых таксономий для post_type.
  */
 export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
-  ({ entryId, allowedTaxonomies = [], disabled = false }) => {
-    const store = useMemo(() => new EntryTermsManagerStore(), []);
-    useEffect(() => {
-      store.initialize(entryId, allowedTaxonomies);
-    }, [store, entryId, allowedTaxonomies]);
+  ({ entryId, disabled = false }) => {
+    const store = useMemo(() => {
+      const newStore = new EntryTermsManagerStore(entryId);
+      void newStore.initialize();
+      return newStore;
+    }, [entryId]);
 
     const handleOpenModal = () => {
       if (disabled) return;
@@ -40,12 +39,9 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
       store.closeModal();
     };
 
-    const handleAddTerms = async () => {
-      await store.addTerms(disabled);
-    };
-
-    const handleRemoveTerm = async (termId: ZId) => {
-      await store.removeTerm(termId, disabled);
+    const handleRemoveTerm = (termId: ZId): void => {
+      if (disabled) return;
+      void store.removeTerm(termId);
     };
 
     if (store.loading && !store.entryTerms) {
@@ -71,7 +67,7 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
         </div>
 
         {store.currentTerms.length === 0 ? (
-          <Empty description="Термы отсутствуют" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty description="Термы отсутствуют" />
         ) : (
           <TermList
             terms={store.currentTerms}
@@ -86,10 +82,9 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
           title="Добавить термы"
           open={store.modalVisible}
           onCancel={handleCloseModal}
-          onOk={handleAddTerms}
           okText="Добавить"
           cancelText="Отмена"
-          okButtonProps={{ disabled: store.selectedTermIds.length === 0 || store.loading }}
+          okButtonProps={{ disabled: store.loading }}
           width={800}
           destroyOnHidden
         >
@@ -110,8 +105,8 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
                 <label className="text-sm font-medium text-foreground">Выберите термы</label>
                 <TermSelector
                   taxonomyId={store.selectedTaxonomy}
-                  selectedTermIds={store.selectedTermIds}
-                  onChange={ids => store.setSelectedTermIds(ids)}
+                  selectedTermIds={store.currentTermIds}
+                  onChange={ids => store.addTerms(ids)}
                   disabled={disabled || store.loading}
                   multiple
                 />

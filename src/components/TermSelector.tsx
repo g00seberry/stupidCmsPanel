@@ -43,10 +43,10 @@ const buildTreeData = (items: (ZTermTree | ZTerm)[], disabledIds: ZId[]): DataNo
 const extractAllTerms = (tree: ZTermTree[]): ZTerm[] => {
   const result: ZTerm[] = [];
   const traverse = (items: ZTermTree[]) => {
-    items.forEach(item => {
+    for (const item of items) {
       result.push({ ...item, children: undefined } as ZTerm);
       if (item.children) traverse(item.children);
-    });
+    }
   };
   traverse(tree);
   return result;
@@ -76,9 +76,11 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
   disabled = false,
   multiple = true,
 }) => {
-  const [hierarchical, setHierarchical] = useState(false);
-  const [terms, setTerms] = useState<ZTerm[]>([]);
-  const [tree, setTree] = useState<ZTermTree[]>([]);
+  const [data, setData] = useState<{ hierarchical: boolean; terms: ZTerm[]; tree: ZTermTree[] }>({
+    hierarchical: false,
+    terms: [],
+    tree: [],
+  });
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -87,16 +89,12 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
       setLoading(true);
       try {
         const taxonomyData = await getTaxonomy(taxonomyId);
-        setHierarchical(taxonomyData.hierarchical);
-
         if (taxonomyData.hierarchical) {
           const treeData = await getTermsTree(taxonomyId);
-          setTree(treeData);
-          setTerms(extractAllTerms(treeData));
+          setData({ hierarchical: true, terms: extractAllTerms(treeData), tree: treeData });
         } else {
           const result = await listTerms(taxonomyId, { per_page: 100 });
-          setTerms(result.data);
-          setTree([]);
+          setData({ hierarchical: false, terms: result.data, tree: [] });
         }
       } catch (error) {
         onError(error);
@@ -107,6 +105,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     void load();
   }, [taxonomyId]);
 
+  const { terms, tree, hierarchical } = data;
   const disabledIds = allowedTermIds
     ? terms.filter(t => !allowedTermIds.includes(t.id)).map(t => t.id)
     : [];
@@ -126,14 +125,11 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
   const handleToggleTerm = (termId: ZId) => {
     if (disabled || disabledIds.includes(termId)) return;
     const isSelected = selectedTermIds.includes(termId);
-    const newSelected = multiple
-      ? isSelected
-        ? selectedTermIds.filter(id => id !== termId)
-        : [...selectedTermIds, termId]
-      : isSelected
-        ? []
-        : [termId];
-    onChange?.(newSelected);
+    if (isSelected) {
+      onChange?.(multiple ? selectedTermIds.filter(id => id !== termId) : []);
+    } else {
+      onChange?.(multiple ? [...selectedTermIds, termId] : [termId]);
+    }
   };
 
   if (loading) {
@@ -172,15 +168,14 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
       ) : (
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {filteredTerms.map(term => (
-            <div key={term.id} className="flex items-center">
-              <Checkbox
-                checked={selectedTermIds.includes(term.id)}
-                disabled={disabled || disabledIds.includes(term.id)}
-                onChange={() => handleToggleTerm(term.id)}
-              >
-                {term.name}
-              </Checkbox>
-            </div>
+            <Checkbox
+              key={term.id}
+              checked={selectedTermIds.includes(term.id)}
+              disabled={disabled || disabledIds.includes(term.id)}
+              onChange={() => handleToggleTerm(term.id)}
+            >
+              {term.name}
+            </Checkbox>
           ))}
         </div>
       )}

@@ -258,7 +258,6 @@ export const EntryEditorPage = observer(() => {
                   <Card className="p-6">
                     <EntryTermsManager
                       entryId={id}
-                      allowedTaxonomies={getTaxonomiesFromOptions(postType?.options_json)}
                       disabled={store.pending || store.initialLoading}
                     />
                   </Card>
