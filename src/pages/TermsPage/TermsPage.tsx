@@ -4,13 +4,34 @@ import { observer } from 'mobx-react-lite';
 import { App, Button, Card, Empty, Spin, Tag, Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import { Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
-import { deleteTerm } from '@/api/apiTerms';
+import { deleteTerm, updateTerm } from '@/api/apiTerms';
 import { onError } from '@/utils/onError';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import axios from 'axios';
 import { notificationService } from '@/services/notificationService';
 import { TermsListStore } from './TermsListStore';
 import type { ZTermTree } from '@/types/terms';
+
+/**
+ * Находит термин в дереве по ID.
+ * @param tree Дерево терминов.
+ * @param termId ID термина для поиска.
+ * @returns Найденный термин или null.
+ */
+const findTermInTree = (tree: ZTermTree[], termId: number): ZTermTree | null => {
+  for (const node of tree) {
+    if (node.id === termId) {
+      return node;
+    }
+    if (node.children && node.children.length > 0) {
+      const found = findTermInTree(node.children, termId);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
+};
 
 /**
  * Преобразует дерево терминов в формат для Tree компонента.
@@ -147,6 +168,93 @@ export const TermsPage = observer(() => {
     setExpandedKeys(keys);
   }, []);
 
+  /**
+   * Обрабатывает перетаскивание узла дерева и обновляет parent_id термина.
+   * @param info Информация о событии drop.
+   */
+  const handleDrop = useCallback(
+    async (info: {
+      dragNode: { key: React.Key };
+      node: { key: React.Key };
+      dropToGap: boolean;
+    }): Promise<void> => {
+      const { dragNode, node, dropToGap } = info;
+      const draggedTermId = Number(dragNode.key);
+      const targetNodeKey = node.key;
+
+      // Находим перетаскиваемый термин в исходном дереве
+      const draggedTerm = findTermInTree(store.termsTree, draggedTermId);
+      if (!draggedTerm) {
+        onError(new Error('Термин не найден'));
+        return;
+      }
+
+      // Определяем новый parent_id
+      let newParentId: number | null = null;
+
+      if (dropToGap) {
+        // Перетаскивание в промежуток между узлами - остаёмся на том же уровне, что и целевой узел
+        const targetTermId = Number(targetNodeKey);
+        const targetTerm = findTermInTree(store.termsTree, targetTermId);
+        newParentId = targetTerm?.parent_id ?? null;
+      } else {
+        // Перетаскивание внутрь узла - родитель = этот узел
+        const targetTermId = Number(targetNodeKey);
+        newParentId = targetTermId;
+      }
+
+      // Проверяем, изменился ли parent_id
+      if (draggedTerm.parent_id === newParentId) {
+        return;
+      }
+
+      // Предотвращаем перемещение узла в самого себя или в свой дочерний узел
+      if (newParentId !== null) {
+        const checkIsDescendant = (parentId: number, childId: number): boolean => {
+          const parent = findTermInTree(store.termsTree, parentId);
+          if (!parent || !parent.children) {
+            return false;
+          }
+          for (const child of parent.children) {
+            if (child.id === childId) {
+              return true;
+            }
+            if (checkIsDescendant(child.id, childId)) {
+              return true;
+            }
+          }
+          return false;
+        };
+
+        if (draggedTermId === newParentId || checkIsDescendant(draggedTermId, newParentId)) {
+          notificationService.showError({
+            message: 'Невозможно переместить термин',
+            description: 'Нельзя переместить термин в самого себя или в свой дочерний узел.',
+          });
+          return;
+        }
+      }
+
+      try {
+        // Обновляем термин с новым parent_id
+        await updateTerm(draggedTermId, { ...draggedTerm, parent_id: newParentId });
+
+        notificationService.showSuccess({
+          message: 'Иерархия обновлена',
+          description: `Термин "${draggedTerm.name}" перемещён.`,
+        });
+
+        // Перезагружаем дерево
+        if (taxonomySlug) {
+          void store.initialize(taxonomySlug);
+        }
+      } catch (error) {
+        onError(error);
+      }
+    },
+    [store, taxonomySlug, findTermInTree]
+  );
+
   if (!taxonomySlug) {
     return (
       <div className="min-h-screen bg-background w-full flex items-center justify-center">
@@ -225,6 +333,8 @@ export const TermsPage = observer(() => {
               selectedKeys={selectedKeys}
               onExpand={handleExpand}
               onSelect={setSelectedKeys}
+              onDrop={handleDrop}
+              draggable={store.taxonomy?.hierarchical}
               blockNode
             />
           )}

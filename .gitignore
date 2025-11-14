@@ -26,7 +26,7 @@ docs/node_modules
 *.njsproj
 *.sln
 *.sw?
+/docs-back
 /easy-forge-wizard-main
-
 # Docs generation lock file
 .docs-gen-lock

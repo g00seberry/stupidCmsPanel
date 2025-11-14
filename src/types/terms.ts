@@ -29,7 +29,7 @@ const zTermBase = z.object({
   /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
   parent_id: z.number().nullable().optional(),
   /** Дополнительные метаданные термина в формате JSON. */
-  meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
+  meta_json: z.unknown(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -106,7 +106,7 @@ export const zTermPayload = z.object({
   /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
   parent_id: z.number().nullable().optional(),
   /** Дополнительные метаданные в формате JSON. По умолчанию пустой объект. */
-  meta_json: z.record(z.string(), z.unknown()).default({}),
+  meta_json: z.unknown(),
   /** ID записи, к которой нужно привязать термин при создании. */
   attach_entry_id: z.number().optional(),
 });
