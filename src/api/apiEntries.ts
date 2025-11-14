@@ -193,37 +193,21 @@ export const getEntryTerms = async (entryId: ZId): Promise<ZEntryTermsData> => {
 };
 
 /**
- * Привязывает термы к записи.
- * Добавляет указанные термы к существующим термам записи.
- * @param entryId ID записи, к которой нужно привязать термы.
- * @param termIds Массив ID терминов для привязки.
+ * Полная синхронизация термов записи.
+ * Устанавливает указанный список термов как финальный (выполняет detach всех + attach указанных).
+ * Полностью заменяет привязки термов записи.
+ * @param entryId ID записи, для которой нужно синхронизировать термы.
+ * @param termIds Массив ID терминов для установки (может быть пустым для очистки всех термов).
  * @returns Обновлённые данные о термах записи.
+ * @throws {Error} Если запись не найдена (404), нет авторизации (401), ошибка валидации (422) или превышен лимит запросов (429).
  * @example
- * const updatedTerms = await attachEntryTerms(42, [3, 8]);
- * console.log(updatedTerms.terms_by_taxonomy); // Группировка по таксономиям с обновлёнными термами
+ * const updatedTerms = await syncEntryTerms(42, [3, 8]);
+ * console.log(updatedTerms.terms_by_taxonomy); // Группировка по таксономиям с синхронизированными термами
  */
-export const attachEntryTerms = async (entryId: ZId, termIds: ZId[]): Promise<ZEntryTermsData> => {
+export const syncEntryTerms = async (entryId: ZId, termIds: ZId[]): Promise<ZEntryTermsData> => {
   const payload: ZEntryTermsPayload = { term_ids: termIds };
   const parsedPayload = zEntryTermsPayload.parse(payload);
-  const response = await rest.post(getAdminEntriesUrl(`/${entryId}/terms/attach`), parsedPayload);
-  const parsed = zEntryTermsResponse.parse(response.data);
-  return parsed.data;
-};
-
-/**
- * Отвязывает термы от записи.
- * Удаляет указанные термы из списка термов записи.
- * @param entryId ID записи, от которой нужно отвязать термы.
- * @param termIds Массив ID терминов для отвязки.
- * @returns Обновлённые данные о термах записи.
- * @example
- * const updatedTerms = await detachEntryTerms(42, [3, 8]);
- * console.log(updatedTerms.terms_by_taxonomy); // Группировка по таксономиям без удалённых термов
- */
-export const detachEntryTerms = async (entryId: ZId, termIds: ZId[]): Promise<ZEntryTermsData> => {
-  const payload: ZEntryTermsPayload = { term_ids: termIds };
-  const parsedPayload = zEntryTermsPayload.parse(payload);
-  const response = await rest.post(getAdminEntriesUrl(`/${entryId}/terms/detach`), parsedPayload);
+  const response = await rest.put(getAdminEntriesUrl(`/${entryId}/terms/sync`), parsedPayload);
   const parsed = zEntryTermsResponse.parse(response.data);
   return parsed.data;
 };

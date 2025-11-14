@@ -3,7 +3,7 @@ import { Button, Empty, Modal, Select, Spin } from 'antd';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
-import { TermList } from '../TermList';
+import { TermList } from './TermList';
 import { EntryTermsManagerStore } from './EntryTermsManagerStore';
 import { TermSelector } from './TermSelector';
 
@@ -66,23 +66,23 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
           </Button>
         </div>
 
-        {store.currentTerms.length === 0 ? (
-          <Empty description="Термы отсутствуют" />
-        ) : (
+        {store.entryTerms ? (
           <TermList
-            terms={store.currentTerms}
-            groupedByTaxonomy
-            removable
+            entryTerms={store.entryTerms}
             onRemove={handleRemoveTerm}
-            disabled={disabled || store.loading}
+            disabled={disabled || store.loading || !store.entryTerms}
           />
+        ) : (
+          <Empty description="Термы отсутствуют" />
         )}
 
         <Modal
           title="Добавить термы"
           open={store.modalVisible}
           onCancel={handleCloseModal}
-          onOk={handleCloseModal}
+          onOk={() => {
+            void store.applyPendingChanges();
+          }}
           okText="Ок"
           cancelText="Отмена"
           okButtonProps={{ disabled: store.loading }}
@@ -108,11 +108,7 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
                   taxonomyId={store.selectedTaxonomy}
                   selectedTermIds={store.currentTermIds}
                   onChange={(termId, checked) => {
-                    if (checked) {
-                      void store.addTerm(termId);
-                    } else {
-                      void store.removeTerm(termId);
-                    }
+                    store.updatePendingTerm(termId, checked);
                   }}
                   disabled={disabled || store.loading}
                 />
