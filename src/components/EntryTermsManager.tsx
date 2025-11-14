@@ -2,6 +2,7 @@ import { attachEntryTerms, detachEntryTerms, getEntryTerms } from '@/api/apiEntr
 import { listTaxonomies } from '@/api/apiTaxonomies';
 import type { ZEntryTermsData } from '@/types/entries';
 import type { ZTaxonomy } from '@/types/taxonomies';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { Button, Empty, Modal, Select, Spin } from 'antd';
 import { Plus } from 'lucide-react';
@@ -14,9 +15,9 @@ import { TermSelector } from './TermSelector';
  */
 export type PropsEntryTermsManager = {
   /** ID записи, для которой управляются термы. */
-  entryId: number;
-  /** Массив slug'ов разрешённых таксономий из post_type.options_json.taxonomies. Если пуст или отсутствует, разрешены все таксономии. */
-  allowedTaxonomies?: string[];
+  entryId: ZId;
+  /** Массив ID разрешённых таксономий из post_type.options_json.taxonomies. Если пуст или отсутствует, разрешены все таксономии. */
+  allowedTaxonomies?: ZId[];
   /** Флаг отключения компонента. */
   disabled?: boolean;
 };
@@ -35,9 +36,9 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
   const [taxonomies, setTaxonomies] = useState<ZTaxonomy[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTaxonomies, setLoadingTaxonomies] = useState(false);
-  const [selectedTaxonomy, setSelectedTaxonomy] = useState<string | null>(null);
+  const [selectedTaxonomy, setSelectedTaxonomy] = useState<ZId | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedTermIds, setSelectedTermIds] = useState<number[]>([]);
+  const [selectedTermIds, setSelectedTermIds] = useState<ZId[]>([]);
 
   // Загрузка доступных таксономий
   useEffect(() => {
@@ -48,13 +49,13 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
         setTaxonomies(data);
         // Если есть разрешённые таксономии, устанавливаем первую как выбранную
         if (allowedTaxonomies.length > 0) {
-          const firstAllowed = data.find(t => allowedTaxonomies.includes(t.slug));
+          const firstAllowed = data.find(t => allowedTaxonomies.includes(t.id));
           if (firstAllowed) {
-            setSelectedTaxonomy(firstAllowed.slug);
+            setSelectedTaxonomy(firstAllowed.id);
           }
         } else if (data.length > 0) {
           // Если разрешены все таксономии, выбираем первую
-          setSelectedTaxonomy(data[0].slug);
+          setSelectedTaxonomy(data[0].id);
         }
       } catch (error) {
         onError(error);
@@ -94,12 +95,21 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
       return [];
     }
     // Фильтруем по разрешённым таксономиям
-    return taxonomies.filter(t => allowedTaxonomies.includes(t.slug));
+    return taxonomies.filter(t => allowedTaxonomies.includes(t.id));
   }, [taxonomies, allowedTaxonomies]);
 
-  // Получение текущих термов записи
+  // Получение текущих термов записи из новой структуры terms_by_taxonomy
   const currentTerms = useMemo(() => {
-    return entryTerms?.terms || [];
+    if (!entryTerms?.terms_by_taxonomy) {
+      return [];
+    }
+    // Собираем все термы из всех таксономий и добавляем информацию о taxonomy к каждому терму
+    return entryTerms.terms_by_taxonomy.flatMap(group =>
+      group.terms.map(term => ({
+        ...term,
+        taxonomy: group.taxonomy.id,
+      }))
+    );
   }, [entryTerms]);
 
   // Получение уже выбранных ID термов
@@ -160,7 +170,7 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
    * Обрабатывает удаление терма из записи.
    * @param termId ID терма для удаления.
    */
-  const handleRemoveTerm = async (termId: number) => {
+  const handleRemoveTerm = async (termId: ZId) => {
     if (disabled) {
       return;
     }
@@ -180,16 +190,16 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
    * Обрабатывает изменение выбранных термов в селекторе.
    * @param termIds Массив ID выбранных термов.
    */
-  const handleTermSelectionChange = (termIds: number[]) => {
+  const handleTermSelectionChange = (termIds: ZId[]) => {
     setSelectedTermIds(termIds);
   };
 
   /**
    * Обрабатывает изменение выбранной таксономии.
-   * @param taxonomySlug Slug выбранной таксономии.
+   * @param taxonomyId ID выбранной таксономии.
    */
-  const handleTaxonomyChange = (taxonomySlug: string) => {
-    setSelectedTaxonomy(taxonomySlug);
+  const handleTaxonomyChange = (taxonomyId: ZId) => {
+    setSelectedTaxonomy(taxonomyId);
     setSelectedTermIds([]);
   };
 
@@ -254,13 +264,8 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
                 disabled={disabled || loading}
                 style={{ width: '100%' }}
                 options={availableTaxonomies.map(taxonomy => ({
-                  value: taxonomy.slug,
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <span>{taxonomy.label}</span>
-                      <code className="text-xs text-muted-foreground">{taxonomy.slug}</code>
-                    </div>
-                  ),
+                  value: taxonomy.id,
+                  label: taxonomy.label,
                 }))}
               />
             </div>
@@ -271,7 +276,7 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = ({
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Выберите термы</label>
               <TermSelector
-                taxonomySlug={selectedTaxonomy}
+                taxonomyId={selectedTaxonomy}
                 selectedTermIds={selectedTermIds}
                 onChange={handleTermSelectionChange}
                 disabled={disabled || loading}

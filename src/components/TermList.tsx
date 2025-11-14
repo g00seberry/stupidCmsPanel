@@ -1,6 +1,6 @@
 import type { ZTerm } from '@/types/terms';
-import { Button, Empty, Tag, Tooltip } from 'antd';
-import { X } from 'lucide-react';
+import type { ZId } from '@/types/ZId';
+import { Empty, Tag } from 'antd';
 
 /**
  * Пропсы компонента отображения списка термов.
@@ -13,7 +13,7 @@ export type PropsTermList = {
   /** Флаг отображения кнопок удаления. Если `true`, каждый терм имеет кнопку удаления. */
   removable?: boolean;
   /** Обработчик удаления терма. Вызывается при клике на кнопку удаления. */
-  onRemove?: (termId: number) => void;
+  onRemove?: (termId: ZId) => void;
   /** Флаг отключения компонента. */
   disabled?: boolean;
 };
@@ -34,7 +34,7 @@ export const TermList: React.FC<PropsTermList> = ({
    * Обрабатывает клик на кнопку удаления терма.
    * @param termId ID терма для удаления.
    */
-  const handleRemove = (termId: number) => {
+  const handleRemove = (termId: ZId) => {
     if (disabled) {
       return;
     }
@@ -67,10 +67,11 @@ export const TermList: React.FC<PropsTermList> = ({
   // Группируем термы по таксономиям
   const termsByTaxonomy = terms.reduce(
     (acc, term) => {
-      if (!acc[term.taxonomy]) {
-        acc[term.taxonomy] = [];
+      const taxonomyId = String(term.taxonomy);
+      if (!acc[taxonomyId]) {
+        acc[taxonomyId] = [];
       }
-      acc[term.taxonomy].push(term);
+      acc[taxonomyId].push(term);
       return acc;
     },
     {} as Record<string, ZTerm[]>
@@ -99,4 +100,3 @@ export const TermList: React.FC<PropsTermList> = ({
     </div>
   );
 };
-

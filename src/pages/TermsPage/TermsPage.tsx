@@ -36,13 +36,13 @@ const findTermInTree = (tree: ZTermTree[], termId: number): ZTermTree | null => 
 /**
  * Преобразует дерево терминов в формат для Tree компонента.
  * @param tree Дерево терминов.
- * @param taxonomySlug Slug таксономии для ссылок редактирования.
+ * @param taxonomyId ID таксономии для ссылок редактирования.
  * @param onDelete Обработчик удаления термина.
  * @returns Массив узлов для Tree компонента.
  */
 const convertTermsTreeToTreeData = (
   tree: ZTermTree[],
-  taxonomySlug: string,
+  taxonomyId: number,
   onDelete: (term: ZTermTree) => void
 ): DataNode[] => {
   const convertNode = (node: ZTermTree): DataNode => {
@@ -54,10 +54,10 @@ const convertTermsTreeToTreeData = (
         <div className="flex items-center justify-between gap-4 group">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <span className="font-medium text-foreground">{node.name}</span>
-            <code className="text-xs text-muted-foreground truncate">{node.slug}</code>
+            <code className="text-xs text-muted-foreground truncate">ID: {node.id}</code>
           </div>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Link to={buildUrl(PageUrl.TermEdit, { taxonomy: taxonomySlug, id: String(node.id) })}>
+            <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: String(node.id) })}>
               <Button type="text" size="small" icon={<Edit className="w-3 h-3" />} />
             </Link>
             <Button
@@ -85,17 +85,18 @@ const convertTermsTreeToTreeData = (
  * Отображает термины в виде иерархического дерева.
  */
 export const TermsPage = observer(() => {
-  const { taxonomy: taxonomySlug } = useParams<{ taxonomy: string }>();
+  const { taxonomyId: taxonomyIdParam } = useParams<{ taxonomyId: string }>();
+  const taxonomyId = taxonomyIdParam ? Number.parseInt(taxonomyIdParam, 10) : undefined;
   const store = useMemo(() => new TermsListStore(), []);
   const { modal } = App.useApp();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
   // Инициализация загрузки данных
   useEffect(() => {
-    if (taxonomySlug) {
-      void store.initialize(taxonomySlug);
+    if (taxonomyId && !Number.isNaN(taxonomyId)) {
+      void store.initialize(taxonomyId);
     }
-  }, [taxonomySlug, store]);
+  }, [taxonomyId, store]);
 
   /**
    * Обрабатывает удаление термина с подтверждением и обработкой ошибок.
@@ -113,8 +114,8 @@ export const TermsPage = observer(() => {
           try {
             await deleteTerm(term.id, false);
             notificationService.showSuccess({ message: 'Термин удалён' });
-            if (taxonomySlug) {
-              void store.initialize(taxonomySlug);
+            if (taxonomyId && !Number.isNaN(taxonomyId)) {
+              void store.initialize(taxonomyId);
             }
           } catch (error) {
             // Обработка ошибки 409 (CONFLICT) - термин привязан к записям
@@ -132,8 +133,8 @@ export const TermsPage = observer(() => {
                     notificationService.showSuccess({
                       message: 'Термин удалён и отвязан от записей',
                     });
-                    if (taxonomySlug) {
-                      void store.initialize(taxonomySlug);
+                    if (taxonomyId && !Number.isNaN(taxonomyId)) {
+                      void store.initialize(taxonomyId);
                     }
                   } catch (forceError) {
                     onError(forceError);
@@ -147,18 +148,18 @@ export const TermsPage = observer(() => {
         },
       });
     },
-    [modal, taxonomySlug, store]
+    [modal, taxonomyId, store]
   );
 
   /**
    * Преобразует дерево терминов в формат для Tree компонента.
    */
   const treeData = useMemo(() => {
-    if (!taxonomySlug || !store.termsTree.length) {
+    if (!taxonomyId || !store.termsTree.length) {
       return [];
     }
-    return convertTermsTreeToTreeData(store.termsTree, taxonomySlug, handleDelete);
-  }, [store.termsTree, taxonomySlug, handleDelete]);
+    return convertTermsTreeToTreeData(store.termsTree, taxonomyId, handleDelete);
+  }, [store.termsTree, taxonomyId, handleDelete]);
 
   /**
    * Обрабатывает перетаскивание узла дерева и обновляет parent_id термина.
@@ -237,17 +238,17 @@ export const TermsPage = observer(() => {
         });
 
         // Перезагружаем дерево
-        if (taxonomySlug) {
-          void store.initialize(taxonomySlug);
+        if (taxonomyId && !Number.isNaN(taxonomyId)) {
+          void store.initialize(taxonomyId);
         }
       } catch (error) {
         onError(error);
       }
     },
-    [store, taxonomySlug, findTermInTree]
+    [store, taxonomyId, findTermInTree]
   );
 
-  if (!taxonomySlug) {
+  if (!taxonomyId || Number.isNaN(taxonomyId)) {
     return (
       <div className="min-h-screen bg-background w-full flex items-center justify-center">
         <Empty description="Таксономия не указана" />
@@ -272,7 +273,7 @@ export const TermsPage = observer(() => {
               {store.loading ? (
                 <Spin size="small" />
               ) : (
-                <span className="text-foreground">{store.taxonomy?.label || taxonomySlug}</span>
+                <span className="text-foreground">{store.taxonomy?.label || taxonomyId}</span>
               )}
               <span>/</span>
               <span className="text-foreground">Термины</span>
@@ -281,8 +282,8 @@ export const TermsPage = observer(() => {
               <Link to={PageUrl.Taxonomies}>
                 <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
               </Link>
-              {taxonomySlug && (
-                <Link to={buildUrl(PageUrl.TermEdit, { taxonomy: taxonomySlug, id: 'new' })}>
+              {taxonomyId && !Number.isNaN(taxonomyId) && (
+                <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: 'new' })}>
                   <Button type="primary" icon={<Plus className="w-4 h-4" />}>
                     Создать термин
                   </Button>
@@ -301,7 +302,7 @@ export const TermsPage = observer(() => {
               <div className="flex items-center gap-4">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">{store.taxonomy.label}</h2>
-                  <code className="text-sm text-muted-foreground">{store.taxonomy.slug}</code>
+                  <code className="text-sm text-muted-foreground">ID: {store.taxonomy.id}</code>
                 </div>
                 {store.taxonomy.hierarchical && <Tag color="blue">Иерархическая</Tag>}
               </div>

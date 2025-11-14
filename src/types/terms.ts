@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zId } from '@/types/ZId';
 import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
 
 /**
@@ -7,9 +8,8 @@ import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
  * @example
  * const term: ZTerm = {
  *   id: 3,
- *   taxonomy: 'category',
+ *   taxonomy: 1,
  *   name: 'Guides',
- *   slug: 'guides',
  *   parent_id: null,
  *   meta_json: {},
  *   created_at: '2025-01-10T12:00:00+00:00',
@@ -19,15 +19,13 @@ import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
  */
 const zTermBase = z.object({
   /** Уникальный идентификатор термина. */
-  id: z.number(),
-  /** Slug таксономии, к которой принадлежит термин. */
-  taxonomy: z.string(),
+  id: zId,
+  /** ID таксономии, к которой принадлежит термин. */
+  taxonomy: zId,
   /** Отображаемое название термина. */
   name: z.string(),
-  /** URL-friendly идентификатор термина. */
-  slug: z.string(),
   /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
-  parent_id: z.number().nullable().optional(),
+  parent_id: zId.nullable().optional(),
   /** Дополнительные метаданные термина в формате JSON. */
   meta_json: z.unknown(),
   /** Дата создания в формате ISO 8601. */
@@ -49,16 +47,14 @@ export const zTerm = zTermBase;
  * @example
  * const termTree: ZTermTree = {
  *   id: 1,
- *   taxonomy: 'category',
+ *   taxonomy: 1,
  *   name: 'Технологии',
- *   slug: 'tech',
  *   parent_id: null,
  *   children: [
  *     {
  *       id: 2,
- *       taxonomy: 'category',
+ *       taxonomy: 1,
  *       name: 'Laravel',
- *       slug: 'laravel',
  *       parent_id: 1,
  *       children: []
  *     }
@@ -93,7 +89,6 @@ export type ZTermTree = ZTerm & {
  * @example
  * const payload: ZTermPayload = {
  *   name: 'Guides',
- *   slug: 'guides',
  *   parent_id: 1,
  *   meta_json: { color: '#ffcc00' }
  * };
@@ -101,10 +96,8 @@ export type ZTermTree = ZTerm & {
 export const zTermPayload = z.object({
   /** Отображаемое название термина. Не может быть пустым. */
   name: z.string().min(1),
-  /** URL-friendly идентификатор термина. Не может быть пустым. */
-  slug: z.string().min(1),
   /** ID родительского термина для иерархических таксономий. `null` для корневых терминов. */
-  parent_id: z.number().nullable().optional(),
+  parent_id: zId.nullable().optional(),
   /** Дополнительные метаданные в формате JSON. По умолчанию пустой объект. */
   meta_json: z.unknown(),
 });
@@ -119,9 +112,9 @@ export type ZTermPayload = z.infer<typeof zTermPayload>;
  * Параметры запроса списка терминов.
  */
 export type ListTermsParams = {
-  /** Поиск по имени/slug. */
+  /** Поиск по имени. */
   q?: string;
-  /** Сортировка. Values: created_at.desc,created_at.asc,name.asc,name.desc,slug.asc,slug.desc. Default: created_at.desc. */
+  /** Сортировка. Values: created_at.desc,created_at.asc,name.asc,name.desc. Default: created_at.desc. */
   sort?: string;
   /** Размер страницы (10-100). Default: 15. */
   per_page?: number;

@@ -1,7 +1,8 @@
 import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
 import { zTerm } from '@/types/terms';
+import { zTaxonomy } from '@/types/taxonomies';
 import { z } from 'zod';
-import { zId } from './ZId';
+import { zId, type ZId } from './ZId';
 
 /**
  * Схема валидации записи CMS.
@@ -25,7 +26,7 @@ import { zId } from './ZId';
  */
 export const zEntry = z.object({
   /** Уникальный идентификатор записи. */
-  id: z.number(),
+  id: zId,
   /** Тип контента записи (slug типа). */
   post_type: z.string(),
   /** Заголовок записи. */
@@ -98,9 +99,9 @@ export type ZEntriesListParams = {
   /** Поиск по названию/slug. */
   q?: string;
   /** ID автора. */
-  author_id?: number;
+  author_id?: ZId;
   /** Массив ID терминов для фильтрации. */
-  term?: number[];
+  term?: ZId[];
   /** Поле даты для диапазона: updated, published. По умолчанию: updated. */
   date_field?: 'updated' | 'published';
   /** Начальная дата диапазона (ISO 8601). */
@@ -167,7 +168,7 @@ export const zEntryPayload = z.object({
   /** Переопределение шаблона для записи. Может быть `null`. */
   template_override: z.string().nullable().optional(),
   /** Массив ID терминов для связи с записью. */
-  term_ids: z.array(z.number()).optional(),
+  term_ids: z.array(zId).optional(),
 });
 
 /**
@@ -182,37 +183,51 @@ export type ZEntryPayload = z.infer<typeof zEntryPayload>;
 const zTermWithoutTaxonomy = zTerm.omit({ taxonomy: true });
 
 /**
+ * Схема валидации элемента группировки термов по таксономиям.
+ * Содержит полный объект таксономии и массив термов, принадлежащих этой таксономии.
+ */
+const zTermsByTaxonomyItem = z.object({
+  /** Полный объект таксономии с информацией о её свойствах. */
+  taxonomy: zTaxonomy,
+  /** Массив термов, принадлежащих этой таксономии. Термы не содержат поле taxonomy, так как оно доступно на уровне таксономии. */
+  terms: z.array(zTermWithoutTaxonomy),
+});
+
+/**
  * Схема валидации данных термов записи в ответе API.
- * Содержит список всех термов записи и группировку по таксономиям.
+ * Содержит группировку термов по таксономиям с полной информацией о таксономиях.
  * @example
  * const entryTerms: ZEntryTermsData = {
  *   entry_id: 42,
- *   terms: [
+ *   terms_by_taxonomy: [
  *     {
- *       id: 3,
- *       name: 'Guides',
- *       slug: 'guides',
- *       taxonomy: 'category'
+ *       taxonomy: {
+ *         id: 1,
+ *         label: 'Categories',
+ *         hierarchical: true,
+ *         options_json: {},
+ *         created_at: '2025-01-10T12:00:00+00:00',
+ *         updated_at: '2025-01-10T12:00:00+00:00'
+ *       },
+ *       terms: [
+ *         {
+ *           id: 3,
+ *           name: 'Guides',
+ *           meta_json: {},
+ *           created_at: '2025-01-10T12:00:00+00:00',
+ *           updated_at: '2025-01-10T12:00:00+00:00',
+ *           deleted_at: null
+ *         }
+ *       ]
  *     }
- *   ],
- *   terms_by_taxonomy: {
- *     category: [
- *       {
- *         id: 3,
- *         name: 'Guides',
- *         slug: 'guides'
- *       }
- *     ]
- *   }
+ *   ]
  * };
  */
 export const zEntryTermsData = z.object({
   /** ID записи, для которой получены термы. */
-  entry_id: z.number(),
-  /** Массив всех термов записи с полной информацией, включая taxonomy. */
-  terms: z.array(zTerm),
-  /** Группировка термов по таксономиям. Ключ - slug таксономии, значение - массив термов без поля taxonomy. */
-  terms_by_taxonomy: z.record(zId, z.array(zTermWithoutTaxonomy)),
+  entry_id: zId,
+  /** Массив группировок термов по таксономиям. Каждый элемент содержит полную информацию о таксономии и массив её термов. */
+  terms_by_taxonomy: z.array(zTermsByTaxonomyItem),
 });
 
 /**
@@ -226,23 +241,28 @@ export type ZEntryTermsData = z.infer<typeof zEntryTermsData>;
  * const response: ZEntryTermsResponse = {
  *   data: {
  *     entry_id: 42,
- *     terms: [
+ *     terms_by_taxonomy: [
  *       {
- *         id: 3,
- *         name: 'Guides',
- *         slug: 'guides',
- *         taxonomy: 'category'
+ *         taxonomy: {
+ *           id: 1,
+ *           label: 'Categories',
+ *           hierarchical: true,
+ *           options_json: {},
+ *           created_at: '2025-01-10T12:00:00+00:00',
+ *           updated_at: '2025-01-10T12:00:00+00:00'
+ *         },
+ *         terms: [
+ *           {
+ *             id: 3,
+ *             name: 'Guides',
+ *             meta_json: {},
+ *             created_at: '2025-01-10T12:00:00+00:00',
+ *             updated_at: '2025-01-10T12:00:00+00:00',
+ *             deleted_at: null
+ *           }
+ *         ]
  *       }
- *     ],
- *     terms_by_taxonomy: {
- *       category: [
- *         {
- *           id: 3,
- *           name: 'Guides',
- *           slug: 'guides'
- *         }
- *       ]
- *     }
+ *     ]
  *   }
  * };
  */
@@ -265,7 +285,7 @@ export type ZEntryTermsResponse = z.infer<typeof zEntryTermsResponse>;
  */
 export const zEntryTermsPayload = z.object({
   /** Массив ID терминов для привязки/отвязки/синхронизации. */
-  term_ids: z.array(z.number()),
+  term_ids: z.array(zId),
 });
 
 /**

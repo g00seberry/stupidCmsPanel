@@ -37,13 +37,13 @@ export class TermsListStore {
 
   /**
    * Инициализирует загрузку данных при первом открытии страницы.
-   * @param taxonomySlug Slug таксономии для фильтрации.
+   * @param taxonomyId ID таксономии для фильтрации.
    */
-  async initialize(taxonomySlug: string): Promise<void> {
+  async initialize(taxonomyId: number): Promise<void> {
     this.setLoading(true);
     try {
-      this.setTaxonomy(await getTaxonomy(taxonomySlug));
-      const tree = await getTermsTree(taxonomySlug);
+      this.setTaxonomy(await getTaxonomy(taxonomyId));
+      const tree = await getTermsTree(taxonomyId);
       this.setTermsTree(tree);
     } catch (error) {
       onError(error);

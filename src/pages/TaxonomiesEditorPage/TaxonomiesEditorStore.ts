@@ -1,6 +1,7 @@
 import { createTaxonomy, deleteTaxonomy, getTaxonomy, updateTaxonomy } from '@/api/apiTaxonomies';
 import { notificationService } from '@/services/notificationService';
 import type { ZTaxonomy, ZTaxonomyPayload } from '@/types/taxonomies';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
@@ -9,13 +10,11 @@ import { makeAutoObservable } from 'mobx';
  */
 export interface FormValues {
   readonly label: string;
-  readonly slug: string;
   readonly hierarchical: boolean;
 }
 
 const defaultFormValues: FormValues = {
   label: '',
-  slug: '',
   hierarchical: false,
 };
 
@@ -27,7 +26,6 @@ const defaultFormValues: FormValues = {
 const toFormValues = (taxonomy: ZTaxonomy): FormValues => {
   return {
     label: taxonomy.label,
-    slug: taxonomy.slug,
     hierarchical: taxonomy.hierarchical,
   };
 };
@@ -81,20 +79,13 @@ export class TaxonomiesEditorStore {
   }
 
   /**
-   * Сбрасывает форму к значениям по умолчанию.
-   */
-  resetForm(): void {
-    this.formValues = defaultFormValues;
-  }
-
-  /**
    * Загружает данные таксономии для редактирования.
-   * @param slug Slug таксономии.
+   * @param id ID таксономии.
    */
-  async loadTaxonomy(slug: string): Promise<void> {
+  async loadTaxonomy(id: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
-      const taxonomy = await getTaxonomy(slug);
+      const taxonomy = await getTaxonomy(id);
       this.setFormValues(toFormValues(taxonomy));
     } catch (error) {
       onError(error);
@@ -107,25 +98,24 @@ export class TaxonomiesEditorStore {
    * Сохраняет таксономию (создаёт новую или обновляет существующую).
    * @param values Значения формы.
    * @param isEditMode Режим редактирования.
-   * @param currentSlug Текущий slug (для режима редактирования).
+   * @param currentId Текущий ID (для режима редактирования).
    * @returns Обновлённая таксономия.
    */
   async saveTaxonomy(
     values: FormValues,
     isEditMode: boolean,
-    currentSlug?: string
+    currentId?: ZId
   ): Promise<ZTaxonomy | null> {
     this.setPending(true);
     const payload: ZTaxonomyPayload = {
       label: values.label.trim(),
-      slug: values.slug.trim(),
       hierarchical: values.hierarchical,
       options_json: {},
     };
     try {
       const nextTaxonomy =
-        isEditMode && currentSlug
-          ? await updateTaxonomy(currentSlug, payload)
+        isEditMode && currentId
+          ? await updateTaxonomy(currentId, payload)
           : await createTaxonomy(payload);
       const successMessage = isEditMode ? 'Таксономия обновлена' : 'Таксономия создана';
       notificationService.showSuccess({ message: successMessage });
@@ -141,15 +131,15 @@ export class TaxonomiesEditorStore {
 
   /**
    * Удаляет таксономию.
-   * @param slug Slug таксономии для удаления.
+   * @param id ID таксономии для удаления.
    * @param force Если `true`, каскадно удаляет все термины этой таксономии.
    * @returns `true`, если удаление выполнено успешно.
    * @throws Ошибка 409 (CONFLICT), если таксономия содержит термины и `force=false`.
    */
-  async deleteTaxonomy(slug: string, force = false): Promise<boolean> {
+  async deleteTaxonomy(id: ZId, force = false): Promise<boolean> {
     this.setPending(true);
     try {
-      await deleteTaxonomy(slug, force);
+      await deleteTaxonomy(id, force);
       notificationService.showSuccess({ message: 'Таксономия удалена' });
       return true;
     } catch (error) {
@@ -165,4 +155,3 @@ export class TaxonomiesEditorStore {
     }
   }
 }
-

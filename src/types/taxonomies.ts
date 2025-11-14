@@ -6,7 +6,7 @@ import { zId } from './ZId';
  * Таксономия определяет категоризацию контента (например, категории, теги).
  * @example
  * const taxonomy: ZTaxonomy = {
- *   slug: 'category',
+ *   id: 1,
  *   label: 'Categories',
  *   hierarchical: true,
  *   options_json: {},
@@ -17,8 +17,6 @@ import { zId } from './ZId';
 export const zTaxonomy = z.object({
   /** Уникальный идентификатор таксономии. */
   id: zId,
-  /** Уникальный идентификатор таксономии (URL-friendly строка). */
-  slug: z.string(),
   /** Отображаемое название таксономии. */
   label: z.string(),
   /** Является ли таксономия иерархической (поддерживает вложенность). */
@@ -42,7 +40,6 @@ export type ZTaxonomy = z.infer<typeof zTaxonomy>;
  * @example
  * const payload: ZTaxonomyPayload = {
  *   label: 'Categories',
- *   slug: 'category',
  *   hierarchical: false,
  *   options_json: { color: '#ffcc00' }
  * };
@@ -50,8 +47,6 @@ export type ZTaxonomy = z.infer<typeof zTaxonomy>;
 export const zTaxonomyPayload = z.object({
   /** Отображаемое название таксономии. Не может быть пустым. */
   label: z.string().min(1),
-  /** Уникальный идентификатор таксономии. Не может быть пустым. */
-  slug: z.string().min(1),
   /** Является ли таксономия иерархической. */
   hierarchical: z.boolean(),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */

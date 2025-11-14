@@ -1,6 +1,7 @@
 import { createTerm, deleteTerm, getTerm, updateTerm } from '@/api/apiTerms';
 import { notificationService } from '@/services/notificationService';
 import type { ZTerm, ZTermPayload } from '@/types/terms';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
@@ -9,13 +10,11 @@ import { makeAutoObservable } from 'mobx';
  */
 export interface FormValues {
   readonly name: string;
-  readonly slug: string;
-  readonly parent_id: number | null;
+  readonly parent_id: ZId | null;
 }
 
 const defaultFormValues: FormValues = {
   name: '',
-  slug: '',
   parent_id: null,
 };
 
@@ -27,7 +26,6 @@ const defaultFormValues: FormValues = {
 const toFormValues = (term: ZTerm): FormValues => {
   return {
     name: term.name,
-    slug: term.slug,
     parent_id: term.parent_id ?? null,
   };
 };
@@ -84,7 +82,7 @@ export class TermEditorStore {
    * Загружает данные термина для редактирования.
    * @param termId ID термина.
    */
-  async loadTerm(termId: number): Promise<void> {
+  async loadTerm(termId: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
       const term = await getTerm(termId);
@@ -99,21 +97,20 @@ export class TermEditorStore {
   /**
    * Сохраняет термин (создаёт новый или обновляет существующий).
    * @param values Значения формы.
-   * @param taxonomySlug Slug таксономии.
+   * @param taxonomyId ID таксономии.
    * @param isEditMode Режим редактирования.
    * @param termId ID термина (для режима редактирования).
    * @returns Обновлённый термин.
    */
   async saveTerm(
     values: FormValues,
-    taxonomySlug: string,
+    taxonomyId: ZId,
     isEditMode: boolean,
-    termId?: number
+    termId?: ZId
   ): Promise<ZTerm | null> {
     this.setPending(true);
     const payload: ZTermPayload = {
       name: values.name.trim(),
-      slug: values.slug.trim(),
       parent_id: values.parent_id ?? undefined,
       meta_json: {},
     };
@@ -121,7 +118,7 @@ export class TermEditorStore {
       const nextTerm =
         isEditMode && termId
           ? await updateTerm(termId, payload)
-          : await createTerm(taxonomySlug, payload);
+          : await createTerm(taxonomyId, payload);
       const successMessage = isEditMode ? 'Термин обновлён' : 'Термин создан';
       notificationService.showSuccess({ message: successMessage });
       this.setFormValues(toFormValues(nextTerm));
@@ -141,7 +138,7 @@ export class TermEditorStore {
    * @returns `true`, если удаление выполнено успешно.
    * @throws Ошибка 409 (CONFLICT), если термин привязан к записям и `forceDetach=false`.
    */
-  async deleteTerm(termId: number, forceDetach = false): Promise<boolean> {
+  async deleteTerm(termId: ZId, forceDetach = false): Promise<boolean> {
     this.setPending(true);
     try {
       await deleteTerm(termId, forceDetach);

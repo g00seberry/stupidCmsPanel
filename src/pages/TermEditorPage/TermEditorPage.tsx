@@ -1,4 +1,3 @@
-import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { App, Button, Card, Empty, Form, Input, Spin, TreeSelect } from 'antd';
 import { Check, Trash2, Info } from 'lucide-react';
@@ -11,12 +10,14 @@ import { getTaxonomy } from '@/api/apiTaxonomies';
 import type { ZTaxonomy } from '@/types/taxonomies';
 import { getTermsTree } from '@/api/apiTerms';
 import type { ZTermTree } from '@/types/terms';
+import { onError } from '@/utils/onError';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Тип узла для TreeSelect.
  */
 type TreeSelectNode = {
-  value: number;
+  value: number | string;
   title: string;
   children?: TreeSelectNode[];
 };
@@ -27,10 +28,7 @@ type TreeSelectNode = {
  * @param excludeTermId ID термина для исключения (вместе с его потомками).
  * @returns Массив узлов для TreeSelect.
  */
-const convertTermsTreeToSelectData = (
-  tree: ZTermTree[],
-  excludeTermId?: number
-): TreeSelectNode[] => {
+const convertTermsTreeToSelectData = (tree: ZTermTree[], excludeTermId?: ZId): TreeSelectNode[] => {
   const convertNode = (node: ZTermTree): TreeSelectNode | null => {
     // Исключаем текущий термин и его потомков
     if (excludeTermId && node.id === excludeTermId) {
@@ -56,14 +54,14 @@ const convertTermsTreeToSelectData = (
  * Форма создания и редактирования термина таксономии CMS.
  */
 export const TermEditorPage = observer(() => {
-  const { taxonomy: taxonomySlug, id: termIdParam } = useParams<{ taxonomy: string; id: string }>();
+  const { taxonomyId, id } = useParams<{ taxonomyId: string; id: string }>();
+
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
   const { modal } = App.useApp();
-  const isEditMode = termIdParam !== 'new' && termIdParam !== undefined;
-  const termId = isEditMode ? Number.parseInt(termIdParam, 10) : undefined;
-  const store = useMemo(() => new TermEditorStore(), [termIdParam]);
-  const nameValue = Form.useWatch('name', form);
+  const isEditMode = id !== 'new';
+
+  const store = useMemo(() => new TermEditorStore(), [id]);
   const [taxonomy, setTaxonomy] = useState<ZTaxonomy | null>(null);
   const [loadingTaxonomy, setLoadingTaxonomy] = useState(false);
   const [termsTree, setTermsTree] = useState<ZTermTree[]>([]);
@@ -71,28 +69,23 @@ export const TermEditorPage = observer(() => {
 
   // Загрузка информации о таксономии
   useEffect(() => {
-    if (!taxonomySlug) return;
-
+    if (!taxonomyId) return;
     setLoadingTaxonomy(true);
-    getTaxonomy(taxonomySlug)
+    getTaxonomy(taxonomyId)
       .then(setTaxonomy)
-      .catch(() => {})
+      .catch(onError)
       .finally(() => setLoadingTaxonomy(false));
-  }, [taxonomySlug]);
+  }, [taxonomyId]);
 
   // Загрузка дерева терминов для выбора родителя (только для иерархических таксономий)
   useEffect(() => {
-    if (!taxonomySlug || !taxonomy?.hierarchical) {
-      setTermsTree([]);
-      return;
-    }
-
+    if (!taxonomyId || !taxonomy?.hierarchical) return;
     setLoadingTermsTree(true);
-    getTermsTree(taxonomySlug)
+    getTermsTree(taxonomyId)
       .then(setTermsTree)
       .catch(() => {})
       .finally(() => setLoadingTermsTree(false));
-  }, [taxonomySlug, taxonomy?.hierarchical]);
+  }, [taxonomyId, taxonomy?.hierarchical]);
 
   // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
@@ -101,10 +94,10 @@ export const TermEditorPage = observer(() => {
 
   // Загрузка данных при изменении termId в режиме редактирования
   useEffect(() => {
-    if (termId && isEditMode) {
-      void store.loadTerm(termId);
+    if (id && isEditMode) {
+      void store.loadTerm(id);
     }
-  }, [termId, isEditMode, store]);
+  }, [id, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -112,30 +105,33 @@ export const TermEditorPage = observer(() => {
    */
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      if (!taxonomySlug) return;
+      if (!taxonomyId) return;
 
-      const nextTerm = await store.saveTerm(values, taxonomySlug, isEditMode, termId);
+      const nextTerm = await store.saveTerm(values, taxonomyId, isEditMode, id);
       if (nextTerm) {
         // Форма автоматически обновится через первый useEffect при изменении store.formValues
-        navigate(buildUrl(PageUrl.TermEdit, { taxonomy: taxonomySlug, id: String(nextTerm.id) }), {
-          replace: false,
-        });
+        navigate(
+          buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: String(nextTerm.id) }),
+          {
+            replace: false,
+          }
+        );
       }
     },
-    [isEditMode, navigate, taxonomySlug, store, termId]
+    [isEditMode, navigate, taxonomyId, store, id]
   );
 
   const handleCancel = useCallback(() => {
-    if (taxonomySlug) {
-      navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomy: taxonomySlug }));
+    if (taxonomyId) {
+      navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) }));
     }
-  }, [navigate, taxonomySlug]);
+  }, [navigate, taxonomyId]);
 
   /**
    * Обрабатывает удаление термина с подтверждением и обработкой ошибок.
    */
   const handleDelete = useCallback(async () => {
-    if (!termId || !isEditMode) {
+    if (!id || !isEditMode) {
       return;
     }
 
@@ -147,9 +143,9 @@ export const TermEditorPage = observer(() => {
       cancelText: 'Отмена',
       onOk: async () => {
         try {
-          const success = await store.deleteTerm(termId, false);
-          if (success && taxonomySlug) {
-            navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomy: taxonomySlug }));
+          const success = await store.deleteTerm(id, false);
+          if (success && taxonomyId && !Number.isNaN(taxonomyId)) {
+            navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) }));
           }
         } catch (error) {
           // Обработка ошибки 409 (CONFLICT) - термин привязан к записям
@@ -162,9 +158,9 @@ export const TermEditorPage = observer(() => {
               okType: 'danger',
               cancelText: 'Отмена',
               onOk: async () => {
-                const forceSuccess = await store.deleteTerm(termId, true);
-                if (forceSuccess && taxonomySlug) {
-                  navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomy: taxonomySlug }));
+                const forceSuccess = await store.deleteTerm(id, true);
+                if (forceSuccess && taxonomyId && !Number.isNaN(taxonomyId)) {
+                  navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) }));
                 }
               },
             });
@@ -172,9 +168,9 @@ export const TermEditorPage = observer(() => {
         }
       },
     });
-  }, [termId, isEditMode, navigate, store, modal, taxonomySlug]);
+  }, [id, isEditMode, navigate, store, modal, taxonomyId]);
 
-  if (!taxonomySlug) {
+  if (!taxonomyId) {
     return (
       <div className="min-h-screen bg-background w-full flex items-center justify-center">
         <Empty description="Таксономия не указана" />
@@ -202,10 +198,12 @@ export const TermEditorPage = observer(() => {
                 <span
                   className="hover:text-foreground cursor-pointer transition-colors"
                   onClick={() =>
-                    navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomy: taxonomySlug }))
+                    taxonomyId &&
+                    !Number.isNaN(taxonomyId) &&
+                    navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) }))
                   }
                 >
-                  {taxonomy?.label || taxonomySlug}
+                  {taxonomy?.label || taxonomyId}
                 </span>
               )}
               <span>/</span>
@@ -275,34 +273,6 @@ export const TermEditorPage = observer(() => {
                       </p>
                     </div>
 
-                    {/* Slug */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label="Slug"
-                        name="slug"
-                        rules={[
-                          { required: true, message: 'Slug обязателен.' },
-                          {
-                            pattern: /^[a-z0-9-]+$/,
-                            message:
-                              'Slug может содержать только строчные латинские буквы, цифры и дефис.',
-                          },
-                        ]}
-                        className="mb-0"
-                      >
-                        <SlugInput
-                          from={nameValue ?? ''}
-                          holdOnChange={isEditMode}
-                          placeholder="guides"
-                          disabled={store.initialLoading || store.pending}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground flex items-start gap-1">
-                        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>Уникальный идентификатор термина в URL</span>
-                      </p>
-                    </div>
-
                     {/* Parent Term (only for hierarchical taxonomies) */}
                     {taxonomy?.hierarchical && (
                       <div className="space-y-2">
@@ -311,7 +281,7 @@ export const TermEditorPage = observer(() => {
                             placeholder="Выберите родительский термин (необязательно)"
                             allowClear
                             treeDefaultExpandAll
-                            treeData={convertTermsTreeToSelectData(termsTree, termId)}
+                            treeData={convertTermsTreeToSelectData(termsTree, id)}
                             disabled={store.initialLoading || store.pending || loadingTermsTree}
                             notFoundContent={
                               loadingTermsTree ? <Spin size="small" /> : 'Термины не найдены'

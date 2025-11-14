@@ -1,7 +1,6 @@
-import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { App, Button, Card, Form, Input, Spin, Switch } from 'antd';
-import { Check, Info, Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,25 +12,24 @@ import { zProblemJson } from '@/types/ZProblemJson';
  * Форма создания и редактирования таксономии CMS.
  */
 export const TaxonomiesEditorPage = observer(() => {
-  const { slug } = useParams<{ slug?: string }>();
+  const { id } = useParams<{ id?: string }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
   const { modal } = App.useApp();
-  const isEditMode = slug !== 'new' && slug !== undefined;
-  const store = useMemo(() => new TaxonomiesEditorStore(), [slug]);
-  const labelValue = Form.useWatch('label', form);
+  const isEditMode = id !== 'new';
+  const store = useMemo(() => new TaxonomiesEditorStore(), [id]);
 
   // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
     form.setFieldsValue(store.formValues);
   }, [form, store.formValues]);
 
-  // Загрузка данных при изменении slug в режиме редактирования
+  // Загрузка данных при изменении id в режиме редактирования
   useEffect(() => {
-    if (slug && isEditMode) {
-      void store.loadTaxonomy(slug);
+    if (id && isEditMode) {
+      void store.loadTaxonomy(id);
     }
-  }, [slug, isEditMode, store]);
+  }, [id, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -39,15 +37,15 @@ export const TaxonomiesEditorPage = observer(() => {
    */
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      const nextTaxonomy = await store.saveTaxonomy(values, isEditMode, slug);
+      const nextTaxonomy = await store.saveTaxonomy(values, isEditMode, id);
       if (nextTaxonomy) {
         // Форма автоматически обновится через первый useEffect при изменении store.formValues
-        navigate(buildUrl(PageUrl.TaxonomiesEdit, { slug: nextTaxonomy.slug }), {
+        navigate(buildUrl(PageUrl.TaxonomiesEdit, { id: String(nextTaxonomy.id) }), {
           replace: false,
         });
       }
     },
-    [isEditMode, navigate, slug, store]
+    [isEditMode, navigate, id, store]
   );
 
   const handleCancel = useCallback(() => {
@@ -58,7 +56,7 @@ export const TaxonomiesEditorPage = observer(() => {
    * Обрабатывает удаление таксономии с подтверждением и обработкой ошибок.
    */
   const handleDelete = useCallback(async () => {
-    if (!slug || !isEditMode) {
+    if (!id || !isEditMode) {
       return;
     }
 
@@ -70,7 +68,7 @@ export const TaxonomiesEditorPage = observer(() => {
       cancelText: 'Отмена',
       onOk: async () => {
         try {
-          const success = await store.deleteTaxonomy(slug, false);
+          const success = await store.deleteTaxonomy(id, false);
           if (success) {
             navigate(PageUrl.Taxonomies);
           }
@@ -92,7 +90,7 @@ export const TaxonomiesEditorPage = observer(() => {
               okType: 'danger',
               cancelText: 'Отмена',
               onOk: async () => {
-                const forceSuccess = await store.deleteTaxonomy(slug, true);
+                const forceSuccess = await store.deleteTaxonomy(id, true);
                 if (forceSuccess) {
                   navigate(PageUrl.Taxonomies);
                 }
@@ -102,7 +100,7 @@ export const TaxonomiesEditorPage = observer(() => {
         }
       },
     });
-  }, [slug, isEditMode, navigate, store, modal]);
+  }, [id, isEditMode, navigate, store, modal]);
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -184,34 +182,6 @@ export const TaxonomiesEditorPage = observer(() => {
                       </p>
                     </div>
 
-                    {/* Slug */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label="Slug"
-                        name="slug"
-                        rules={[
-                          { required: true, message: 'Slug обязателен.' },
-                          {
-                            pattern: /^[a-z0-9-]+$/,
-                            message:
-                              'Slug может содержать только строчные латинские буквы, цифры и дефис.',
-                          },
-                        ]}
-                        className="mb-0"
-                      >
-                        <SlugInput
-                          from={labelValue ?? ''}
-                          holdOnChange={isEditMode}
-                          placeholder="category"
-                          disabled={store.initialLoading || store.pending}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground flex items-start gap-1">
-                        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>Уникальный идентификатор таксономии в URL</span>
-                      </p>
-                    </div>
-
                     {/* Hierarchical */}
                     <div className="space-y-2">
                       <Form.Item
@@ -258,4 +228,3 @@ export const TaxonomiesEditorPage = observer(() => {
     </div>
   );
 });
-

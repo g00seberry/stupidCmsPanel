@@ -6,19 +6,20 @@ import { onError } from '@/utils/onError';
 import { Checkbox, Empty, Input, Spin, Tree } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import type { DataNode } from 'antd/es/tree';
+import { zId, type ZId } from '@/types/ZId';
 
 /**
  * Пропсы компонента выбора термов.
  */
 export type PropsTermSelector = {
-  /** Slug таксономии, из которой нужно выбрать термы. */
-  taxonomySlug: string;
+  /** ID таксономии, из которой нужно выбрать термы. */
+  taxonomyId: ZId;
   /** Массив ID уже выбранных термов. */
-  selectedTermIds?: number[];
+  selectedTermIds?: ZId[];
   /** Обработчик изменения выбранных термов. */
-  onChange?: (selectedTermIds: number[]) => void;
+  onChange?: (selectedTermIds: ZId[]) => void;
   /** Массив ID разрешённых термов для валидации. Если указан, можно выбрать только эти термы. */
-  allowedTermIds?: number[];
+  allowedTermIds?: ZId[];
   /** Флаг отключения компонента. */
   disabled?: boolean;
   /** Флаг множественного выбора. Если `false`, можно выбрать только один терм. */
@@ -31,7 +32,7 @@ export type PropsTermSelector = {
  * @param disabledIds Массив ID отключённых термов.
  * @returns Массив узлов дерева для Tree компонента.
  */
-const buildTreeData = (tree: ZTermTree[], disabledIds: number[]): DataNode[] => {
+const buildTreeData = (tree: ZTermTree[], disabledIds: ZId[]): DataNode[] => {
   return tree.map(term => ({
     title: term.name,
     key: String(term.id),
@@ -46,7 +47,7 @@ const buildTreeData = (tree: ZTermTree[], disabledIds: number[]): DataNode[] => 
  * @param disabledIds Массив ID отключённых термов.
  * @returns Массив узлов дерева для Tree компонента.
  */
-const buildFlatTreeData = (terms: ZTerm[], disabledIds: number[]): DataNode[] => {
+const buildFlatTreeData = (terms: ZTerm[], disabledIds: ZId[]): DataNode[] => {
   return terms.map(term => ({
     title: term.name,
     key: String(term.id),
@@ -59,7 +60,7 @@ const buildFlatTreeData = (terms: ZTerm[], disabledIds: number[]): DataNode[] =>
  * Поддерживает поиск, множественный выбор и отображение в виде дерева для иерархических таксономий.
  */
 export const TermSelector: React.FC<PropsTermSelector> = ({
-  taxonomySlug,
+  taxonomyId,
   selectedTermIds = [],
   onChange,
   allowedTermIds,
@@ -71,7 +72,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
   const [tree, setTree] = useState<ZTermTree[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIds, setSelectedIds] = useState<number[]>(selectedTermIds);
+  const [selectedIds, setSelectedIds] = useState<ZId[]>(selectedTermIds);
 
   // Синхронизация внутреннего состояния с пропсом selectedTermIds
   useEffect(() => {
@@ -82,7 +83,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
   useEffect(() => {
     const loadTaxonomy = async () => {
       try {
-        const data = await getTaxonomy(taxonomySlug);
+        const data = await getTaxonomy(taxonomyId);
         setTaxonomy(data);
       } catch (error) {
         onError(error);
@@ -90,12 +91,12 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     };
 
     void loadTaxonomy();
-  }, [taxonomySlug]);
+  }, [taxonomyId]);
 
   // Загрузка термов таксономии
   useEffect(() => {
     const loadTerms = async () => {
-      if (!taxonomySlug) {
+      if (!taxonomyId) {
         return;
       }
 
@@ -103,7 +104,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
       try {
         if (taxonomy?.hierarchical) {
           // Для иерархических таксономий загружаем дерево
-          const treeData = await getTermsTree(taxonomySlug);
+          const treeData = await getTermsTree(taxonomyId);
           setTree(treeData);
           // Извлекаем все термы из дерева для фильтрации
           const allTerms: ZTerm[] = [];
@@ -122,7 +123,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
           setTerms(allTerms);
         } else {
           // Для неиерархических таксономий загружаем плоский список
-          const result = await listTerms(taxonomySlug, { per_page: 100 });
+          const result = await listTerms(taxonomyId, { per_page: 100 });
           setTerms(result.data);
           setTree([]);
         }
@@ -134,7 +135,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     };
 
     void loadTerms();
-  }, [taxonomySlug, taxonomy?.hierarchical]);
+  }, [taxonomyId, taxonomy?.hierarchical]);
 
   // Фильтрация термов по поисковому запросу
   const filteredTerms = useMemo(() => {
@@ -143,9 +144,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     }
 
     const query = searchQuery.toLowerCase();
-    return terms.filter(
-      term => term.name.toLowerCase().includes(query) || term.slug.toLowerCase().includes(query)
-    );
+    return terms.filter(term => term.name.toLowerCase().includes(query));
   }, [terms, searchQuery]);
 
   // Фильтрация дерева по поисковому запросу
@@ -158,8 +157,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     const filterTree = (terms: ZTermTree[]): ZTermTree[] => {
       return terms
         .map(term => {
-          const matches =
-            term.name.toLowerCase().includes(query) || term.slug.toLowerCase().includes(query);
+          const matches = term.name.toLowerCase().includes(query);
           const filteredChildren = term.children ? filterTree(term.children) : [];
 
           if (matches || filteredChildren.length > 0) {
@@ -188,12 +186,12 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
    * Обрабатывает переключение выбора терма.
    * @param termId ID терма для переключения.
    */
-  const handleToggleTerm = (termId: number) => {
+  const handleToggleTerm = (termId: ZId) => {
     if (disabled || disabledIds.includes(termId)) {
       return;
     }
 
-    let newSelected: number[];
+    let newSelected: ZId[];
 
     if (multiple) {
       // Множественный выбор
@@ -240,9 +238,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
       ? checkedKeysValue
       : checkedKeysValue.checked;
 
-    const checkedIds = checkedKeys
-      .map(key => Number.parseInt(String(key), 10))
-      .filter(id => !Number.isNaN(id));
+    const checkedIds = checkedKeys.map(key => zId.parse(key));
     setSelectedIds(checkedIds);
     onChange?.(checkedIds);
   };
@@ -263,7 +259,7 @@ export const TermSelector: React.FC<PropsTermSelector> = ({
     <div className="space-y-4">
       {/* Поиск */}
       <Input
-        placeholder="Поиск по названию или slug..."
+        placeholder="Поиск по названию..."
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
         disabled={disabled}

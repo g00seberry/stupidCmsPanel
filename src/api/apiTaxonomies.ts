@@ -1,6 +1,7 @@
 import { rest } from '@/api/rest';
 import { zTaxonomyPayload, zTaxonomiesResponse, zTaxonomyResponse } from '@/types/taxonomies';
 import type { ZTaxonomy, ZTaxonomyPayload } from '@/types/taxonomies';
+import type { ZId } from '@/types/ZId';
 
 const getAdminTaxonomiesUrl = (path: string): string => `/api/v1/admin/taxonomies${path}`;
 
@@ -8,9 +9,9 @@ const getAdminTaxonomiesUrl = (path: string): string => `/api/v1/admin/taxonomie
  * Параметры запроса списка таксономий.
  */
 export type ListTaxonomiesParams = {
-  /** Поиск по slug/label. */
+  /** Поиск по label. */
   q?: string;
-  /** Сортировка. Values: created_at.desc,created_at.asc,slug.asc,slug.desc,label.asc,label.desc. Default: created_at.desc. */
+  /** Сортировка. Values: created_at.desc,created_at.asc,label.asc,label.desc. Default: created_at.desc. */
   sort?: string;
   /** Размер страницы (10-100). Default: 15. */
   per_page?: number;
@@ -23,7 +24,7 @@ export type ListTaxonomiesParams = {
  * @example
  * const taxonomies = await listTaxonomies();
  * taxonomies.forEach(taxonomy => {
- *   console.log(`${taxonomy.label} (${taxonomy.slug})`);
+ *   console.log(`${taxonomy.label} (ID: ${taxonomy.id})`);
  * });
  */
 export const listTaxonomies = async (params?: ListTaxonomiesParams): Promise<ZTaxonomy[]> => {
@@ -33,11 +34,11 @@ export const listTaxonomies = async (params?: ListTaxonomiesParams): Promise<ZTa
 
 /**
  * Загружает сведения о конкретной таксономии.
- * @param slug Уникальный идентификатор таксономии.
+ * @param id ID таксономии.
  * @returns Таксономия, прошедшая валидацию схемой `zTaxonomy`.
  */
-export const getTaxonomy = async (slug: string): Promise<ZTaxonomy> => {
-  const response = await rest.get(getAdminTaxonomiesUrl(`/${slug}`));
+export const getTaxonomy = async (id: ZId): Promise<ZTaxonomy> => {
+  const response = await rest.get(getAdminTaxonomiesUrl(`/${id}`));
   return zTaxonomyResponse.parse(response.data).data;
 };
 
@@ -48,7 +49,6 @@ export const getTaxonomy = async (slug: string): Promise<ZTaxonomy> => {
  * @example
  * const newTaxonomy = await createTaxonomy({
  *   label: 'Categories',
- *   slug: 'category',
  *   hierarchical: false,
  *   options_json: { color: '#ffcc00' }
  * });
@@ -61,36 +61,32 @@ export const createTaxonomy = async (payload: ZTaxonomyPayload): Promise<ZTaxono
 
 /**
  * Обновляет существующую таксономию.
- * @param slug Текущий slug (идентификатор) таксономии.
+ * @param id ID таксономии.
  * @param payload Новые значения полей таксономии.
  * @returns Обновлённая таксономия.
  */
-export const updateTaxonomy = async (
-  slug: string,
-  payload: ZTaxonomyPayload
-): Promise<ZTaxonomy> => {
+export const updateTaxonomy = async (id: ZId, payload: ZTaxonomyPayload): Promise<ZTaxonomy> => {
   const parsedPayload = zTaxonomyPayload.parse(payload);
-  const response = await rest.put(getAdminTaxonomiesUrl(`/${slug}`), parsedPayload);
+  const response = await rest.put(getAdminTaxonomiesUrl(`/${id}`), parsedPayload);
   return zTaxonomyResponse.parse(response.data).data;
 };
 
 /**
  * Удаляет таксономию.
- * @param slug Slug таксономии для удаления.
+ * @param id ID таксономии для удаления.
  * @param force Если `true`, каскадно удаляет все термины этой таксономии. По умолчанию `false`.
  * @returns `true`, если удаление выполнено успешно.
  * @throws Ошибка, если таксономия не найдена или содержит термины (без `force=true`).
  * @example
  * // Обычное удаление (не удалит, если есть термины)
- * await deleteTaxonomy('category');
+ * await deleteTaxonomy(1);
  *
  * // Каскадное удаление (удалит таксономию и все её термины)
- * await deleteTaxonomy('category', true);
+ * await deleteTaxonomy(1, true);
  */
-export const deleteTaxonomy = async (slug: string, force = false): Promise<boolean> => {
-  const url = getAdminTaxonomiesUrl(`/${slug}`);
+export const deleteTaxonomy = async (id: ZId, force = false): Promise<boolean> => {
+  const url = getAdminTaxonomiesUrl(`/${id}`);
   const config = force ? { params: { force: '1' } } : undefined;
   await rest.delete(url, config);
   return true;
 };
-

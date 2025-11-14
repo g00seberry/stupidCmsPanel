@@ -9,25 +9,16 @@ import type { ZId } from '@/types/ZId';
 /**
  * Получает массив разрешённых таксономий из options_json.
  * @param optionsJson Объект options_json типа контента.
- * @returns Массив slug'ов таксономий. Пустой массив, если таксономии не указаны или options_json некорректен.
+ * @returns Массив ID таксономий. Пустой массив, если таксономии не указаны или options_json некорректен.
  * @example
- * const options = { taxonomies: ['categories', 'tags'] };
+ * const options = { taxonomies: [1, 2] };
  * const taxonomies = getTaxonomiesFromOptions(options);
- * console.log(taxonomies); // ['categories', 'tags']
+ * console.log(taxonomies); // [1, 2]
  */
 export const getTaxonomiesFromOptions = (
   optionsJson: ZPostTypeOptions | undefined | null
 ): ZId[] => {
-  if (!optionsJson || typeof optionsJson !== 'object') {
-    return [];
-  }
-
-  const taxonomies = optionsJson.taxonomies;
-  if (!Array.isArray(taxonomies)) {
-    return [];
-  }
-
-  return taxonomies;
+  return optionsJson?.taxonomies ?? [];
 };
 
 /**
@@ -35,21 +26,21 @@ export const getTaxonomiesFromOptions = (
  * Создаёт новый объект options_json с обновлённым массивом таксономий, сохраняя остальные поля.
  * Удаляет поле taxonomies из существующего optionsJson перед добавлением нового, чтобы избежать проблем с типами.
  * @param optionsJson Текущий объект options_json или null/undefined.
- * @param taxonomySlugs Массив slug'ов таксономий для установки.
+ * @param taxonomyIds Массив ID таксономий для установки.
  * @returns Новый объект options_json с обновлённым массивом таксономий.
  * @example
  * const options = { otherField: 'value' };
- * const updated = setTaxonomiesInOptions(options, ['categories', 'tags']);
- * console.log(updated); // { otherField: 'value', taxonomies: ['categories', 'tags'] }
+ * const updated = setTaxonomiesInOptions(options, [1, 2]);
+ * console.log(updated); // { otherField: 'value', taxonomies: [1, 2] }
  */
 export const setTaxonomiesInOptions = (
   optionsJson: ZPostTypeOptions | undefined | null,
-  taxonomySlugs: ZId[]
+  taxonomyIds: ZId[]
 ): ZPostTypeOptions => {
   const options = optionsJson || {};
   return {
     ...options,
-    taxonomies: taxonomySlugs,
+    taxonomies: taxonomyIds,
   };
 };
 

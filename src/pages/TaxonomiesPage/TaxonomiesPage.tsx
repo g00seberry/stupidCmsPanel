@@ -55,7 +55,7 @@ export const TaxonomiesPage = () => {
         cancelText: 'Отмена',
         onOk: async () => {
           try {
-            await deleteTaxonomy(taxonomy.slug, false);
+            await deleteTaxonomy(taxonomy.id, false);
             notificationService.showSuccess({ message: 'Таксономия удалена' });
             void loadTaxonomies();
           } catch (error) {
@@ -77,7 +77,7 @@ export const TaxonomiesPage = () => {
                 cancelText: 'Отмена',
                 onOk: async () => {
                   try {
-                    await deleteTaxonomy(taxonomy.slug, true);
+                    await deleteTaxonomy(taxonomy.id, true);
                     notificationService.showSuccess({
                       message: 'Таксономия и все термины удалены',
                     });
@@ -109,7 +109,7 @@ export const TaxonomiesPage = () => {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Link to={buildUrl(PageUrl.TaxonomiesEdit, { slug: 'new' })}>
+              <Link to={buildUrl(PageUrl.TaxonomiesEdit, { id: 'new' })}>
                 <Button type="primary" icon={<Plus className="w-4 h-4" />}>
                   Создать таксономию
                 </Button>
@@ -123,7 +123,7 @@ export const TaxonomiesPage = () => {
         {/* Поиск */}
         <div className="mb-6">
           <Input
-            placeholder="Поиск по названию или slug"
+            placeholder="Поиск по названию"
             prefix={<Search className="w-4 h-4 text-muted-foreground" />}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
@@ -144,7 +144,7 @@ export const TaxonomiesPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {taxonomies.map(taxonomy => (
               <Card
-                key={taxonomy.slug}
+                key={taxonomy.id}
                 className="transition-all hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="space-y-3">
@@ -157,7 +157,7 @@ export const TaxonomiesPage = () => {
                     )}
                   </div>
                   <code className="block text-sm text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
-                    {taxonomy.slug}
+                    ID: {taxonomy.id}
                   </code>
                   {taxonomy.updated_at && (
                     <p className="text-xs text-muted-foreground">
@@ -165,12 +165,14 @@ export const TaxonomiesPage = () => {
                     </p>
                   )}
                   <div className="flex gap-2 pt-2">
-                    <Link to={buildUrl(PageUrl.TermsByTaxonomy, { taxonomy: taxonomy.slug })}>
+                    <Link
+                      to={buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomy.id) })}
+                    >
                       <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
                         Термины
                       </Button>
                     </Link>
-                    <Link to={buildUrl(PageUrl.TaxonomiesEdit, { slug: taxonomy.slug })}>
+                    <Link to={buildUrl(PageUrl.TaxonomiesEdit, { id: String(taxonomy.id) })}>
                       <Button size="small">Редактировать</Button>
                     </Link>
                     <Button

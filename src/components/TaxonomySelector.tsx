@@ -9,10 +9,10 @@ import { useEffect, useState } from 'react';
  * Пропсы компонента выбора таксономий.
  */
 export type PropsTaxonomySelector = {
-  /** Массив slug'ов выбранных таксономий. */
+  /** Массив ID выбранных таксономий. */
   value?: ZId[];
   /** Обработчик изменения выбранных таксономий. */
-  onChange?: (selectedSlugs: ZId[]) => void;
+  onChange?: (selectedIds: ZId[]) => void;
   /** Флаг отключения компонента. */
   disabled?: boolean;
 };
@@ -49,7 +49,7 @@ export const TaxonomySelector: React.FC<PropsTaxonomySelector> = ({
 
   /**
    * Обрабатывает переключение выбора таксономии.
-   * @param taxonomySlug Slug таксономии для переключения.
+   * @param taxonomyId ID таксономии для переключения.
    */
   const handleToggle = (taxonomyId: ZId) => {
     if (disabled) {

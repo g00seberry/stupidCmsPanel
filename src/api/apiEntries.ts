@@ -15,6 +15,7 @@ import type {
   ZEntryTermsPayload,
 } from '@/types/entries';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import type { ZId } from '@/types/ZId';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
 
@@ -25,8 +26,8 @@ const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${pat
  */
 const buildQueryParams = (
   params: ZEntriesListParams
-): Record<string, string | number | number[]> => {
-  const queryParams: Record<string, string | number | number[]> = {};
+): Record<string, number | ZId | number[] | ZId[]> => {
+  const queryParams: Record<string, number | ZId | number[] | ZId[]> = {};
 
   if (params.post_type) {
     queryParams.post_type = params.post_type;
@@ -176,13 +177,16 @@ export const updateEntry = async (id: number, payload: ZEntryPayload): Promise<Z
 /**
  * Загружает список термов, привязанных к записи.
  * @param entryId ID записи, для которой нужно получить термы.
- * @returns Данные о термах записи, включая группировку по таксономиям.
+ * @returns Данные о термах записи, включая группировку по таксономиям с полной информацией о таксономиях.
  * @example
  * const entryTerms = await getEntryTerms(42);
- * console.log(entryTerms.terms); // Массив всех термов
- * console.log(entryTerms.terms_by_taxonomy); // Группировка по таксономиям
+ * console.log(entryTerms.terms_by_taxonomy); // Массив группировок по таксономиям
+ * // Каждая группа содержит полный объект таксономии и массив её термов
+ * const firstGroup = entryTerms.terms_by_taxonomy[0];
+ * console.log(firstGroup.taxonomy.label); // 'Categories'
+ * console.log(firstGroup.terms); // Массив термов этой таксономии
  */
-export const getEntryTerms = async (entryId: number): Promise<ZEntryTermsData> => {
+export const getEntryTerms = async (entryId: ZId): Promise<ZEntryTermsData> => {
   const response = await rest.get(getAdminEntriesUrl(`/${entryId}/terms`));
   const parsed = zEntryTermsResponse.parse(response.data);
   return parsed.data;
@@ -196,12 +200,9 @@ export const getEntryTerms = async (entryId: number): Promise<ZEntryTermsData> =
  * @returns Обновлённые данные о термах записи.
  * @example
  * const updatedTerms = await attachEntryTerms(42, [3, 8]);
- * console.log(updatedTerms.terms); // Все термы записи, включая новые
+ * console.log(updatedTerms.terms_by_taxonomy); // Группировка по таксономиям с обновлёнными термами
  */
-export const attachEntryTerms = async (
-  entryId: number,
-  termIds: number[]
-): Promise<ZEntryTermsData> => {
+export const attachEntryTerms = async (entryId: ZId, termIds: ZId[]): Promise<ZEntryTermsData> => {
   const payload: ZEntryTermsPayload = { term_ids: termIds };
   const parsedPayload = zEntryTermsPayload.parse(payload);
   const response = await rest.post(getAdminEntriesUrl(`/${entryId}/terms/attach`), parsedPayload);
@@ -217,12 +218,9 @@ export const attachEntryTerms = async (
  * @returns Обновлённые данные о термах записи.
  * @example
  * const updatedTerms = await detachEntryTerms(42, [3, 8]);
- * console.log(updatedTerms.terms); // Термы записи без удалённых
+ * console.log(updatedTerms.terms_by_taxonomy); // Группировка по таксономиям без удалённых термов
  */
-export const detachEntryTerms = async (
-  entryId: number,
-  termIds: number[]
-): Promise<ZEntryTermsData> => {
+export const detachEntryTerms = async (entryId: ZId, termIds: ZId[]): Promise<ZEntryTermsData> => {
   const payload: ZEntryTermsPayload = { term_ids: termIds };
   const parsedPayload = zEntryTermsPayload.parse(payload);
   const response = await rest.post(getAdminEntriesUrl(`/${entryId}/terms/detach`), parsedPayload);
