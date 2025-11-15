@@ -1,6 +1,7 @@
-import { createEntry, getEntry, updateEntry } from '@/api/apiEntries';
+import { createEntry, getEntry, getEntryTerms, updateEntry } from '@/api/apiEntries';
 import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
+import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
 import { notificationService } from '@/services/notificationService';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
 import type { ZPostType } from '@/types/postTypes';
@@ -22,6 +23,7 @@ export interface FormValues {
   readonly is_published: boolean;
   readonly published_at: Dayjs | null;
   readonly template_override: string;
+  readonly term_ids: ZId[];
 }
 
 const defaultFormValues: FormValues = {
@@ -30,20 +32,23 @@ const defaultFormValues: FormValues = {
   is_published: false,
   published_at: null,
   template_override: '',
+  term_ids: [],
 };
 
 /**
  * Преобразует данные записи в значения формы.
  * @param entry Запись, полученная из API.
+ * @param termIds Массив ID термов записи (опционально).
  * @returns Значения формы, готовые к отображению пользователю.
  */
-const toFormValues = (entry: ZEntry): FormValues => {
+const toFormValues = (entry: ZEntry, termIds: ZId[] = []): FormValues => {
   return {
     title: entry.title,
     slug: entry.slug,
     is_published: entry.is_published,
     published_at: viewDate(entry.published_at),
     template_override: entry.template_override ?? '',
+    term_ids: termIds,
   };
 };
 
@@ -59,6 +64,8 @@ export class EntryEditorStore {
   postType: ZPostType | null = null;
   currentPostTypeSlug: string;
   entryId: ZId | typeof idNew;
+  /** Store для управления термами записи. Создаётся только в режиме редактирования. */
+  termsManagerStore: EntryTermsManagerStore | null = null;
 
   get isEditMode(): boolean {
     return this.entryId !== idNew;
@@ -124,8 +131,17 @@ export class EntryEditorStore {
     try {
       this.setLoading(true);
       if (this.isEditMode) {
-        const entry = await getEntry(this.entryId);
-        this.setFormValues(toFormValues(entry));
+        const [entry, entryTerms] = await Promise.all([
+          getEntry(this.entryId),
+          getEntryTerms(this.entryId),
+        ]);
+        const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
+          group.terms.map(term => term.id)
+        );
+        this.setFormValues(toFormValues(entry, termIds));
+        // Создаём стор для управления термами
+        this.termsManagerStore = new EntryTermsManagerStore(this.entryId);
+        await this.termsManagerStore.initialize(termIds);
       }
       this.setPostType(await getPostType(this.currentPostTypeSlug));
       this.setTemplates(await getTemplates());
@@ -168,6 +184,7 @@ export class EntryEditorStore {
         is_published: values.is_published,
         published_at: serverDate(values.published_at),
         template_override: (values.template_override || '').trim() || null,
+        term_ids: values.term_ids,
         ...(postType && { post_type: postType }),
       };
 
@@ -175,7 +192,21 @@ export class EntryEditorStore {
         isEditMode && entryId ? await updateEntry(entryId, payload) : await createEntry(payload);
       const successMessage = isEditMode ? 'Запись обновлена' : 'Запись создана';
       notificationService.showSuccess({ message: successMessage });
-      this.setFormValues(toFormValues(nextEntry));
+      // После сохранения загружаем термы для обновления формы и стора
+      if (this.isEditMode && nextEntry) {
+        const entryTerms = await getEntryTerms(nextEntry.id);
+        const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
+          group.terms.map(term => term.id)
+        );
+        this.setFormValues(toFormValues(nextEntry, termIds));
+        // Обновляем стор термов
+        if (this.termsManagerStore) {
+          this.termsManagerStore.setEntryTerms(entryTerms);
+          this.termsManagerStore.pendingTermIds = new Set(termIds);
+        }
+      } else {
+        this.setFormValues(toFormValues(nextEntry));
+      }
       return nextEntry;
     } catch (error) {
       onError(error);

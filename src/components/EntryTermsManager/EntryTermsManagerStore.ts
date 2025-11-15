@@ -1,4 +1,4 @@
-import { syncEntryTerms, getEntryTerms } from '@/api/apiEntries';
+import { getEntryTerms } from '@/api/apiEntries';
 import type { ZEntryTermsData } from '@/types/entries';
 import type { ZTaxonomy } from '@/types/taxonomies';
 import type { ZTerm } from '@/types/terms';
@@ -22,7 +22,7 @@ export class EntryTermsManagerStore {
   /** ID записи, для которой управляются термы. */
   entryId: ZId;
   /** Временное состояние выбранных термов в модальном окне. */
-  private pendingTermIds: Set<ZId> = new Set();
+  pendingTermIds: Set<ZId> = new Set();
 
   /**
    * Создаёт экземпляр стора управления термами записи.
@@ -34,12 +34,16 @@ export class EntryTermsManagerStore {
 
   /**
    * Инициализирует стор с параметрами записи.
-   * @param entryId ID записи, для которой управляются термы.
-   * @param allowedTaxonomies Массив ID разрешённых таксономий.
+   * @param termIds Массив ID термов из формы (опционально, используется только для инициализации pendingTermIds).
    */
-  async initialize(): Promise<void> {
+  async initialize(termIds?: ZId[]): Promise<void> {
     try {
-      this.setEntryTerms(await getEntryTerms(this.entryId));
+      const entryTerms = await getEntryTerms(this.entryId);
+      this.setEntryTerms(entryTerms);
+      // Инициализируем pendingTermIds если переданы termIds
+      if (termIds) {
+        this.pendingTermIds = new Set(termIds);
+      }
     } catch (error) {
       onError(error);
     }
@@ -64,20 +68,6 @@ export class EntryTermsManagerStore {
       ...term,
       taxonomy: selectedDomainTerms.taxonomy.id,
     }));
-  }
-
-  /**
-   * Все термы записи из всех таксономий.
-   */
-  private get allCurrentTermIds(): Set<ZId> {
-    if (!this.entryTerms) return new Set();
-    const allIds = new Set<ZId>();
-    this.entryTerms.terms_by_taxonomy.forEach(group => {
-      group.terms.forEach(term => {
-        allIds.add(term.id);
-      });
-    });
-    return allIds;
   }
 
   /**
@@ -110,13 +100,14 @@ export class EntryTermsManagerStore {
 
   /**
    * Открывает модальное окно добавления термов для указанной таксономии.
-   * Инициализирует временное состояние текущими термами.
+   * Инициализирует временное состояние текущими термами из формы.
    * @param taxonomyId ID таксономии, для которой открывается модальное окно.
+   * @param termIds Массив ID термов из формы.
    */
-  openModal(taxonomyId: ZId): void {
+  openModal(taxonomyId: ZId, termIds: ZId[] = []): void {
     this.selectedTaxonomy = taxonomyId;
     this.modalVisible = true;
-    this.initializePendingState();
+    this.pendingTermIds = new Set(termIds);
   }
 
   /**
@@ -125,20 +116,6 @@ export class EntryTermsManagerStore {
    */
   closeModal(): void {
     this.modalVisible = false;
-    this.resetPendingState();
-  }
-
-  /**
-   * Инициализирует временное состояние текущими термами записи из всех таксономий.
-   */
-  private initializePendingState(): void {
-    this.pendingTermIds = new Set(this.allCurrentTermIds);
-  }
-
-  /**
-   * Сбрасывает временное состояние.
-   */
-  private resetPendingState(): void {
     this.pendingTermIds = new Set();
   }
 
@@ -152,73 +129,6 @@ export class EntryTermsManagerStore {
       this.pendingTermIds.add(termId);
     } else {
       this.pendingTermIds.delete(termId);
-    }
-  }
-
-  /**
-   * Применяет все изменения из временного состояния.
-   * Синхронизирует термы записи с финальным списком из временного состояния.
-   */
-  async applyPendingChanges(): Promise<void> {
-    if (!this.entryId || !this.modalVisible) return;
-
-    const pendingTermIds = Array.from(this.pendingTermIds);
-
-    this.loading = true;
-    try {
-      const data = await syncEntryTerms(this.entryId, pendingTermIds);
-      this.setEntryTerms(data);
-      this.closeModal();
-    } catch (error) {
-      onError(error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  /**
-   * Добавляет терм к записи.
-   * @param termId ID терма для добавления.
-   */
-  async addTerm(termId: ZId): Promise<void> {
-    if (!this.entryId) return;
-
-    const currentTermIds = Array.from(this.allCurrentTermIds);
-    if (currentTermIds.includes(termId)) return;
-
-    const newTermIds = [...currentTermIds, termId];
-
-    this.loading = true;
-    try {
-      const data = await syncEntryTerms(this.entryId, newTermIds);
-      this.entryTerms = data;
-    } catch (error) {
-      onError(error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  /**
-   * Удаляет терм из записи.
-   * @param termId ID терма для удаления.
-   */
-  async removeTerm(termId: ZId): Promise<void> {
-    if (!this.entryId) return;
-
-    const currentTermIds = Array.from(this.allCurrentTermIds);
-    if (!currentTermIds.includes(termId)) return;
-
-    const newTermIds = currentTermIds.filter(id => id !== termId);
-
-    this.loading = true;
-    try {
-      const data = await syncEntryTerms(this.entryId, newTermIds);
-      this.setEntryTerms(data);
-    } catch (error) {
-      onError(error);
-    } finally {
-      this.loading = false;
     }
   }
 }

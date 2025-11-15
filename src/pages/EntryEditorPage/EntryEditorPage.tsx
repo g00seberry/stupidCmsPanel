@@ -163,8 +163,8 @@ const Inner = observer(({ store }: PropsInner) => {
                 </Card>
               </div>
 
-              <div className="lg:col-span-1 space-y-6">
-                <Card className="p-6 sticky top-24">
+              <div className="lg:col-span-1 space-y-6 sticky top-24">
+                <Card className="p-6 ">
                   <h2 className="text-lg font-semibold mb-6">Публикация</h2>
                   <div className="space-y-6">
                     <Form.Item
@@ -187,12 +187,14 @@ const Inner = observer(({ store }: PropsInner) => {
                     <p className="text-sm text-muted-foreground">Дата и время публикации записи</p>
                   </div>
                 </Card>
-                {isEditMode && (
+                {isEditMode && store.termsManagerStore && (
                   <Card className="p-6">
-                    <EntryTermsManager
-                      entryId={store.entryId}
-                      disabled={store.pending || store.loading}
-                    />
+                    <Form.Item name="term_ids" className="mb-0">
+                      <EntryTermsManager
+                        store={store.termsManagerStore}
+                        disabled={store.pending || store.loading}
+                      />
+                    </Form.Item>
                   </Card>
                 )}
               </div>
