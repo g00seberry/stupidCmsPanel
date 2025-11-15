@@ -1,6 +1,6 @@
 import type { ZEntryTermsData } from '@/types/entries';
 import type { ZId } from '@/types/ZId';
-import { Empty, Tag } from 'antd';
+import { Tag } from 'antd';
 import { Plus } from 'lucide-react';
 
 /**
@@ -38,13 +38,6 @@ export const TermList: React.FC<PropsTermList> = ({
     }
     onRemove?.(termId);
   };
-
-  const terms = entryTerms.terms_by_taxonomy.flatMap(group => group.terms);
-
-  // Если нет термов, отображаем пустое состояние
-  if (terms.length === 0) {
-    return <Empty description="Термы отсутствуют" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
-  }
 
   /**
    * Обрабатывает клик на кнопку добавления термов для таксономии.
