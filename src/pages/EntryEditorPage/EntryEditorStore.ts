@@ -1,13 +1,17 @@
 import { createEntry, getEntry, updateEntry } from '@/api/apiEntries';
+import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
 import { notificationService } from '@/services/notificationService';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
+import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
 import { serverDate, viewDate } from '@/utils/dateUtils';
 import { makeAutoObservable } from 'mobx';
 import type { Dayjs } from 'dayjs';
 import type { ZId } from '@/types/ZId';
+
+const idNew = 'new';
 
 /**
  * Значения формы редактора записи.
@@ -51,13 +55,40 @@ export class EntryEditorStore {
   initialLoading = false;
   pending = false;
   templates: ZTemplate[] = [];
-  loadingTemplates = false;
+  loading = false;
+  postType: ZPostType | null = null;
+  currentPostTypeSlug: string;
+  entryId: ZId | typeof idNew;
 
+  get isEditMode(): boolean {
+    return this.entryId !== idNew;
+  }
   /**
    * Создаёт экземпляр стора редактора записи.
+   * @param postTypeSlug Slug типа контента (опционально).
+   * @param entryId ID записи для редактирования (опционально).
    */
-  constructor() {
+  constructor(postTypeSlug: string, entryId: ZId) {
+    this.currentPostTypeSlug = postTypeSlug;
+    this.entryId = entryId;
     makeAutoObservable(this);
+    void this.init();
+  }
+
+  /**
+   * Устанавливает тип контента.
+   * @param postType Тип контента.
+   */
+  setPostType(postType: ZPostType): void {
+    this.postType = postType;
+  }
+
+  /**
+   * Устанавливает шаблоны.
+   * @param templates Шаблоны.
+   */
+  setTemplates(templates: ZTemplate[]): void {
+    this.templates = templates;
   }
 
   /**
@@ -69,20 +100,11 @@ export class EntryEditorStore {
   }
 
   /**
-   * Устанавливает значение конкретного поля формы.
-   * @param field Имя поля.
-   * @param value Новое значение поля.
-   */
-  setFormField<K extends keyof FormValues>(field: K, value: FormValues[K]): void {
-    this.formValues = { ...this.formValues, [field]: value };
-  }
-
-  /**
    * Устанавливает флаг начальной загрузки.
    * @param value Новое значение флага.
    */
-  setInitialLoading(value: boolean): void {
-    this.initialLoading = value;
+  setLoading(value: boolean): void {
+    this.loading = value;
   }
 
   /**
@@ -94,35 +116,23 @@ export class EntryEditorStore {
   }
 
   /**
-   * Загружает список доступных шаблонов.
+   * Инициализирует стор: загружает шаблоны, тип контента (если указан) и запись (если указан ID).
+   * @param postTypeSlug Slug типа контента (опционально).
+   * @param entryId ID записи для редактирования (опционально).
    */
-  async loadTemplates(): Promise<void> {
-    if (this.loadingTemplates || this.templates.length > 0) {
-      return;
-    }
-    this.loadingTemplates = true;
+  async init(): Promise<void> {
     try {
-      this.templates = await getTemplates();
+      this.setLoading(true);
+      if (this.isEditMode) {
+        const entry = await getEntry(this.entryId);
+        this.setFormValues(toFormValues(entry));
+      }
+      this.setPostType(await getPostType(this.currentPostTypeSlug));
+      this.setTemplates(await getTemplates());
     } catch (error) {
       onError(error);
     } finally {
-      this.loadingTemplates = false;
-    }
-  }
-
-  /**
-   * Загружает данные записи для редактирования.
-   * @param id ID записи.
-   */
-  async loadEntry(id: ZId): Promise<void> {
-    this.setInitialLoading(true);
-    try {
-      const entry = await getEntry(id);
-      this.setFormValues(toFormValues(entry));
-    } catch (error) {
-      onError(error);
-    } finally {
-      this.setInitialLoading(false);
+      this.setLoading(false);
     }
   }
 
