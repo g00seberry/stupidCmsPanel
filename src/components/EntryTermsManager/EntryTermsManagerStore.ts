@@ -40,7 +40,6 @@ export class EntryTermsManagerStore {
   async initialize(): Promise<void> {
     try {
       this.setEntryTerms(await getEntryTerms(this.entryId));
-      this.setSelectedTaxonomy(this.availableTaxonomies[0].id ?? null);
     } catch (error) {
       onError(error);
     }
@@ -110,10 +109,12 @@ export class EntryTermsManagerStore {
   }
 
   /**
-   * Открывает модальное окно добавления термов.
+   * Открывает модальное окно добавления термов для указанной таксономии.
    * Инициализирует временное состояние текущими термами.
+   * @param taxonomyId ID таксономии, для которой открывается модальное окно.
    */
-  openModal(): void {
+  openModal(taxonomyId: ZId): void {
+    this.selectedTaxonomy = taxonomyId;
     this.modalVisible = true;
     this.initializePendingState();
   }

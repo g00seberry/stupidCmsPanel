@@ -1,16 +1,15 @@
-import { SlugInput } from '@/components/SlugInput';
+import { getPostType } from '@/api/apiPostTypes';
 import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsManager';
+import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { Button, Card, DatePicker, Form, Input, Switch, Spin, Select } from 'antd';
+import type { ZPostType } from '@/types/postTypes';
+import { onError } from '@/utils/onError';
+import { Button, Card, DatePicker, Form, Input, Select, Spin, Switch } from 'antd';
 import { Check, Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorStore, type FormValues } from './EntryEditorStore';
-import { getPostType } from '@/api/apiPostTypes';
-import { onError } from '@/utils/onError';
-import type { ZPostType } from '@/types/postTypes';
-import { getTaxonomiesFromOptions } from '@/utils/postTypeOptions';
 
 /**
  * Страница создания и редактирования записи CMS.

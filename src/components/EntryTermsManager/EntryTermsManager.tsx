@@ -1,6 +1,5 @@
 import type { ZId } from '@/types/ZId';
-import { Button, Empty, Modal, Select, Spin } from 'antd';
-import { Plus } from 'lucide-react';
+import { Empty, Modal, Spin } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import { TermList } from './TermList';
@@ -30,9 +29,9 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
       return newStore;
     }, [entryId]);
 
-    const handleOpenModal = () => {
+    const handleOpenModal = (taxonomyId: ZId) => {
       if (disabled) return;
-      store.openModal();
+      store.openModal(taxonomyId);
     };
 
     const handleCloseModal = () => {
@@ -56,20 +55,13 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Термы</h3>
-          <Button
-            type="primary"
-            icon={<Plus className="w-4 h-4" />}
-            onClick={handleOpenModal}
-            disabled={disabled || store.loading || store.availableTaxonomies.length === 0}
-          >
-            Добавить термы
-          </Button>
         </div>
 
         {store.entryTerms ? (
           <TermList
             entryTerms={store.entryTerms}
             onRemove={handleRemoveTerm}
+            onAddClick={handleOpenModal}
             disabled={disabled || store.loading || !store.entryTerms}
           />
         ) : (
@@ -89,34 +81,21 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
           width={800}
           destroyOnHidden
         >
-          <div className="space-y-4">
-            <label className="text-sm font-medium text-foreground">Таксономия</label>
-            <Select
-              value={store.selectedTaxonomy}
-              onChange={taxonomyId => {
-                store.setSelectedTaxonomy(taxonomyId);
-              }}
-              disabled={disabled || store.loading}
-              style={{ width: '100%' }}
-              options={store.availableTaxonomies.map(t => ({ value: t.id, label: t.label }))}
-            />
-
-            {store.selectedTaxonomy ? (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Выберите термы</label>
-                <TermSelector
-                  taxonomyId={store.selectedTaxonomy}
-                  selectedTermIds={store.currentTermIds}
-                  onChange={(termId, checked) => {
-                    store.updatePendingTerm(termId, checked);
-                  }}
-                  disabled={disabled || store.loading}
-                />
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">Загрузка таксономий...</div>
-            )}
-          </div>
+          {store.selectedTaxonomy ? (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Выберите термы</label>
+              <TermSelector
+                taxonomyId={store.selectedTaxonomy}
+                selectedTermIds={store.currentTermIds}
+                onChange={(termId, checked) => {
+                  store.updatePendingTerm(termId, checked);
+                }}
+                disabled={disabled || store.loading}
+              />
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">Загрузка таксономий...</div>
+          )}
         </Modal>
       </div>
     );
