@@ -23,6 +23,8 @@ export class EntryTermsManagerStore {
   entryId: ZId;
   /** Временное состояние выбранных термов в модальном окне. */
   pendingTermIds: Set<ZId> = new Set();
+  /** Кэш термов по ID для быстрого доступа. */
+  termsCache: Map<ZId, ZTerm> = new Map();
 
   /**
    * Создаёт экземпляр стора управления термами записи.
@@ -130,5 +132,70 @@ export class EntryTermsManagerStore {
     } else {
       this.pendingTermIds.delete(termId);
     }
+  }
+
+  /**
+   * Добавляет термы в кэш.
+   * @param terms Массив термов для кэширования.
+   */
+  cacheTerms(terms: ZTerm[]): void {
+    for (const term of terms) {
+      this.termsCache.set(term.id, term);
+    }
+  }
+
+  /**
+   * Строит список термов для отображения на основе value из формы.
+   * Использует кэш для термов, которых нет в entryTerms.
+   * @param termIds Массив ID термов из формы.
+   * @returns Данные о термах для отображения.
+   */
+  buildDisplayTerms(termIds: ZId[]): ZEntryTermsData | null {
+    if (!this.entryTerms) return null;
+
+    const termIdsSet = new Set(termIds);
+    const result: ZEntryTermsData = {
+      entry_id: this.entryId,
+      terms_by_taxonomy: [],
+    };
+
+    // Для каждой таксономии собираем термы из entryTerms и кэша
+    for (const group of this.entryTerms.terms_by_taxonomy) {
+      const terms: ZTerm[] = [];
+
+      // Добавляем термы из entryTerms
+      for (const term of group.terms) {
+        if (termIdsSet.has(term.id)) {
+          terms.push({
+            ...term,
+            taxonomy: group.taxonomy.id,
+          });
+        }
+      }
+
+      // Добавляем термы из кэша, которых нет в entryTerms
+      for (const termId of termIds) {
+        if (!terms.find(t => t.id === termId)) {
+          const cachedTerm = this.termsCache.get(termId);
+          // Проверяем, что терм принадлежит этой таксономии
+          if (cachedTerm) {
+            // Добавляем taxonomy из группы, так как в кэше может не быть этого поля
+            terms.push({
+              ...cachedTerm,
+              taxonomy: group.taxonomy.id,
+            });
+          }
+        }
+      }
+
+      // Всегда показываем все таксономии, даже если в них нет выбранных термов
+      // Это позволяет пользователю видеть все доступные таксономии и добавлять термы
+      result.terms_by_taxonomy.push({
+        taxonomy: group.taxonomy,
+        terms,
+      });
+    }
+
+    return result;
   }
 }

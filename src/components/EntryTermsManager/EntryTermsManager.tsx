@@ -1,7 +1,7 @@
 import type { ZId } from '@/types/ZId';
 import { Empty, Modal, Spin } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { TermList } from './TermList';
 import { EntryTermsManagerStore } from './EntryTermsManagerStore';
 import { TermSelector } from './TermSelector';
@@ -53,6 +53,12 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
       onChange?.(newTermIds);
     };
 
+    // Строим список термов для отображения на основе value
+    const displayTerms = useMemo(() => {
+      if (!store.entryTerms) return null;
+      return store.buildDisplayTerms(value);
+    }, [store, value]);
+
     if (store.loading && !store.entryTerms) {
       return (
         <div className="flex justify-center py-8">
@@ -61,29 +67,18 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
       );
     }
 
-    // Фильтруем entryTerms по value из формы для отображения только выбранных термов
-    const filteredEntryTerms = store.entryTerms
-      ? {
-          ...store.entryTerms,
-          terms_by_taxonomy: store.entryTerms.terms_by_taxonomy.map(group => ({
-            ...group,
-            terms: group.terms.filter(term => value.includes(term.id)),
-          })),
-        }
-      : null;
-
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Термы</h3>
         </div>
 
-        {filteredEntryTerms ? (
+        {displayTerms ? (
           <TermList
-            entryTerms={filteredEntryTerms}
+            entryTerms={displayTerms}
             onRemove={handleRemoveTerm}
             onAddClick={handleOpenModal}
-            disabled={disabled || store.loading || !filteredEntryTerms}
+            disabled={disabled || store.loading || !displayTerms}
           />
         ) : (
           <Empty description="Термы отсутствуют" />
@@ -112,6 +107,9 @@ export const EntryTermsManager: React.FC<PropsEntryTermsManager> = observer(
                 selectedTermIds={store.currentTermIds}
                 onChange={(termId, checked) => {
                   store.updatePendingTerm(termId, checked);
+                }}
+                onTermsLoaded={terms => {
+                  store.cacheTerms(terms);
                 }}
                 disabled={disabled || store.loading}
               />
