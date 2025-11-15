@@ -58,6 +58,10 @@ const Inner = observer(({ store }: PropsInner) => {
     );
   }, [navigate, postTypeSlug]);
 
+  const handleSave = useCallback(() => {
+    form.submit();
+  }, [form]);
+
   const tabsItems = useMemo(
     () => [
       {
@@ -90,12 +94,12 @@ const Inner = observer(({ store }: PropsInner) => {
       <EntryEditorHeader
         postType={store.postType}
         isEditMode={isEditMode}
-        form={form}
+        onSave={handleSave}
         pending={store.pending}
         onCancel={handleCancel}
       />
 
-      <div className="px-6 py-8 w-full">
+      <div className="px-6 w-full">
         {store.loading ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />

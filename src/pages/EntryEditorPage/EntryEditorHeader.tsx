@@ -1,7 +1,6 @@
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZPostType } from '@/types/postTypes';
 import { Button } from 'antd';
-import type { FormInstance } from 'antd/es/form';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -13,8 +12,8 @@ export type PropsEntryEditorHeader = {
   postType: ZPostType | null;
   /** Режим редактирования. `true` если редактируется существующая запись. */
   isEditMode: boolean;
-  /** Экземпляр формы для вызова submit. */
-  form: FormInstance;
+  /** Обработчик сохранения. */
+  onSave: () => void;
   /** Флаг выполнения операции сохранения. */
   pending: boolean;
   /** Обработчик отмены. */
@@ -27,7 +26,7 @@ export type PropsEntryEditorHeader = {
 export const EntryEditorHeader: React.FC<PropsEntryEditorHeader> = ({
   postType,
   isEditMode,
-  form,
+  onSave,
   pending,
   onCancel,
 }) => {
@@ -62,7 +61,7 @@ export const EntryEditorHeader: React.FC<PropsEntryEditorHeader> = ({
             <Button onClick={onCancel}>Отмена</Button>
             <Button
               type="primary"
-              onClick={() => form.submit()}
+              onClick={onSave}
               loading={pending}
               icon={<Check className="w-4 h-4" />}
             >
