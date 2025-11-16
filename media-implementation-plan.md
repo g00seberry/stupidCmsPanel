@@ -11,28 +11,28 @@
 
 ### API Endpoints
 
--   `GET /api/v1/admin/media` - список с фильтрами и пагинацией
--   `POST /api/v1/admin/media` - загрузка файла
--   `GET /api/v1/admin/media/{id}` - детали медиа
--   `PUT /api/v1/admin/media/{id}` - обновление метаданных
--   `DELETE /api/v1/admin/media/{id}` - удаление (soft delete)
--   `POST /api/v1/admin/media/{id}/restore` - восстановление
--   `GET /api/v1/admin/media/{id}/preview?variant={variant}` - превью
--   `GET /api/v1/admin/media/{id}/download` - скачивание
+- `GET /api/v1/admin/media` - список с фильтрами и пагинацией
+- `POST /api/v1/admin/media` - загрузка файла
+- `GET /api/v1/admin/media/{id}` - детали медиа
+- `PUT /api/v1/admin/media/{id}` - обновление метаданных
+- `DELETE /api/v1/admin/media/{id}` - удаление (soft delete)
+- `POST /api/v1/admin/media/{id}/restore` - восстановление
+- `GET /api/v1/admin/media/{id}/preview?variant={variant}` - превью
+- `GET /api/v1/admin/media/{id}/download` - скачивание
 
 ### Типы медиа
 
--   `image` - изображения (JPEG, PNG, GIF, WebP)
--   `video` - видео (MP4)
--   `audio` - аудио (MP3)
--   `document` - документы (PDF)
+- `image` - изображения (JPEG, PNG, GIF, WebP)
+- `video` - видео (MP4)
+- `audio` - аудио (MP3)
+- `document` - документы (PDF)
 
 **Примечание:** Поддерживаемые MIME-типы определяются конфигурацией `config/media.php`:
 
--   `image/jpeg`, `image/png`, `image/webp`, `image/gif`
--   `video/mp4`
--   `audio/mpeg`
--   `application/pdf`
+- `image/jpeg`, `image/png`, `image/webp`, `image/gif`
+- `video/mp4`
+- `audio/mpeg`
+- `application/pdf`
 
 Максимальный размер загрузки: 25 МБ (по умолчанию, настраивается через `MEDIA_MAX_UPLOAD_MB`).
 
@@ -51,53 +51,53 @@
 **Описание:**
 Создать типы TypeScript для всех сущностей Media API:
 
--   `Media` - основной тип медиафайла
--   `MediaKind` - тип медиа: `'image' | 'video' | 'audio' | 'document'`
--   `MediaCollection` - ответ списка с пагинацией
--   `MediaFilters` - параметры фильтрации
--   `MediaSortField` - поля сортировки
--   `MediaPreviewUrls` - URLs превью для вариантов
+- `Media` - основной тип медиафайла
+- `MediaKind` - тип медиа: `'image' | 'video' | 'audio' | 'document'`
+- `MediaCollection` - ответ списка с пагинацией
+- `MediaFilters` - параметры фильтрации
+- `MediaSortField` - поля сортировки
+- `MediaPreviewUrls` - URLs превью для вариантов
 
 **Файлы:**
 
--   `src/types/media.ts`
+- `src/types/media.ts`
 
 **Детали:**
 
 ```typescript
 interface Media {
-    id: string;
-    kind: MediaKind;
-    name: string; // original_name из бэкенда
-    ext: string;
-    mime: string;
-    size_bytes: number;
-    width: number | null;
-    height: number | null;
-    duration_ms: number | null;
-    title: string | null;
-    alt: string | null;
-    collection: string | null;
-    created_at: string; // ISO 8601
-    updated_at: string; // ISO 8601
-    deleted_at: string | null; // ISO 8601 или null
-    preview_urls: Record<string, string>; // Только для изображений, может быть пустым объектом
-    download_url: string;
+  id: string;
+  kind: MediaKind;
+  name: string; // original_name из бэкенда
+  ext: string;
+  mime: string;
+  size_bytes: number;
+  width: number | null;
+  height: number | null;
+  duration_ms: number | null;
+  title: string | null;
+  alt: string | null;
+  collection: string | null;
+  created_at: string; // ISO 8601
+  updated_at: string; // ISO 8601
+  deleted_at: string | null; // ISO 8601 или null
+  preview_urls: Record<string, string>; // Только для изображений, может быть пустым объектом
+  download_url: string;
 }
 ```
 
 **Примечания:**
 
--   `preview_urls` содержит URLs для вариантов превью (только для изображений). Варианты: `thumbnail`, `medium` (настраиваются в `config/media.php`).
--   `preview_urls` может быть пустым объектом `{}` для не-изображений.
--   Preview endpoint возвращает 302 редирект на подписанный URL хранилища.
--   Поиск (`q` параметр) ищет по полям `title` и `original_name` (LIKE запрос).
+- `preview_urls` содержит URLs для вариантов превью (только для изображений). Варианты: `thumbnail`, `medium` (настраиваются в `config/media.php`).
+- `preview_urls` может быть пустым объектом `{}` для не-изображений.
+- Preview endpoint возвращает 302 редирект на подписанный URL хранилища.
+- Поиск (`q` параметр) ищет по полям `title` и `original_name` (LIKE запрос).
 
 **Критерии приёмки:**
 
--   Все типы покрывают структуру ответов API
--   Типы строго типизированы (без `any`)
--   Экспорт всех типов для использования в других модулях
+- Все типы покрывают структуру ответов API
+- Типы строго типизированы (без `any`)
+- Экспорт всех типов для использования в других модулях
 
 ---
 
@@ -110,34 +110,34 @@ interface Media {
 **Описание:**
 Реализовать клиент для работы с Media API:
 
--   Методы для всех endpoints
--   Обработка ошибок (401, 404, 409, 422, 429)
--   Типизация запросов и ответов
--   Поддержка загрузки файлов (FormData)
+- Методы для всех endpoints
+- Обработка ошибок (401, 404, 409, 422, 429)
+- Типизация запросов и ответов
+- Поддержка загрузки файлов (FormData)
 
 **Файлы:**
 
--   `src/api/media.ts` или `src/services/media.service.ts`
+- `src/api/media.ts` или `src/services/media.service.ts`
 
 **Методы:**
 
--   `listMedia(filters?: MediaFilters): Promise<MediaCollection>`
--   `getMedia(id: string): Promise<Media>`
--   `uploadMedia(file: File, metadata?: { title?: string; alt?: string; collection?: string }): Promise<Media>`
--   `updateMedia(id: string, metadata: { title?: string; alt?: string; collection?: string }): Promise<Media>`
--   `deleteMedia(id: string): Promise<void>`
--   `restoreMedia(id: string): Promise<Media>`
--   `getMediaPreviewUrl(id: string, variant: string): string` // Возвращает URL endpoint (302 редирект)
--   `getMediaDownloadUrl(id: string): string` // Возвращает URL endpoint для скачивания
+- `listMedia(filters?: MediaFilters): Promise<MediaCollection>`
+- `getMedia(id: string): Promise<Media>`
+- `uploadMedia(file: File, metadata?: { title?: string; alt?: string; collection?: string }): Promise<Media>`
+- `updateMedia(id: string, metadata: { title?: string; alt?: string; collection?: string }): Promise<Media>`
+- `deleteMedia(id: string): Promise<void>`
+- `restoreMedia(id: string): Promise<Media>`
+- `getMediaPreviewUrl(id: string, variant: string): string` // Возвращает URL endpoint (302 редирект)
+- `getMediaDownloadUrl(id: string): string` // Возвращает URL endpoint для скачивания
 
 **Критерии приёмки:**
 
--   Все методы покрывают API endpoints
--   Корректная обработка ошибок с типизацией (401, 404, 409, 422, 429, 500)
--   Поддержка пагинации в `listMedia` (default: `per_page=15`, диапазон: 1-100)
--   Валидация входных параметров
--   Обработка 409 ошибки при удалении (Media in use) с информацией о связанных записях
--   Preview endpoint возвращает 302 редирект (обрабатывать как redirect)
+- Все методы покрывают API endpoints
+- Корректная обработка ошибок с типизацией (401, 404, 409, 422, 429, 500)
+- Поддержка пагинации в `listMedia` (default: `per_page=15`, диапазон: 1-100)
+- Валидация входных параметров
+- Обработка 409 ошибки при удалении (Media in use) с информацией о связанных записях
+- Preview endpoint возвращает 302 редирект (обрабатывать как redirect)
 
 ---
 
@@ -150,32 +150,32 @@ interface Media {
 **Описание:**
 Утилиты для форматирования и работы с медиафайлами:
 
--   Форматирование размера файла (bytes → KB/MB/GB)
--   Форматирование длительности (ms → mm:ss)
--   Определение иконки по типу/расширению
--   Валидация файлов перед загрузкой
--   Генерация превью URL
+- Форматирование размера файла (bytes → KB/MB/GB)
+- Форматирование длительности (ms → mm:ss)
+- Определение иконки по типу/расширению
+- Валидация файлов перед загрузкой
+- Генерация превью URL
 
 **Файлы:**
 
--   `src/utils/media.ts`
+- `src/utils/media.ts`
 
 **Функции:**
 
--   `formatFileSize(bytes: number): string`
--   `formatDuration(ms: number | null): string | null`
--   `getMediaIcon(kind: MediaKind, mime?: string): string`
--   `validateMediaFile(file: File): { valid: boolean; error?: string }` // Проверка MIME типа и размера (max 25MB)
--   `getPreviewUrl(media: Media, variant?: string): string | null` // Возвращает URL из preview_urls или null
--   `getAllowedMimeTypes(): string[]` // Возвращает список разрешенных MIME типов
+- `formatFileSize(bytes: number): string`
+- `formatDuration(ms: number | null): string | null`
+- `getMediaIcon(kind: MediaKind, mime?: string): string`
+- `validateMediaFile(file: File): { valid: boolean; error?: string }` // Проверка MIME типа и размера (max 25MB)
+- `getPreviewUrl(media: Media, variant?: string): string | null` // Возвращает URL из preview_urls или null
+- `getAllowedMimeTypes(): string[]` // Возвращает список разрешенных MIME типов
 
 **Критерии приёмки:**
 
--   Корректное форматирование для всех единиц измерения
--   Поддержка всех типов медиа (image, video, audio, document)
--   Валидация MIME-типов на основе конфигурации бэкенда (`config/media.php`)
--   Валидация максимального размера файла (25 МБ по умолчанию)
--   Поддержка только разрешенных MIME типов: `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `video/mp4`, `audio/mpeg`, `application/pdf`
+- Корректное форматирование для всех единиц измерения
+- Поддержка всех типов медиа (image, video, audio, document)
+- Валидация MIME-типов на основе конфигурации бэкенда (`config/media.php`)
+- Валидация максимального размера файла (25 МБ по умолчанию)
+- Поддержка только разрешенных MIME типов: `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `video/mp4`, `audio/mpeg`, `application/pdf`
 
 ---
 
@@ -188,37 +188,37 @@ interface Media {
 **Описание:**
 Компонент карточки медиафайла для отображения в списке:
 
--   Превью (изображение/иконка)
--   Название и метаданные
--   Индикатор типа
--   Действия (редактировать, удалить, скачать)
--   Поддержка выбора (checkbox)
+- Превью (изображение/иконка)
+- Название и метаданные
+- Индикатор типа
+- Действия (редактировать, удалить, скачать)
+- Поддержка выбора (checkbox)
 
 **Файлы:**
 
--   `src/components/media/MediaCard.tsx`
+- `src/components/media/MediaCard.tsx`
 
 **Пропсы:**
 
--   `media: Media` - данные медиа
--   `selectable?: boolean` - возможность выбора
--   `selected?: boolean` - состояние выбора
--   `showActions?: boolean` - показывать действия
+- `media: Media` - данные медиа
+- `selectable?: boolean` - возможность выбора
+- `selected?: boolean` - состояние выбора
+- `showActions?: boolean` - показывать действия
 
 **Пропсы для обработчиков:**
 
--   `onClick?: (media: Media) => void` - клик по карточке
--   `onSelect?: (media: Media, selected: boolean) => void` - выбор/снятие выбора
--   `onEdit?: (media: Media) => void` - редактирование
--   `onDelete?: (media: Media) => void` - удаление
--   `onDownload?: (media: Media) => void` - скачивание
+- `onClick?: (media: Media) => void` - клик по карточке
+- `onSelect?: (media: Media, selected: boolean) => void` - выбор/снятие выбора
+- `onEdit?: (media: Media) => void` - редактирование
+- `onDelete?: (media: Media) => void` - удаление
+- `onDownload?: (media: Media) => void` - скачивание
 
 **Критерии приёмки:**
 
--   Адаптивный дизайн (responsive)
--   Корректное отображение всех типов медиа
--   Лоадер для превью
--   Обработка ошибок загрузки изображений
+- Адаптивный дизайн (responsive)
+- Корректное отображение всех типов медиа
+- Лоадер для превью
+- Обработка ошибок загрузки изображений
 
 ---
 
@@ -231,97 +231,97 @@ interface Media {
 **Описание:**
 MobX store для управления состоянием медиа:
 
--   Загрузка списка с фильтрами
--   Загрузка деталей
--   CRUD операции
--   Управление пагинацией
--   Обработка состояний (loading, error)
+- Загрузка списка с фильтрами
+- Загрузка деталей
+- CRUD операции
+- Управление пагинацией
+- Обработка состояний (loading, error)
 
 **Файлы:**
 
--   `src/stores/mediaStore.ts`
+- `src/stores/mediaStore.ts`
 
 **Структура store:**
 
 ```typescript
-import { makeAutoObservable, runInAction } from "mobx";
-import { Media, MediaFilters, MediaCollection } from "@/types/media";
-import { mediaApi } from "@/api/media";
+import { makeAutoObservable, runInAction } from 'mobx';
+import { Media, MediaFilters, MediaCollection } from '@/types/media';
+import { mediaApi } from '@/api/media';
 
 class MediaStore {
-    mediaList: Media[] = [];
-    currentMedia: Media | null = null;
-    loading = false;
-    error: string | null = null;
-    filters: MediaFilters = {};
-    pagination = {
-        currentPage: 1,
-        perPage: 15, // Default из бэкенда
-        total: 0,
-        lastPage: 1,
-    };
+  mediaList: Media[] = [];
+  currentMedia: Media | null = null;
+  loading = false;
+  error: string | null = null;
+  filters: MediaFilters = {};
+  pagination = {
+    currentPage: 1,
+    perPage: 15, // Default из бэкенда
+    total: 0,
+    lastPage: 1,
+  };
 
-    constructor() {
-        makeAutoObservable(this);
-    }
+  constructor() {
+    makeAutoObservable(this);
+  }
 
-    async loadMediaList(): Promise<void> {
-        this.loading = true;
-        this.error = null;
-        try {
-            const response = await mediaApi.listMedia(this.filters);
-            runInAction(() => {
-                this.mediaList = response.data;
-                this.pagination = {
-                    currentPage: response.meta.current_page,
-                    perPage: response.meta.per_page,
-                    total: response.meta.total,
-                    lastPage: response.meta.last_page,
-                };
-                this.loading = false;
-            });
-        } catch (error) {
-            runInAction(() => {
-                this.error = error.message;
-                this.loading = false;
-            });
-        }
+  async loadMediaList(): Promise<void> {
+    this.loading = true;
+    this.error = null;
+    try {
+      const response = await mediaApi.listMedia(this.filters);
+      runInAction(() => {
+        this.mediaList = response.data;
+        this.pagination = {
+          currentPage: response.meta.current_page,
+          perPage: response.meta.per_page,
+          total: response.meta.total,
+          lastPage: response.meta.last_page,
+        };
+        this.loading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = error.message;
+        this.loading = false;
+      });
     }
+  }
 
-    async loadMedia(id: string): Promise<void> {
-        // ... загрузка деталей
-    }
+  async loadMedia(id: string): Promise<void> {
+    // ... загрузка деталей
+  }
 
-    async uploadMedia(file: File, metadata?: Partial<Media>): Promise<Media> {
-        // ... загрузка файла
-    }
+  async uploadMedia(file: File, metadata?: Partial<Media>): Promise<Media> {
+    // ... загрузка файла
+  }
 
-    async updateMedia(id: string, metadata: Partial<Media>): Promise<void> {
-        // ... обновление
-    }
+  async updateMedia(id: string, metadata: Partial<Media>): Promise<void> {
+    // ... обновление
+  }
 
-    async deleteMedia(id: string): Promise<void> {
-        // ... удаление
-    }
+  async deleteMedia(id: string): Promise<void> {
+    // ... удаление
+  }
 
-    async restoreMedia(id: string): Promise<void> {
-        // ... восстановление
-    }
+  async restoreMedia(id: string): Promise<void> {
+    // ... восстановление
+  }
 
-    setFilters(filters: Partial<MediaFilters>): void {
-        this.filters = { ...this.filters, ...filters };
-    }
+  setFilters(filters: Partial<MediaFilters>): void {
+    this.filters = { ...this.filters, ...filters };
+  }
 
-    setPage(page: number): void {
-        this.pagination.currentPage = page;
-    }
+  setPage(page: number): void {
+    this.pagination.currentPage = page;
+  }
 
-    reset(): void {
-        this.mediaList = [];
-        this.currentMedia = null;
-        this.filters = {};
-        this.error = null;
-    }
+  reset(): void {
+    this.mediaList = [];
+    this.currentMedia = null;
+    this.filters = {};
+    this.error = null;
+  }
 }
 
 export const mediaStore = new MediaStore();
@@ -357,11 +357,11 @@ const MediaList = observer(() => {
 
 **Критерии приёмки:**
 
--   Реактивность через MobX observable
--   Все действия помечены как @action или через makeAutoObservable
--   Вычисляемые свойства через @computed (если нужны)
--   Обработка всех состояний загрузки
--   Валидация данных перед отправкой
+- Реактивность через MobX observable
+- Все действия помечены как @action или через makeAutoObservable
+- Вычисляемые свойства через @computed (если нужны)
+- Обработка всех состояний загрузки
+- Валидация данных перед отправкой
 
 ---
 
@@ -378,33 +378,33 @@ const MediaList = observer(() => {
 **Описание:**
 Компонент списка медиафайлов:
 
--   Сетка/список карточек (переключение режимов)
--   Пагинация
--   Индикатор загрузки
--   Пустое состояние
--   Поддержка множественного выбора
+- Сетка/список карточек (переключение режимов)
+- Пагинация
+- Индикатор загрузки
+- Пустое состояние
+- Поддержка множественного выбора
 
 **Файлы:**
 
--   `src/components/media/MediaList.tsx`
+- `src/components/media/MediaList.tsx`
 
 **Пропсы:**
 
--   `viewMode?: 'grid' | 'list'` - режим отображения
--   `selectable?: boolean` - множественный выбор
--   `filters?: MediaFilters` - начальные фильтры
+- `viewMode?: 'grid' | 'list'` - режим отображения
+- `selectable?: boolean` - множественный выбор
+- `filters?: MediaFilters` - начальные фильтры
 
 **Пропсы для обработчиков:**
 
--   `onSelect?: (media: Media) => void` - выбор медиа
--   `onSelectMultiple?: (media: Media[]) => void` - выбор нескольких
+- `onSelect?: (media: Media) => void` - выбор медиа
+- `onSelectMultiple?: (media: Media[]) => void` - выбор нескольких
 
 **Критерии приёмки:**
 
--   Виртуализация для больших списков (опционально)
--   Infinite scroll или пагинация
--   Плавная анимация загрузки
--   Адаптивная сетка
+- Виртуализация для больших списков (опционально)
+- Infinite scroll или пагинация
+- Плавная анимация загрузки
+- Адаптивная сетка
 
 ---
 
@@ -417,29 +417,29 @@ const MediaList = observer(() => {
 **Описание:**
 Компонент превью медиафайла:
 
--   Изображения: с вариантами превью (thumbnail, medium) из `preview_urls`
--   Видео: видеоплеер с controls (MP4)
--   Аудио: аудиоплеер с controls (MP3)
--   Документы: иконка + метаданные (PDF)
--   Zoom для изображений
--   Обработка 302 редиректа для preview URLs (если используется напрямую)
+- Изображения: с вариантами превью (thumbnail, medium) из `preview_urls`
+- Видео: видеоплеер с controls (MP4)
+- Аудио: аудиоплеер с controls (MP3)
+- Документы: иконка + метаданные (PDF)
+- Zoom для изображений
+- Обработка 302 редиректа для preview URLs (если используется напрямую)
 
 **Файлы:**
 
--   `src/components/media/MediaPreview.tsx`
+- `src/components/media/MediaPreview.tsx`
 
 **Пропсы:**
 
--   `media: Media` - данные медиа
--   `variant?: string` - вариант превью (для изображений: `thumbnail`, `medium`)
--   `zoomable?: boolean` - возможность увеличения
+- `media: Media` - данные медиа
+- `variant?: string` - вариант превью (для изображений: `thumbnail`, `medium`)
+- `zoomable?: boolean` - возможность увеличения
 
 **Критерии приёмки:**
 
--   Оптимизированная загрузка изображений (lazy)
--   Fallback для неудачной загрузки
--   Адаптивный видеоплеер
--   Доступность (accessibility)
+- Оптимизированная загрузка изображений (lazy)
+- Fallback для неудачной загрузки
+- Адаптивный видеоплеер
+- Доступность (accessibility)
 
 ---
 
@@ -452,26 +452,26 @@ const MediaList = observer(() => {
 **Описание:**
 Компонент детального просмотра медиафайла:
 
--   Полное превью
--   Все метаданные (размер, размеры, дата создания и т.д.)
--   Список связанных записей (Entry)
--   История изменений (опционально)
--   Действия (редактировать, удалить, восстановить, скачать)
+- Полное превью
+- Все метаданные (размер, размеры, дата создания и т.д.)
+- Список связанных записей (Entry)
+- История изменений (опционально)
+- Действия (редактировать, удалить, восстановить, скачать)
 
 **Файлы:**
 
--   `src/components/media/MediaDetails.tsx` или `src/pages/media/MediaDetails.tsx`
+- `src/components/media/MediaDetails.tsx` или `src/pages/media/MediaDetails.tsx`
 
 **Пропсы:**
 
--   `mediaId: string` - ID медиа
+- `mediaId: string` - ID медиа
 
 **Критерии приёмки:**
 
--   Загрузка данных через API
--   Обработка ошибок (404)
--   Редактирование метаданных (inline или модальное окно)
--   Навигация назад
+- Загрузка данных через API
+- Обработка ошибок (404)
+- Редактирование метаданных (inline или модальное окно)
+- Навигация назад
 
 ---
 
@@ -484,39 +484,39 @@ const MediaList = observer(() => {
 **Описание:**
 Компонент загрузки медиафайлов:
 
--   Drag & drop
--   Множественная загрузка
--   Прогресс-бар для каждого файла
--   Предпросмотр перед загрузкой
--   Валидация файлов (MIME тип из `allowed_mimes`, max размер: 25 МБ)
--   Выбор коллекции (опционально, regex: `^[a-z0-9-_.]+$`, max 64 символа)
--   Поддержка только разрешенных форматов: JPEG, PNG, WebP, GIF, MP4, MP3, PDF
+- Drag & drop
+- Множественная загрузка
+- Прогресс-бар для каждого файла
+- Предпросмотр перед загрузкой
+- Валидация файлов (MIME тип из `allowed_mimes`, max размер: 25 МБ)
+- Выбор коллекции (опционально, regex: `^[a-z0-9-_.]+$`, max 64 символа)
+- Поддержка только разрешенных форматов: JPEG, PNG, WebP, GIF, MP4, MP3, PDF
 
 **Файлы:**
 
--   `src/components/media/MediaUploader.tsx`
+- `src/components/media/MediaUploader.tsx`
 
 **Пропсы:**
 
--   `multiple?: boolean` - множественная загрузка
--   `accept?: string` - допустимые типы файлов
--   `maxSize?: number` - максимальный размер
--   `collection?: string` - коллекция по умолчанию
+- `multiple?: boolean` - множественная загрузка
+- `accept?: string` - допустимые типы файлов
+- `maxSize?: number` - максимальный размер
+- `collection?: string` - коллекция по умолчанию
 
 **Пропсы для обработчиков:**
 
--   `onUploadSuccess?: (media: Media) => void` - успешная загрузка
--   `onUploadError?: (error: Error) => void` - ошибка загрузки
--   `onUploadProgress?: (progress: number) => void` - прогресс загрузки
+- `onUploadSuccess?: (media: Media) => void` - успешная загрузка
+- `onUploadError?: (error: Error) => void` - ошибка загрузки
+- `onUploadProgress?: (progress: number) => void` - прогресс загрузки
 
 **Критерии приёмки:**
 
--   Валидация до начала загрузки (MIME тип, размер файла)
--   Отображение прогресса для каждого файла
--   Обработка ошибок с детальными сообщениями (422 validation error, 429 rate limit)
--   Поддержка больших файлов до 25 МБ (настраивается через `MEDIA_MAX_UPLOAD_MB`)
--   Отправка multipart/form-data с полями: `file` (required), `title`, `alt`, `collection` (опционально)
--   Collection regex: `^[a-z0-9-_.]+$` (case-insensitive, max 64 символа)
+- Валидация до начала загрузки (MIME тип, размер файла)
+- Отображение прогресса для каждого файла
+- Обработка ошибок с детальными сообщениями (422 validation error, 429 rate limit)
+- Поддержка больших файлов до 25 МБ (настраивается через `MEDIA_MAX_UPLOAD_MB`)
+- Отправка multipart/form-data с полями: `file` (required), `title`, `alt`, `collection` (опционально)
+- Collection regex: `^[a-z0-9-_.]+$` (case-insensitive, max 64 символа)
 
 ---
 
@@ -531,34 +531,34 @@ const MediaList = observer(() => {
 **Описание:**
 Компонент фильтрации медиа:
 
--   Поиск по названию и исходному имени (`q` параметр, ищет в `title` и `original_name`)
--   Фильтр по типу (image, video, audio, document)
--   Фильтр по MIME-типу (prefix match, например `image/png`)
--   Фильтр по коллекции (slug, до 64 символов)
--   Управление удалёнными (with, only)
--   Сортировка по полям: `created_at`, `size_bytes`, `mime` (default: `created_at`)
--   Направление сортировки: `asc`, `desc` (default: `desc`)
--   Размер страницы (1-100, default: 15)
+- Поиск по названию и исходному имени (`q` параметр, ищет в `title` и `original_name`)
+- Фильтр по типу (image, video, audio, document)
+- Фильтр по MIME-типу (prefix match, например `image/png`)
+- Фильтр по коллекции (slug, до 64 символов)
+- Управление удалёнными (with, only)
+- Сортировка по полям: `created_at`, `size_bytes`, `mime` (default: `created_at`)
+- Направление сортировки: `asc`, `desc` (default: `desc`)
+- Размер страницы (1-100, default: 15)
 
 **Файлы:**
 
--   `src/components/media/MediaFilters.tsx`
+- `src/components/media/MediaFilters.tsx`
 
 **Пропсы:**
 
--   `filters: MediaFilters` - текущие фильтры
+- `filters: MediaFilters` - текущие фильтры
 
 **Пропсы для обработчиков:**
 
--   `onFilterChange?: (filters: MediaFilters) => void` - изменение фильтров
--   `onReset?: () => void` - сброс фильтров
+- `onFilterChange?: (filters: MediaFilters) => void` - изменение фильтров
+- `onReset?: () => void` - сброс фильтров
 
 **Критерии приёмки:**
 
--   Реактивное применение фильтров
--   Сохранение фильтров в URL (query params) или localStorage
--   Визуальная индикация активных фильтров
--   Сброс к значениям по умолчанию
+- Реактивное применение фильтров
+- Сохранение фильтров в URL (query params) или localStorage
+- Визуальная индикация активных фильтров
+- Сброс к значениям по умолчанию
 
 ---
 
@@ -573,29 +573,29 @@ const MediaList = observer(() => {
 **Описание:**
 Главная страница медиа-библиотеки:
 
--   Интеграция всех компонентов (MediaList, MediaFilters, MediaUploader)
--   Маршрутизация
--   Управление состоянием
--   Панель инструментов (toolbar)
+- Интеграция всех компонентов (MediaList, MediaFilters, MediaUploader)
+- Маршрутизация
+- Управление состоянием
+- Панель инструментов (toolbar)
 
 **Файлы:**
 
--   `src/pages/media/MediaLibrary.tsx` или `src/pages/media/index.tsx`
--   `src/router/media.ts` (роутинг)
+- `src/pages/media/MediaLibrary.tsx` или `src/pages/media/index.tsx`
+- `src/router/media.ts` (роутинг)
 
 **Функциональность:**
 
--   Переключение между списком и загрузкой
--   Bulk операции (удаление выбранных)
--   Быстрый поиск
--   Сохранение состояния фильтров
+- Переключение между списком и загрузкой
+- Bulk операции (удаление выбранных)
+- Быстрый поиск
+- Сохранение состояния фильтров
 
 **Критерии приёмки:**
 
--   Полная интеграция всех компонентов
--   Корректная навигация
--   Сохранение состояния при переходах
--   Responsive дизайн
+- Полная интеграция всех компонентов
+- Корректная навигация
+- Сохранение состояния при переходах
+- Responsive дизайн
 
 ---
 
@@ -608,28 +608,28 @@ const MediaList = observer(() => {
 **Описание:**
 Форма редактирования метаданных медиа:
 
--   Поля: title, alt, collection
--   Валидация
--   Сохранение через API
--   Обработка ошибок
+- Поля: title, alt, collection
+- Валидация
+- Сохранение через API
+- Обработка ошибок
 
 **Файлы:**
 
--   `src/components/media/MediaEditForm.tsx`
+- `src/components/media/MediaEditForm.tsx`
 
 **Форма:**
 
--   Title (string, optional, max 255 символов)
--   Alt (string, optional, max 255 символов, для изображений)
--   Collection (string, optional, max 64 символа, regex: `^[a-z0-9-_.]+$` case-insensitive)
+- Title (string, optional, max 255 символов)
+- Alt (string, optional, max 255 символов, для изображений)
+- Collection (string, optional, max 64 символа, regex: `^[a-z0-9-_.]+$` case-insensitive)
 
 **Критерии приёмки:**
 
--   Валидация полей (title, alt: max 255 символов; collection: max 64 символа, regex: `^[a-z0-9-_.]+$` case-insensitive)
--   Отображение ошибок валидации (422)
--   Оптимистичное обновление UI
--   Обратная связь пользователю (toast/notification)
--   Все поля опциональны (nullable)
+- Валидация полей (title, alt: max 255 символов; collection: max 64 символа, regex: `^[a-z0-9-_.]+$` case-insensitive)
+- Отображение ошибок валидации (422)
+- Оптимистичное обновление UI
+- Обратная связь пользователю (toast/notification)
+- Все поля опциональны (nullable)
 
 ---
 
@@ -644,25 +644,25 @@ const MediaList = observer(() => {
 **Описание:**
 Логика удаления и восстановления медиа:
 
--   Подтверждение удаления
--   Обработка ошибки 409 (Media in use)
--   Отображение связанных записей при ошибке
--   Восстановление из корзины
--   Обновление списка после операций
+- Подтверждение удаления
+- Обработка ошибки 409 (Media in use)
+- Отображение связанных записей при ошибке
+- Восстановление из корзины
+- Обновление списка после операций
 
 **Файлы:**
 
--   Интеграция в компоненты (MediaCard, MediaDetails)
--   Модальное окно подтверждения
+- Интеграция в компоненты (MediaCard, MediaDetails)
+- Модальное окно подтверждения
 
 **Критерии приёмки:**
 
--   Модальное окно с предупреждением
--   Отображение связанных записей при ошибке 409 (Media in use)
--   Обработка структуры ошибки: `meta.references` содержит массив `{ entry_id: number, title: string }`
--   Автоматическое обновление UI
--   Корректная обработка всех кодов ошибок (404, 409, 429)
--   Восстановление работает только для soft-deleted медиа (404 если не удалено)
+- Модальное окно с предупреждением
+- Отображение связанных записей при ошибке 409 (Media in use)
+- Обработка структуры ошибки: `meta.references` содержит массив `{ entry_id: number, title: string }`
+- Автоматическое обновление UI
+- Корректная обработка всех кодов ошибок (404, 409, 429)
+- Восстановление работает только для soft-deleted медиа (404 если не удалено)
 
 ---
 
@@ -675,19 +675,19 @@ const MediaList = observer(() => {
 **Описание:**
 Функционал скачивания медиафайлов:
 
--   Кнопка скачивания в карточке/деталях
--   Использование download_url из API
--   Обработка ошибок
+- Кнопка скачивания в карточке/деталях
+- Использование download_url из API
+- Обработка ошибок
 
 **Файлы:**
 
--   Утилита `src/utils/media.ts` (метод `downloadMedia`) или метод в `mediaStore`
+- Утилита `src/utils/media.ts` (метод `downloadMedia`) или метод в `mediaStore`
 
 **Критерии приёмки:**
 
--   Корректное скачивание файла (download endpoint возвращает 302 редирект на подписанный URL)
--   Обработка ошибок (404, 500 - Media download error)
--   Индикатор загрузки для больших файлов
+- Корректное скачивание файла (download endpoint возвращает 302 редирект на подписанный URL)
+- Обработка ошибок (404, 500 - Media download error)
+- Индикатор загрузки для больших файлов
 
 ---
 
@@ -702,22 +702,22 @@ const MediaList = observer(() => {
 **Описание:**
 Интеграция поиска и фильтрации:
 
--   Debounce для поиска
--   Синхронизация фильтров с URL
--   Сохранение фильтров в localStorage
--   Быстрые фильтры (часто используемые)
+- Debounce для поиска
+- Синхронизация фильтров с URL
+- Сохранение фильтров в localStorage
+- Быстрые фильтры (часто используемые)
 
 **Файлы:**
 
--   Интеграция в MediaFilters и MediaLibrary
+- Интеграция в MediaFilters и MediaLibrary
 
 **Критерии приёмки:**
 
--   Debounce 300-500ms для поиска (поиск идет по `title` и `original_name`)
--   URL параметры отражают фильтры
--   Сохранение состояния между сессиями (localStorage)
--   Быстрый отклик на изменения
--   Поддержка всех фильтров: `q`, `kind`, `mime`, `collection`, `deleted`, `sort`, `order`, `per_page`
+- Debounce 300-500ms для поиска (поиск идет по `title` и `original_name`)
+- URL параметры отражают фильтры
+- Сохранение состояния между сессиями (localStorage)
+- Быстрый отклик на изменения
+- Поддержка всех фильтров: `q`, `kind`, `mime`, `collection`, `deleted`, `sort`, `order`, `per_page`
 
 ---
 
@@ -732,52 +732,24 @@ const MediaList = observer(() => {
 **Описание:**
 Интерфейс для работы с коллекциями:
 
--   Список коллекций
--   Создание новой коллекции (если API поддерживает)
--   Перемещение медиа между коллекциями
--   Фильтрация по коллекции
--   Группировка в UI по коллекциям (опционально)
+- Список коллекций
+- Создание новой коллекции (если API поддерживает)
+- Перемещение медиа между коллекциями
+- Фильтрация по коллекции
+- Группировка в UI по коллекциям (опционально)
 
 **Файлы:**
 
--   `src/components/media/CollectionSelector.tsx`
--   Методы в `mediaStore` для работы с коллекциями (если есть API для коллекций)
+- `src/components/media/CollectionSelector.tsx`
+- Методы в `mediaStore` для работы с коллекциями (если есть API для коллекций)
 
 **Критерии приёмки:**
 
--   Выбор коллекции при загрузке
--   Изменение коллекции через редактирование
--   Фильтрация по коллекции работает корректно
--   Визуальная индикация коллекции
--   Regex для коллекции: `^[a-z0-9-_.]+$` (case-insensitive, max 64 символа)
-
----
-
-#### Задача 17: Интеграция с Entry (привязка медиа)
-
-**Приоритет:** Средний  
-**Сложность:** Высокая  
-**Зависимости:** Задачи 1, 6
-
-**Описание:**
-Функционал привязки медиа к записям (Entry):
-
--   Выбор медиа при редактировании Entry
--   Отображение привязанных медиа в Entry
--   Media picker компонент
--   Управление порядком привязанных медиа
-
-**Файлы:**
-
--   `src/components/media/MediaPicker.tsx`
--   Интеграция в форму редактирования Entry
-
-**Критерии приёмки:**
-
--   Выбор нескольких медиа
--   Drag & drop для изменения порядка
--   Отображение превью выбранных медиа
--   Сохранение связи через API Entry
+- Выбор коллекции при загрузке
+- Изменение коллекции через редактирование
+- Фильтрация по коллекции работает корректно
+- Визуальная индикация коллекции
+- Regex для коллекции: `^[a-z0-9-_.]+$` (case-insensitive, max 64 символа)
 
 ---
 
@@ -790,22 +762,22 @@ const MediaList = observer(() => {
 **Описание:**
 Оптимизация производительности:
 
--   Lazy loading изображений
--   Виртуализация списка (для больших списков)
--   Кэширование API запросов
--   Debounce/throttle для поиска и фильтров
--   Оптимизация перерисовок (memoization)
+- Lazy loading изображений
+- Виртуализация списка (для больших списков)
+- Кэширование API запросов
+- Debounce/throttle для поиска и фильтров
+- Оптимизация перерисовок (memoization)
 
 **Файлы:**
 
--   Оптимизации в существующих компонентах
+- Оптимизации в существующих компонентах
 
 **Критерии приёмки:**
 
--   Плавный скролл при 100+ элементах
--   Минимальные повторные запросы к API
--   Быстрый отклик UI
--   Оптимизация bundle size
+- Плавный скролл при 100+ элементах
+- Минимальные повторные запросы к API
+- Быстрый отклик UI
+- Оптимизация bundle size
 
 ---
 
@@ -818,32 +790,32 @@ const MediaList = observer(() => {
 **Описание:**
 Написание тестов для всех компонентов и логики:
 
--   Unit тесты для утилит
--   Unit тесты для MobX stores
--   Component тесты
--   Integration тесты для API клиента
--   E2E тесты для критических сценариев
+- Unit тесты для утилит
+- Unit тесты для MobX stores
+- Component тесты
+- Integration тесты для API клиента
+- E2E тесты для критических сценариев
 
 **Файлы:**
 
--   `src/utils/__tests__/media.test.ts`
--   `src/stores/__tests__/mediaStore.test.ts`
--   `src/components/media/__tests__/MediaCard.test.ts`
--   и т.д.
+- `src/utils/__tests__/media.test.ts`
+- `src/stores/__tests__/mediaStore.test.ts`
+- `src/components/media/__tests__/MediaCard.test.ts`
+- и т.д.
 
 **Покрытие:**
 
--   Утилиты: 100%
--   Компоненты: 80%+ критического функционала
--   API клиент: все методы
--   Основные пользовательские сценарии
+- Утилиты: 100%
+- Компоненты: 80%+ критического функционала
+- API клиент: все методы
+- Основные пользовательские сценарии
 
 **Критерии приёмки:**
 
--   Все тесты проходят
--   Покрытие соответствует требованиям
--   Тесты изолированы (mock API)
--   Тесты поддерживаются и обновляются
+- Все тесты проходят
+- Покрытие соответствует требованиям
+- Тесты изолированы (mock API)
+- Тесты поддерживаются и обновляются
 
 ---
 
@@ -856,26 +828,26 @@ const MediaList = observer(() => {
 **Описание:**
 Финализация проекта:
 
--   Документация компонентов (Storybook или аналог)
--   Документация API клиента
--   Документация MobX stores
--   Примеры использования
--   Accessibility audit
--   Cross-browser testing
--   Performance audit
+- Документация компонентов (Storybook или аналог)
+- Документация API клиента
+- Документация MobX stores
+- Примеры использования
+- Accessibility audit
+- Cross-browser testing
+- Performance audit
 
 **Файлы:**
 
--   `docs/frontend/media-components.md`
--   Storybook stories (если используется)
+- `docs/frontend/media-components.md`
+- Storybook stories (если используется)
 
 **Критерии приёмки:**
 
--   Вся документация актуальна
--   Примеры работают
--   Accessibility соответствует WCAG 2.1 AA
--   Работает во всех поддерживаемых браузерах
--   Производительность соответствует целям
+- Вся документация актуальна
+- Примеры работают
+- Accessibility соответствует WCAG 2.1 AA
+- Работает во всех поддерживаемых браузерах
+- Производительность соответствует целям
 
 ---
 
@@ -901,13 +873,13 @@ const MediaList = observer(() => {
 
 ## Технический стек
 
--   **Framework:** React
--   **TypeScript:** Обязательно
--   **State Management:** MobX 6 (makeAutoObservable / makeObservable)
--   **HTTP Client:** Axios / Fetch API
--   **Styling:** TailwindCSS (уже используется)
--   **Testing:** Vitest / Jest
--   **E2E:** Playwright / Cypress
+- **Framework:** React
+- **TypeScript:** Обязательно
+- **State Management:** MobX 6 (makeAutoObservable / makeObservable)
+- **HTTP Client:** Axios / Fetch API
+- **Styling:** TailwindCSS (уже используется)
+- **Testing:** Vitest / Jest
+- **E2E:** Playwright / Cypress
 
 **Примечание:** Используется MobX 6 с паттерном makeAutoObservable для автоматического создания observable/action/computed.
 
@@ -915,67 +887,67 @@ const MediaList = observer(() => {
 
 **Пагинация:**
 
--   Default `per_page`: 15
--   Диапазон: 1-100
--   Формат ответа: Laravel pagination с `data`, `links`, `meta`
--   Структура `links`: `first`, `last`, `prev`, `next` (могут быть null)
--   Структура `meta`: `current_page`, `from`, `last_page`, `path`, `per_page`, `to`, `total`
+- Default `per_page`: 15
+- Диапазон: 1-100
+- Формат ответа: Laravel pagination с `data`, `links`, `meta`
+- Структура `links`: `first`, `last`, `prev`, `next` (могут быть null)
+- Структура `meta`: `current_page`, `from`, `last_page`, `path`, `per_page`, `to`, `total`
 
 **Поиск:**
 
--   Параметр `q`: поиск по полям `title` и `original_name` (LIKE запрос, case-insensitive)
--   Максимальная длина: 255 символов
+- Параметр `q`: поиск по полям `title` и `original_name` (LIKE запрос, case-insensitive)
+- Максимальная длина: 255 символов
 
 **Сортировка:**
 
--   Поля: `created_at` (default), `size_bytes`, `mime`
--   Направление: `asc`, `desc` (default: `desc`)
+- Поля: `created_at` (default), `size_bytes`, `mime`
+- Направление: `asc`, `desc` (default: `desc`)
 
 **Preview URLs:**
 
--   Доступны только для изображений (`kind === 'image'`)
--   Варианты: `thumbnail` (max 320px), `medium` (max 1024px)
--   В ответе API (`preview_urls`) содержатся полные URL endpoints (не подписанные URLs)
--   При обращении к preview endpoint возвращается 302 редирект на подписанный URL хранилища
--   TTL подписанного URL: 300 секунд (настраивается через `MEDIA_SIGNED_TTL`)
--   Default variant: `thumbnail` (если не указан в query параметре)
+- Доступны только для изображений (`kind === 'image'`)
+- Варианты: `thumbnail` (max 320px), `medium` (max 1024px)
+- В ответе API (`preview_urls`) содержатся полные URL endpoints (не подписанные URLs)
+- При обращении к preview endpoint возвращается 302 редирект на подписанный URL хранилища
+- TTL подписанного URL: 300 секунд (настраивается через `MEDIA_SIGNED_TTL`)
+- Default variant: `thumbnail` (если не указан в query параметре)
 
 **Download URL:**
 
--   Endpoint возвращает 302 редирект на подписанный URL хранилища
--   В ответе API (`download_url`) содержится полный URL endpoint (не подписанный URL)
--   TTL подписанного URL: 300 секунд (настраивается через `MEDIA_SIGNED_TTL`)
--   Доступен для всех типов медиа (image, video, audio, document)
+- Endpoint возвращает 302 редирект на подписанный URL хранилища
+- В ответе API (`download_url`) содержится полный URL endpoint (не подписанный URL)
+- TTL подписанного URL: 300 секунд (настраивается через `MEDIA_SIGNED_TTL`)
+- Доступен для всех типов медиа (image, video, audio, document)
 
 **Ошибки:**
 
--   `401` - Unauthorized (требуется аутентификация)
--   `404` - Media not found
--   `409` - Media in use (при удалении, если медиа используется в записях)
--   `422` - Validation error (невалидные данные)
--   `429` - Rate limit exceeded (throttle: 60 req/min для GET, 20 req/min для POST/PUT/DELETE)
--   `500` - Media variant error (ошибка генерации варианта превью для preview endpoint)
--   `500` - Media download error (ошибка генерации подписанного URL для download endpoint)
+- `401` - Unauthorized (требуется аутентификация)
+- `404` - Media not found
+- `409` - Media in use (при удалении, если медиа используется в записях)
+- `422` - Validation error (невалидные данные)
+- `429` - Rate limit exceeded (throttle: 60 req/min для GET, 20 req/min для POST/PUT/DELETE)
+- `500` - Media variant error (ошибка генерации варианта превью для preview endpoint)
+- `500` - Media download error (ошибка генерации подписанного URL для download endpoint)
 
 **Формат ошибок:**
 Все ошибки возвращаются в формате Problem Details (RFC 7807) с полями:
 
--   `type` - URI типа ошибки
--   `title` - краткое описание
--   `status` - HTTP статус код
--   `code` - код ошибки (enum)
--   `detail` - детальное описание
--   `meta` - дополнительная информация (errors, references, request_id, etc.)
--   `trace_id` - идентификатор трейса для отладки
+- `type` - URI типа ошибки
+- `title` - краткое описание
+- `status` - HTTP статус код
+- `code` - код ошибки (enum)
+- `detail` - детальное описание
+- `meta` - дополнительная информация (errors, references, request_id, etc.)
+- `trace_id` - идентификатор трейса для отладки
 
 ---
 
 ## Связанные документы
 
--   `app/Http/Controllers/Admin/V1/MediaController.php` - API контроллер
--   `app/Http/Resources/MediaResource.php` - Структура ответов API
--   `app/Models/Media.php` - Модель данных
--   `docs/generated/http-endpoints.md` - Документация API endpoints
+- `app/Http/Controllers/Admin/V1/MediaController.php` - API контроллер
+- `app/Http/Resources/MediaResource.php` - Структура ответов API
+- `app/Models/Media.php` - Модель данных
+- `docs/generated/http-endpoints.md` - Документация API endpoints
 
 ---
 
@@ -984,20 +956,20 @@ const MediaList = observer(() => {
 
 **Изменения v1.2:**
 
--   Уточнен regex для коллекции: `^[a-z0-9-_.]+$` (case-insensitive)
--   Добавлена информация об ошибке 500 для download endpoint (Media download error)
--   Уточнены детали валидации collection (case-insensitive regex)
+- Уточнен regex для коллекции: `^[a-z0-9-_.]+$` (case-insensitive)
+- Добавлена информация об ошибке 500 для download endpoint (Media download error)
+- Уточнены детали валидации collection (case-insensitive regex)
 
 **Изменения v1.1:**
 
--   Обновлены типы медиа: указаны только поддерживаемые форматы (JPEG, PNG, GIF, WebP, MP4, MP3, PDF)
--   Добавлены детали о поддерживаемых MIME-типах из конфигурации
--   Уточнены параметры пагинации (default: 15, диапазон: 1-100)
--   Добавлены детали о preview URLs (только для изображений, варианты: thumbnail, medium)
--   Уточнены детали поиска (по полям `title` и `original_name`)
--   Добавлены детали о валидации полей и ограничениях
--   Добавлены детали об обработке ошибок (401, 404, 409, 422, 429, 500)
--   Уточнены детали о формате ошибок (Problem Details RFC 7807)
--   Добавлены детали о rate limiting (60 req/min для GET, 20 req/min для POST/PUT/DELETE)
--   Уточнены детали о preview endpoint (302 редирект на подписанный URL)
--   Исправлены несоответствия с реальным API бэкенда
+- Обновлены типы медиа: указаны только поддерживаемые форматы (JPEG, PNG, GIF, WebP, MP4, MP3, PDF)
+- Добавлены детали о поддерживаемых MIME-типах из конфигурации
+- Уточнены параметры пагинации (default: 15, диапазон: 1-100)
+- Добавлены детали о preview URLs (только для изображений, варианты: thumbnail, medium)
+- Уточнены детали поиска (по полям `title` и `original_name`)
+- Добавлены детали о валидации полей и ограничениях
+- Добавлены детали об обработке ошибок (401, 404, 409, 422, 429, 500)
+- Уточнены детали о формате ошибок (Problem Details RFC 7807)
+- Добавлены детали о rate limiting (60 req/min для GET, 20 req/min для POST/PUT/DELETE)
+- Уточнены детали о preview endpoint (302 редирект на подписанный URL)
+- Исправлены несоответствия с реальным API бэкенда
