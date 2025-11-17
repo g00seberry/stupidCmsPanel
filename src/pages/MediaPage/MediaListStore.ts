@@ -105,16 +105,19 @@ export class MediaListStore {
   }
 
   /**
-   * Удаляет медиа-файл (мягкое удаление).
+   * Удаляет медиа-файлы (мягкое удаление).
    * После удаления перезагружает список.
-   * @param id Идентификатор медиа-файла для удаления.
+   * @param ids Массив идентификаторов медиа-файлов для удаления.
    */
-  async deleteMediaItem(id: string): Promise<void> {
+  async deleteMediaItem(ids: string[]): Promise<void> {
     try {
-      await deleteMedia(id);
+      await deleteMedia(ids);
       notification.success({
-        message: 'Медиа-файл удалён',
-        description: 'Файл успешно перемещён в корзину',
+        message: ids.length === 1 ? 'Медиа-файл удалён' : 'Медиа-файлы удалены',
+        description:
+          ids.length === 1
+            ? 'Файл успешно перемещён в корзину'
+            : `${ids.length} файлов успешно перемещено в корзину`,
       });
       await this.loadMedia();
     } catch (error) {
@@ -123,16 +126,19 @@ export class MediaListStore {
   }
 
   /**
-   * Восстанавливает ранее удалённый медиа-файл.
+   * Восстанавливает ранее удалённые медиа-файлы.
    * После восстановления перезагружает список.
-   * @param id Идентификатор медиа-файла для восстановления.
+   * @param ids Массив идентификаторов медиа-файлов для восстановления.
    */
-  async restoreMediaItem(id: string): Promise<void> {
+  async restoreMediaItem(ids: string[]): Promise<void> {
     try {
-      await restoreMedia(id);
+      await restoreMedia(ids);
       notification.success({
-        message: 'Медиа-файл восстановлен',
-        description: 'Файл успешно восстановлен из корзины',
+        message: ids.length === 1 ? 'Медиа-файл восстановлен' : 'Медиа-файлы восстановлены',
+        description:
+          ids.length === 1
+            ? 'Файл успешно восстановлен из корзины'
+            : `${ids.length} файлов успешно восстановлено из корзины`,
       });
       await this.loadMedia();
     } catch (error) {

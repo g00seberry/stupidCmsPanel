@@ -184,10 +184,10 @@ export const MediaPage = observer(() => {
           loading={store.pending}
           onEdit={handleEdit}
           onDelete={async id => {
-            await store.deleteMediaItem(id);
+            await store.deleteMediaItem([id]);
           }}
           onRestore={async id => {
-            await store.restoreMediaItem(id);
+            await store.restoreMediaItem([id]);
           }}
           emptyText="Медиа-файлы отсутствуют"
         />

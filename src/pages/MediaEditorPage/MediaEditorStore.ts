@@ -66,7 +66,7 @@ export class MediaEditorStore {
   async deleteMedia(id: string): Promise<void> {
     this.saving = true;
     try {
-      await deleteMedia(id);
+      await deleteMedia([id]);
       notification.success({
         message: 'Медиа-файл удалён',
         description: 'Файл успешно перемещён в корзину',
@@ -88,7 +88,10 @@ export class MediaEditorStore {
   async restoreMedia(id: string): Promise<void> {
     this.saving = true;
     try {
-      this.media = await restoreMedia(id);
+      const restored = await restoreMedia([id]);
+      if (restored.length > 0) {
+        this.media = restored[0];
+      }
       notification.success({
         message: 'Медиа-файл восстановлен',
         description: 'Файл успешно восстановлен из корзины',

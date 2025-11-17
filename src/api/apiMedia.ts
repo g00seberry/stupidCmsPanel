@@ -179,30 +179,103 @@ export const updateMedia = async (id: ZId, payload: ZMediaPayload): Promise<ZMed
 };
 
 /**
- * Удаляет медиа-файл (мягкое удаление).
- * Файл помечается как удалённый, но не удаляется физически.
- * @param id Идентификатор медиа-файла для удаления.
- * @throws {Error} Если медиа-файл не найден или произошла ошибка при удалении.
+ * Удаляет медиа-файлы (мягкое удаление).
+ * Файлы помечаются как удалённые, но не удаляются физически.
+ * @param ids Массив идентификаторов медиа-файлов для удаления (1-100 элементов).
+ * @throws {Error} Если произошла ошибка при удалении.
  * @example
- * await deleteMedia('01HQZXABC123456789DEFGHIJKLM');
- * console.log('Медиа-файл успешно удалён');
+ * await deleteMedia(['01HQZXABC123456789DEFGHIJKLM']);
+ * // или для нескольких файлов
+ * await deleteMedia(['id1', 'id2', 'id3']);
+ * console.log('Медиа-файлы успешно удалены');
  */
-export const deleteMedia = async (id: ZId): Promise<void> => {
-  await rest.delete(getAdminMediaUrl(`/${id}`));
+export const deleteMedia = async (ids: ZId[]): Promise<void> => {
+  if (ids.length === 0) {
+    throw new Error('Массив идентификаторов не может быть пустым');
+  }
+  if (ids.length > 100) {
+    throw new Error('Максимум 100 элементов в одном запросе');
+  }
+  await rest.delete(getAdminMediaUrl('/bulk'), {
+    data: { ids },
+  });
 };
 
 /**
- * Восстанавливает ранее удалённый медиа-файл.
- * @param id Идентификатор медиа-файла для восстановления.
- * @returns Восстановленный медиа-файл.
- * @throws {Error} Если медиа-файл не найден или произошла ошибка при восстановлении.
+ * Восстанавливает ранее удалённые медиа-файлы.
+ * @param ids Массив идентификаторов медиа-файлов для восстановления (1-100 элементов).
+ * @returns Массив восстановленных медиа-файлов.
+ * @throws {Error} Если произошла ошибка при восстановлении.
  * @example
- * const restoredMedia = await restoreMedia('01HQZXABC123456789DEFGHIJKLM');
- * console.log(restoredMedia.deleted_at); // null
+ * const restored = await restoreMedia(['01HQZXABC123456789DEFGHIJKLM']);
+ * // или для нескольких файлов
+ * const restored = await restoreMedia(['id1', 'id2', 'id3']);
+ * console.log(`Восстановлено ${restored.length} медиа-файлов`);
  */
-export const restoreMedia = async (id: ZId): Promise<ZMedia> => {
-  const response = await rest.post(getAdminMediaUrl(`/${id}/restore`));
-  const parsed = zMediaResponse.parse(response.data);
+export const restoreMedia = async (ids: ZId[]): Promise<ZMedia[]> => {
+  if (ids.length === 0) {
+    throw new Error('Массив идентификаторов не может быть пустым');
+  }
+  if (ids.length > 100) {
+    throw new Error('Максимум 100 элементов в одном запросе');
+  }
+  const response = await rest.post(getAdminMediaUrl('/bulk/restore'), {
+    ids,
+  });
+  const parsed = zMediaListResponse.parse(response.data);
+  return parsed.data;
+};
+
+/**
+ * Окончательно удаляет медиа-файлы (hard delete).
+ * Файлы удаляются физически и не могут быть восстановлены.
+ * @param ids Массив идентификаторов медиа-файлов для окончательного удаления (1-100 элементов).
+ * @throws {Error} Если произошла ошибка при удалении.
+ * @example
+ * await forceDeleteMedia(['01HQZXABC123456789DEFGHIJKLM']);
+ * // или для нескольких файлов
+ * await forceDeleteMedia(['id1', 'id2', 'id3']);
+ * console.log('Медиа-файлы окончательно удалены');
+ */
+export const forceDeleteMedia = async (ids: ZId[]): Promise<void> => {
+  if (ids.length === 0) {
+    throw new Error('Массив идентификаторов не может быть пустым');
+  }
+  if (ids.length > 100) {
+    throw new Error('Максимум 100 элементов в одном запросе');
+  }
+  await rest.delete(getAdminMediaUrl('/bulk/force'), {
+    data: { ids },
+  });
+};
+
+/**
+ * Массовое обновление метаданных медиа-файлов.
+ * Применяет одинаковые метаданные ко всем указанным медиа-файлам.
+ * @param ids Массив идентификаторов медиа-файлов для обновления (1-100 элементов).
+ * @param payload Новые значения метаданных (title, alt, collection).
+ * @returns Массив обновлённых медиа-файлов.
+ * @throws {Error} Если произошла ошибка при обновлении.
+ * @example
+ * const updated = await bulkUpdateMedia(['id1', 'id2', 'id3'], {
+ *   title: 'Общее название',
+ *   collection: 'blog-images'
+ * });
+ * console.log(`Обновлено ${updated.length} медиа-файлов`);
+ */
+export const bulkUpdateMedia = async (ids: ZId[], payload: ZMediaPayload): Promise<ZMedia[]> => {
+  if (ids.length === 0) {
+    throw new Error('Массив идентификаторов не может быть пустым');
+  }
+  if (ids.length > 100) {
+    throw new Error('Максимум 100 элементов в одном запросе');
+  }
+  const parsedPayload = zMediaPayload.parse(payload);
+  const response = await rest.put(getAdminMediaUrl('/bulk'), {
+    ids,
+    ...parsedPayload,
+  });
+  const parsed = zMediaListResponse.parse(response.data);
   return parsed.data;
 };
 
