@@ -1,5 +1,5 @@
-import { Card, Button, Dropdown, Spin, Empty, Modal } from 'antd';
-import { MoreVertical, Eye, Edit, Download, Trash2, RotateCcw } from 'lucide-react';
+import { Card, Button, Dropdown, Spin, Empty, App } from 'antd';
+import { MoreVertical, Edit, Download, Trash2, RotateCcw } from 'lucide-react';
 import { MediaPreview } from '@/components/MediaPreview';
 import { downloadMedia } from '@/api/apiMedia';
 import { onError } from '@/utils/onError';
@@ -14,14 +14,12 @@ export type PropsMediaGrid = {
   media: ZMedia[];
   /** Флаг загрузки данных. */
   loading?: boolean;
-  /** Обработчик клика по медиа-файлу для просмотра. */
-  onView?: (media: ZMedia) => void;
   /** Обработчик клика по медиа-файлу для редактирования. */
   onEdit?: (media: ZMedia) => void;
   /** Обработчик удаления медиа-файла. */
-  onDelete?: (id: string) => void;
+  onDelete?: (id: string) => Promise<void>;
   /** Обработчик восстановления медиа-файла. */
-  onRestore?: (id: string) => void;
+  onRestore?: (id: string) => Promise<void>;
   /** Текст для пустого состояния. По умолчанию: 'Нет медиа-файлов'. */
   emptyText?: string;
 };
@@ -33,26 +31,32 @@ export type PropsMediaGrid = {
 export const MediaGrid: React.FC<PropsMediaGrid> = ({
   media,
   loading = false,
-  onView,
   onEdit,
   onDelete,
   onRestore,
   emptyText = 'Нет медиа-файлов',
 }) => {
+  const { modal } = App.useApp();
+
   /**
    * Обрабатывает удаление медиа-файла с подтверждением.
    * @param mediaItem Медиа-файл для удаления.
    */
   const handleDelete = (mediaItem: ZMedia) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Удалить файл?',
       content: `Вы уверены, что хотите удалить "${mediaItem.title || mediaItem.name}"? Файл можно будет восстановить из корзины.`,
       okText: 'Удалить',
       okType: 'danger',
       cancelText: 'Отмена',
-      onOk: () => {
+      onOk: async () => {
         if (onDelete) {
-          onDelete(mediaItem.id);
+          try {
+            await onDelete(mediaItem.id);
+          } catch (error) {
+            onError(error);
+            throw error;
+          }
         }
       },
     });
@@ -63,14 +67,19 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
    * @param mediaItem Медиа-файл для восстановления.
    */
   const handleRestore = (mediaItem: ZMedia) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Восстановить файл?',
       content: `Вы уверены, что хотите восстановить "${mediaItem.title || mediaItem.name}"?`,
       okText: 'Восстановить',
       cancelText: 'Отмена',
-      onOk: () => {
+      onOk: async () => {
         if (onRestore) {
-          onRestore(mediaItem.id);
+          try {
+            await onRestore(mediaItem.id);
+          } catch (error) {
+            onError(error);
+            throw error;
+          }
         }
       },
     });
@@ -95,15 +104,6 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
    */
   const getMenuItems = (mediaItem: ZMedia): MenuProps['items'] => {
     const items: MenuProps['items'] = [];
-
-    if (onView) {
-      items.push({
-        key: 'view',
-        label: 'Просмотр',
-        icon: <Eye className="w-4 h-4" />,
-        onClick: () => onView(mediaItem),
-      });
-    }
 
     if (onEdit) {
       items.push({
@@ -175,7 +175,7 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
             <MediaPreview
               media={mediaItem}
               size="medium"
-              onClick={() => onView && onView(mediaItem)}
+              onClick={() => onEdit && onEdit(mediaItem)}
               className="w-full h-48"
             />
 

@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { Button, Form, Input, Card, Typography, Spin, Modal, Descriptions } from 'antd';
-import { Save, Trash2, Download, ArrowLeft } from 'lucide-react';
+import { Button, Form, Input, Card, Typography, Spin, App, Descriptions } from 'antd';
+import { Save, Trash2, Download, ArrowLeft, RotateCcw } from 'lucide-react';
 import { MediaEditorStore } from './MediaEditorStore';
 import { MediaPreview } from '@/components/MediaPreview';
 import { downloadMedia } from '@/api/apiMedia';
@@ -22,6 +22,7 @@ export const MediaEditorPage = observer(() => {
   const navigate = useNavigate();
   const store = useMemo(() => new MediaEditorStore(), []);
   const [form] = Form.useForm();
+  const { modal } = App.useApp();
 
   // Загрузка медиа-файла
   useEffect(() => {
@@ -69,7 +70,7 @@ export const MediaEditorPage = observer(() => {
   const handleDelete = () => {
     if (!id || !store.media) return;
 
-    Modal.confirm({
+    modal.confirm({
       title: 'Удалить файл?',
       content: `Вы уверены, что хотите удалить "${store.media.title || store.media.name}"? Файл можно будет восстановить из корзины.`,
       okText: 'Удалить',
@@ -78,7 +79,27 @@ export const MediaEditorPage = observer(() => {
       onOk: async () => {
         try {
           await store.deleteMedia(id);
-          navigate(PageUrl.Media);
+        } catch (error) {
+          onError(error);
+        }
+      },
+    });
+  };
+
+  /**
+   * Обрабатывает восстановление медиа-файла из корзины.
+   */
+  const handleRestore = () => {
+    if (!id || !store.media) return;
+
+    modal.confirm({
+      title: 'Восстановить файл?',
+      content: `Вы уверены, что хотите восстановить "${store.media.title || store.media.name}" из корзины?`,
+      okText: 'Восстановить',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await store.restoreMedia(id);
         } catch (error) {
           onError(error);
         }
@@ -131,19 +152,30 @@ export const MediaEditorPage = observer(() => {
               <Button icon={<Download className="w-4 h-4" />} onClick={handleDownload}>
                 Скачать
               </Button>
-              <Button
-                danger
-                icon={<Trash2 className="w-4 h-4" />}
-                onClick={handleDelete}
-                disabled={store.saving}
-              >
-                Удалить
-              </Button>
+              {media.deleted_at ? (
+                <Button
+                  icon={<RotateCcw className="w-4 h-4" />}
+                  onClick={handleRestore}
+                  disabled={store.saving}
+                >
+                  Восстановить из корзины
+                </Button>
+              ) : (
+                <Button
+                  danger
+                  icon={<Trash2 className="w-4 h-4" />}
+                  onClick={handleDelete}
+                  disabled={store.saving}
+                >
+                  Удалить
+                </Button>
+              )}
               <Button
                 type="primary"
                 icon={<Save className="w-4 h-4" />}
                 onClick={handleSave}
                 loading={store.saving}
+                disabled={!!media.deleted_at}
               >
                 Сохранить
               </Button>

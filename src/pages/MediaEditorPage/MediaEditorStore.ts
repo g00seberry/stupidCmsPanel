@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { getMedia, updateMedia, deleteMedia } from '@/api/apiMedia';
+import { getMedia, updateMedia, deleteMedia, restoreMedia } from '@/api/apiMedia';
 import { onError } from '@/utils/onError';
 import type { ZMedia, ZMediaPayload } from '@/types/media';
 import { notification } from 'antd';
@@ -70,6 +70,28 @@ export class MediaEditorStore {
       notification.success({
         message: 'Медиа-файл удалён',
         description: 'Файл успешно перемещён в корзину',
+      });
+      // Перезагружаем медиа-файл для обновления состояния
+      await this.loadMedia(id);
+    } catch (error) {
+      onError(error);
+      throw error;
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  /**
+   * Восстанавливает ранее удалённый медиа-файл.
+   * @param id Идентификатор медиа-файла.
+   */
+  async restoreMedia(id: string): Promise<void> {
+    this.saving = true;
+    try {
+      this.media = await restoreMedia(id);
+      notification.success({
+        message: 'Медиа-файл восстановлен',
+        description: 'Файл успешно восстановлен из корзины',
       });
     } catch (error) {
       onError(error);

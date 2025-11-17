@@ -129,13 +129,6 @@ export const MediaPage = observer(() => {
   };
 
   /**
-   * Обрабатывает просмотр медиа-файла.
-   */
-  const handleView = (media: any) => {
-    navigate(buildUrl(PageUrl.MediaEdit, { id: media.id }));
-  };
-
-  /**
    * Обрабатывает редактирование медиа-файла.
    */
   const handleEdit = (media: any) => {
@@ -189,10 +182,13 @@ export const MediaPage = observer(() => {
         <MediaGrid
           media={store.media}
           loading={store.pending}
-          onView={handleView}
           onEdit={handleEdit}
-          onDelete={id => store.deleteMediaItem(id)}
-          onRestore={id => store.restoreMediaItem(id)}
+          onDelete={async id => {
+            await store.deleteMediaItem(id);
+          }}
+          onRestore={async id => {
+            await store.restoreMediaItem(id);
+          }}
           emptyText="Медиа-файлы отсутствуют"
         />
 
