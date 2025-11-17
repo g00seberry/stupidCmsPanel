@@ -172,7 +172,7 @@ export const zMedia = z.object({
       thumbnail: z.string().optional(),
       medium: z.string().optional(),
     })
-    .optional(),
+    .nullish(),
   /** URL для скачивания оригинального файла. */
   download_url: z.string().optional(),
   /** Массив вариантов медиа-файла (опционально, загружается при необходимости). */
