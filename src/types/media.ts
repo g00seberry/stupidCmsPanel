@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { zId, type ZId } from './ZId';
+import { zId } from './ZId';
 import { zPaginationLinks, zPaginationMeta } from './pagination';
 
 /**
@@ -208,6 +208,24 @@ export const zMediaListResponse = z.object({
  * Тип ответа API со списком медиа-файлов.
  */
 export type ZMediaListResponse = z.infer<typeof zMediaListResponse>;
+
+/**
+ * Схема валидации ответа API с массивом медиа-файлов без пагинации.
+ * Используется для bulk-операций (restore, bulk update), которые возвращают только массив данных.
+ * @example
+ * const response: ZMediaArrayResponse = {
+ *   data: [media1, media2, media3]
+ * };
+ */
+export const zMediaArrayResponse = z.object({
+  /** Массив медиа-файлов. */
+  data: z.array(zMedia),
+});
+
+/**
+ * Тип ответа API с массивом медиа-файлов без пагинации.
+ */
+export type ZMediaArrayResponse = z.infer<typeof zMediaArrayResponse>;
 
 /**
  * Схема валидации ответа API с одним медиа-файлом.

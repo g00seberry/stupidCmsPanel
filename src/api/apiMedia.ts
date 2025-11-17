@@ -1,5 +1,10 @@
 import { rest } from '@/api/rest';
-import { zMediaListResponse, zMediaResponse, zMediaPayload } from '@/types/media';
+import {
+  zMediaListResponse,
+  zMediaArrayResponse,
+  zMediaResponse,
+  zMediaPayload,
+} from '@/types/media';
 import type { ZMedia, ZMediaListParams, ZMediaPayload } from '@/types/media';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
@@ -222,7 +227,7 @@ export const restoreMedia = async (ids: ZId[]): Promise<ZMedia[]> => {
   const response = await rest.post(getAdminMediaUrl('/bulk/restore'), {
     ids,
   });
-  const parsed = zMediaListResponse.parse(response.data);
+  const parsed = zMediaArrayResponse.parse(response.data);
   return parsed.data;
 };
 
@@ -275,25 +280,25 @@ export const bulkUpdateMedia = async (ids: ZId[], payload: ZMediaPayload): Promi
     ids,
     ...parsedPayload,
   });
-  const parsed = zMediaListResponse.parse(response.data);
+  const parsed = zMediaArrayResponse.parse(response.data);
   return parsed.data;
 };
 
 /**
- * Возвращает URL для превью медиа-файла через публичный API.
- * Используется для отображения изображений в UI без аутентификации.
+ * Возвращает URL для превью медиа-файла через админский API.
+ * Используется для отображения изображений в UI админ-панели.
  * @param id Идентификатор медиа-файла (ULID).
  * @param variant Название варианта превью. По умолчанию: 'thumbnail'.
  * @returns URL для запроса превью медиа-файла.
  * @example
  * const previewUrl = getMediaPreviewUrl('01HQZXABC123456789DEFGHIJKLM');
- * // '/api/v1/media/01HQZXABC123456789DEFGHIJKLM/preview?variant=thumbnail'
+ * // '/api/v1/admin/media/01HQZXABC123456789DEFGHIJKLM/preview?variant=thumbnail'
  *
  * const mediumUrl = getMediaPreviewUrl('01HQZXABC123456789DEFGHIJKLM', 'medium');
- * // '/api/v1/media/01HQZXABC123456789DEFGHIJKLM/preview?variant=medium'
+ * // '/api/v1/admin/media/01HQZXABC123456789DEFGHIJKLM/preview?variant=medium'
  */
 export const getMediaPreviewUrl = (id: ZId, variant: string = 'thumbnail'): string => {
-  return `/api/v1/media/${id}/preview?variant=${variant}`;
+  return `/api/v1/admin/media/${id}/preview?variant=${variant}`;
 };
 
 /**

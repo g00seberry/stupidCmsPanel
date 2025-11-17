@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Select, Modal, Upload, Pagination, Typography } from 'antd';
-import { Plus, Search } from 'lucide-react';
+import { Button, Input, Select, Modal, Upload, Pagination, Typography, App } from 'antd';
+import { Plus, Search, Trash2, RotateCcw, X } from 'lucide-react';
 import { MediaListStore } from './MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
 import { FilterForm, FilterFormStore } from '@/components/FilterForm';
@@ -19,6 +19,7 @@ const { Title, Paragraph } = Typography;
  */
 export const MediaPage = observer(() => {
   const navigate = useNavigate();
+  const { modal } = App.useApp();
   const store = useMemo(() => new MediaListStore(), []);
   const filterStore = useMemo(
     () =>
@@ -34,6 +35,8 @@ export const MediaPage = observer(() => {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [selectable, setSelectable] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Инициализация загрузки данных
   useEffect(() => {
@@ -142,6 +145,90 @@ export const MediaPage = observer(() => {
     void store.goToPage(page);
   };
 
+  /**
+   * Обрабатывает массовое удаление выбранных файлов.
+   */
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+
+    modal.confirm({
+      title: 'Удалить выбранные файлы?',
+      content: `Вы уверены, что хотите удалить ${selectedIds.length} файл(ов)? Файлы можно будет восстановить из корзины.`,
+      okText: 'Удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await store.deleteMediaItem(selectedIds);
+          setSelectedIds([]);
+          setSelectable(false);
+        } catch (error) {
+          onError(error);
+          throw error;
+        }
+      },
+    });
+  };
+
+  /**
+   * Обрабатывает массовое восстановление выбранных файлов.
+   */
+  const handleBulkRestore = () => {
+    if (selectedIds.length === 0) return;
+
+    modal.confirm({
+      title: 'Восстановить выбранные файлы?',
+      content: `Вы уверены, что хотите восстановить ${selectedIds.length} файл(ов)?`,
+      okText: 'Восстановить',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await store.restoreMediaItem(selectedIds);
+          setSelectedIds([]);
+          setSelectable(false);
+        } catch (error) {
+          onError(error);
+          throw error;
+        }
+      },
+    });
+  };
+
+  /**
+   * Обрабатывает массовое окончательное удаление выбранных файлов.
+   */
+  const handleBulkForceDelete = () => {
+    if (selectedIds.length === 0) return;
+
+    modal.confirm({
+      title: 'Окончательно удалить выбранные файлы?',
+      content: `Вы уверены, что хотите окончательно удалить ${selectedIds.length} файл(ов)? Это действие нельзя отменить. Файлы будут удалены навсегда.`,
+      okText: 'Удалить навсегда',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await store.forceDeleteMediaItem(selectedIds);
+          setSelectedIds([]);
+          setSelectable(false);
+        } catch (error) {
+          onError(error);
+          throw error;
+        }
+      },
+    });
+  };
+
+  /**
+   * Получает информацию о выбранных файлах для определения доступных операций.
+   */
+  const getSelectedMediaInfo = () => {
+    const selectedMedia = store.media.filter(m => selectedIds.includes(m.id));
+    const hasDeleted = selectedMedia.some(m => m.deleted_at);
+    const hasActive = selectedMedia.some(m => !m.deleted_at);
+    return { hasDeleted, hasActive, selectedMedia };
+  };
+
   return (
     <div className="min-h-screen bg-background w-full">
       {/* Шапка */}
@@ -152,13 +239,33 @@ export const MediaPage = observer(() => {
               <span className="text-foreground font-medium">Медиа</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                type="primary"
-                icon={<Plus className="w-4 h-4" />}
-                onClick={() => setUploadModalVisible(true)}
-              >
-                Загрузить файлы
-              </Button>
+              {selectable ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      setSelectable(false);
+                      setSelectedIds([]);
+                    }}
+                    icon={<X className="w-4 h-4" />}
+                  >
+                    Отменить выбор
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Выбрано: {selectedIds.length}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => setSelectable(true)}>Выбрать файлы</Button>
+                  <Button
+                    type="primary"
+                    icon={<Plus className="w-4 h-4" />}
+                    onClick={() => setUploadModalVisible(true)}
+                  >
+                    Загрузить файлы
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -178,6 +285,52 @@ export const MediaPage = observer(() => {
         {/* Фильтры */}
         <FilterForm store={filterStore} fields={filterFields} cardClassName="mb-6" />
 
+        {/* Панель массовых операций */}
+        {selectable && selectedIds.length > 0 && (
+          <div className="mb-6 p-4 bg-card border rounded-lg flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">
+                Выбрано файлов: {selectedIds.length}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {(() => {
+                const { hasDeleted, hasActive } = getSelectedMediaInfo();
+                return (
+                  <>
+                    {hasActive && (
+                      <Button
+                        danger
+                        icon={<Trash2 className="w-4 h-4" />}
+                        onClick={handleBulkDelete}
+                      >
+                        Удалить
+                      </Button>
+                    )}
+                    {hasDeleted && (
+                      <>
+                        <Button
+                          icon={<RotateCcw className="w-4 h-4" />}
+                          onClick={handleBulkRestore}
+                        >
+                          Восстановить
+                        </Button>
+                        <Button
+                          danger
+                          icon={<Trash2 className="w-4 h-4" />}
+                          onClick={handleBulkForceDelete}
+                        >
+                          Удалить навсегда
+                        </Button>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* Сетка медиа-файлов */}
         <MediaGrid
           media={store.media}
@@ -190,6 +343,9 @@ export const MediaPage = observer(() => {
             await store.restoreMediaItem([id]);
           }}
           emptyText="Медиа-файлы отсутствуют"
+          selectable={selectable}
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
         />
 
         {/* Пагинация */}

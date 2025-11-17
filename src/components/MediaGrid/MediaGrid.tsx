@@ -1,4 +1,5 @@
-import { Card, Button, Dropdown, Spin, Empty, App } from 'antd';
+import { useState } from 'react';
+import { Card, Button, Dropdown, Spin, Empty, App, Checkbox } from 'antd';
 import { MoreVertical, Edit, Download, Trash2, RotateCcw } from 'lucide-react';
 import { MediaPreview } from '@/components/MediaPreview';
 import { downloadMedia } from '@/api/apiMedia';
@@ -22,11 +23,18 @@ export type PropsMediaGrid = {
   onRestore?: (id: string) => Promise<void>;
   /** Текст для пустого состояния. По умолчанию: 'Нет медиа-файлов'. */
   emptyText?: string;
+  /** Включить режим выбора файлов для массовых операций. */
+  selectable?: boolean;
+  /** Массив выбранных ID медиа-файлов. */
+  selectedIds?: string[];
+  /** Обработчик изменения выбранных файлов. */
+  onSelectionChange?: (selectedIds: string[]) => void;
 };
 
 /**
  * Компонент сетки медиа-файлов с карточками и действиями.
  * Отображает медиа-файлы в виде сетки с превью и меню действий.
+ * Поддерживает режим выбора файлов для массовых операций.
  */
 export const MediaGrid: React.FC<PropsMediaGrid> = ({
   media,
@@ -35,8 +43,17 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
   onDelete,
   onRestore,
   emptyText = 'Нет медиа-файлов',
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
 }) => {
   const { modal } = App.useApp();
+  const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>([]);
+
+  // Используем внешний или внутренний state для выбранных файлов
+  const currentSelectedIds = selectable && onSelectionChange ? selectedIds : internalSelectedIds;
+  const setSelectedIds =
+    selectable && onSelectionChange ? onSelectionChange : setInternalSelectedIds;
 
   /**
    * Обрабатывает удаление медиа-файла с подтверждением.
@@ -95,6 +112,31 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
     } catch (error) {
       onError(error);
     }
+  };
+
+  /**
+   * Обрабатывает изменение выбора файла.
+   * @param mediaId ID медиа-файла.
+   * @param checked Состояние чекбокса.
+   */
+  const handleSelectChange = (mediaId: string, checked: boolean) => {
+    if (!selectable) return;
+
+    const newSelectedIds = checked
+      ? [...currentSelectedIds, mediaId]
+      : currentSelectedIds.filter(id => id !== mediaId);
+
+    setSelectedIds(newSelectedIds);
+  };
+
+  /**
+   * Обрабатывает выбор всех файлов.
+   * @param checked Состояние чекбокса "Выбрать все".
+   */
+  const handleSelectAll = (checked: boolean) => {
+    if (!selectable) return;
+
+    setSelectedIds(checked ? media.map(m => m.id) : []);
   };
 
   /**
@@ -162,57 +204,105 @@ export const MediaGrid: React.FC<PropsMediaGrid> = ({
     return <Empty description={emptyText} className="py-12" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
   }
 
+  const allSelected = selectable && media.length > 0 && currentSelectedIds.length === media.length;
+  const someSelected =
+    selectable && currentSelectedIds.length > 0 && currentSelectedIds.length < media.length;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {media.map(mediaItem => (
-        <Card
-          key={mediaItem.id}
-          className={`overflow-hidden ${mediaItem.deleted_at ? 'opacity-60' : ''}`}
-          styles={{ body: { padding: 0 } }}
-          hoverable
-        >
-          <div className="relative">
-            <MediaPreview
-              media={mediaItem}
-              size="medium"
-              onClick={() => onEdit && onEdit(mediaItem)}
-              className="w-full h-48"
-            />
+    <div>
+      {/* Панель выбора всех файлов */}
+      {selectable && media.length > 0 && (
+        <div className="mb-4 flex items-center gap-2">
+          <Checkbox
+            checked={allSelected}
+            indeterminate={someSelected}
+            onChange={e => handleSelectAll(e.target.checked)}
+          >
+            Выбрать все ({currentSelectedIds.length} из {media.length})
+          </Checkbox>
+        </div>
+      )}
 
-            {/* Меню действий */}
-            <div className="absolute top-2 right-2">
-              <Dropdown menu={{ items: getMenuItems(mediaItem) }} trigger={['click']}>
-                <Button
-                  type="text"
-                  icon={<MoreVertical className="w-4 h-4" />}
-                  className="bg-white/80 hover:bg-white"
-                  size="small"
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {media.map(mediaItem => {
+          const isSelected = currentSelectedIds.includes(mediaItem.id);
+
+          return (
+            <Card
+              key={mediaItem.id}
+              className={`overflow-hidden ${mediaItem.deleted_at ? 'opacity-60' : ''} ${
+                selectable && isSelected ? 'ring-2 ring-primary' : ''
+              }`}
+              styles={{ body: { padding: 0 } }}
+              hoverable={!selectable}
+            >
+              <div className="relative">
+                {/* Чекбокс выбора */}
+                {selectable && (
+                  <div className="absolute top-2 left-2 z-10">
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={e => handleSelectChange(mediaItem.id, e.target.checked)}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  </div>
+                )}
+
+                <MediaPreview
+                  media={mediaItem}
+                  size="medium"
+                  onClick={() => {
+                    if (selectable) {
+                      handleSelectChange(mediaItem.id, !isSelected);
+                    } else if (onEdit) {
+                      onEdit(mediaItem);
+                    }
+                  }}
+                  className={`w-full h-48 ${selectable ? 'cursor-pointer' : ''}`}
                 />
-              </Dropdown>
-            </div>
 
-            {/* Метка удалённого файла */}
-            {mediaItem.deleted_at && (
-              <div className="absolute bottom-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                Удалено
-              </div>
-            )}
-          </div>
+                {/* Меню действий */}
+                {!selectable && (
+                  <div className="absolute top-2 right-2">
+                    <Dropdown menu={{ items: getMenuItems(mediaItem) }} trigger={['click']}>
+                      <Button
+                        type="text"
+                        icon={<MoreVertical className="w-4 h-4" />}
+                        className="bg-white/80 hover:bg-white"
+                        size="small"
+                        onClick={e => e.stopPropagation()}
+                      />
+                    </Dropdown>
+                  </div>
+                )}
 
-          {/* Информация о файле */}
-          <div className="p-3">
-            <div className="text-sm font-medium truncate" title={mediaItem.title || mediaItem.name}>
-              {mediaItem.title || mediaItem.name}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">{mediaItem.mime}</div>
-            {mediaItem.collection && (
-              <div className="text-xs text-muted-foreground mt-1">
-                <span className="bg-muted px-1.5 py-0.5 rounded">{mediaItem.collection}</span>
+                {/* Метка удалённого файла */}
+                {mediaItem.deleted_at && (
+                  <div className="absolute bottom-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    Удалено
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </Card>
-      ))}
+
+              {/* Информация о файле */}
+              <div className="p-3">
+                <div
+                  className="text-sm font-medium truncate"
+                  title={mediaItem.title || mediaItem.name}
+                >
+                  {mediaItem.title || mediaItem.name}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">{mediaItem.mime}</div>
+                {mediaItem.collection && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    <span className="bg-muted px-1.5 py-0.5 rounded">{mediaItem.collection}</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };

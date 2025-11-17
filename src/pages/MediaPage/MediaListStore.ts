@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { listMedia, deleteMedia, restoreMedia } from '@/api/apiMedia';
+import { listMedia, deleteMedia, restoreMedia, forceDeleteMedia } from '@/api/apiMedia';
 import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
 import { onError } from '@/utils/onError';
 import type { ZMedia, ZMediaListParams } from '@/types/media';
@@ -139,6 +139,28 @@ export class MediaListStore {
           ids.length === 1
             ? 'Файл успешно восстановлен из корзины'
             : `${ids.length} файлов успешно восстановлено из корзины`,
+      });
+      await this.loadMedia();
+    } catch (error) {
+      onError(error);
+    }
+  }
+
+  /**
+   * Окончательно удаляет медиа-файлы (hard delete).
+   * Файлы удаляются физически и не могут быть восстановлены.
+   * После удаления перезагружает список.
+   * @param ids Массив идентификаторов медиа-файлов для окончательного удаления.
+   */
+  async forceDeleteMediaItem(ids: string[]): Promise<void> {
+    try {
+      await forceDeleteMedia(ids);
+      notification.success({
+        message: ids.length === 1 ? 'Медиа-файл удалён' : 'Медиа-файлы удалены',
+        description:
+          ids.length === 1
+            ? 'Файл окончательно удалён и не может быть восстановлен'
+            : `${ids.length} файлов окончательно удалено и не может быть восстановлено`,
       });
       await this.loadMedia();
     } catch (error) {
