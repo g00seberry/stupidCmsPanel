@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Select, Modal, Upload, Pagination, Typography, App } from 'antd';
+import { Button, Input, Select, Modal, Upload, Pagination, Typography, App, Flex } from 'antd';
 import { Plus, Search, Trash2, RotateCcw, X } from 'lucide-react';
 import { MediaListStore } from './MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
@@ -85,9 +85,7 @@ export const MediaPage = observer(() => {
       },
       {
         name: 'collection',
-        element: (
-          <Input placeholder="Коллекция" style={{ width: 150 }} allowClear />
-        ),
+        element: <Input placeholder="Коллекция" style={{ width: 150 }} allowClear />,
       },
       {
         name: 'deleted',
@@ -239,32 +237,14 @@ export const MediaPage = observer(() => {
               <span className="text-foreground font-medium">Медиа</span>
             </div>
             <div className="flex items-center gap-3">
-              {selectable ? (
-                <>
-                  <Button
-                    onClick={() => {
-                      setSelectable(false);
-                      setSelectedIds([]);
-                    }}
-                    icon={<X className="w-4 h-4" />}
-                  >
-                    Отменить выбор
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Выбрано: {selectedIds.length}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Button onClick={() => setSelectable(true)}>Выбрать файлы</Button>
-                  <Button
-                    type="primary"
-                    icon={<Plus className="w-4 h-4" />}
-                    onClick={() => setUploadModalVisible(true)}
-                  >
-                    Загрузить файлы
-                  </Button>
-                </>
+              {!selectable && (
+                <Button
+                  type="primary"
+                  icon={<Plus className="w-4 h-4" />}
+                  onClick={() => setUploadModalVisible(true)}
+                >
+                  Загрузить файлы
+                </Button>
               )}
             </div>
           </div>
@@ -287,21 +267,18 @@ export const MediaPage = observer(() => {
 
         {/* Панель массовых операций */}
         {selectable && selectedIds.length > 0 && (
-          <div className="mb-6 p-4 bg-card border rounded-lg flex items-center justify-between flex-wrap gap-3">
+          <div className="mb-4 px-3 py-2 bg-card border rounded flex items-center justify-between gap-2">
+            <span className="text-sm">Выбрано: {selectedIds.length}</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                Выбрано файлов: {selectedIds.length}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
               {(() => {
                 const { hasDeleted, hasActive } = getSelectedMediaInfo();
                 return (
                   <>
                     {hasActive && (
                       <Button
+                        size="small"
                         danger
-                        icon={<Trash2 className="w-4 h-4" />}
+                        icon={<Trash2 className="w-3.5 h-3.5" />}
                         onClick={handleBulkDelete}
                       >
                         Удалить
@@ -310,14 +287,16 @@ export const MediaPage = observer(() => {
                     {hasDeleted && (
                       <>
                         <Button
-                          icon={<RotateCcw className="w-4 h-4" />}
+                          size="small"
+                          icon={<RotateCcw className="w-3.5 h-3.5" />}
                           onClick={handleBulkRestore}
                         >
                           Восстановить
                         </Button>
                         <Button
+                          size="small"
                           danger
-                          icon={<Trash2 className="w-4 h-4" />}
+                          icon={<Trash2 className="w-3.5 h-3.5" />}
                           onClick={handleBulkForceDelete}
                         >
                           Удалить навсегда
@@ -329,6 +308,29 @@ export const MediaPage = observer(() => {
               })()}
             </div>
           </div>
+        )}
+
+        {/* Кнопка выбора файлов */}
+        {!selectable ? (
+          <div className="mb-4">
+            <Button size="small" onClick={() => setSelectable(true)}>
+              Выбрать файлы
+            </Button>
+          </div>
+        ) : (
+          <Flex align="center" gap={10} className="mb-4">
+            <Button
+              size="small"
+              onClick={() => {
+                setSelectable(false);
+                setSelectedIds([]);
+              }}
+              icon={<X className="w-4 h-4" />}
+            >
+              Отменить выбор
+            </Button>
+            <span className="text-sm text-muted-foreground">Выбрано: {selectedIds.length}</span>
+          </Flex>
         )}
 
         {/* Сетка медиа-файлов */}
@@ -369,20 +371,31 @@ export const MediaPage = observer(() => {
         open={uploadModalVisible}
         onOk={handleUpload}
         onCancel={() => {
-          setUploadModalVisible(false);
-          setFileList([]);
+          if (!uploading) {
+            setUploadModalVisible(false);
+            setFileList([]);
+          }
         }}
         confirmLoading={uploading}
         okText="Загрузить"
         cancelText="Отмена"
         width={600}
+        okButtonProps={{ disabled: uploading || fileList.length === 0 }}
+        cancelButtonProps={{ disabled: uploading }}
+        maskClosable={!uploading}
+        closable={!uploading}
       >
         <Upload.Dragger
           multiple
           fileList={fileList}
-          onChange={info => setFileList(info.fileList)}
+          onChange={info => {
+            if (!uploading) {
+              setFileList(info.fileList);
+            }
+          }}
           beforeUpload={() => false}
           className="mb-4"
+          disabled={uploading}
         >
           <p className="text-lg mb-2">Нажмите или перетащите файлы</p>
           <p className="text-sm text-muted-foreground">
@@ -393,4 +406,3 @@ export const MediaPage = observer(() => {
     </div>
   );
 });
-
