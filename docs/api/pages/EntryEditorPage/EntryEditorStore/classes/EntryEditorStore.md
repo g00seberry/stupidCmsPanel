@@ -4,7 +4,7 @@
 
 # Class: EntryEditorStore
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:48](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L48)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:58](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L58)
 
 Store для управления состоянием редактора записи.
 
@@ -12,11 +12,25 @@ Store для управления состоянием редактора зап
 
 ### Constructor
 
-> **new EntryEditorStore**(): `EntryEditorStore`
+> **new EntryEditorStore**(`postTypeSlug`, `entryId`): `EntryEditorStore`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:58](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L58)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:78](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L78)
 
 Создаёт экземпляр стора редактора записи.
+
+#### Parameters
+
+##### postTypeSlug
+
+`string`
+
+Slug типа контента (опционально).
+
+##### entryId
+
+`string`
+
+ID записи для редактирования (опционально).
 
 #### Returns
 
@@ -24,11 +38,27 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:58](https://github.co
 
 ## Properties
 
+### currentPostTypeSlug
+
+> **currentPostTypeSlug**: `string`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:65](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L65)
+
+***
+
+### entryId
+
+> **entryId**: `string`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:66](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L66)
+
+***
+
 ### formValues
 
 > **formValues**: [`FormValues`](../interfaces/FormValues.md) = `defaultFormValues`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L49)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L59)
 
 ***
 
@@ -36,15 +66,15 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:49](https://github.co
 
 > **initialLoading**: `boolean` = `false`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:50](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L50)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:60](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L60)
 
 ***
 
-### loadingTemplates
+### loading
 
-> **loadingTemplates**: `boolean` = `false`
+> **loading**: `boolean` = `false`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:53](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L53)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:63](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L63)
 
 ***
 
@@ -52,7 +82,61 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:53](https://github.co
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:51](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L51)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L61)
+
+***
+
+### postType
+
+> **postType**: \{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \} \| `null` = `null`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L64)
+
+#### Type Declaration
+
+\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}
+
+#### created\_at?
+
+> `optional` **created\_at**: `string`
+
+Дата создания в формате ISO 8601.
+
+#### name
+
+> **name**: `string`
+
+Отображаемое название типа контента.
+
+#### options\_json
+
+> **options\_json**: `object`
+
+Дополнительные настройки типа контента в формате JSON.
+
+##### Index Signature
+
+\[`key`: `string`\]: `unknown`
+
+##### options\_json.taxonomies
+
+> **taxonomies**: `string`[]
+
+Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии.
+
+#### slug
+
+> **slug**: `string`
+
+Уникальный идентификатор типа контента (URL-friendly строка).
+
+#### updated\_at?
+
+> `optional` **updated\_at**: `string`
+
+Дата последнего обновления в формате ISO 8601.
+
+`null`
 
 ***
 
@@ -60,7 +144,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:51](https://github.co
 
 > **templates**: `object`[] = `[]`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L52)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:62](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L62)
 
 #### exists
 
@@ -80,63 +164,51 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:52](https://github.co
 
 Путь к файлу шаблона.
 
+***
+
+### termsManagerStore
+
+> **termsManagerStore**: [`EntryTermsManagerStore`](../../../../components/EntryTermsManager/EntryTermsManagerStore/classes/EntryTermsManagerStore.md) \| `null` = `null`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:68](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L68)
+
+Store для управления термами записи. Создаётся только в режиме редактирования.
+
+## Accessors
+
+### isEditMode
+
+#### Get Signature
+
+> **get** **isEditMode**(): `boolean`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:70](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L70)
+
+##### Returns
+
+`boolean`
+
 ## Methods
 
-### loadEntry()
+### init()
 
-> **loadEntry**(`id`): `Promise`\<`void`\>
+> **init**(): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:123](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L123)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:130](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L130)
 
-Загружает данные записи для редактирования.
-
-#### Parameters
-
-##### id
-
-`number`
-
-ID записи.
+Инициализирует стор: загружает шаблоны, тип контента (если указан) и запись (если указан ID).
 
 #### Returns
 
 `Promise`\<`void`\>
-
-***
-
-### loadTemplates()
-
-> **loadTemplates**(): `Promise`\<`void`\>
-
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L105)
-
-Загружает список доступных шаблонов.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-***
-
-### resetForm()
-
-> **resetForm**(): `void`
-
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:98](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L98)
-
-Сбрасывает форму к значениям по умолчанию.
-
-#### Returns
-
-`void`
 
 ***
 
 ### saveEntry()
 
-> **saveEntry**(`values`, `isEditMode`, `entryId?`, `postType?`): `Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `number`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
+> **saveEntry**(`values`, `isEditMode`, `entryId?`, `postType?`): `Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:144](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L144)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:164](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L164)
 
 Сохраняет запись (создаёт новую или обновляет существующую).
 
@@ -156,7 +228,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:144](https://github.c
 
 ##### entryId?
 
-`number`
+`string`
 
 ID записи (для режима редактирования).
 
@@ -168,7 +240,7 @@ Slug типа контента (обязателен при создании).
 
 #### Returns
 
-`Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `number`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
+`Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
 Обновлённая запись.
 
@@ -178,45 +250,11 @@ Slug типа контента (обязателен при создании).
 
 ***
 
-### setFormField()
-
-> **setFormField**\<`K`\>(`field`, `value`): `void`
-
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:75](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L75)
-
-Устанавливает значение конкретного поля формы.
-
-#### Type Parameters
-
-##### K
-
-`K` *extends* keyof [`FormValues`](../interfaces/FormValues.md)
-
-#### Parameters
-
-##### field
-
-`K`
-
-Имя поля.
-
-##### value
-
-[`FormValues`](../interfaces/FormValues.md)\[`K`\]
-
-Новое значение поля.
-
-#### Returns
-
-`void`
-
-***
-
 ### setFormValues()
 
 > **setFormValues**(`values`): `void`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:66](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L66)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L105)
 
 Устанавливает значения формы.
 
@@ -234,11 +272,11 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:66](https://github.co
 
 ***
 
-### setInitialLoading()
+### setLoading()
 
-> **setInitialLoading**(`value`): `void`
+> **setLoading**(`value`): `void`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:83](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L83)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:113](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L113)
 
 Устанавливает флаг начальной загрузки.
 
@@ -260,7 +298,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:83](https://github.co
 
 > **setPending**(`value`): `void`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:91](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L91)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:121](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L121)
 
 Устанавливает флаг выполнения операции.
 
@@ -271,6 +309,84 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:91](https://github.co
 `boolean`
 
 Новое значение флага.
+
+#### Returns
+
+`void`
+
+***
+
+### setPostType()
+
+> **setPostType**(`postType`): `void`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:89](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L89)
+
+Устанавливает тип контента.
+
+#### Parameters
+
+##### postType
+
+Тип контента.
+
+###### created_at?
+
+`string` = `...`
+
+Дата создания в формате ISO 8601.
+
+###### name
+
+`string` = `...`
+
+Отображаемое название типа контента.
+
+###### options_json
+
+\{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \} = `...`
+
+Дополнительные настройки типа контента в формате JSON.
+
+###### options_json.taxonomies
+
+`string`[] = `...`
+
+Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии.
+
+###### slug
+
+`string` = `...`
+
+Уникальный идентификатор типа контента (URL-friendly строка).
+
+###### updated_at?
+
+`string` = `...`
+
+Дата последнего обновления в формате ISO 8601.
+
+#### Returns
+
+`void`
+
+***
+
+### setTemplates()
+
+> **setTemplates**(`templates`): `void`
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:97](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntryEditorPage/EntryEditorStore.ts#L97)
+
+Устанавливает шаблоны.
+
+#### Parameters
+
+##### templates
+
+`object`[]
+
+Шаблоны.
 
 #### Returns
 

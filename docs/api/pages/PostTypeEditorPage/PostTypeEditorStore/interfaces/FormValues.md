@@ -4,7 +4,7 @@
 
 # Interface: FormValues
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L10)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L16)
 
 Значения формы редактора типа контента.
 
@@ -14,7 +14,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:10](https://git
 
 > `readonly` **name**: `string`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L11)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L17)
 
 ***
 
@@ -22,4 +22,12 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:11](https://git
 
 > `readonly` **slug**: `string`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L12)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L18)
+
+***
+
+### taxonomies
+
+> `readonly` **taxonomies**: `string`[]
+
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L19)

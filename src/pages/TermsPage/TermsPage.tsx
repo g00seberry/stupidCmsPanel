@@ -15,16 +15,17 @@ import { TermsListStore } from './TermsListStore';
 /**
  * Находит термин в дереве по ID.
  * @param tree Дерево терминов.
- * @param termId ID термина для поиска.
+ * @param termId ID термина для поиска (строка или число).
  * @returns Найденный термин или null.
  */
-const findTermInTree = (tree: ZTermTree[], termId: number): ZTermTree | null => {
+const findTermInTree = (tree: ZTermTree[], termId: string | number): ZTermTree | null => {
+  const termIdStr = String(termId);
   for (const node of tree) {
-    if (node.id === termId) {
+    if (String(node.id) === termIdStr) {
       return node;
     }
     if (node.children && node.children.length > 0) {
-      const found = findTermInTree(node.children, termId);
+      const found = findTermInTree(node.children, termIdStr);
       if (found) {
         return found;
       }
@@ -57,7 +58,12 @@ const convertTermsTreeToTreeData = (
             <code className="text-xs text-muted-foreground truncate">ID: {node.id}</code>
           </div>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: String(node.id) })}>
+            <Link
+              to={buildUrl(PageUrl.TermEdit, {
+                taxonomyId: String(taxonomyId),
+                id: String(node.id),
+              })}
+            >
               <Button type="text" size="small" icon={<Edit className="w-3 h-3" />} />
             </Link>
             <Button
@@ -172,8 +178,8 @@ export const TermsPage = observer(() => {
       dropToGap: boolean;
     }): Promise<void> => {
       const { dragNode, node, dropToGap } = info;
-      const draggedTermId = Number(dragNode.key);
-      const targetNodeKey = node.key;
+      const draggedTermId = String(dragNode.key);
+      const targetNodeKey = String(node.key);
 
       // Находим перетаскиваемый термин в исходном дереве
       const draggedTerm = findTermInTree(store.termsTree, draggedTermId);
@@ -183,17 +189,15 @@ export const TermsPage = observer(() => {
       }
 
       // Определяем новый parent_id
-      let newParentId: number | null = null;
+      let newParentId: string | null = null;
 
       if (dropToGap) {
         // Перетаскивание в промежуток между узлами - остаёмся на том же уровне, что и целевой узел
-        const targetTermId = Number(targetNodeKey);
-        const targetTerm = findTermInTree(store.termsTree, targetTermId);
+        const targetTerm = findTermInTree(store.termsTree, targetNodeKey);
         newParentId = targetTerm?.parent_id ?? null;
       } else {
         // Перетаскивание внутрь узла - родитель = этот узел
-        const targetTermId = Number(targetNodeKey);
-        newParentId = targetTermId;
+        newParentId = targetNodeKey;
       }
 
       // Проверяем, изменился ли parent_id
@@ -203,16 +207,16 @@ export const TermsPage = observer(() => {
 
       // Предотвращаем перемещение узла в самого себя или в свой дочерний узел
       if (newParentId !== null) {
-        const checkIsDescendant = (parentId: number, childId: number): boolean => {
+        const checkIsDescendant = (parentId: string, childId: string): boolean => {
           const parent = findTermInTree(store.termsTree, parentId);
           if (!parent || !parent.children) {
             return false;
           }
           for (const child of parent.children) {
-            if (child.id === childId) {
+            if (String(child.id) === childId) {
               return true;
             }
-            if (checkIsDescendant(child.id, childId)) {
+            if (checkIsDescendant(String(child.id), childId)) {
               return true;
             }
           }
@@ -245,7 +249,7 @@ export const TermsPage = observer(() => {
         onError(error);
       }
     },
-    [store, taxonomyId, findTermInTree]
+    [store, taxonomyId]
   );
 
   if (!taxonomyId || Number.isNaN(taxonomyId)) {
@@ -283,7 +287,9 @@ export const TermsPage = observer(() => {
                 <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
               </Link>
               {taxonomyId && !Number.isNaN(taxonomyId) && (
-                <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: 'new' })}>
+                <Link
+                  to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: 'new' })}
+                >
                   <Button type="primary" icon={<Plus className="w-4 h-4" />}>
                     Создать термин
                   </Button>

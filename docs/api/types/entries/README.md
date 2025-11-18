@@ -12,6 +12,9 @@
 - [ZEntry](type-aliases/ZEntry.md)
 - [ZEntryPayload](type-aliases/ZEntryPayload.md)
 - [ZEntryResponse](type-aliases/ZEntryResponse.md)
+- [ZEntryTermsData](type-aliases/ZEntryTermsData.md)
+- [ZEntryTermsPayload](type-aliases/ZEntryTermsPayload.md)
+- [ZEntryTermsResponse](type-aliases/ZEntryTermsResponse.md)
 
 ## Variables
 
@@ -20,3 +23,6 @@
 - [zEntry](variables/zEntry.md)
 - [zEntryPayload](variables/zEntryPayload.md)
 - [zEntryResponse](variables/zEntryResponse.md)
+- [zEntryTermsData](variables/zEntryTermsData.md)
+- [zEntryTermsPayload](variables/zEntryTermsPayload.md)
+- [zEntryTermsResponse](variables/zEntryTermsResponse.md)

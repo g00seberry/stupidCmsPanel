@@ -17,8 +17,9 @@
 | `/seo` | `-` |
 | `/settings` | `-` |
 | `/taxonomies` | `TaxonomiesPage` |
-| `/taxonomies/:slug` | `TaxonomiesEditorPage` |
-| `/taxonomies/:taxonomy/terms` | `-` |
+| `/taxonomies/:id` | `TaxonomiesEditorPage` |
+| `/taxonomies/:taxonomyId/terms/:id` | `TermEditorPage` |
+| `/taxonomies/:taxonomyId/terms` | `TermsPage` |
 | `article` | `-` |
 
 ## Структура файлов
@@ -30,6 +31,7 @@
 
 ### EntryEditorPage
 
+- `EntryEditorHeader.tsx`
 - `EntryEditorPage.tsx`
 - `EntryEditorStore.ts`
 
@@ -54,4 +56,14 @@
 ### TaxonomiesPage
 
 - `TaxonomiesPage.tsx`
+
+### TermEditorPage
+
+- `TermEditorPage.tsx`
+- `TermEditorStore.ts`
+
+### TermsPage
+
+- `TermsListStore.ts`
+- `TermsPage.tsx`
 

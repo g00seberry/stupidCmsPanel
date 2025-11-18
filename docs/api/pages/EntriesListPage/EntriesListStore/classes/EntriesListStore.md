@@ -4,7 +4,7 @@
 
 # Class: EntriesListStore
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L12)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L12)
 
 Store для управления состоянием списка записей CMS.
 Обеспечивает загрузку, фильтрацию и пагинацию записей.
@@ -15,7 +15,7 @@ Store для управления состоянием списка записе
 
 > **new EntriesListStore**(): `EntriesListStore`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:22](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L22)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:22](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L22)
 
 #### Returns
 
@@ -27,7 +27,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:22](https://github.co
 
 > **statuses**: `string`[] = `[]`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L17)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L17)
 
 Массив возможных статусов записей.
 
@@ -37,7 +37,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:17](https://github.co
 
 > **statusesPending**: `boolean` = `false`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L20)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L20)
 
 Флаг выполнения запроса загрузки статусов.
 
@@ -49,7 +49,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:20](https://github.co
 
 > **get** **entries**(): `object`[]
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:34](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L34)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:34](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L34)
 
 Массив загруженных записей.
 
@@ -63,7 +63,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:34](https://github.co
 
 > **get** **filters**(): [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L59)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L59)
 
 Текущие параметры фильтрации.
 
@@ -79,7 +79,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:59](https://github.co
 
 > **get** **initialLoading**(): `boolean`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L54)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L54)
 
 Флаг начальной загрузки данных.
 
@@ -93,15 +93,15 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:54](https://github.co
 
 #### Get Signature
 
-> **get** **paginatedLoader**(): [`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `number`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
+> **get** **paginatedLoader**(): [`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L64)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L64)
 
 Универсальный загрузчик пагинированных данных.
 
 ##### Returns
 
-[`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `number`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
+[`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
 
 ***
 
@@ -111,7 +111,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:64](https://github.co
 
 > **get** **paginationLinks**(): \{ `first`: `string` \| `null`; `last`: `string` \| `null`; `next`: `string` \| `null`; `prev`: `string` \| `null`; \} \| `null`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L44)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L44)
 
 Ссылки пагинации.
 
@@ -153,7 +153,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:44](https://github.co
 
 > **get** **paginationMeta**(): \{ `current_page`: `number`; `last_page`: `number`; `per_page`: `number`; `total`: `number`; \} \| `null`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L39)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L39)
 
 Метаданные пагинации.
 
@@ -195,7 +195,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:39](https://github.co
 
 > **get** **pending**(): `boolean`
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L49)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L49)
 
 Флаг выполнения запроса загрузки.
 
@@ -209,7 +209,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:49](https://github.co
 
 > **goToPage**(`page`, `postType?`): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:98](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L98)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:98](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L98)
 
 Переходит на указанную страницу.
 
@@ -237,7 +237,7 @@ Slug типа контента для фильтрации.
 
 > **initialize**(`postType?`): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:124](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L124)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:124](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L124)
 
 Инициализирует загрузку данных при первом открытии страницы.
 
@@ -259,7 +259,7 @@ Slug типа контента для фильтрации.
 
 > **loadEntries**(`postType?`): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:72](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L72)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:72](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L72)
 
 Загружает список записей с текущими фильтрами.
 
@@ -281,7 +281,7 @@ Slug типа контента для фильтрации.
 
 > **loadStatuses**(): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:138](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L138)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:138](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L138)
 
 Загружает список возможных статусов для записей.
 
@@ -295,7 +295,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:138](https://github.c
 
 > **resetFilters**(`postType?`): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:110](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L110)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:110](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L110)
 
 Сбрасывает фильтры к значениям по умолчанию.
 
@@ -317,7 +317,7 @@ Slug типа контента для фильтрации.
 
 > **setFilters**(`filters`, `postType?`): `Promise`\<`void`\>
 
-Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntriesListPage/EntriesListStore.ts#L85)
+Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/EntriesListPage/EntriesListStore.ts#L85)
 
 Устанавливает фильтры и перезагружает данные.
 

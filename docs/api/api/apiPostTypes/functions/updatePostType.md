@@ -4,9 +4,9 @@
 
 # Function: updatePostType()
 
-> **updatePostType**(`slug`, `payload`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \}\>
+> **updatePostType**(`slug`, `payload`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}\>
 
-Defined in: [src/api/apiPostTypes.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiPostTypes.ts#L54)
+Defined in: [src/api/apiPostTypes.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiPostTypes.ts#L54)
 
 Обновляет существующий тип контента.
 
@@ -30,9 +30,15 @@ Defined in: [src/api/apiPostTypes.ts:54](https://github.com/g00seberry/stupidCms
 
 #### options_json
 
-`Record`\<`string`, `unknown`\> = `...`
+\{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \} = `...`
 
 Дополнительные настройки в формате JSON. По умолчанию пустой объект.
+
+#### options_json.taxonomies
+
+`string`[] = `...`
+
+Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии.
 
 #### slug
 
@@ -42,6 +48,6 @@ Defined in: [src/api/apiPostTypes.ts:54](https://github.com/g00seberry/stupidCms
 
 ## Returns
 
-`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \}\>
+`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}\>
 
 Обновлённый тип контента.

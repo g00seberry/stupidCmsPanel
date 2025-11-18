@@ -6,7 +6,7 @@
 
 > **ListTaxonomiesParams** = `object`
 
-Defined in: [src/api/apiTaxonomies.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L10)
+Defined in: [src/api/apiTaxonomies.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiTaxonomies.ts#L11)
 
 Параметры запроса списка таксономий.
 
@@ -16,7 +16,7 @@ Defined in: [src/api/apiTaxonomies.ts:10](https://github.com/g00seberry/stupidCm
 
 > `optional` **per\_page**: `number`
 
-Defined in: [src/api/apiTaxonomies.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L16)
+Defined in: [src/api/apiTaxonomies.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiTaxonomies.ts#L17)
 
 Размер страницы (10-100). Default: 15.
 
@@ -26,9 +26,9 @@ Defined in: [src/api/apiTaxonomies.ts:16](https://github.com/g00seberry/stupidCm
 
 > `optional` **q**: `string`
 
-Defined in: [src/api/apiTaxonomies.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L12)
+Defined in: [src/api/apiTaxonomies.ts:13](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiTaxonomies.ts#L13)
 
-Поиск по slug/label.
+Поиск по label.
 
 ***
 
@@ -36,6 +36,6 @@ Defined in: [src/api/apiTaxonomies.ts:12](https://github.com/g00seberry/stupidCm
 
 > `optional` **sort**: `string`
 
-Defined in: [src/api/apiTaxonomies.ts:14](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L14)
+Defined in: [src/api/apiTaxonomies.ts:15](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiTaxonomies.ts#L15)
 
-Сортировка. Values: created_at.desc,created_at.asc,slug.asc,slug.desc,label.asc,label.desc. Default: created_at.desc.
+Сортировка. Values: created_at.desc,created_at.asc,label.asc,label.desc. Default: created_at.desc.

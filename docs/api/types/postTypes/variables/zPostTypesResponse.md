@@ -4,8 +4,8 @@
 
 # Variable: zPostTypesResponse
 
-> `const` **zPostTypesResponse**: `ZodObject`\<\{ `data`: `ZodArray`\<`ZodObject`\<\{ `created_at`: `ZodOptional`\<`ZodString`\>; `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodRecord`\<`ZodString`, `ZodUnknown`\>\>; `slug`: `ZodString`; `updated_at`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>\>; \}, `$strip`\>
+> `const` **zPostTypesResponse**: `ZodObject`\<\{ `data`: `ZodArray`\<`ZodObject`\<\{ `created_at`: `ZodOptional`\<`ZodString`\>; `name`: `ZodString`; `options_json`: `ZodDefault`\<`ZodObject`\<\{ `taxonomies`: `ZodDefault`\<`ZodOptional`\<`ZodArray`\<...\>\>\>; \}, `$catchall`\<`ZodUnknown`\>\>\>; `slug`: `ZodString`; `updated_at`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>\>; \}, `$strip`\>
 
-Defined in: [src/types/postTypes.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/postTypes.ts#L61)
+Defined in: [src/types/postTypes.ts:83](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/postTypes.ts#L83)
 
 Ответ API со списком типов контента.

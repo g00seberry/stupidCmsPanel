@@ -4,7 +4,7 @@
 
 # Class: PostTypeEditorStore
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:35](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L35)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L44)
 
 Store для управления состоянием редактора типа контента.
 
@@ -14,7 +14,7 @@ Store для управления состоянием редактора тип
 
 > **new PostTypeEditorStore**(): `PostTypeEditorStore`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L44)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L55)
 
 Создаёт экземпляр стора редактора типа контента.
 
@@ -24,11 +24,67 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:44](https://git
 
 ## Properties
 
+### currentPostType
+
+> **currentPostType**: \{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \} \| `null` = `null`
+
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:50](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L50)
+
+Текущий тип контента, загруженный из API.
+
+#### Type Declaration
+
+\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}
+
+#### created\_at?
+
+> `optional` **created\_at**: `string`
+
+Дата создания в формате ISO 8601.
+
+#### name
+
+> **name**: `string`
+
+Отображаемое название типа контента.
+
+#### options\_json
+
+> **options\_json**: `object`
+
+Дополнительные настройки типа контента в формате JSON.
+
+##### Index Signature
+
+\[`key`: `string`\]: `unknown`
+
+##### options\_json.taxonomies
+
+> **taxonomies**: `string`[]
+
+Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии.
+
+#### slug
+
+> **slug**: `string`
+
+Уникальный идентификатор типа контента (URL-friendly строка).
+
+#### updated\_at?
+
+> `optional` **updated\_at**: `string`
+
+Дата последнего обновления в формате ISO 8601.
+
+`null`
+
+***
+
 ### formValues
 
 > **formValues**: [`FormValues`](../interfaces/FormValues.md) = `defaultFormValues`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L36)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:45](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L45)
 
 ***
 
@@ -36,7 +92,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:36](https://git
 
 > **initialLoading**: `boolean` = `false`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L37)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:46](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L46)
 
 ***
 
@@ -44,7 +100,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:37](https://git
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L38)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:47](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L47)
 
 ***
 
@@ -52,7 +108,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:38](https://git
 
 > **slugManuallyEdited**: `boolean` = `false`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L39)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:48](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L48)
 
 ## Methods
 
@@ -60,7 +116,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:39](https://git
 
 > **deletePostType**(`slug`, `force`): `Promise`\<`boolean`\>
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:148](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L148)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:177](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L177)
 
 Удаляет тип контента.
 
@@ -94,7 +150,7 @@ Slug типа контента для удаления.
 
 > **loadPostType**(`slug`): `Promise`\<`void`\>
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:93](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L93)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:104](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L104)
 
 Загружает данные типа контента для редактирования.
 
@@ -112,25 +168,11 @@ Slug типа контента.
 
 ***
 
-### resetForm()
-
-> **resetForm**(): `void`
-
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:84](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L84)
-
-Сбрасывает форму к значениям по умолчанию.
-
-#### Returns
-
-`void`
-
-***
-
 ### savePostType()
 
-> **savePostType**(`values`, `isEditMode`, `currentSlug?`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \} \| `null`\>
+> **savePostType**(`values`, `isEditMode`, `currentSlug?`): `Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:112](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L112)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:143](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L143)
 
 Сохраняет тип контента (создаёт новый или обновляет существующий).
 
@@ -139,6 +181,8 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:112](https://gi
 ##### values
 
 [`FormValues`](../interfaces/FormValues.md)
+
+Значения формы.
 
 ##### isEditMode
 
@@ -154,7 +198,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:112](https://gi
 
 #### Returns
 
-`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: `Record`\<`string`, `unknown`\>; `slug`: `string`; `updated_at?`: `string`; \} \| `null`\>
+`Promise`\<\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
 Обновлённый тип контента.
 
@@ -164,11 +208,73 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:112](https://gi
 
 ***
 
+### setCurrentPostType()
+
+> **setCurrentPostType**(`postType`): `void`
+
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:96](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L96)
+
+Устанавливает текущий тип контента.
+
+#### Parameters
+
+##### postType
+
+Тип контента для установки.
+
+\{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}
+
+Тип контента для установки.
+
+###### created_at?
+
+`string` = `...`
+
+Дата создания в формате ISO 8601.
+
+###### name
+
+`string` = `...`
+
+Отображаемое название типа контента.
+
+###### options_json
+
+\{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \} = `...`
+
+Дополнительные настройки типа контента в формате JSON.
+
+###### options_json.taxonomies
+
+`string`[] = `...`
+
+Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии.
+
+###### slug
+
+`string` = `...`
+
+Уникальный идентификатор типа контента (URL-friendly строка).
+
+###### updated_at?
+
+`string` = `...`
+
+Дата последнего обновления в формате ISO 8601.
+
+| `null`
+
+#### Returns
+
+`void`
+
+***
+
 ### setFormField()
 
 > **setFormField**\<`K`\>(`field`, `value`): `void`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L61)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:72](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L72)
 
 Устанавливает значение конкретного поля формы.
 
@@ -202,7 +308,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:61](https://git
 
 > **setFormValues**(`values`): `void`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L52)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:63](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L63)
 
 Устанавливает значения формы.
 
@@ -224,7 +330,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:52](https://git
 
 > **setInitialLoading**(`value`): `void`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:69](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L69)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:80](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L80)
 
 Устанавливает флаг начальной загрузки.
 
@@ -246,7 +352,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:69](https://git
 
 > **setPending**(`value`): `void`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L77)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:88](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L88)
 
 Устанавливает флаг выполнения операции.
 
