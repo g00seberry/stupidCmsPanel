@@ -3,7 +3,6 @@ import {
   zMediaResponse,
   zMediaListResponse,
   zMediaConfigResponse,
-  zMediaUploadPayload,
   zMediaUpdatePayload,
   zMediaBulkPayload,
   zMediaArrayResponse,
@@ -11,7 +10,6 @@ import {
 import type {
   ZMedia,
   ZMediaListParams,
-  ZMediaUploadPayload,
   ZMediaUpdatePayload,
   ZMediaConfig,
   ZMediaBulkPayload,
@@ -165,47 +163,39 @@ export const getMedia = async (id: string): Promise<ZMedia> => {
 };
 
 /**
- * Загружает новый медиа-файл на сервер.
- * @param file Файл для загрузки.
- * @param payload Дополнительные метаданные (title, alt, collection).
- * @returns Созданный медиа-файл.
- * @throws {Error} Если файл не соответствует ограничениям (размер, тип), нет авторизации (401), ошибка валидации (422) или превышен лимит запросов (429).
+ * Загружает массив медиа-файлов на сервер одним запросом.
+ * @param files Массив файлов для загрузки (1-50 файлов).
+ * @returns Массив созданных медиа-файлов.
+ * @throws {Error} Если массив файлов пуст или содержит более 50 файлов, файлы не соответствуют ограничениям (размер, тип), нет авторизации (401), ошибка валидации (422) или превышен лимит запросов (429).
  * @example
- * const file = new File(['content'], 'image.jpg', { type: 'image/jpeg' });
- * const media = await uploadMedia(file, {
- *   title: 'Hero image',
- *   alt: 'Hero cover',
- *   collection: 'uploads'
- * });
- * console.log(media.id); // '01HXZYXQJ123456789ABCDEF'
+ * const files = [
+ *   new File(['content1'], 'image1.jpg', { type: 'image/jpeg' }),
+ *   new File(['content2'], 'image2.png', { type: 'image/png' })
+ * ];
+ * const mediaArray = await bulkUploadMedia(files);
+ * console.log(mediaArray.length); // 2
+ * console.log(mediaArray[0].id); // '01HXZYXQJ123456789ABCDEF'
  */
-export const uploadMedia = async (
-  file: File,
-  payload: ZMediaUploadPayload = {}
-): Promise<ZMedia> => {
-  const parsedPayload = zMediaUploadPayload.parse(payload);
+export const bulkUploadMedia = async (files: File[]): Promise<ZMedia[]> => {
+  if (files.length === 0) {
+    throw new Error('Массив файлов не может быть пустым');
+  }
+  if (files.length > 50) {
+    throw new Error('Максимальное количество файлов для загрузки: 50');
+  }
+
   const formData = new FormData();
-  formData.append('file', file);
+  files.forEach(file => {
+    formData.append('files[]', file);
+  });
 
-  if (parsedPayload.title) {
-    formData.append('title', parsedPayload.title);
-  }
-
-  if (parsedPayload.alt) {
-    formData.append('alt', parsedPayload.alt);
-  }
-
-  if (parsedPayload.collection) {
-    formData.append('collection', parsedPayload.collection);
-  }
-
-  const response = await rest.post(getAdminMediaUrl(''), formData, {
+  const response = await rest.post(getAdminMediaUrl('/bulk'), formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
-  const parsed = zMediaResponse.parse(response.data);
-  return normalizeMedia(parsed.data);
+  const parsed = zMediaArrayResponse.parse(response.data);
+  return parsed.data.map(normalizeMedia);
 };
 
 /**

@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Upload, Button, Progress, App } from 'antd';
 import { UploadOutlined, InboxOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd/es/upload';
-import { uploadMedia } from '@/api/apiMedia';
+import { bulkUploadMedia } from '@/api/apiMedia';
 import { onError } from '@/utils/onError';
 import { formatFileSize } from '@/utils/fileUtils';
 import type { ZMedia, ZMediaConfig } from '@/types/media';
@@ -22,6 +22,8 @@ export type PropsMediaUpload = {
   onError?: (error: Error, file: File) => void;
   /** Обработчик завершения всех загрузок (когда все файлы завершены - успешно или с ошибкой). */
   onAllComplete?: () => void;
+  /** Обработчик изменения состояния загрузки. Вызывается при начале/завершении загрузки. */
+  onUploadingChange?: (isUploading: boolean) => void;
   /** Флаг отключения компонента. */
   disabled?: boolean;
   /** Режим отображения: 'button' (кнопка) или 'dragger' (drag-and-drop). По умолчанию: 'dragger'. */
@@ -34,26 +36,27 @@ export type PropsMediaUpload = {
 type FileUploadState = {
   file: File;
   progress: number;
-  status: 'uploading' | 'success' | 'error';
+  status: 'pending' | 'uploading' | 'success' | 'error';
   media?: ZMedia;
   error?: string;
 };
 
 /**
  * Компонент загрузки медиа-файлов.
- * Поддерживает drag-and-drop, множественную загрузку, валидацию и отображение прогресса.
+ * Поддерживает выбор файлов и загрузку по кнопке.
  */
 export const MediaUpload: React.FC<PropsMediaUpload> = ({
   config,
   onSuccess,
   onError: onErrorCallback,
   onAllComplete,
+  onUploadingChange,
   disabled = false,
   mode = 'dragger',
 }) => {
   const { message } = App.useApp();
   const [uploadStates, setUploadStates] = useState<Map<string, FileUploadState>>(new Map());
-  const allCompleteCalledRef = useRef(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   /**
    * Валидирует файл перед загрузкой.
@@ -63,12 +66,10 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
       return 'Конфигурация не загружена';
     }
 
-    // Проверка типа файла
     if (!config.allowed_mimes.includes(file.type)) {
       return `Тип файла ${file.type} не разрешен. Разрешенные типы: ${config.allowed_mimes.join(', ')}`;
     }
 
-    // Проверка размера (конвертируем MB в байты)
     const maxSizeBytes = config.max_upload_mb * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       return `Размер файла ${formatFileSize(file.size)} превышает максимальный ${formatFileSize(maxSizeBytes)}`;
@@ -78,79 +79,173 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
   };
 
   /**
-   * Обрабатывает загрузку файла.
+   * Загружает все выбранные файлы.
    */
-  const handleUpload = async (file: File): Promise<void> => {
-    const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+  const handleStartUpload = async (): Promise<void> => {
+    const pendingFiles = Array.from(uploadStates.values())
+      .filter(state => state.status === 'pending')
+      .map(state => state.file);
 
-    // Валидация
-    const validationError = validateFile(file);
-    if (validationError) {
-      setUploadStates(prev => {
-        const next = new Map(prev);
-        next.set(fileId, {
-          file,
-          progress: 0,
-          status: 'error',
-          error: validationError,
-        });
-        return next;
-      });
-      message.error(validationError);
-      onErrorCallback?.(new Error(validationError), file);
+    if (pendingFiles.length === 0) {
       return;
     }
 
-    // Начало загрузки
-    setUploadStates(prev => {
-      const next = new Map(prev);
-      next.set(fileId, {
-        file,
-        progress: 0,
-        status: 'uploading',
-      });
-      return next;
+    setIsUploading(true);
+    onUploadingChange?.(true);
+
+    // Разделяем файлы на валидные и невалидные
+    const validFiles: File[] = [];
+    const invalidFiles: Array<{ file: File; error: string }> = [];
+
+    pendingFiles.forEach(file => {
+      const validationError = validateFile(file);
+      if (validationError) {
+        invalidFiles.push({ file, error: validationError });
+      } else {
+        validFiles.push(file);
+      }
     });
 
-    try {
-      const media = await uploadMedia(file, {});
-
-      setUploadStates(prev => {
-        const next = new Map(prev);
-        next.set(fileId, {
-          file,
-          progress: 100,
-          status: 'success',
-          media,
-        });
-        return next;
-      });
-
-      message.success(`Файл ${file.name} успешно загружен`);
-      onSuccess?.(media);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки файла';
+    // Обрабатываем невалидные файлы
+    invalidFiles.forEach(({ file, error }) => {
+      const fileId = `${file.name}-${file.size}-${file.lastModified}`;
       setUploadStates(prev => {
         const next = new Map(prev);
         next.set(fileId, {
           file,
           progress: 0,
           status: 'error',
-          error: errorMessage,
+          error,
         });
         return next;
       });
-      onError(error);
-      onErrorCallback?.(error instanceof Error ? error : new Error(errorMessage), file);
+      message.error(`${file.name}: ${error}`);
+      onErrorCallback?.(new Error(error), file);
+    });
+
+    if (validFiles.length === 0) {
+      setIsUploading(false);
+      onUploadingChange?.(false);
+      onAllComplete?.();
+      return;
     }
+
+    // Устанавливаем статус uploading для всех валидных файлов
+    validFiles.forEach(file => {
+      const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+      setUploadStates(prev => {
+        const next = new Map(prev);
+        const existingState = next.get(fileId);
+        if (existingState) {
+          next.set(fileId, {
+            ...existingState,
+            status: 'uploading',
+          });
+        }
+        return next;
+      });
+    });
+
+    // Загружаем файлы батчами по 50
+    const batchSize = 50;
+    for (let i = 0; i < validFiles.length; i += batchSize) {
+      const batch = validFiles.slice(i, i + batchSize);
+      try {
+        const mediaArray = await bulkUploadMedia(batch);
+
+        batch.forEach((file, index) => {
+          const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+          let media: ZMedia | undefined;
+
+          if (index < mediaArray.length) {
+            const mediaByIndex = mediaArray[index];
+            if (mediaByIndex.name === file.name) {
+              media = mediaByIndex;
+            }
+          }
+
+          if (!media) {
+            media = mediaArray.find(m => m.name === file.name);
+          }
+
+          if (media) {
+            setUploadStates(prev => {
+              const next = new Map(prev);
+              next.set(fileId, {
+                file,
+                progress: 100,
+                status: 'success',
+                media,
+              });
+              return next;
+            });
+            onSuccess?.(media);
+          } else {
+            setUploadStates(prev => {
+              const next = new Map(prev);
+              next.set(fileId, {
+                file,
+                progress: 0,
+                status: 'error',
+                error: 'Файл не был загружен',
+              });
+              return next;
+            });
+            onErrorCallback?.(new Error('Файл не был загружен'), file);
+          }
+        });
+
+        message.success(`Загружено файлов: ${batch.length}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки файлов';
+        batch.forEach(file => {
+          const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+          setUploadStates(prev => {
+            const next = new Map(prev);
+            next.set(fileId, {
+              file,
+              progress: 0,
+              status: 'error',
+              error: errorMessage,
+            });
+            return next;
+          });
+          onErrorCallback?.(error instanceof Error ? error : new Error(errorMessage), file);
+        });
+        onError(error);
+      }
+    }
+
+    setIsUploading(false);
+    onUploadingChange?.(false);
+    onAllComplete?.();
   };
 
   /**
-   * Отслеживает завершение всех загрузок и вызывает onAllComplete, когда все файлы завершены.
+   * Обрабатывает добавление файла в список.
+   */
+  const handleFileAdd = (file: File): void => {
+    const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+
+    setUploadStates(prev => {
+      const next = new Map(prev);
+      if (!next.has(fileId)) {
+        next.set(fileId, {
+          file,
+          progress: 0,
+          status: 'pending',
+        });
+      }
+      return next;
+    });
+  };
+
+  /**
+   * Отслеживает завершение всех загрузок.
    */
   useEffect(() => {
     if (uploadStates.size === 0) {
-      allCompleteCalledRef.current = false;
+      onUploadingChange?.(false);
       return;
     }
 
@@ -158,15 +253,8 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
       state => state.status === 'uploading'
     );
 
-    if (!hasActiveUploads && !allCompleteCalledRef.current) {
-      // Все загрузки завершены (успешно или с ошибкой)
-      allCompleteCalledRef.current = true;
-      onAllComplete?.();
-    } else if (hasActiveUploads) {
-      // Есть активные загрузки, сбрасываем флаг
-      allCompleteCalledRef.current = false;
-    }
-  }, [uploadStates, onAllComplete]);
+    onUploadingChange?.(hasActiveUploads);
+  }, [uploadStates, onUploadingChange]);
 
   /**
    * Обработчик изменения файлов в Upload компоненте.
@@ -184,11 +272,11 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
   };
 
   /**
-   * Обработчик перед загрузкой - обрабатывает файлы вручную и предотвращает автоматическую загрузку.
+   * Обработчик перед загрузкой - добавляет файлы в список и предотвращает автоматическую загрузку.
    */
   const beforeUpload = (file: File): boolean => {
-    void handleUpload(file);
-    return false; // Предотвращаем автоматическую загрузку
+    handleFileAdd(file);
+    return false;
   };
 
   /**
@@ -199,10 +287,23 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
       uid: `${state.file.name}-${state.file.size}-${state.file.lastModified}`,
       name: state.file.name,
       status:
-        state.status === 'uploading' ? 'uploading' : state.status === 'success' ? 'done' : 'error',
+        state.status === 'uploading'
+          ? 'uploading'
+          : state.status === 'success'
+            ? 'done'
+            : state.status === 'error'
+              ? 'error'
+              : undefined,
       percent: state.progress,
       error: state.error,
     }));
+  }, [uploadStates]);
+
+  /**
+   * Проверяет наличие файлов в статусе pending.
+   */
+  const hasPendingFiles = useMemo(() => {
+    return Array.from(uploadStates.values()).some(state => state.status === 'pending');
   }, [uploadStates]);
 
   const uploadProps: UploadProps = {
@@ -217,13 +318,13 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
 
   return (
     <div className="space-y-4">
-      {/* Компонент загрузки */}
+      {/* Компонент выбора файлов */}
       {mode === 'dragger' ? (
         <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">Нажмите или перетащите файлы для загрузки</p>
+          <p className="ant-upload-text">Нажмите или перетащите файлы для выбора</p>
           <p className="ant-upload-hint">
             Поддерживаются файлы до{' '}
             {config ? formatFileSize(config.max_upload_mb * 1024 * 1024) : 'неизвестного размера'}
@@ -237,7 +338,20 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
         </Upload>
       )}
 
-      {/* Список загружаемых файлов с прогрессом */}
+      {/* Кнопка загрузки */}
+      {hasPendingFiles && (
+        <Button
+          type="primary"
+          onClick={handleStartUpload}
+          disabled={disabled || isUploading}
+          loading={isUploading}
+          block
+        >
+          {isUploading ? 'Загрузка...' : 'Загрузить'}
+        </Button>
+      )}
+
+      {/* Список выбранных файлов с прогрессом */}
       {uploadStates.size > 0 && (
         <div className="space-y-2">
           {Array.from(uploadStates.entries()).map(([fileId, state]) => (
@@ -246,7 +360,8 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
               className={joinClassNames(
                 'p-3 border rounded',
                 state.status === 'error' && 'border-red-500 bg-red-50',
-                state.status === 'success' && 'border-green-500 bg-green-50'
+                state.status === 'success' && 'border-green-500 bg-green-50',
+                state.status === 'pending' && 'border-gray-300 bg-gray-50'
               )}
             >
               <div className="flex items-center justify-between mb-2">
@@ -261,6 +376,9 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
               )}
               {state.status === 'error' && state.error && (
                 <div className="text-sm text-red-600">{state.error}</div>
+              )}
+              {state.status === 'pending' && (
+                <div className="text-sm text-gray-500">Ожидает загрузки</div>
               )}
             </div>
           ))}

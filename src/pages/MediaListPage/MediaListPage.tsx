@@ -54,6 +54,7 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   const navigate = useNavigate();
   const { modal, message } = App.useApp();
   const [uploadVisible, setUploadVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   /**
    * Обрабатывает изменение страницы пагинации.
@@ -102,6 +103,33 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   const handleAllUploadsComplete = () => {
     // Закрываем окно только после завершения всех загрузок
     setUploadVisible(false);
+  };
+
+  /**
+   * Обрабатывает изменение состояния загрузки.
+   */
+  const handleUploadingChange = (uploading: boolean) => {
+    setIsUploading(uploading);
+  };
+
+  /**
+   * Обрабатывает попытку закрытия модального окна.
+   * Показывает предупреждение, если идет загрузка.
+   */
+  const handleModalCancel = () => {
+    if (isUploading) {
+      modal.confirm({
+        title: 'Идет загрузка файлов',
+        content: 'Вы уверены, что хотите закрыть окно? Загрузка будет прервана.',
+        okText: 'Закрыть',
+        cancelText: 'Отмена',
+        onOk: () => {
+          setUploadVisible(false);
+        },
+      });
+    } else {
+      setUploadVisible(false);
+    }
   };
 
   /**
@@ -188,14 +216,18 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
           <Modal
             title="Загрузка фото"
             open={uploadVisible}
-            onCancel={() => setUploadVisible(false)}
+            onCancel={handleModalCancel}
             footer={null}
             width={600}
+            maskClosable={!isUploading}
+            closable={true}
           >
             <MediaUpload
               config={store.config}
               onSuccess={handleUploadSuccess}
               onAllComplete={handleAllUploadsComplete}
+              onUploadingChange={handleUploadingChange}
+              disabled={isUploading}
             />
           </Modal>
         )}
