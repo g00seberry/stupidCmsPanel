@@ -73,7 +73,7 @@ export class MediaListStore {
    */
   async initialize(): Promise<void> {
     try {
-      await Promise.all([this.loadConfig(), this.loader.initialize()]);
+      await this.loadConfig();
     } catch (error) {
       onError(error);
     }
