@@ -12,15 +12,34 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MediaListStore } from './MediaListStore';
 
+export const MediaListPageMain = () => {
+  const store = useMemo(() => new MediaListStore(), []);
+  return <Inner store={store} />;
+};
+
+export const MediaListPageTrash = () => {
+  const store = useMemo(() => {
+    const s = new MediaListStore();
+    s.loader.setFilters({
+      page: 1,
+      per_page: 15,
+      sort: 'created_at',
+      order: 'desc',
+      deleted: 'only',
+    });
+    return s;
+  }, []);
+  return <Inner store={store} />;
+};
+
 const { Title, Paragraph } = Typography;
 
-/**
- * Страница со списком медиа-файлов.
- * Обеспечивает просмотр, фильтрацию, загрузку и управление медиа-файлами.
- */
-export const MediaListPage = observer(() => {
+interface PropsInner {
+  store: MediaListStore;
+}
+
+const Inner = observer(({ store }: PropsInner) => {
   const navigate = useNavigate();
-  const store = useMemo(() => new MediaListStore(), []);
   const [uploadVisible, setUploadVisible] = useState(false);
 
   /**
