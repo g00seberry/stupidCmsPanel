@@ -4,7 +4,7 @@
 
 # Interface: FormValues
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:14](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L14)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L20)
 
 Значения формы редактора записи.
 
@@ -14,7 +14,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:14](https://github.co
 
 > `readonly` **is\_published**: `boolean`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L17)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:23](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L23)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:17](https://github.co
 
 > `readonly` **published\_at**: `Dayjs` \| `null`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L18)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:24](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L24)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:18](https://github.co
 
 > `readonly` **slug**: `string`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L16)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:22](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L22)
 
 ***
 
@@ -38,7 +38,15 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:16](https://github.co
 
 > `readonly` **template\_override**: `string`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L19)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L25)
+
+***
+
+### term\_ids
+
+> `readonly` **term\_ids**: `string`[]
+
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:26](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L26)
 
 ***
 
@@ -46,4 +54,4 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:19](https://github.co
 
 > `readonly` **title**: `string`
 
-Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:15](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/pages/EntryEditorPage/EntryEditorStore.ts#L15)
+Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:21](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L21)

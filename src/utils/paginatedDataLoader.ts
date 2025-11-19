@@ -74,10 +74,63 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
   }
 
   /**
+   * Устанавливает данные.
+   * @param data Массив данных для установки.
+   */
+  setData(data: TData[]): void {
+    this.data = data;
+  }
+
+  /**
+   * Устанавливает метаданные пагинации.
+   * @param meta Метаданные пагинации.
+   */
+  setPaginationMeta(meta: ZPaginationMeta | null): void {
+    this.paginationMeta = meta;
+  }
+
+  /**
+   * Устанавливает ссылки пагинации.
+   * @param links Ссылки пагинации.
+   */
+  setPaginationLinks(links: ZPaginationLinks | null): void {
+    this.paginationLinks = links;
+  }
+
+  /**
+   * Устанавливает флаг выполнения запроса.
+   * @param pending Значение флага.
+   */
+  setPending(pending: boolean): void {
+    this.pending = pending;
+  }
+
+  /**
+   * Устанавливает флаг начальной загрузки.
+   * @param loading Значение флага.
+   */
+  setInitialLoading(loading: boolean): void {
+    this.initialLoading = loading;
+  }
+
+  /**
+   * Устанавливает фильтры без перезагрузки данных.
+   * @param filters Новые параметры фильтрации.
+   */
+  setFiltersValue(filters: TParams): void {
+    this.filters = filters;
+  }
+
+  /**
    * Загружает данные с текущими фильтрами.
    */
   async load(): Promise<void> {
-    this.pending = true;
+    // Предотвращаем параллельные запросы
+    if (this.pending) {
+      return;
+    }
+
+    this.setPending(true);
 
     try {
       const params: TParams = {
@@ -87,14 +140,17 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
       };
 
       const result = await this.loadFn(params);
-      this.data = result.data;
-      this.paginationMeta = result.meta;
-      this.paginationLinks = result.links;
+      this.setData(result.data);
+      this.setPaginationMeta(result.meta);
+      this.setPaginationLinks(result.links);
     } catch (error) {
+      // Сохраняем состояние при ошибке - не очищаем данные
       onError(error);
+      // Пробрасываем ошибку дальше, чтобы вызывающий код мог её обработать
+      throw error;
     } finally {
-      this.pending = false;
-      this.initialLoading = false;
+      this.setPending(false);
+      this.setInitialLoading(false);
     }
   }
 
@@ -103,7 +159,7 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
    * @param filters Новые параметры фильтрации.
    */
   async setFilters(filters: Partial<TParams>): Promise<void> {
-    this.filters = { ...this.filters, ...filters };
+    this.setFiltersValue({ ...this.filters, ...filters });
     await this.load();
   }
 
@@ -120,7 +176,7 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
    * @param defaultFilters Параметры фильтрации по умолчанию.
    */
   async resetFilters(defaultFilters: TParams): Promise<void> {
-    this.filters = { ...defaultFilters };
+    this.setFiltersValue({ ...defaultFilters });
     await this.load();
   }
 
@@ -129,9 +185,9 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
    * @param initialFilters Опциональные начальные фильтры.
    */
   async initialize(initialFilters?: Partial<TParams>): Promise<void> {
-    this.initialLoading = true;
+    this.setInitialLoading(true);
     if (initialFilters) {
-      this.filters = { ...this.filters, ...initialFilters };
+      this.setFiltersValue({ ...this.filters, ...initialFilters });
     }
     await this.load();
   }

@@ -6,7 +6,7 @@
 
 > `const` **rest**: `object`
 
-Defined in: [src/api/rest.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/rest.ts#L37)
+Defined in: [src/api/rest.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/api/rest.ts#L37)
 
 Унифицированный API-клиент с поддержкой автоматического обновления токенов.
 Все запросы автоматически обрабатывают 401 ошибки, пытаясь обновить токены.

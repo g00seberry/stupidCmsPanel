@@ -4,6 +4,8 @@
 export const PageUrl = {
   Dashboard: '/',
   Media: '/media',
+  MediaEdit: '/media/:id',
+  MediaTrash: '/media/trash',
   Taxonomies: '/taxonomies',
   TaxonomiesEdit: '/taxonomies/:id',
   TermsByTaxonomy: '/taxonomies/:taxonomyId/terms',

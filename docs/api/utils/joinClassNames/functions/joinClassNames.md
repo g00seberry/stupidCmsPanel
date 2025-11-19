@@ -6,7 +6,7 @@
 
 > **joinClassNames**(...`classes`): `string`
 
-Defined in: [src/utils/joinClassNames.ts:7](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/utils/joinClassNames.ts#L7)
+Defined in: [src/utils/joinClassNames.ts:7](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/utils/joinClassNames.ts#L7)
 
 Объединяет переданные CSS-классы в одну строку.
 Отфильтровывает ложные значения, чтобы исключить неожиданные пробелы.

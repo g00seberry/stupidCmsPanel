@@ -6,7 +6,7 @@
 
 > **listTaxonomies**(`params?`): `Promise`\<`object`[]\>
 
-Defined in: [src/api/apiTaxonomies.ts:29](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L29)
+Defined in: [src/api/apiTaxonomies.ts:30](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/api/apiTaxonomies.ts#L30)
 
 Загружает список доступных таксономий.
 
@@ -29,6 +29,6 @@ Defined in: [src/api/apiTaxonomies.ts:29](https://github.com/g00seberry/stupidCm
 ```ts
 const taxonomies = await listTaxonomies();
 taxonomies.forEach(taxonomy => {
-  console.log(`${taxonomy.label} (${taxonomy.slug})`);
+  console.log(`${taxonomy.label} (ID: ${taxonomy.id})`);
 });
 ```

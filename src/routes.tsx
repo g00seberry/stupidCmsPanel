@@ -8,6 +8,8 @@ import { TaxonomiesPage } from '@/pages/TaxonomiesPage/TaxonomiesPage';
 import { TaxonomiesEditorPage } from '@/pages/TaxonomiesEditorPage/TaxonomiesEditorPage';
 import { TermsPage } from '@/pages/TermsPage/TermsPage';
 import { TermEditorPage } from '@/pages/TermEditorPage/TermEditorPage';
+import { MediaListPageMain, MediaListPageTrash } from '@/pages/MediaListPage/MediaListPage';
+import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -25,5 +27,8 @@ export const routes = [
   { path: PageUrl.TaxonomiesEdit, element: <TaxonomiesEditorPage /> },
   { path: PageUrl.TermsByTaxonomy, element: <TermsPage /> },
   { path: PageUrl.TermEdit, element: <TermEditorPage /> },
+  { path: PageUrl.Media, element: <MediaListPageMain /> },
+  { path: PageUrl.MediaEdit, element: <MediaEditorPage /> },
+  { path: PageUrl.MediaTrash, element: <MediaListPageTrash /> },
   { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

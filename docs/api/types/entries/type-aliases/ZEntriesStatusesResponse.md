@@ -6,6 +6,6 @@
 
 > **ZEntriesStatusesResponse** = `z.infer`\<*typeof* [`zEntriesStatusesResponse`](../variables/zEntriesStatusesResponse.md)\>
 
-Defined in: [src/types/entries.ts:86](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/entries.ts#L86)
+Defined in: [src/types/entries.ts:89](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L89)
 
 Тип ответа API со списком возможных статусов записей.

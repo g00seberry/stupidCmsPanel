@@ -6,7 +6,7 @@
 
 > **ZPostType** = `z.infer`\<*typeof* [`zPostType`](../variables/zPostType.md)\>
 
-Defined in: [src/types/postTypes.ts:32](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/postTypes.ts#L32)
+Defined in: [src/types/postTypes.ts:54](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/postTypes.ts#L54)
 
 Тип данных одного типа контента.
 Используется для представления типа контента в приложении.

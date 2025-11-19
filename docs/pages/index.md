@@ -14,11 +14,14 @@
 | `/entries/:postType/:id` | `EntryEditorPage` |
 | `/login` | `LoginPage` |
 | `/media` | `-` |
+| `/media/:id` | `MediaEditorPage` |
+| `/media/trash` | `-` |
 | `/seo` | `-` |
 | `/settings` | `-` |
 | `/taxonomies` | `TaxonomiesPage` |
-| `/taxonomies/:slug` | `TaxonomiesEditorPage` |
-| `/taxonomies/:taxonomy/terms` | `-` |
+| `/taxonomies/:id` | `TaxonomiesEditorPage` |
+| `/taxonomies/:taxonomyId/terms/:id` | `TermEditorPage` |
+| `/taxonomies/:taxonomyId/terms` | `TermsPage` |
 | `article` | `-` |
 
 ## Структура файлов
@@ -30,12 +33,27 @@
 
 ### EntryEditorPage
 
+- `EntryEditorHeader.tsx`
 - `EntryEditorPage.tsx`
 - `EntryEditorStore.ts`
 
 ### LoginPage
 
 - `LoginPage.tsx`
+
+### MediaEditorPage
+
+- `MediaEditorPage.tsx`
+- `MediaEditorStore.ts`
+- `index.ts`
+
+### MediaListPage
+
+- `MediaListHeader.tsx`
+- `MediaListPage.tsx`
+- `MediaListStore.ts`
+- `index.ts`
+- `mediaListHandlers.ts`
 
 ### PostTypeEditorPage
 
@@ -54,4 +72,14 @@
 ### TaxonomiesPage
 
 - `TaxonomiesPage.tsx`
+
+### TermEditorPage
+
+- `TermEditorPage.tsx`
+- `TermEditorStore.ts`
+
+### TermsPage
+
+- `TermsListStore.ts`
+- `TermsPage.tsx`
 

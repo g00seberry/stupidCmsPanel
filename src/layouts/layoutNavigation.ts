@@ -1,6 +1,6 @@
-import type { LucideIcon } from 'lucide-react';
-import { FileType, Image, LayoutDashboard, Search, Settings, Tags } from 'lucide-react';
 import { PageUrl } from '@/PageUrl';
+import type { LucideIcon } from 'lucide-react';
+import { FileType, Image, LayoutDashboard, Settings, Tags } from 'lucide-react';
 
 /**
  * Пункт навигации сайдбара.

@@ -20,6 +20,29 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+        // Перезаписывает домен cookies, чтобы они работали с прокси
+        cookieDomainRewrite: '',
+        // Сохраняет оригинальный путь cookies
+        cookiePathRewrite: '/',
+        // Передает cookies из запроса клиента
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            // Передаем все cookies из запроса клиента в проксируемый запрос
+            if (req.headers.cookie) {
+              proxyReq.setHeader('Cookie', req.headers.cookie);
+            }
+          });
+          // Передаем cookies из ответа прокси в ответ клиенту
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            const setCookieHeaders = proxyRes.headers['set-cookie'];
+            if (setCookieHeaders) {
+              // Перезаписываем домен cookies для работы с прокси
+              proxyRes.headers['set-cookie'] = setCookieHeaders.map(cookie =>
+                cookie.replace(/Domain=[^;]+/gi, 'Domain=')
+              );
+            }
+          });
+        },
       },
     },
   },

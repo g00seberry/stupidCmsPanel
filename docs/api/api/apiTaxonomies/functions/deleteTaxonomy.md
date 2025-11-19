@@ -4,19 +4,19 @@
 
 # Function: deleteTaxonomy()
 
-> **deleteTaxonomy**(`slug`, `force`): `Promise`\<`boolean`\>
+> **deleteTaxonomy**(`id`, `force`): `Promise`\<`boolean`\>
 
-Defined in: [src/api/apiTaxonomies.ts:90](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/api/apiTaxonomies.ts#L90)
+Defined in: [src/api/apiTaxonomies.ts:87](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/api/apiTaxonomies.ts#L87)
 
 Удаляет таксономию.
 
 ## Parameters
 
-### slug
+### id
 
 `string`
 
-Slug таксономии для удаления.
+ID таксономии для удаления.
 
 ### force
 
@@ -38,8 +38,8 @@ Slug таксономии для удаления.
 
 ```ts
 // Обычное удаление (не удалит, если есть термины)
-await deleteTaxonomy('category');
+await deleteTaxonomy(1);
 
 // Каскадное удаление (удалит таксономию и все её термины)
-await deleteTaxonomy('category', true);
+await deleteTaxonomy(1, true);
 ```

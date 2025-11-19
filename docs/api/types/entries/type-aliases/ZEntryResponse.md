@@ -6,6 +6,6 @@
 
 > **ZEntryResponse** = `z.infer`\<*typeof* [`zEntryResponse`](../variables/zEntryResponse.md)\>
 
-Defined in: [src/types/entries.ts:133](https://github.com/g00seberry/stupidCmsPanel/blob/f5e94c5c2179e78f3e2b3125f3a7bc35ee85dadd/src/types/entries.ts#L133)
+Defined in: [src/types/entries.ts:136](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L136)
 
 Тип ответа API с одной записью.
