@@ -65,8 +65,6 @@ const zMediaBase = z.object({
   title: z.string().nullable(),
   /** Альтернативный текст для изображений. Может быть `null`. */
   alt: z.string().nullable(),
-  /** Коллекция, к которой принадлежит файл. Может быть `null`. */
-  collection: z.string().nullable(),
   /** URL для доступа к медиа-файлу. */
   url: z.string(),
   /** Дата создания в формате ISO 8601. */
@@ -91,7 +89,6 @@ const zMediaBase = z.object({
  *   height: 1080,
  *   title: 'Hero image',
  *   alt: 'Hero cover',
- *   collection: 'uploads',
  *   url: 'https://api.stupidcms.dev/api/v1/media/01HXZYXQJ123456789ABCDEF',
  *   preview_urls: {
  *     thumbnail: 'https://api.stupidcms.dev/api/v1/media/01HXZYXQJ123456789ABCDEF?variant=thumbnail',
@@ -136,7 +133,6 @@ export type ZMediaImage = z.infer<typeof zMediaImage>;
  *   audio_codec: 'aac',
  *   title: 'Video title',
  *   alt: null,
- *   collection: 'uploads',
  *   url: 'https://api.stupidcms.dev/api/v1/media/01HXZYXQJ987654321FEDCBA',
  *   created_at: '2025-01-10T12:01:00+00:00',
  *   updated_at: '2025-01-10T12:01:00+00:00',
@@ -179,7 +175,6 @@ export type ZMediaVideo = z.infer<typeof zMediaVideo>;
  *   audio_codec: 'mp3',
  *   title: 'Audio title',
  *   alt: null,
- *   collection: 'uploads',
  *   url: 'https://api.stupidcms.dev/api/v1/media/01HXZYXQJABCDEF1234567890',
  *   created_at: '2025-01-10T12:02:00+00:00',
  *   updated_at: '2025-01-10T12:02:00+00:00',
@@ -213,7 +208,6 @@ export type ZMediaAudio = z.infer<typeof zMediaAudio>;
  *   size_bytes: 102400,
  *   title: 'Document title',
  *   alt: null,
- *   collection: 'uploads',
  *   url: 'https://api.stupidcms.dev/api/v1/media/01HXZYXQJFEDCBA9876543210',
  *   created_at: '2025-01-10T12:03:00+00:00',
  *   updated_at: '2025-01-10T12:03:00+00:00',
@@ -305,8 +299,6 @@ export type ZMediaListParams = {
   kind?: 'image' | 'video' | 'audio' | 'document';
   /** Фильтр по MIME-типу (префиксный поиск). */
   mime?: string;
-  /** Фильтр по коллекции. */
-  collection?: string;
   /** Управление soft-deleted: with (включая удаленные), only (только удаленные). */
   deleted?: 'with' | 'only';
   /** Поле сортировки: created_at, size_bytes, mime. По умолчанию: created_at. */
@@ -324,8 +316,7 @@ export type ZMediaListParams = {
  * @example
  * const uploadPayload: ZMediaUploadPayload = {
  *   title: 'Hero image',
- *   alt: 'Hero cover',
- *   collection: 'uploads'
+ *   alt: 'Hero cover'
  * };
  */
 export const zMediaUploadPayload = z.object({
@@ -333,8 +324,6 @@ export const zMediaUploadPayload = z.object({
   title: z.string().min(1).max(255).optional(),
   /** Альтернативный текст для изображений. Минимум 1 символ, максимум 255 символов. */
   alt: z.string().min(1).max(255).optional(),
-  /** Коллекция, к которой будет принадлежать файл. Должна соответствовать regex /^[a-z0-9-_.]+$/i, максимум 64 символа. */
-  collection: z.string().max(64).optional(),
 });
 
 /**
@@ -347,8 +336,7 @@ export type ZMediaUploadPayload = z.infer<typeof zMediaUploadPayload>;
  * @example
  * const updatePayload: ZMediaUpdatePayload = {
  *   title: 'Updated title',
- *   alt: 'Updated alt text',
- *   collection: 'new-collection'
+ *   alt: 'Updated alt text'
  * };
  */
 export const zMediaUpdatePayload = z.object({
@@ -356,8 +344,6 @@ export const zMediaUpdatePayload = z.object({
   title: z.string().min(1).max(255).optional(),
   /** Альтернативный текст для изображений. Минимум 1 символ, максимум 255 символов. */
   alt: z.string().min(1).max(255).optional(),
-  /** Коллекция, к которой будет принадлежать файл. Должна соответствовать regex /^[a-z0-9-_.]+$/i, максимум 64 символа. */
-  collection: z.string().max(64).optional(),
 });
 
 /**

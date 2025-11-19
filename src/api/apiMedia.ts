@@ -72,10 +72,6 @@ const buildQueryParams = (
     queryParams.mime = params.mime;
   }
 
-  if (params.collection) {
-    queryParams.collection = params.collection;
-  }
-
   if (params.deleted) {
     queryParams.deleted = params.deleted;
   }
@@ -120,7 +116,6 @@ export const getMediaConfig = async (): Promise<ZMediaConfig> => {
  * @example
  * const result = await listMedia({
  *   kind: 'image',
- *   collection: 'uploads',
  *   per_page: 20,
  *   page: 1
  * });
@@ -207,8 +202,7 @@ export const bulkUploadMedia = async (files: File[]): Promise<ZMedia[]> => {
  * @example
  * const updatedMedia = await updateMedia('01HXZYXQJ123456789ABCDEF', {
  *   title: 'Updated title',
- *   alt: 'Updated alt text',
- *   collection: 'new-collection'
+ *   alt: 'Updated alt text'
  * });
  */
 export const updateMedia = async (id: string, payload: ZMediaUpdatePayload): Promise<ZMedia> => {

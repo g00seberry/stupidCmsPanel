@@ -40,10 +40,6 @@ const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaL
     filters.mime = values.mime.trim();
   }
 
-  if (values.collection && typeof values.collection === 'string' && values.collection.trim()) {
-    filters.collection = values.collection.trim();
-  }
-
   if (values.deleted && typeof values.deleted === 'string') {
     filters.deleted = values.deleted as ZMediaListParams['deleted'];
   }
@@ -61,7 +57,7 @@ const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaL
 
 /**
  * Компонент фильтров для поиска и фильтрации медиа-файлов.
- * Предоставляет поля для поиска, фильтрации по типу, MIME, коллекции, статусу удаления и сортировки.
+ * Предоставляет поля для поиска, фильтрации по типу, MIME, статусу удаления и сортировки.
  */
 export const MediaFilters = observer<PropsMediaFilters>(
   ({ store, onApply, onReset, cardClassName }) => {
@@ -95,10 +91,6 @@ export const MediaFilters = observer<PropsMediaFilters>(
         {
           name: 'mime',
           element: <Input placeholder="MIME-тип (префикс)" allowClear style={{ width: 180 }} />,
-        },
-        {
-          name: 'collection',
-          element: <Input placeholder="Коллекция" allowClear style={{ width: 150 }} />,
         },
         {
           name: 'deleted',

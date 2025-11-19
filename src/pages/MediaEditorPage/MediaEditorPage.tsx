@@ -52,7 +52,6 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
       form.setFieldsValue({
         title: store.formData.title,
         alt: store.formData.alt,
-        collection: store.formData.collection,
       });
     }
   }, [form, store.media, store.formData]);
@@ -64,14 +63,12 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
     const values = await form.validateFields();
     store.updateFormField('title', values.title || '');
     store.updateFormField('alt', values.alt || '');
-    store.updateFormField('collection', values.collection || '');
 
     const updatedMedia = await store.save();
     if (updatedMedia) {
       form.setFieldsValue({
         title: store.formData.title,
         alt: store.formData.alt,
-        collection: store.formData.collection,
       });
     }
   };
@@ -93,7 +90,6 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
       form.setFieldsValue({
         title: store.formData.title,
         alt: store.formData.alt,
-        collection: store.formData.collection,
       });
     }
   };
@@ -107,7 +103,6 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
       form.setFieldsValue({
         title: store.formData.title,
         alt: store.formData.alt,
-        collection: store.formData.collection,
       });
     }
   };
@@ -193,7 +188,6 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
                   initialValues={{
                     title: store.formData.title,
                     alt: store.formData.alt,
-                    collection: store.formData.collection,
                   }}
                 >
                   <Form.Item
@@ -216,14 +210,6 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
                     help="Используется для изображений в качестве текста для скринридеров"
                   >
                     <Input placeholder="Введите альтернативный текст" />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Коллекция"
-                    name="collection"
-                    rules={[{ max: 64, message: 'Коллекция не должна превышать 64 символов' }]}
-                  >
-                    <Input placeholder="Введите название коллекции" />
                   </Form.Item>
                 </Form>
               </Card>

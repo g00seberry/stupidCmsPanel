@@ -203,9 +203,6 @@ export const MediaCard: React.FC<PropsMediaCard> = ({
           <span>{formatFileSize(media.size_bytes)}</span>
           <span>{formatDate(media.created_at)}</span>
         </div>
-        {media.collection && (
-          <div className="text-xs text-gray-400 truncate">Коллекция: {media.collection}</div>
-        )}
       </div>
     </Card>
   );

@@ -10,13 +10,11 @@ import type { ZMedia, ZMediaUpdatePayload } from '@/types/media';
 export interface FormValues {
   readonly title: string;
   readonly alt: string;
-  readonly collection: string;
 }
 
 const defaultFormValues: FormValues = {
   title: '',
   alt: '',
-  collection: '',
 };
 
 /**
@@ -28,7 +26,6 @@ const toFormValues = (media: ZMedia): FormValues => {
   return {
     title: media.title ?? '',
     alt: media.alt ?? '',
-    collection: media.collection ?? '',
   };
 };
 
@@ -95,12 +92,10 @@ export class MediaEditorStore {
     try {
       const trimmedTitle = this.formData.title.trim();
       const trimmedAlt = this.formData.alt.trim();
-      const trimmedCollection = this.formData.collection.trim();
 
       const payload: ZMediaUpdatePayload = {
         ...(trimmedTitle && { title: trimmedTitle }),
         ...(trimmedAlt && { alt: trimmedAlt }),
-        ...(trimmedCollection && { collection: trimmedCollection }),
       };
 
       const updatedMedia = await updateMedia(this.mediaId, payload);
