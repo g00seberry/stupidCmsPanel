@@ -9,7 +9,7 @@ import type { ZMediaConfig, ZMediaListParams } from '@/types/media';
 import { onError } from '@/utils/onError';
 import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
 import { FilterFormStore } from '@/components/FilterForm';
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, observable } from 'mobx';
 
 const defaultFilters: ZMediaListParams = {
   page: 1,
@@ -33,7 +33,7 @@ export class MediaListStore {
   configPending = false;
 
   /** Множество выбранных идентификаторов медиа-файлов. */
-  selectedIds = new Set<string>();
+  selectedIds = observable.set<string>();
 
   /** Store для управления формой фильтрации. */
   readonly filterStore = new FilterFormStore();
