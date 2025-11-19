@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Popconfirm, message, Modal } from 'antd';
+import { Button, Typography, Popconfirm, message, App } from 'antd';
 import { RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { MediaListStore } from '@/pages/MediaListPage/MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
-import { restoreMedia, bulkRestoreMedia, bulkForceDeleteMedia } from '@/api/apiMedia';
+import { restoreMedia, bulkRestoreMedia, bulkForceDeleteMedia, listMedia } from '@/api/apiMedia';
 import { onError } from '@/utils/onError';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia } from '@/types/media';
@@ -19,6 +19,7 @@ const { Title, Paragraph } = Typography;
  */
 export const MediaTrashPage = observer(() => {
   const navigate = useNavigate();
+  const { modal } = App.useApp();
   const store = useMemo(() => {
     const newStore = new MediaListStore();
     // Устанавливаем фильтр для показа только удаленных файлов
@@ -63,7 +64,13 @@ export const MediaTrashPage = observer(() => {
     try {
       await restoreMedia(id);
       message.success('Медиа-файл восстановлен');
-      await store.loadMedia();
+      // Если восстановили последний элемент на странице, переходим на предыдущую
+      const currentPage = store.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.media.length === 1) {
+        await store.goToPage(currentPage - 1);
+      } else {
+        await store.loadMedia();
+      }
     } catch (error) {
       onError(error);
     }
@@ -82,7 +89,13 @@ export const MediaTrashPage = observer(() => {
       await bulkRestoreMedia(selectedIds);
       message.success(`Восстановлено медиа-файлов: ${selectedIds.length}`);
       store.deselectAll();
-      await store.loadMedia();
+      // Если восстановили все элементы на текущей странице, переходим на предыдущую
+      const currentPage = store.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.media.length === selectedIds.length) {
+        await store.goToPage(currentPage - 1);
+      } else {
+        await store.loadMedia();
+      }
     } catch (error) {
       onError(error);
     }
@@ -97,7 +110,7 @@ export const MediaTrashPage = observer(() => {
       return;
     }
 
-    Modal.confirm({
+    modal.confirm({
       title: 'Окончательное удаление',
       icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
       content: `Вы уверены, что хотите окончательно удалить ${selectedIds.length} медиа-файлов? Это действие нельзя отменить.`,
@@ -109,7 +122,13 @@ export const MediaTrashPage = observer(() => {
           await bulkForceDeleteMedia(selectedIds);
           message.success(`Удалено медиа-файлов: ${selectedIds.length}`);
           store.deselectAll();
-          await store.loadMedia();
+          // Если удалили все элементы на текущей странице, переходим на предыдущую
+          const currentPage = store.paginationMeta?.current_page || 1;
+          if (currentPage > 1 && store.media.length === selectedIds.length) {
+            await store.goToPage(currentPage - 1);
+          } else {
+            await store.loadMedia();
+          }
         } catch (error) {
           onError(error);
         }
@@ -118,26 +137,83 @@ export const MediaTrashPage = observer(() => {
   };
 
   /**
+   * Загружает все медиа-файлы из корзины.
+   * @returns Массив всех идентификаторов удаленных медиа-файлов.
+   */
+  const loadAllTrashMediaIds = async (): Promise<string[]> => {
+    const allIds: string[] = [];
+    let lastPage = 1;
+
+    // Сначала загружаем первую страницу, чтобы узнать общее количество страниц
+    try {
+      const firstResult = await listMedia({
+        deleted: 'only',
+        page: 1,
+        per_page: 100, // Максимальное количество на странице
+        sort: 'created_at',
+        order: 'desc',
+      });
+
+      allIds.push(...firstResult.data.map(m => m.id));
+      lastPage = firstResult.meta.last_page;
+
+      // Загружаем остальные страницы, если они есть
+      for (let page = 2; page <= lastPage; page++) {
+        const result = await listMedia({
+          deleted: 'only',
+          page,
+          per_page: 100,
+          sort: 'created_at',
+          order: 'desc',
+        });
+
+        allIds.push(...result.data.map(m => m.id));
+      }
+    } catch (error) {
+      onError(error);
+    }
+
+    return allIds;
+  };
+
+  /**
    * Обрабатывает очистку всей корзины.
    */
   const handleClearTrash = async () => {
-    const allMediaIds = store.media.map(m => m.id);
-    if (allMediaIds.length === 0) {
+    const totalCount = store.paginationMeta?.total || 0;
+    if (totalCount === 0) {
       return;
     }
 
-    Modal.confirm({
+    modal.confirm({
       title: 'Очистить корзину',
       icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
-      content: `Вы уверены, что хотите окончательно удалить все ${allMediaIds.length} медиа-файлов из корзины? Это действие нельзя отменить.`,
+      content: `Вы уверены, что хотите окончательно удалить все ${totalCount} медиа-файлов из корзины? Это действие нельзя отменить.`,
       okText: 'Очистить корзину',
       okType: 'danger',
       cancelText: 'Отмена',
       onOk: async () => {
         try {
-          await bulkForceDeleteMedia(allMediaIds);
-          message.success('Корзина очищена');
+          // Загружаем все ID файлов из корзины
+          const allMediaIds = await loadAllTrashMediaIds();
+
+          if (allMediaIds.length === 0) {
+            message.info('Корзина уже пуста');
+            await store.loadMedia();
+            return;
+          }
+
+          // Удаляем все файлы порциями, если их много
+          const batchSize = 100;
+          for (let i = 0; i < allMediaIds.length; i += batchSize) {
+            const batch = allMediaIds.slice(i, i + batchSize);
+            await bulkForceDeleteMedia(batch);
+          }
+
+          message.success(`Корзина очищена. Удалено ${allMediaIds.length} медиа-файлов`);
           store.deselectAll();
+          // После очистки корзины возвращаемся на первую страницу
+          await store.goToPage(1);
           await store.loadMedia();
         } catch (error) {
           onError(error);

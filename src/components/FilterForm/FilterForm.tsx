@@ -38,6 +38,8 @@ export type PropsFilterForm = {
   showFilterIcon?: boolean;
   /** Дополнительный класс для карточки. */
   cardClassName?: string;
+  /** Обработчик сброса фильтров. Вызывается при нажатии кнопки сброса. */
+  onReset?: () => void;
 };
 
 /**
@@ -73,6 +75,7 @@ export const FilterForm = observer<PropsFilterForm>(
     resetText = 'Сбросить',
     showFilterIcon = true,
     cardClassName,
+    onReset,
   }) => {
     const [form] = Form.useForm();
 
@@ -109,6 +112,7 @@ export const FilterForm = observer<PropsFilterForm>(
       store.reset(resetValues);
       form.resetFields();
       form.setFieldsValue(resetValues);
+      onReset?.();
     };
 
     return (

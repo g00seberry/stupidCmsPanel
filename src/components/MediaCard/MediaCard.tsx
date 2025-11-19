@@ -88,7 +88,11 @@ export const MediaCard: React.FC<PropsMediaCard> = ({
   return (
     <Card
       hoverable
-      className={joinClassNames('relative', isDeleted && 'opacity-60', onClick && 'cursor-pointer')}
+      className={joinClassNames(
+        'relative group',
+        isDeleted && 'opacity-60',
+        onClick && 'cursor-pointer'
+      )}
       onClick={handleClick}
       role={onClick ? 'button' : undefined}
       aria-label={onClick ? `Открыть ${displayTitle}` : undefined}

@@ -63,7 +63,13 @@ export const MediaListPage = observer(() => {
     try {
       await store.bulkDelete([id]);
       message.success('Медиа-файл удалён');
-      await store.loadMedia();
+      // Если удалили последний элемент на странице, переходим на предыдущую
+      const currentPage = store.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.media.length === 1) {
+        await store.goToPage(currentPage - 1);
+      } else {
+        await store.loadMedia();
+      }
     } catch (error) {
       onError(error);
     }
@@ -99,7 +105,13 @@ export const MediaListPage = observer(() => {
       await store.bulkDelete(selectedIds);
       message.success(`Удалено медиа-файлов: ${selectedIds.length}`);
       store.deselectAll();
-      await store.loadMedia();
+      // Если удалили все элементы на текущей странице, переходим на предыдущую
+      const currentPage = store.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.media.length === selectedIds.length) {
+        await store.goToPage(currentPage - 1);
+      } else {
+        await store.loadMedia();
+      }
     } catch (error) {
       onError(error);
     }
@@ -107,6 +119,14 @@ export const MediaListPage = observer(() => {
 
   const handleApplyFilters = (filters: Partial<ZMediaListParams>) => {
     store.setFilters(filters);
+  };
+
+  /**
+   * Обрабатывает сброс фильтров.
+   */
+  const handleResetFilters = async () => {
+    await store.resetFilters();
+    filterStore.reset({ sort: 'created_at', order: 'desc' });
   };
 
   return (
@@ -174,7 +194,12 @@ export const MediaListPage = observer(() => {
         </Modal>
 
         {/* Фильтры */}
-        <MediaFilters store={filterStore} onApply={handleApplyFilters} cardClassName="mb-6" />
+        <MediaFilters
+          store={filterStore}
+          onApply={handleApplyFilters}
+          onReset={handleResetFilters}
+          cardClassName="mb-6"
+        />
 
         {/* Сетка медиа-файлов */}
         <MediaGrid
