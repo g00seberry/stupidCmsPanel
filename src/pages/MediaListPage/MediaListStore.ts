@@ -118,6 +118,22 @@ export class MediaListStore {
   }
 
   /**
+   * Устанавливает конфигурацию системы медиа-файлов.
+   * @param config Конфигурация системы медиа-файлов.
+   */
+  setConfig(config: ZMediaConfig | null): void {
+    this.config = config;
+  }
+
+  /**
+   * Устанавливает флаг выполнения запроса загрузки конфигурации.
+   * @param pending Значение флага.
+   */
+  setConfigPending(pending: boolean): void {
+    this.configPending = pending;
+  }
+
+  /**
    * Загружает конфигурацию системы медиа-файлов.
    */
   async loadConfig(): Promise<void> {
@@ -125,13 +141,14 @@ export class MediaListStore {
       return;
     }
 
-    this.configPending = true;
+    this.setConfigPending(true);
     try {
-      this.config = await getMediaConfig();
+      const config = await getMediaConfig();
+      this.setConfig(config);
     } catch (error) {
       onError(error);
     } finally {
-      this.configPending = false;
+      this.setConfigPending(false);
     }
   }
 
