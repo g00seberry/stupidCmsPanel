@@ -1,6 +1,6 @@
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { App, Button, Card, Empty, Form, Input, Spin, TreeSelect } from 'antd';
-import { Check, Trash2, Info } from 'lucide-react';
+import { App, Button, Card, Empty, Form, Input, Spin } from 'antd';
+import { Check, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,47 +8,8 @@ import { TermEditorStore, type FormValues } from './TermEditorStore';
 import axios from 'axios';
 import { getTaxonomy } from '@/api/apiTaxonomies';
 import type { ZTaxonomy } from '@/types/taxonomies';
-import { getTermsTree } from '@/api/apiTerms';
-import type { ZTermTree } from '@/types/terms';
+
 import { onError } from '@/utils/onError';
-import type { ZId } from '@/types/ZId';
-
-/**
- * Тип узла для TreeSelect.
- */
-type TreeSelectNode = {
-  value: number | string;
-  title: string;
-  children?: TreeSelectNode[];
-};
-
-/**
- * Преобразует дерево терминов в формат для TreeSelect.
- * @param tree Дерево терминов.
- * @param excludeTermId ID термина для исключения (вместе с его потомками).
- * @returns Массив узлов для TreeSelect.
- */
-const convertTermsTreeToSelectData = (tree: ZTermTree[], excludeTermId?: ZId): TreeSelectNode[] => {
-  const convertNode = (node: ZTermTree): TreeSelectNode | null => {
-    // Исключаем текущий термин и его потомков
-    if (excludeTermId && node.id === excludeTermId) {
-      return null;
-    }
-
-    const children =
-      node.children
-        ?.map(convertNode)
-        .filter((child): child is NonNullable<typeof child> => child !== null) ?? [];
-
-    return {
-      value: node.id,
-      title: node.name,
-      ...(children.length > 0 ? { children } : {}),
-    };
-  };
-
-  return tree.map(convertNode).filter((node): node is NonNullable<typeof node> => node !== null);
-};
 
 /**
  * Форма создания и редактирования термина таксономии CMS.
@@ -64,8 +25,6 @@ export const TermEditorPage = observer(() => {
   const store = useMemo(() => new TermEditorStore(), [id]);
   const [taxonomy, setTaxonomy] = useState<ZTaxonomy | null>(null);
   const [loadingTaxonomy, setLoadingTaxonomy] = useState(false);
-  const [termsTree, setTermsTree] = useState<ZTermTree[]>([]);
-  const [loadingTermsTree, setLoadingTermsTree] = useState(false);
 
   // Загрузка информации о таксономии
   useEffect(() => {
@@ -76,16 +35,6 @@ export const TermEditorPage = observer(() => {
       .catch(onError)
       .finally(() => setLoadingTaxonomy(false));
   }, [taxonomyId]);
-
-  // Загрузка дерева терминов для выбора родителя (только для иерархических таксономий)
-  useEffect(() => {
-    if (!taxonomyId || !taxonomy?.hierarchical) return;
-    setLoadingTermsTree(true);
-    getTermsTree(taxonomyId)
-      .then(setTermsTree)
-      .catch(() => {})
-      .finally(() => setLoadingTermsTree(false));
-  }, [taxonomyId, taxonomy?.hierarchical]);
 
   // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
@@ -272,33 +221,6 @@ export const TermEditorPage = observer(() => {
                         Название термина, отображаемое в интерфейсе
                       </p>
                     </div>
-
-                    {/* Parent Term (only for hierarchical taxonomies) */}
-                    {taxonomy?.hierarchical && (
-                      <div className="space-y-2">
-                        <Form.Item label="Родительский термин" name="parent_id" className="mb-0">
-                          <TreeSelect
-                            placeholder="Выберите родительский термин (необязательно)"
-                            allowClear
-                            treeDefaultExpandAll
-                            treeData={convertTermsTreeToSelectData(termsTree, id)}
-                            disabled={store.initialLoading || store.pending || loadingTermsTree}
-                            notFoundContent={
-                              loadingTermsTree ? <Spin size="small" /> : 'Термины не найдены'
-                            }
-                            showSearch
-                            treeNodeFilterProp="title"
-                          />
-                        </Form.Item>
-                        <p className="text-sm text-muted-foreground flex items-start gap-1">
-                          <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Выберите родительский термин для создания иерархии. Оставьте пустым для
-                            создания корневого термина.
-                          </span>
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </Card>
               </div>
