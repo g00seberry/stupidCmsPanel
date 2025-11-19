@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
-import { observer } from 'mobx-react-lite';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button, Typography, Modal, Popconfirm, Pagination, App } from 'antd';
-import { Upload, Trash2, Archive } from 'lucide-react';
-import { MediaListStore } from './MediaListStore';
+import { MediaFilters } from '@/components/MediaFilters';
 import { MediaGrid } from '@/components/MediaGrid';
 import { MediaUpload } from '@/components/MediaUpload';
-import { onError } from '@/utils/onError';
 import { buildUrl, PageUrl } from '@/PageUrl';
+import { notificationService } from '@/services/notificationService';
 import type { ZMedia, ZMediaListParams } from '@/types/media';
-import { MediaFilters } from '@/components/MediaFilters';
-import { FilterFormStore } from '@/components/FilterForm';
+import { onError } from '@/utils/onError';
+import { Button, Modal, Pagination, Popconfirm, Typography } from 'antd';
+import { Archive, Trash2, Upload } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MediaListStore } from './MediaListStore';
 
 const { Title, Paragraph } = Typography;
 
@@ -19,24 +19,15 @@ const { Title, Paragraph } = Typography;
  * Обеспечивает просмотр, фильтрацию, загрузку и управление медиа-файлами.
  */
 export const MediaListPage = observer(() => {
-  const { message } = App.useApp();
   const navigate = useNavigate();
   const store = useMemo(() => new MediaListStore(), []);
-  const filterStore = useMemo(() => new FilterFormStore(), []);
-
   const [uploadVisible, setUploadVisible] = useState(false);
-
-  // Инициализация загрузки данных
-  useEffect(() => {
-    store.initialize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Убираем store из зависимостей, чтобы избежать повторной инициализации
 
   /**
    * Обрабатывает изменение страницы пагинации.
    */
   const handlePageChange = async (page: number) => {
-    await store.goToPage(page);
+    await store.loader.goToPage(page);
   };
 
   /**
@@ -63,11 +54,11 @@ export const MediaListPage = observer(() => {
   const handleDelete = async (id: string) => {
     try {
       await store.bulkDelete([id]);
-      message.success('Медиа-файл удалён');
+      notificationService.showSuccess({ message: 'Медиа-файл удалён' });
       // Если удалили последний элемент на странице, переходим на предыдущую
-      const currentPage = store.paginationMeta?.current_page || 1;
-      if (currentPage > 1 && store.media.length === 1) {
-        await store.goToPage(currentPage - 1);
+      const currentPage = store.loader.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.loader.data.length === 1) {
+        await store.loader.goToPage(currentPage - 1);
       } else {
         await store.loadMedia();
       }
@@ -104,12 +95,12 @@ export const MediaListPage = observer(() => {
 
     try {
       await store.bulkDelete(selectedIds);
-      message.success(`Удалено медиа-файлов: ${selectedIds.length}`);
+      notificationService.showSuccess({ message: `Удалено медиа-файлов: ${selectedIds.length}` });
       store.deselectAll();
       // Если удалили все элементы на текущей странице, переходим на предыдущую
-      const currentPage = store.paginationMeta?.current_page || 1;
-      if (currentPage > 1 && store.media.length === selectedIds.length) {
-        await store.goToPage(currentPage - 1);
+      const currentPage = store.loader.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.loader.data.length === selectedIds.length) {
+        await store.loader.goToPage(currentPage - 1);
       } else {
         await store.loadMedia();
       }
@@ -119,7 +110,7 @@ export const MediaListPage = observer(() => {
   };
 
   const handleApplyFilters = (filters: Partial<ZMediaListParams>) => {
-    store.setFilters(filters);
+    store.loader.setFilters(filters);
   };
 
   /**
@@ -127,7 +118,6 @@ export const MediaListPage = observer(() => {
    */
   const handleResetFilters = async () => {
     await store.resetFilters();
-    filterStore.reset({ sort: 'created_at', order: 'desc' });
   };
 
   return (
@@ -196,7 +186,7 @@ export const MediaListPage = observer(() => {
 
         {/* Фильтры */}
         <MediaFilters
-          store={filterStore}
+          store={store.filterStore}
           onApply={handleApplyFilters}
           onReset={handleResetFilters}
           cardClassName="mb-6"
@@ -204,9 +194,9 @@ export const MediaListPage = observer(() => {
 
         {/* Сетка медиа-файлов */}
         <MediaGrid
-          media={store.media}
-          loading={store.pending}
-          initialLoading={store.initialLoading}
+          media={store.loader.data}
+          loading={store.loader.pending}
+          initialLoading={store.loader.initialLoading}
           selectable
           selectedIds={store.selectedIds}
           onSelectChange={handleSelectChange}
@@ -216,12 +206,12 @@ export const MediaListPage = observer(() => {
         />
 
         {/* Пагинация */}
-        {store.paginationMeta && store.paginationMeta.total > 0 && (
+        {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
           <div className="mt-6 flex justify-center">
             <Pagination
-              current={store.paginationMeta.current_page}
-              total={store.paginationMeta.total}
-              pageSize={store.paginationMeta.per_page}
+              current={store.loader.paginationMeta.current_page}
+              total={store.loader.paginationMeta.total}
+              pageSize={store.loader.paginationMeta.per_page}
               showSizeChanger={false}
               showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
               onChange={handlePageChange}

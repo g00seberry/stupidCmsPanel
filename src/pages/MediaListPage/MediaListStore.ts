@@ -5,11 +5,18 @@ import {
   getMediaConfig,
   listMedia,
 } from '@/api/apiMedia';
-import type { ZMedia, ZMediaConfig, ZMediaListParams } from '@/types/media';
-import type { ZPaginationMeta } from '@/types/pagination';
+import type { ZMediaConfig, ZMediaListParams } from '@/types/media';
 import { onError } from '@/utils/onError';
 import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
+import { FilterFormStore } from '@/components/FilterForm';
 import { makeAutoObservable } from 'mobx';
+
+const defaultFilters: ZMediaListParams = {
+  page: 1,
+  per_page: 15,
+  sort: 'created_at',
+  order: 'desc',
+};
 
 /**
  * Store для управления состоянием списка медиа-файлов.
@@ -17,7 +24,7 @@ import { makeAutoObservable } from 'mobx';
  */
 export class MediaListStore {
   /** Универсальный загрузчик пагинированных данных. */
-  private readonly loader: PaginatedDataLoader<ZMedia, ZMediaListParams>;
+  readonly loader = new PaginatedDataLoader(listMedia, defaultFilters);
 
   /** Конфигурация системы медиа-файлов. */
   config: ZMediaConfig | null = null;
@@ -28,36 +35,12 @@ export class MediaListStore {
   /** Множество выбранных идентификаторов медиа-файлов. */
   selectedIds = new Set<string>();
 
+  /** Store для управления формой фильтрации. */
+  readonly filterStore = new FilterFormStore();
+
   constructor() {
-    const defaultFilters: ZMediaListParams = {
-      page: 1,
-      per_page: 15,
-      sort: 'created_at',
-      order: 'desc',
-    };
-
-    this.loader = new PaginatedDataLoader(listMedia, defaultFilters);
+    this.initialize();
     makeAutoObservable(this);
-  }
-
-  /** Массив загруженных медиа-файлов. */
-  get media(): ZMedia[] {
-    return this.loader.data;
-  }
-
-  /** Метаданные пагинации. */
-  get paginationMeta(): ZPaginationMeta | null {
-    return this.loader.paginationMeta;
-  }
-
-  /** Флаг выполнения запроса загрузки. */
-  get pending(): boolean {
-    return this.loader.pending;
-  }
-
-  /** Флаг начальной загрузки данных. */
-  get initialLoading(): boolean {
-    return this.loader.initialLoading;
   }
 
   /** Количество выбранных медиа-файлов. */
@@ -78,32 +61,11 @@ export class MediaListStore {
   }
 
   /**
-   * Устанавливает фильтры и перезагружает данные.
-   * @param filters Новые параметры фильтрации.
-   */
-  async setFilters(filters: Partial<ZMediaListParams>): Promise<void> {
-    await this.loader.setFilters(filters);
-  }
-
-  /**
-   * Переходит на указанную страницу.
-   * @param page Номер страницы.
-   */
-  async goToPage(page: number): Promise<void> {
-    await this.loader.goToPage(page);
-  }
-
-  /**
    * Сбрасывает фильтры к значениям по умолчанию.
    */
   async resetFilters(): Promise<void> {
-    const defaultFilters: ZMediaListParams = {
-      page: 1,
-      per_page: 15,
-      sort: 'created_at',
-      order: 'desc',
-    };
     await this.loader.resetFilters(defaultFilters);
+    this.filterStore.reset({ sort: 'created_at', order: 'desc' });
   }
 
   /**
@@ -137,10 +99,6 @@ export class MediaListStore {
    * Загружает конфигурацию системы медиа-файлов.
    */
   async loadConfig(): Promise<void> {
-    if (this.configPending || this.config !== null) {
-      return;
-    }
-
     this.setConfigPending(true);
     try {
       const config = await getMediaConfig();
@@ -169,22 +127,10 @@ export class MediaListStore {
   }
 
   /**
-   * Переключает выбор медиа-файла.
-   * @param id ULID идентификатор медиа-файла.
-   */
-  toggleSelection(id: string): void {
-    if (this.selectedIds.has(id)) {
-      this.deselectMedia(id);
-    } else {
-      this.selectMedia(id);
-    }
-  }
-
-  /**
    * Выбирает все медиа-файлы на текущей странице.
    */
   selectAll(): void {
-    this.media.forEach(item => {
+    this.loader.data.forEach(item => {
       this.selectedIds.add(item.id);
     });
   }
@@ -202,15 +148,6 @@ export class MediaListStore {
    */
   getSelectedIds(): string[] {
     return Array.from(this.selectedIds);
-  }
-
-  /**
-   * Проверяет, выбран ли медиа-файл.
-   * @param id ULID идентификатор медиа-файла.
-   * @returns `true`, если медиа-файл выбран.
-   */
-  isSelected(id: string): boolean {
-    return this.selectedIds.has(id);
   }
 
   /**

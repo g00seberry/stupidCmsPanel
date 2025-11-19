@@ -23,7 +23,7 @@ export const MediaTrashPage = observer(() => {
   const store = useMemo(() => {
     const newStore = new MediaListStore();
     // Устанавливаем фильтр для показа только удаленных файлов
-    void newStore.setFilters({ deleted: 'only', page: 1 });
+    void newStore.loader.setFilters({ deleted: 'only', page: 1 });
     return newStore;
   }, []);
 
@@ -36,7 +36,7 @@ export const MediaTrashPage = observer(() => {
    * Обрабатывает изменение страницы пагинации.
    */
   const handlePageChange = async (page: number) => {
-    await store.goToPage(page);
+    await store.loader.goToPage(page);
   };
 
   /**
@@ -65,9 +65,9 @@ export const MediaTrashPage = observer(() => {
       await restoreMedia(id);
       message.success('Медиа-файл восстановлен');
       // Если восстановили последний элемент на странице, переходим на предыдущую
-      const currentPage = store.paginationMeta?.current_page || 1;
-      if (currentPage > 1 && store.media.length === 1) {
-        await store.goToPage(currentPage - 1);
+      const currentPage = store.loader.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.loader.data.length === 1) {
+        await store.loader.goToPage(currentPage - 1);
       } else {
         await store.loadMedia();
       }
@@ -90,9 +90,9 @@ export const MediaTrashPage = observer(() => {
       message.success(`Восстановлено медиа-файлов: ${selectedIds.length}`);
       store.deselectAll();
       // Если восстановили все элементы на текущей странице, переходим на предыдущую
-      const currentPage = store.paginationMeta?.current_page || 1;
-      if (currentPage > 1 && store.media.length === selectedIds.length) {
-        await store.goToPage(currentPage - 1);
+      const currentPage = store.loader.paginationMeta?.current_page || 1;
+      if (currentPage > 1 && store.loader.data.length === selectedIds.length) {
+        await store.loader.goToPage(currentPage - 1);
       } else {
         await store.loadMedia();
       }
@@ -123,9 +123,9 @@ export const MediaTrashPage = observer(() => {
           message.success(`Удалено медиа-файлов: ${selectedIds.length}`);
           store.deselectAll();
           // Если удалили все элементы на текущей странице, переходим на предыдущую
-          const currentPage = store.paginationMeta?.current_page || 1;
-          if (currentPage > 1 && store.media.length === selectedIds.length) {
-            await store.goToPage(currentPage - 1);
+          const currentPage = store.loader.paginationMeta?.current_page || 1;
+          if (currentPage > 1 && store.loader.data.length === selectedIds.length) {
+            await store.loader.goToPage(currentPage - 1);
           } else {
             await store.loadMedia();
           }
@@ -180,7 +180,7 @@ export const MediaTrashPage = observer(() => {
    * Обрабатывает очистку всей корзины.
    */
   const handleClearTrash = async () => {
-    const totalCount = store.paginationMeta?.total || 0;
+    const totalCount = store.loader.paginationMeta?.total || 0;
     if (totalCount === 0) {
       return;
     }
@@ -213,7 +213,7 @@ export const MediaTrashPage = observer(() => {
           message.success(`Корзина очищена. Удалено ${allMediaIds.length} медиа-файлов`);
           store.deselectAll();
           // После очистки корзины возвращаемся на первую страницу
-          await store.goToPage(1);
+          await store.loader.goToPage(1);
           await store.loadMedia();
         } catch (error) {
           onError(error);
@@ -222,7 +222,7 @@ export const MediaTrashPage = observer(() => {
     });
   };
 
-  const totalCount = store.paginationMeta?.total || 0;
+  const totalCount = store.loader.paginationMeta?.total || 0;
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -296,9 +296,9 @@ export const MediaTrashPage = observer(() => {
 
         {/* Сетка медиа-файлов */}
         <MediaGrid
-          media={store.media}
-          loading={store.pending}
-          initialLoading={store.initialLoading}
+          media={store.loader.data}
+          loading={store.loader.pending}
+          initialLoading={store.loader.initialLoading}
           selectable
           selectedIds={store.selectedIds}
           onSelectChange={handleSelectChange}
@@ -309,12 +309,12 @@ export const MediaTrashPage = observer(() => {
         />
 
         {/* Пагинация */}
-        {store.paginationMeta && store.paginationMeta.total > 0 && (
+        {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
           <div className="mt-6 flex justify-center">
             <Pagination
-              current={store.paginationMeta.current_page}
-              total={store.paginationMeta.total}
-              pageSize={store.paginationMeta.per_page}
+              current={store.loader.paginationMeta.current_page}
+              total={store.loader.paginationMeta.total}
+              pageSize={store.loader.paginationMeta.per_page}
               showSizeChanger={false}
               showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
               onChange={handlePageChange}
