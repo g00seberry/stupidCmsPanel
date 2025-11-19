@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Typography, Modal, Popconfirm, message, Pagination } from 'antd';
+import { Button, Typography, Modal, Popconfirm, Pagination, App } from 'antd';
 import { Upload, Trash2, Archive } from 'lucide-react';
 import { MediaListStore } from './MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
@@ -19,6 +19,7 @@ const { Title, Paragraph } = Typography;
  * Обеспечивает просмотр, фильтрацию, загрузку и управление медиа-файлами.
  */
 export const MediaListPage = observer(() => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
   const store = useMemo(() => new MediaListStore(), []);
   const filterStore = useMemo(() => new FilterFormStore(), []);

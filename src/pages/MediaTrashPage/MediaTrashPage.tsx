@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Popconfirm, message, App } from 'antd';
+import { Button, Typography, Popconfirm, App } from 'antd';
 import { RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { MediaListStore } from '@/pages/MediaListPage/MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
@@ -19,7 +19,7 @@ const { Title, Paragraph } = Typography;
  */
 export const MediaTrashPage = observer(() => {
   const navigate = useNavigate();
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const store = useMemo(() => {
     const newStore = new MediaListStore();
     // Устанавливаем фильтр для показа только удаленных файлов

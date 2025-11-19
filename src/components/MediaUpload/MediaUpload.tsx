@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Upload, Button, Progress, message } from 'antd';
+import { Upload, Button, Progress, App } from 'antd';
 import { UploadOutlined, InboxOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd/es/upload';
 import { uploadMedia } from '@/api/apiMedia';
@@ -51,6 +51,7 @@ export const MediaUpload: React.FC<PropsMediaUpload> = ({
   disabled = false,
   mode = 'dragger',
 }) => {
+  const { message } = App.useApp();
   const [uploadStates, setUploadStates] = useState<Map<string, FileUploadState>>(new Map());
   const allCompleteCalledRef = useRef(false);
 

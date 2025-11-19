@@ -79,7 +79,6 @@ const buildQueryParams = (
  */
 export const getMediaConfig = async (): Promise<ZMediaConfig> => {
   const response = await rest.get(getAdminMediaUrl('/config'));
-  console.log(response.data);
   const result = zMediaConfigResponse.parse(response.data);
   return result;
 };
