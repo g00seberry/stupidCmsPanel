@@ -6,7 +6,7 @@
 
 > **createTerm**(`taxonomyId`, `payload`): `Promise`\<\{ `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `meta_json`: `unknown`; `name`: `string`; `parent_id?`: `string` \| `null`; `taxonomy`: `string`; `updated_at?`: `string`; \}\>
 
-Defined in: [src/api/apiTerms.ts:74](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiTerms.ts#L74)
+Defined in: [src/api/apiTerms.ts:74](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/api/apiTerms.ts#L74)
 
 Создаёт новый термин в указанной таксономии.
 

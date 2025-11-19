@@ -6,7 +6,7 @@
 
 > **logout**(`options`): `Promise`\<`void`\>
 
-Defined in: [src/api/apiAuth.ts:51](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/api/apiAuth.ts#L51)
+Defined in: [src/api/apiAuth.ts:51](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/api/apiAuth.ts#L51)
 
 Завершает текущую пользовательскую сессию.
 

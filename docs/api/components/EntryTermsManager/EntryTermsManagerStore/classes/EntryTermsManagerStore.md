@@ -4,7 +4,7 @@
 
 # Class: EntryTermsManagerStore
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:13](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L13)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:13](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L13)
 
 Store для управления состоянием управления термами записи.
 Обеспечивает загрузку, добавление и удаление термов записи.
@@ -15,7 +15,7 @@ Store для управления состоянием управления те
 
 > **new EntryTermsManagerStore**(`entryId`): `EntryTermsManagerStore`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:32](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L32)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:32](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L32)
 
 Создаёт экземпляр стора управления термами записи.
 
@@ -35,7 +35,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:32](http
 
 > **entryId**: `string`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:23](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L23)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:23](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L23)
 
 ID записи, для которой управляются термы.
 
@@ -45,7 +45,7 @@ ID записи, для которой управляются термы.
 
 > **entryTerms**: \{ `entry_id`: `string`; `terms_by_taxonomy`: `object`[]; \} \| `null` = `null`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:15](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L15)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:15](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L15)
 
 Данные о термах записи.
 
@@ -73,7 +73,7 @@ ID записи, для которой получены термы.
 
 > **loading**: `boolean` = `false`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L17)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L17)
 
 Флаг выполнения асинхронной операции.
 
@@ -83,7 +83,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:17](http
 
 > **modalVisible**: `boolean` = `false`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:21](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L21)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:21](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L21)
 
 Флаг видимости модального окна добавления термов.
 
@@ -93,7 +93,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:21](http
 
 > **pendingTermIds**: `Set`\<`string`\>
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L25)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L25)
 
 Временное состояние выбранных термов в модальном окне.
 
@@ -103,7 +103,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:25](http
 
 > **selectedTaxonomy**: `string` \| `null` = `null`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L19)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L19)
 
 ID выбранной таксономии для добавления термов.
 
@@ -113,7 +113,7 @@ ID выбранной таксономии для добавления терм�
 
 > **termsCache**: `Map`\<`string`, \{ `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `meta_json`: `unknown`; `name`: `string`; `parent_id?`: `string` \| `null`; `taxonomy`: `string`; `updated_at?`: `string`; \}\>
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:27](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L27)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:27](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L27)
 
 Кэш термов по ID для быстрого доступа.
 
@@ -125,7 +125,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:27](http
 
 > **get** **availableTaxonomies**(): `object`[]
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:57](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L57)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:57](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L57)
 
 Список доступных таксономий с учётом ограничений.
 
@@ -139,7 +139,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:57](http
 
 > **get** **currentTermIds**(): `string`[]
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:80](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L80)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:80](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L80)
 
 Массив ID текущих термов записи для выбранной таксономии.
 Если модальное окно открыто, возвращает временное состояние (все выбранные термы из всех таксономий).
@@ -157,7 +157,7 @@ TermSelector сам отфильтрует нужные термы по taxonomy
 
 > **get** **currentTerms**(): `object`[]
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L64)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L64)
 
 Текущие термы записи в плоском виде с информацией о таксономии.
 
@@ -169,7 +169,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:64](http
 
 > **buildDisplayTerms**(`termIds`): \{ `entry_id`: `string`; `terms_by_taxonomy`: `object`[]; \} \| `null`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:153](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L153)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:153](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L153)
 
 Строит список термов для отображения на основе value из формы.
 Использует кэш для термов, которых нет в entryTerms.
@@ -208,7 +208,7 @@ ID записи, для которой получены термы.
 
 > **cacheTerms**(`terms`): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:141](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L141)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:141](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L141)
 
 Добавляет термы в кэш.
 
@@ -230,7 +230,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:141](htt
 
 > **closeModal**(): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:119](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L119)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:119](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L119)
 
 Закрывает модальное окно добавления термов.
 Сбрасывает временное состояние.
@@ -245,7 +245,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:119](htt
 
 > **initialize**(`termIds?`): `Promise`\<`void`\>
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L41)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L41)
 
 Инициализирует стор с параметрами записи.
 
@@ -267,7 +267,7 @@ Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:41](http
 
 > **openModal**(`taxonomyId`, `termIds`): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:109](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L109)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:109](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L109)
 
 Открывает модальное окно добавления термов для указанной таксономии.
 Инициализирует временное состояние текущими термами из формы.
@@ -296,7 +296,7 @@ ID таксономии, для которой открывается модал
 
 > **setEntryTerms**(`entryTerms`): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:91](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L91)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:91](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L91)
 
 Устанавливает данные о термах записи.
 
@@ -328,7 +328,7 @@ ID записи, для которой получены термы.
 
 > **setSelectedTaxonomy**(`taxonomyId`): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:99](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L99)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:99](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L99)
 
 Устанавливает ID выбранной таксономии.
 
@@ -350,7 +350,7 @@ ID таксономии.
 
 > **updatePendingTerm**(`termId`, `checked`): `void`
 
-Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:129](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L129)
+Defined in: [src/components/EntryTermsManager/EntryTermsManagerStore.ts:129](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/EntryTermsManagerStore.ts#L129)
 
 Обновляет временное состояние выбранных термов.
 

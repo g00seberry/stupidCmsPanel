@@ -6,7 +6,7 @@
 
 > **ZEntriesListParams** = `object`
 
-Defined in: [src/types/entries.ts:94](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L94)
+Defined in: [src/types/entries.ts:94](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L94)
 
 Параметры запроса списка записей.
 
@@ -16,7 +16,7 @@ Defined in: [src/types/entries.ts:94](https://github.com/g00seberry/stupidCmsPan
 
 > `optional` **author\_id**: [`ZId`](../../ZId/type-aliases/ZId.md)
 
-Defined in: [src/types/entries.ts:102](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L102)
+Defined in: [src/types/entries.ts:102](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L102)
 
 ID автора.
 
@@ -26,7 +26,7 @@ ID автора.
 
 > `optional` **date\_field**: `"updated"` \| `"published"`
 
-Defined in: [src/types/entries.ts:106](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L106)
+Defined in: [src/types/entries.ts:106](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L106)
 
 Поле даты для диапазона: updated, published. По умолчанию: updated.
 
@@ -36,7 +36,7 @@ Defined in: [src/types/entries.ts:106](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **date\_from**: `string`
 
-Defined in: [src/types/entries.ts:108](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L108)
+Defined in: [src/types/entries.ts:108](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L108)
 
 Начальная дата диапазона (ISO 8601).
 
@@ -46,7 +46,7 @@ Defined in: [src/types/entries.ts:108](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **date\_to**: `string`
 
-Defined in: [src/types/entries.ts:110](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L110)
+Defined in: [src/types/entries.ts:110](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L110)
 
 Конечная дата диапазона (ISO 8601, >= date_from).
 
@@ -56,7 +56,7 @@ Defined in: [src/types/entries.ts:110](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **page**: `number`
 
-Defined in: [src/types/entries.ts:122](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L122)
+Defined in: [src/types/entries.ts:122](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L122)
 
 Номер страницы (>=1). По умолчанию: 1.
 
@@ -66,7 +66,7 @@ Defined in: [src/types/entries.ts:122](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **per\_page**: `number`
 
-Defined in: [src/types/entries.ts:120](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L120)
+Defined in: [src/types/entries.ts:120](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L120)
 
 Количество элементов на странице (10-100). По умолчанию: 15.
 
@@ -76,7 +76,7 @@ Defined in: [src/types/entries.ts:120](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **post\_type**: `string`
 
-Defined in: [src/types/entries.ts:96](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L96)
+Defined in: [src/types/entries.ts:96](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L96)
 
 Фильтр по slug типа контента.
 
@@ -86,7 +86,7 @@ Defined in: [src/types/entries.ts:96](https://github.com/g00seberry/stupidCmsPan
 
 > `optional` **q**: `string`
 
-Defined in: [src/types/entries.ts:100](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L100)
+Defined in: [src/types/entries.ts:100](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L100)
 
 Поиск по названию/slug.
 
@@ -96,7 +96,7 @@ Defined in: [src/types/entries.ts:100](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **sort**: `"updated_at.desc"` \| `"updated_at.asc"` \| `"published_at.desc"` \| `"published_at.asc"` \| `"title.asc"` \| `"title.desc"`
 
-Defined in: [src/types/entries.ts:112](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L112)
+Defined in: [src/types/entries.ts:112](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L112)
 
 Поле сортировки: updated_at.desc, updated_at.asc, published_at.desc, published_at.asc, title.asc, title.desc. По умолчанию: updated_at.desc.
 
@@ -106,7 +106,7 @@ Defined in: [src/types/entries.ts:112](https://github.com/g00seberry/stupidCmsPa
 
 > `optional` **status**: `"all"` \| `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`
 
-Defined in: [src/types/entries.ts:98](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L98)
+Defined in: [src/types/entries.ts:98](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L98)
 
 Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all.
 
@@ -116,6 +116,6 @@ Defined in: [src/types/entries.ts:98](https://github.com/g00seberry/stupidCmsPan
 
 > `optional` **term**: [`ZId`](../../ZId/type-aliases/ZId.md)[]
 
-Defined in: [src/types/entries.ts:104](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/entries.ts#L104)
+Defined in: [src/types/entries.ts:104](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/entries.ts#L104)
 
 Массив ID терминов для фильтрации.

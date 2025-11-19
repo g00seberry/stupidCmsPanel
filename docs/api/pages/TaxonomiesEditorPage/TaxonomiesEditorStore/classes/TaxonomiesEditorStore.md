@@ -4,7 +4,7 @@
 
 # Class: TaxonomiesEditorStore
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L36)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L36)
 
 Store для управления состоянием редактора таксономии.
 
@@ -14,7 +14,7 @@ Store для управления состоянием редактора так
 
 > **new TaxonomiesEditorStore**(): `TaxonomiesEditorStore`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L44)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L44)
 
 Создаёт экземпляр стора редактора таксономии.
 
@@ -28,7 +28,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:44](https:/
 
 > **formValues**: [`FormValues`](../interfaces/FormValues.md) = `defaultFormValues`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L37)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L37)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:37](https:/
 
 > **initialLoading**: `boolean` = `false`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L38)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L38)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:38](https:/
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L39)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L39)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:39](https:/
 
 > **deleteTaxonomy**(`id`, `force`): `Promise`\<`boolean`\>
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:139](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L139)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:139](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L139)
 
 Удаляет таксономию.
 
@@ -86,7 +86,7 @@ ID таксономии для удаления.
 
 > **loadTaxonomy**(`id`): `Promise`\<`void`\>
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L85)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L85)
 
 Загружает данные таксономии для редактирования.
 
@@ -108,7 +108,7 @@ ID таксономии.
 
 > **saveTaxonomy**(`values`, `isEditMode`, `currentId?`): `Promise`\<\{ `created_at?`: `string`; `hierarchical`: `boolean`; `id`: `string`; `label`: `string`; `options_json`: `Record`\<`string`, `unknown`\> \| `null`; `updated_at?`: `string`; \} \| `null`\>
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:104](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L104)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:104](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L104)
 
 Сохраняет таксономию (создаёт новую или обновляет существующую).
 
@@ -144,7 +144,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:104](https:
 
 > **setFormField**\<`K`\>(`field`, `value`): `void`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L61)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L61)
 
 Устанавливает значение конкретного поля формы.
 
@@ -178,7 +178,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:61](https:/
 
 > **setFormValues**(`values`): `void`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L52)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L52)
 
 Устанавливает значения формы.
 
@@ -200,7 +200,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:52](https:/
 
 > **setInitialLoading**(`value`): `void`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:69](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L69)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:69](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L69)
 
 Устанавливает флаг начальной загрузки.
 
@@ -222,7 +222,7 @@ Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:69](https:/
 
 > **setPending**(`value`): `void`
 
-Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L77)
+Defined in: [src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TaxonomiesEditorPage/TaxonomiesEditorStore.ts#L77)
 
 Устанавливает флаг выполнения операции.
 

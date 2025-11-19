@@ -14,6 +14,8 @@
 | `/entries/:postType/:id` | `EntryEditorPage` |
 | `/login` | `LoginPage` |
 | `/media` | `-` |
+| `/media/:id` | `MediaEditorPage` |
+| `/media/trash` | `-` |
 | `/seo` | `-` |
 | `/settings` | `-` |
 | `/taxonomies` | `TaxonomiesPage` |
@@ -38,6 +40,20 @@
 ### LoginPage
 
 - `LoginPage.tsx`
+
+### MediaEditorPage
+
+- `MediaEditorPage.tsx`
+- `MediaEditorStore.ts`
+- `index.ts`
+
+### MediaListPage
+
+- `MediaListHeader.tsx`
+- `MediaListPage.tsx`
+- `MediaListStore.ts`
+- `index.ts`
+- `mediaListHandlers.ts`
 
 ### PostTypeEditorPage
 

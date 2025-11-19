@@ -12,6 +12,7 @@
 | `cardClassName` | `string \| undefined` |  | `` | Дополнительный класс для карточки. |
 | `defaultValues` | `Record<string, unknown> \| undefined` |  | `` | Значения фильтров по умолчанию. |
 | `fields` | `FilterFieldConfig[]` | ✓ | `` | Конфигурация полей фильтрации. |
+| `onReset` | `(() => void) \| undefined` |  | `` | Обработчик сброса фильтров. Вызывается при нажатии кнопки сброса. |
 | `resetText` | `string \| undefined` |  | `` | Текст кнопки сброса. По умолчанию: 'Сбросить'. |
 | `showFilterIcon` | `boolean \| undefined` |  | `` | Показывать иконку фильтра на кнопке применения. По умолчанию: true. |
 | `store` | `FilterFormStore` | ✓ | `` | Store для управления состоянием фильтров. |

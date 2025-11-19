@@ -4,7 +4,7 @@
 
 # Class: AuthStore
 
-Defined in: [src/AuthStore.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L9)
+Defined in: [src/AuthStore.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L9)
 
 Состояние авторизации администратора и операции входа/выхода.
 
@@ -14,7 +14,7 @@ Defined in: [src/AuthStore.ts:9](https://github.com/g00seberry/stupidCmsPanel/bl
 
 > **new AuthStore**(): `AuthStore`
 
-Defined in: [src/AuthStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L17)
+Defined in: [src/AuthStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L17)
 
 Создаёт экземпляр MobX-стора авторизации.
 
@@ -28,7 +28,7 @@ Defined in: [src/AuthStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/AuthStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L11)
+Defined in: [src/AuthStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L11)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/AuthStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **relogin**: `boolean` = `false`
 
-Defined in: [src/AuthStore.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L10)
+Defined in: [src/AuthStore.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L10)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/AuthStore.ts:10](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **user**: \{ `email`: `string`; `id`: `number`; `name`: `string`; \} \| `null` = `null`
 
-Defined in: [src/AuthStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L12)
+Defined in: [src/AuthStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L12)
 
 #### Type Declaration
 
@@ -78,7 +78,7 @@ Email адрес пользователя.
 
 > **get** **isAuthenticated**(): `boolean`
 
-Defined in: [src/AuthStore.ts:48](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L48)
+Defined in: [src/AuthStore.ts:48](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L48)
 
 Признак активной авторизации пользователя.
 
@@ -92,7 +92,7 @@ Defined in: [src/AuthStore.ts:48](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **init**(): `Promise`\<`void`\>
 
-Defined in: [src/AuthStore.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L55)
+Defined in: [src/AuthStore.ts:55](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L55)
 
 Инициализирует состояние авторизации.
 
@@ -106,7 +106,7 @@ Defined in: [src/AuthStore.ts:55](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **login**(`dto`): `Promise`\<`boolean`\>
 
-Defined in: [src/AuthStore.ts:76](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L76)
+Defined in: [src/AuthStore.ts:76](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L76)
 
 Выполняет попытку входа и обновляет состояние в зависимости от результата.
 
@@ -140,7 +140,7 @@ Email пользователя. Должен быть валидным email а�
 
 > **logout**(`options`): `Promise`\<`void`\>
 
-Defined in: [src/AuthStore.ts:94](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L94)
+Defined in: [src/AuthStore.ts:94](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L94)
 
 Выполняет выход текущего пользователя.
 
@@ -162,7 +162,7 @@ Defined in: [src/AuthStore.ts:94](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **setPending**(`value`): `void`
 
-Defined in: [src/AuthStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L25)
+Defined in: [src/AuthStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L25)
 
 Устанавливает флаг выполнения запроса авторизации.
 
@@ -184,7 +184,7 @@ Defined in: [src/AuthStore.ts:25](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **setRelogin**(`value`): `void`
 
-Defined in: [src/AuthStore.ts:33](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L33)
+Defined in: [src/AuthStore.ts:33](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L33)
 
 Устанавливает флаг выполнения запроса релогина.
 
@@ -206,7 +206,7 @@ Defined in: [src/AuthStore.ts:33](https://github.com/g00seberry/stupidCmsPanel/b
 
 > **setUser**(`user`): `void`
 
-Defined in: [src/AuthStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/AuthStore.ts#L41)
+Defined in: [src/AuthStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/AuthStore.ts#L41)
 
 Сохраняет информацию о текущем пользователе.
 

@@ -6,7 +6,7 @@
 
 > `const` **zProblemJson**: `ZodObject`\<\{ `code`: `ZodOptional`\<`ZodString`\>; `detail`: `ZodOptional`\<`ZodString`\>; `instance`: `ZodOptional`\<`ZodString`\>; `meta`: `ZodOptional`\<`ZodObject`\<\{ `errors`: `ZodOptional`\<`ZodRecord`\<`ZodString`, `ZodArray`\<`ZodString`\>\>\>; `permission`: `ZodOptional`\<`ZodString`\>; `reason`: `ZodOptional`\<`ZodString`\>; `request_id`: `ZodOptional`\<`ZodString`\>; `retry_after`: `ZodOptional`\<`ZodNumber`\>; \}, `$catchall`\<`ZodUnknown`\>\>\>; `status`: `ZodOptional`\<`ZodNumber`\>; `title`: `ZodOptional`\<`ZodString`\>; `trace_id`: `ZodOptional`\<`ZodString`\>; `type`: `ZodOptional`\<`ZodString`\>; \}, `$catchall`\<`ZodUnknown`\>\>
 
-Defined in: [src/types/ZProblemJson.ts:46](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/types/ZProblemJson.ts#L46)
+Defined in: [src/types/ZProblemJson.ts:46](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/types/ZProblemJson.ts#L46)
 
 Схема валидации ответа об ошибке в формате RFC 7807 (Problem Details for HTTP APIs).
 Стандартизированный формат для описания ошибок HTTP API.

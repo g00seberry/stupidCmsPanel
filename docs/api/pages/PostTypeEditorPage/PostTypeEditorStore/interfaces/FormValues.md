@@ -4,7 +4,7 @@
 
 # Interface: FormValues
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L16)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:16](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L16)
 
 Значения формы редактора типа контента.
 
@@ -14,7 +14,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:16](https://git
 
 > `readonly` **name**: `string`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L17)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L17)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:17](https://git
 
 > `readonly` **slug**: `string`
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L18)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L18)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:18](https://git
 
 > `readonly` **taxonomies**: `string`[]
 
-Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L19)
+Defined in: [src/pages/PostTypeEditorPage/PostTypeEditorStore.ts:19](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/PostTypeEditorPage/PostTypeEditorStore.ts#L19)

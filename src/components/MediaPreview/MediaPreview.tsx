@@ -138,7 +138,12 @@ export const MediaPreview: React.FC<PropsMediaPreview> = ({
         )}
         {(media.kind === 'video' || media.kind === 'audio') && (
           <div>
-            Длительность: {Math.round((media as ZMediaVideo | ZMediaAudio).duration_ms / 1000)} сек
+            Длительность:{' '}
+            {(() => {
+              const durationMs = (media as ZMediaVideo | ZMediaAudio).duration_ms;
+              return durationMs != null ? Math.round(durationMs / 1000) : '-';
+            })()}{' '}
+            сек
           </div>
         )}
       </div>

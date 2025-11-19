@@ -4,7 +4,7 @@
 
 # Class: TermsListStore
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L12)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L12)
 
 Store для управления состоянием списка терминов таксономии.
 Обеспечивает загрузку иерархии терминов.
@@ -15,7 +15,7 @@ Store для управления состоянием списка термин
 
 > **new TermsListStore**(): `TermsListStore`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:34](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L34)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:34](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L34)
 
 #### Returns
 
@@ -27,7 +27,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:34](https://github.com/g00seb
 
 > **loading**: `boolean` = `false`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L20)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L20)
 
 Флаг выполнения запроса загрузки таксономии.
 
@@ -37,7 +37,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:20](https://github.com/g00seb
 
 > **taxonomy**: \{ `created_at?`: `string`; `hierarchical`: `boolean`; `id`: `string`; `label`: `string`; `options_json`: `Record`\<`string`, `unknown`\> \| `null`; `updated_at?`: `string`; \} \| `null` = `null`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L17)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:17](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L17)
 
 Данные текущей таксономии.
 
@@ -89,7 +89,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:17](https://github.com/g00seb
 
 > **termsTree**: [`ZTermTree`](../../../../types/terms/type-aliases/ZTermTree.md)[] = `[]`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:14](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L14)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:14](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L14)
 
 Дерево терминов таксономии.
 
@@ -99,7 +99,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:14](https://github.com/g00seb
 
 > **initialize**(`taxonomyId`): `Promise`\<`void`\>
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:42](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L42)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:42](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L42)
 
 Инициализирует загрузку данных при первом открытии страницы.
 
@@ -121,7 +121,7 @@ ID таксономии для фильтрации.
 
 > **setLoading**(`loading`): `void`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:26](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L26)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:26](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L26)
 
 #### Parameters
 
@@ -139,7 +139,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:26](https://github.com/g00seb
 
 > **setTaxonomy**(`taxonomy`): `void`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:22](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L22)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:22](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L22)
 
 #### Parameters
 
@@ -191,7 +191,7 @@ Defined in: [src/pages/TermsPage/TermsListStore.ts:22](https://github.com/g00seb
 
 > **setTermsTree**(`tree`): `void`
 
-Defined in: [src/pages/TermsPage/TermsListStore.ts:30](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermsPage/TermsListStore.ts#L30)
+Defined in: [src/pages/TermsPage/TermsListStore.ts:30](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermsPage/TermsListStore.ts#L30)
 
 #### Parameters
 

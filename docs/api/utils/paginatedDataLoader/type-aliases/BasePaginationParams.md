@@ -6,7 +6,7 @@
 
 > **BasePaginationParams** = `object`
 
-Defined in: [src/utils/paginatedDataLoader.ts:8](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/utils/paginatedDataLoader.ts#L8)
+Defined in: [src/utils/paginatedDataLoader.ts:8](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/utils/paginatedDataLoader.ts#L8)
 
 Базовые параметры пагинации для любого запроса.
 
@@ -16,7 +16,7 @@ Defined in: [src/utils/paginatedDataLoader.ts:8](https://github.com/g00seberry/s
 
 > `optional` **page**: `number`
 
-Defined in: [src/utils/paginatedDataLoader.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/utils/paginatedDataLoader.ts#L10)
+Defined in: [src/utils/paginatedDataLoader.ts:10](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/utils/paginatedDataLoader.ts#L10)
 
 Номер страницы (>=1). По умолчанию: 1.
 
@@ -26,6 +26,6 @@ Defined in: [src/utils/paginatedDataLoader.ts:10](https://github.com/g00seberry/
 
 > `optional` **per\_page**: `number`
 
-Defined in: [src/utils/paginatedDataLoader.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/utils/paginatedDataLoader.ts#L12)
+Defined in: [src/utils/paginatedDataLoader.ts:12](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/utils/paginatedDataLoader.ts#L12)
 
 Количество элементов на странице. По умолчанию: 15.

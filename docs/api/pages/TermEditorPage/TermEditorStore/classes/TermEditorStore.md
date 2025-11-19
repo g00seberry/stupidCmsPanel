@@ -4,7 +4,7 @@
 
 # Class: TermEditorStore
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L36)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L36)
 
 Store для управления состоянием редактора термина.
 
@@ -14,7 +14,7 @@ Store для управления состоянием редактора тер
 
 > **new TermEditorStore**(): `TermEditorStore`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L44)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L44)
 
 Создаёт экземпляр стора редактора термина.
 
@@ -28,7 +28,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:44](https://github.com/
 
 > **formValues**: [`FormValues`](../interfaces/FormValues.md) = `defaultFormValues`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L37)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:37](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L37)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:37](https://github.com/
 
 > **initialLoading**: `boolean` = `false`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L38)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L38)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:38](https://github.com/
 
 > **pending**: `boolean` = `false`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L39)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:39](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L39)
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:39](https://github.com/
 
 > **deleteTerm**(`termId`, `forceDetach`): `Promise`\<`boolean`\>
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:141](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L141)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:141](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L141)
 
 Удаляет термин.
 
@@ -86,7 +86,7 @@ ID термина для удаления.
 
 > **loadTerm**(`termId`): `Promise`\<`void`\>
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L85)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:85](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L85)
 
 Загружает данные термина для редактирования.
 
@@ -108,7 +108,7 @@ ID термина.
 
 > **saveTerm**(`values`, `taxonomyId`, `isEditMode`, `termId?`): `Promise`\<\{ `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `meta_json`: `unknown`; `name`: `string`; `parent_id?`: `string` \| `null`; `taxonomy`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L105)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:105](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L105)
 
 Сохраняет термин (создаёт новый или обновляет существующий).
 
@@ -150,7 +150,7 @@ ID термина (для режима редактирования).
 
 > **setFormField**\<`K`\>(`field`, `value`): `void`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L61)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L61)
 
 Устанавливает значение конкретного поля формы.
 
@@ -184,7 +184,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:61](https://github.com/
 
 > **setFormValues**(`values`): `void`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L52)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:52](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L52)
 
 Устанавливает значения формы.
 
@@ -206,7 +206,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:52](https://github.com/
 
 > **setInitialLoading**(`value`): `void`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:69](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L69)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:69](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L69)
 
 Устанавливает флаг начальной загрузки.
 
@@ -228,7 +228,7 @@ Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:69](https://github.com/
 
 > **setPending**(`value`): `void`
 
-Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/pages/TermEditorPage/TermEditorStore.ts#L77)
+Defined in: [src/pages/TermEditorPage/TermEditorStore.ts:77](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/TermEditorPage/TermEditorStore.ts#L77)
 
 Устанавливает флаг выполнения операции.
 

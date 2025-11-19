@@ -4,7 +4,7 @@
 
 # Class: TermSelectorStore
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:33](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L33)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:33](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L33)
 
 Store для управления состоянием компонента выбора термов.
 Обеспечивает загрузку термов, поиск и фильтрацию для иерархических и плоских таксономий.
@@ -15,7 +15,7 @@ Store для управления состоянием компонента вы
 
 > **new TermSelectorStore**(`taxonomyId`): `TermSelectorStore`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L49)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:49](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L49)
 
 Создаёт экземпляр стора выбора термов.
 
@@ -35,7 +35,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:49](https://g
 
 > **loading**: `boolean` = `false`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:35](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L35)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:35](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L35)
 
 Флаг выполнения асинхронной операции загрузки данных.
 
@@ -45,7 +45,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:35](https://g
 
 > **taxonomyData**: \{ `created_at?`: `string`; `hierarchical`: `boolean`; `id`: `string`; `label`: `string`; `options_json`: `Record`\<`string`, `unknown`\> \| `null`; `updated_at?`: `string`; \} \| `null` = `null`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L44)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:44](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L44)
 
 Данные таксономии.
 
@@ -97,7 +97,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:44](https://g
 
 > **taxonomyId**: `string`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L38)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:38](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L38)
 
 ID текущей таксономии.
 
@@ -107,7 +107,7 @@ ID текущей таксономии.
 
 > **taxonomyTree**: [`ZTermTree`](../../../../types/terms/type-aliases/ZTermTree.md)[] = `[]`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L41)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:41](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L41)
 
 Дерево термов для таксономии.
 
@@ -119,7 +119,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:41](https://g
 
 > **get** **flatTerms**(): `object`[]
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:91](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L91)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:91](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L91)
 
 Плоский список всех термов из дерева.
 Преобразует иерархическую структуру в простой массив.
@@ -132,7 +132,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:91](https://g
 
 > **loadData**(): `Promise`\<`void`\>
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:74](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L74)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:74](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L74)
 
 Загружает данные таксономии и термов.
 Определяет тип таксономии (иерархическая или нет) и загружает соответствующие данные.
@@ -147,7 +147,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:74](https://g
 
 > **setTaxonomyData**(`taxonomyData`): `void`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:66](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L66)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:66](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L66)
 
 Устанавливает данные таксономии.
 
@@ -203,7 +203,7 @@ Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:66](https://g
 
 > **setTaxonomyTree**(`taxonomyTree`): `void`
 
-Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:58](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/EntryTermsManager/TermSelectorStore.ts#L58)
+Defined in: [src/components/EntryTermsManager/TermSelectorStore.ts:58](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/EntryTermsManager/TermSelectorStore.ts#L58)
 
 Устанавливает данные таксономии.
 

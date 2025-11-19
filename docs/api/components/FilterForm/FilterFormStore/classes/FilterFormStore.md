@@ -4,7 +4,7 @@
 
 # Class: FilterFormStore
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:7](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L7)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:7](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L7)
 
 Store для управления состоянием формы фильтрации.
 Хранит значения фильтров и обеспечивает их изменение только внутри компонента.
@@ -15,7 +15,7 @@ Store для управления состоянием формы фильтра
 
 > **new FilterFormStore**(`initialValues`): `FilterFormStore`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L11)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:11](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L11)
 
 #### Parameters
 
@@ -33,7 +33,7 @@ Defined in: [src/components/FilterForm/FilterFormStore.ts:11](https://github.com
 
 > **values**: `Record`\<`string`, `unknown`\> = `{}`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L9)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:9](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L9)
 
 Значения фильтров.
 
@@ -43,7 +43,7 @@ Defined in: [src/components/FilterForm/FilterFormStore.ts:9](https://github.com/
 
 > **getValue**(`name`): `unknown`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:45](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L45)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:45](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L45)
 
 Получает значение фильтра по имени.
 
@@ -67,7 +67,7 @@ Defined in: [src/components/FilterForm/FilterFormStore.ts:45](https://github.com
 
 > **reset**(`defaultValues`): `void`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L36)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:36](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L36)
 
 Сбрасывает значения фильтров к начальным.
 
@@ -89,7 +89,7 @@ Defined in: [src/components/FilterForm/FilterFormStore.ts:36](https://github.com
 
 > **setValues**(`values`): `void`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L20)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:20](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L20)
 
 Устанавливает значения фильтров.
 
@@ -111,7 +111,7 @@ Defined in: [src/components/FilterForm/FilterFormStore.ts:20](https://github.com
 
 > **updateValues**(`values`): `void`
 
-Defined in: [src/components/FilterForm/FilterFormStore.ts:28](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/components/FilterForm/FilterFormStore.ts#L28)
+Defined in: [src/components/FilterForm/FilterFormStore.ts:28](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/components/FilterForm/FilterFormStore.ts#L28)
 
 Обновляет значения фильтров частично.
 

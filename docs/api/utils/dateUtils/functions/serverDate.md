@@ -6,7 +6,7 @@
 
 > **serverDate**(`date`): `string` \| `null`
 
-Defined in: [src/utils/dateUtils.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/8e4dbe9c0803dbe94ba97b07e23f85f5f8b83512/src/utils/dateUtils.ts#L18)
+Defined in: [src/utils/dateUtils.ts:18](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/utils/dateUtils.ts#L18)
 
 Преобразует дату из формата представления (Dayjs объект или строка) в формат сервера (ISO 8601 строка).
 
