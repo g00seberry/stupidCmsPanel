@@ -167,10 +167,7 @@ export const MediaTrashPage = observer(() => {
             <div className="flex items-center gap-3">
               {store.hasSelection && (
                 <>
-                  <Button
-                    icon={<RotateCcw className="w-4 h-4" />}
-                    onClick={handleBulkRestore}
-                  >
+                  <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleBulkRestore}>
                     Восстановить выбранные ({store.selectedCount})
                   </Button>
                   <Popconfirm
@@ -252,4 +249,3 @@ export const MediaTrashPage = observer(() => {
     </div>
   );
 });
-

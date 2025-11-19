@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { observer } from 'mobx-react-lite';
+import { FilterForm, FilterFormStore, type FilterFieldConfig } from '@/components/FilterForm';
+import type { ZMediaListParams } from '@/types/media';
+import { debounce } from '@/utils/debounce';
 import { Input, Select } from 'antd';
 import { Search } from 'lucide-react';
-import { FilterForm, FilterFormStore, type FilterFieldConfig } from '@/components/FilterForm';
-import { debounce } from '@/utils/debounce';
-import type { ZMediaListParams } from '@/types/media';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Пропсы компонента фильтров медиа-файлов.

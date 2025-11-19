@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Typography, Modal, Popconfirm, message, Pagination } from 'antd';
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, Archive } from 'lucide-react';
 import { MediaListStore } from './MediaListStore';
 import { MediaGrid } from '@/components/MediaGrid';
 import { MediaUpload } from '@/components/MediaUpload';
@@ -119,6 +119,9 @@ export const MediaListPage = observer(() => {
               <span className="text-foreground font-medium">Медиа-файлы</span>
             </div>
             <div className="flex items-center gap-3">
+              <Link to={PageUrl.MediaTrash}>
+                <Button icon={<Archive className="w-4 h-4" />}>Корзина</Button>
+              </Link>
               <Button
                 type="primary"
                 icon={<Upload className="w-4 h-4" />}

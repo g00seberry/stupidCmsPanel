@@ -97,19 +97,10 @@ export class MediaEditorStore {
       const trimmedAlt = this.formData.alt.trim();
       const trimmedCollection = this.formData.collection.trim();
 
-      // Валидация: collection не должен быть пустым
-      if (!trimmedCollection) {
-        notificationService.showError({
-          message: 'Ошибка валидации',
-          description: 'Коллекция не может быть пустой',
-        });
-        return null;
-      }
-
       const payload: ZMediaUpdatePayload = {
         ...(trimmedTitle && { title: trimmedTitle }),
         ...(trimmedAlt && { alt: trimmedAlt }),
-        collection: trimmedCollection,
+        ...(trimmedCollection && { collection: trimmedCollection }),
       };
 
       const updatedMedia = await updateMedia(this.mediaId, payload);

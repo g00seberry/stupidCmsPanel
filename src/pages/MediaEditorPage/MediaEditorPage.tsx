@@ -221,10 +221,7 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
                   <Form.Item
                     label="Коллекция"
                     name="collection"
-                    rules={[
-                      { required: true, message: 'Коллекция обязательна' },
-                      { max: 64, message: 'Коллекция не должна превышать 64 символов' },
-                    ]}
+                    rules={[{ max: 64, message: 'Коллекция не должна превышать 64 символов' }]}
                   >
                     <Input placeholder="Введите название коллекции" />
                   </Form.Item>
