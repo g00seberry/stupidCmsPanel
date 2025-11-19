@@ -15,10 +15,42 @@ import type {
   ZMediaUpdatePayload,
   ZMediaConfig,
   ZMediaBulkPayload,
+  ZMediaImage,
 } from '@/types/media';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import { normalizeMediaUrl } from '@/utils/mediaUtils';
 
 const getAdminMediaUrl = (path: string): string => `/api/v1/admin/media${path}`;
+
+/**
+ * Нормализует URL медиа-файла, преобразуя абсолютные URL в относительные пути через прокси.
+ * @param media Медиа-файл для нормализации.
+ * @returns Медиа-файл с нормализованными URL.
+ */
+const normalizeMedia = (media: ZMedia): ZMedia => {
+  // Нормализуем основной URL
+  const normalizedUrl = normalizeMediaUrl(media.url);
+
+  // Для изображений нормализуем также preview_urls
+  if (media.kind === 'image') {
+    const imageMedia = media as ZMediaImage;
+    return {
+      ...imageMedia,
+      url: normalizedUrl,
+      preview_urls: {
+        thumbnail: normalizeMediaUrl(imageMedia.preview_urls.thumbnail),
+        medium: normalizeMediaUrl(imageMedia.preview_urls.medium),
+        large: normalizeMediaUrl(imageMedia.preview_urls.large),
+      },
+    } as ZMedia;
+  }
+
+  // Для остальных типов медиа нормализуем только основной URL
+  return {
+    ...media,
+    url: normalizedUrl,
+  };
+};
 
 /**
  * Преобразует параметры запроса в query-параметры для URL.
@@ -109,7 +141,7 @@ export const listMedia = async (
   const result = zMediaListResponse.parse(response.data);
 
   return {
-    data: result.data,
+    data: result.data.map(normalizeMedia),
     links: result.links,
     meta: result.meta,
   };
@@ -129,7 +161,7 @@ export const listMedia = async (
 export const getMedia = async (id: string): Promise<ZMedia> => {
   const response = await rest.get(getAdminMediaUrl(`/${id}`));
   const parsed = zMediaResponse.parse(response.data);
-  return parsed.data;
+  return normalizeMedia(parsed.data);
 };
 
 /**
@@ -173,7 +205,7 @@ export const uploadMedia = async (
     },
   });
   const parsed = zMediaResponse.parse(response.data);
-  return parsed.data;
+  return normalizeMedia(parsed.data);
 };
 
 /**
@@ -193,7 +225,7 @@ export const updateMedia = async (id: string, payload: ZMediaUpdatePayload): Pro
   const parsedPayload = zMediaUpdatePayload.parse(payload);
   const response = await rest.put(getAdminMediaUrl(`/${id}`), parsedPayload);
   const parsed = zMediaResponse.parse(response.data);
-  return parsed.data;
+  return normalizeMedia(parsed.data);
 };
 
 /**
@@ -257,7 +289,7 @@ export const bulkRestoreMedia = async (ids: string[]): Promise<ZMedia[]> => {
   const parsedPayload = zMediaBulkPayload.parse(payload);
   const response = await rest.post(getAdminMediaUrl('/bulk/restore'), parsedPayload);
   const parsed = zMediaArrayResponse.parse(response.data);
-  return parsed.data;
+  return parsed.data.map(normalizeMedia);
 };
 
 /**

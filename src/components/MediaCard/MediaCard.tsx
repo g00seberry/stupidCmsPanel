@@ -118,7 +118,7 @@ export const MediaCard: React.FC<PropsMediaCard> = ({
               loading="lazy"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+            <div className="flex items-center justify-center w-full h-full">
               {getMediaIcon(media.kind, 'w-8 h-8 text-gray-400')}
             </div>
           )}

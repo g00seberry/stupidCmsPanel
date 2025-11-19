@@ -67,3 +67,39 @@ const MEDIA_LABEL_MAP: Record<MediaKindValue, string> = {
 export const getKindLabel = (kind: ZMedia['kind']): string => {
   return MEDIA_LABEL_MAP[kind as MediaKindValue];
 };
+
+/**
+ * Преобразует абсолютный URL медиа в относительный путь через прокси Vite.
+ * Это необходимо для того, чтобы запросы шли через прокси и передавались куки.
+ * @param url Абсолютный или относительный URL медиа-файла.
+ * @returns Относительный путь через прокси Vite.
+ * @example
+ * normalizeMediaUrl('http://127.0.0.1:8000/api/v1/media/123?variant=thumbnail')
+ * // '/api/v1/media/123?variant=thumbnail'
+ * normalizeMediaUrl('http://localhost:8000/api/v1/media/123')
+ * // '/api/v1/media/123'
+ * normalizeMediaUrl('/api/v1/media/123') // '/api/v1/media/123'
+ */
+export const normalizeMediaUrl = (url: string): string => {
+  // Если URL уже относительный, возвращаем как есть
+  if (url.startsWith('/')) {
+    return url;
+  }
+
+  try {
+    const urlObj = new URL(url);
+    // Если URL указывает на бэкенд (127.0.0.1:8000 или localhost:8000), преобразуем в относительный путь
+    const isBackendHost = urlObj.hostname === '127.0.0.1' || urlObj.hostname === 'localhost';
+    // Проверяем явный порт 8000
+    const isBackendPort = urlObj.port === '8000';
+
+    if (isBackendHost && isBackendPort) {
+      return urlObj.pathname + urlObj.search;
+    }
+    // Если URL указывает на другой домен, возвращаем как есть
+    return url;
+  } catch {
+    // Если URL невалидный (например, относительный без протокола), возвращаем как есть
+    return url;
+  }
+};
