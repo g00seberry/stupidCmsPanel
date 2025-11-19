@@ -77,6 +77,11 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
    * Загружает данные с текущими фильтрами.
    */
   async load(): Promise<void> {
+    // Предотвращаем параллельные запросы
+    if (this.pending) {
+      return;
+    }
+
     this.pending = true;
 
     try {
@@ -91,7 +96,10 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
       this.paginationMeta = result.meta;
       this.paginationLinks = result.links;
     } catch (error) {
+      // Сохраняем состояние при ошибке - не очищаем данные
       onError(error);
+      // Пробрасываем ошибку дальше, чтобы вызывающий код мог её обработать
+      throw error;
     } finally {
       this.pending = false;
       this.initialLoading = false;

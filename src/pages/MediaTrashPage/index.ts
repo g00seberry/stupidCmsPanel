@@ -1,0 +1,2 @@
+export { MediaTrashPage } from './MediaTrashPage';
+
