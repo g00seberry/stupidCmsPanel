@@ -18,6 +18,8 @@ export const PageUrl = {
   Entries: '/entries',
   EntriesByType: '/entries/:postType',
   EntryEdit: '/entries/:postType/:id',
+  Blueprints: '/blueprints',
+  BlueprintsEdit: '/blueprints/:id',
 } as const;
 
 /**

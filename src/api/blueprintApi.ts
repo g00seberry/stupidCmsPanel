@@ -1,0 +1,176 @@
+import { rest } from '@/api/rest';
+import {
+  zBlueprint,
+  zBlueprintListItem,
+  zCreateBlueprintDto,
+  zUpdateBlueprintDto,
+  zPaginatedResponse,
+  zCanDeleteBlueprint,
+  zBlueprintDependencies,
+  zEmbeddableBlueprints,
+} from '@/types/blueprint';
+import type { ZBlueprint, ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
+import { z } from 'zod';
+
+const getAdminBlueprintsUrl = (path: string): string => `/api/v1/admin/blueprints${path}`;
+
+/**
+ * Схема валидации ответа со списком Blueprint.
+ */
+const zBlueprintsResponse = zPaginatedResponse(zBlueprintListItem);
+
+/**
+ * Схема валидации ответа с одним Blueprint.
+ */
+const zBlueprintResponse = z.object({
+  data: zBlueprint,
+});
+
+/**
+ * Получить список Blueprint с пагинацией и фильтрацией.
+ * @param params Параметры фильтрации и пагинации.
+ * @returns Пагинированный список Blueprint.
+ * @example
+ * const result = await listBlueprints({
+ *   search: 'article',
+ *   sort_by: 'name',
+ *   sort_dir: 'asc',
+ *   per_page: 25,
+ *   page: 1
+ * });
+ * console.log(result.data); // Массив Blueprint
+ * console.log(result.meta.total); // Общее количество
+ */
+export const listBlueprints = async (params?: {
+  search?: string;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  per_page?: number;
+  page?: number;
+}): Promise<z.infer<typeof zBlueprintsResponse>> => {
+  const queryParams = new URLSearchParams();
+  if (params?.search) queryParams.append('search', params.search);
+  if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+  if (params?.sort_dir) queryParams.append('sort_dir', params.sort_dir);
+  if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+  if (params?.page) queryParams.append('page', params.page.toString());
+
+  const queryString = queryParams.toString();
+  const url = getAdminBlueprintsUrl(queryString ? `?${queryString}` : '');
+  const response = await rest.get(url);
+  return zBlueprintsResponse.parse(response.data);
+};
+
+/**
+ * Получить Blueprint по ID.
+ * @param id Идентификатор Blueprint.
+ * @returns Blueprint с полной информацией.
+ * @example
+ * const blueprint = await getBlueprint(1);
+ * console.log(blueprint.name); // 'Article'
+ * console.log(blueprint.post_types); // Массив типов контента
+ */
+export const getBlueprint = async (id: number): Promise<ZBlueprint> => {
+  const response = await rest.get(getAdminBlueprintsUrl(`/${id}`));
+  return zBlueprintResponse.parse(response.data).data;
+};
+
+/**
+ * Создать новый Blueprint.
+ * @param dto Данные для создания Blueprint.
+ * @returns Созданный Blueprint.
+ * @throws Ошибка валидации, если данные некорректны или code уже существует.
+ * @example
+ * const blueprint = await createBlueprint({
+ *   name: 'Article',
+ *   code: 'article',
+ *   description: 'Blog article structure'
+ * });
+ */
+export const createBlueprint = async (dto: ZCreateBlueprintDto): Promise<ZBlueprint> => {
+  const parsedDto = zCreateBlueprintDto.parse(dto);
+  const response = await rest.post(getAdminBlueprintsUrl(''), parsedDto);
+  return zBlueprintResponse.parse(response.data).data;
+};
+
+/**
+ * Обновить Blueprint.
+ * @param id Идентификатор Blueprint.
+ * @param dto Данные для обновления (только изменяемые поля).
+ * @returns Обновлённый Blueprint.
+ * @throws Ошибка валидации, если данные некорректны или code уже используется другим Blueprint.
+ * @example
+ * const updated = await updateBlueprint(1, {
+ *   name: 'Article Updated',
+ *   description: 'Updated description'
+ * });
+ */
+export const updateBlueprint = async (
+  id: number,
+  dto: ZUpdateBlueprintDto
+): Promise<ZBlueprint> => {
+  const parsedDto = zUpdateBlueprintDto.parse(dto);
+  const response = await rest.put(getAdminBlueprintsUrl(`/${id}`), parsedDto);
+  return zBlueprintResponse.parse(response.data).data;
+};
+
+/**
+ * Удалить Blueprint.
+ * @param id Идентификатор Blueprint для удаления.
+ * @throws Ошибка, если Blueprint не найден или не может быть удалён (используется в других местах).
+ * @example
+ * await deleteBlueprint(1);
+ */
+export const deleteBlueprint = async (id: number): Promise<void> => {
+  await rest.delete(getAdminBlueprintsUrl(`/${id}`));
+};
+
+/**
+ * Проверить возможность удаления Blueprint.
+ * @param id Идентификатор Blueprint.
+ * @returns Результат проверки с флагом can_delete и списком причин (если нельзя удалить).
+ * @example
+ * const check = await canDeleteBlueprint(1);
+ * if (!check.can_delete) {
+ *   console.log('Нельзя удалить:', check.reasons);
+ * }
+ */
+export const canDeleteBlueprint = async (
+  id: number
+): Promise<z.infer<typeof zCanDeleteBlueprint>> => {
+  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/can-delete`));
+  return zCanDeleteBlueprint.parse(response.data);
+};
+
+/**
+ * Получить граф зависимостей Blueprint.
+ * @param id Идентификатор Blueprint.
+ * @returns Граф зависимостей (depends_on и depended_by).
+ * @example
+ * const deps = await getBlueprintDependencies(1);
+ * console.log('Зависит от:', deps.depends_on);
+ * console.log('Зависят от него:', deps.depended_by);
+ */
+export const getBlueprintDependencies = async (
+  id: number
+): Promise<z.infer<typeof zBlueprintDependencies>> => {
+  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/dependencies`));
+  return zBlueprintDependencies.parse(response.data);
+};
+
+/**
+ * Получить список Blueprint для безопасного встраивания.
+ * @param id Идентификатор Blueprint, в который планируется встраивание.
+ * @returns Список Blueprint, которые можно безопасно встроить (без циклических зависимостей).
+ * @example
+ * const embeddable = await getEmbeddableBlueprints(1);
+ * embeddable.data.forEach(bp => {
+ *   console.log(`${bp.name} (${bp.code})`);
+ * });
+ */
+export const getEmbeddableBlueprints = async (
+  id: number
+): Promise<z.infer<typeof zEmbeddableBlueprints>> => {
+  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/embeddable`));
+  return zEmbeddableBlueprints.parse(response.data);
+};

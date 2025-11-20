@@ -53,16 +53,16 @@ export const themeConfig: ThemeConfig = {
       itemBorderRadius: 5,
       itemHeight: 44,
       // Foreground: hsl(20, 14%, 15%)
-      colorItemText: hslToHex(20, 14, 15),
-      colorItemBg: 'transparent',
+      itemColor: hslToHex(20, 14, 15),
+      itemBg: 'transparent',
       // Primary: hsl(24, 95%, 53%)
-      colorItemTextHover: hslToHex(24, 95, 53),
+      itemHoverColor: hslToHex(24, 95, 53),
       // Muted: hsl(30, 25%, 92%) → #ede8e0
-      colorItemBgHover: hslToHex(30, 25, 92),
+      itemHoverBg: hslToHex(30, 25, 92),
       // Primary darker: hsl(24, 95%, 40%) → #c2410c
-      colorItemTextSelected: hslToHex(24, 95, 40),
-      colorItemBgSelected: hslToHex(30, 25, 92),
-      colorActiveBarWidth: 0,
+      itemSelectedColor: hslToHex(24, 95, 40),
+      itemSelectedBg: hslToHex(30, 25, 92),
+      activeBarWidth: 0,
       itemMarginInline: 0,
     },
     Button: {

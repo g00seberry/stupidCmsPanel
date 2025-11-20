@@ -9,7 +9,7 @@ import { notificationService } from '@/services/notificationService';
 export const onError = (error: unknown): void => {
   let description: string | undefined;
   let notificationMessage = 'Ошибка';
-
+  console.error(error);
   if (axios.isAxiosError(error)) {
     const problemResult = zProblemJson.safeParse(error.response?.data);
 
