@@ -7,6 +7,8 @@ import { Plus, Maximize2, Layout, ZoomIn, ZoomOut, RotateCcw } from 'lucide-reac
 export type PropsGraphControls = {
   /** Обработчик добавления корневого узла. */
   onAddRoot?: () => void;
+  /** Обработчик встраивания Blueprint в корень. */
+  onEmbedRoot?: () => void;
   /** Обработчик центрирования графа. */
   onCenter?: () => void;
   /** Обработчик автоматической компоновки графа. */
@@ -17,7 +19,7 @@ export type PropsGraphControls = {
   onZoomOut?: () => void;
   /** Обработчик сброса масштаба. */
   onResetZoom?: () => void;
-  /** Обработчик встраивания Blueprint. */
+  /** Обработчик встраивания Blueprint (для переключения на вкладку). */
   onEmbedBlueprint?: () => void;
   /** Текущий уровень масштаба (для отображения). */
   zoomLevel?: number;
@@ -29,6 +31,7 @@ export type PropsGraphControls = {
  */
 export const GraphControls: React.FC<PropsGraphControls> = ({
   onAddRoot,
+  onEmbedRoot,
   onCenter,
   onAutoLayout,
   onZoomIn,
@@ -45,9 +48,14 @@ export const GraphControls: React.FC<PropsGraphControls> = ({
             Добавить корневой узел
           </Button>
         )}
+        {onEmbedRoot && (
+          <Button icon={<Layout className="w-4 h-4" />} onClick={onEmbedRoot}>
+            Встроить Blueprint
+          </Button>
+        )}
         {onEmbedBlueprint && (
           <Button icon={<Layout className="w-4 h-4" />} onClick={onEmbedBlueprint}>
-            Встроить Blueprint
+            Управление встраиваниями
           </Button>
         )}
       </Space>

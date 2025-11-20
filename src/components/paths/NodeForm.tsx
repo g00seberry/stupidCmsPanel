@@ -1,8 +1,8 @@
-import { Form, Input, Select, Radio, Checkbox, Alert } from 'antd';
+import { Form, Input, Select, Radio, Checkbox, Alert, Card } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
 import { zDataType } from '@/types/path';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { validateFieldName } from '@/utils/blueprintValidation';
 
 /**
@@ -15,7 +15,7 @@ export type NodeFormMode = 'create' | 'edit' | 'embed';
  */
 export type PropsNodeForm = {
   /** Экземпляр формы Ant Design. */
-  form: FormInstance<ZCreatePathDto | ZUpdatePathDto>;
+  form: FormInstance<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>;
   /** Режим работы формы. */
   mode: NodeFormMode;
   /** Родительский узел (для вычисления full_path). */
@@ -28,6 +28,10 @@ export type PropsNodeForm = {
   sourceBlueprint?: { id: number; name: string; code: string };
   /** Обработчик изменения имени (для пересчёта full_path). */
   onNameChange?: (name: string) => void;
+  /** Список Blueprint, доступных для встраивания (для режима embed). */
+  embeddableBlueprints?: Array<{ id: number; code: string; name: string }>;
+  /** Обработчик изменения выбранного Blueprint (для режима embed). */
+  onBlueprintChange?: (blueprintId: number) => void;
 };
 
 /**
@@ -41,8 +45,11 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
   isReadonly = false,
   sourceBlueprint,
   onNameChange,
+  embeddableBlueprints = [],
+  onBlueprintChange,
 }) => {
   const dataType = Form.useWatch('data_type', form);
+  const selectedBlueprintId = Form.useWatch('embedded_blueprint_id', form);
 
   const dataTypeOptions = useMemo(
     () =>
@@ -51,6 +58,18 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
         value: type,
       })),
     []
+  );
+
+  const selectedBlueprint = useMemo(
+    () => embeddableBlueprints.find(bp => bp.id === selectedBlueprintId),
+    [embeddableBlueprints, selectedBlueprintId]
+  );
+
+  const handleBlueprintChange = useCallback(
+    (value: number) => {
+      onBlueprintChange?.(value);
+    },
+    [onBlueprintChange]
   );
 
   if (isReadonly && mode === 'edit') {
@@ -80,51 +99,96 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
 
   return (
     <Form form={form} layout="vertical">
-      <Form.Item
-        label="Имя поля"
-        name="name"
-        rules={[
-          { required: true, message: 'Имя поля обязательно' },
-          {
-            validator: (_rule, value) => {
-              if (!value) return Promise.resolve();
-              if (!validateFieldName(value)) {
-                return Promise.reject(new Error('Только a-z, 0-9 и _ (максимум 255 символов)'));
+      {mode === 'embed' ? (
+        <>
+          <Form.Item
+            label="Blueprint для встраивания"
+            name="embedded_blueprint_id"
+            rules={[{ required: true, message: 'Выберите Blueprint для встраивания' }]}
+            tooltip="Выберите Blueprint, который будет встроен в текущий Blueprint."
+          >
+            <Select
+              placeholder="Выберите Blueprint"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-              return Promise.resolve();
-            },
-          },
-        ]}
-        tooltip="Имя поля должно быть уникальным на уровне родительского узла."
-      >
-        <Input
-          placeholder="field_name"
-          disabled={isReadonly}
-          onChange={e => {
-            onNameChange?.(e.target.value);
-          }}
-          style={{ fontFamily: 'monospace' }}
-        />
-      </Form.Item>
+              options={embeddableBlueprints.map(bp => ({
+                label: `${bp.name} (${bp.code})`,
+                value: bp.id,
+              }))}
+              onChange={handleBlueprintChange}
+            />
+          </Form.Item>
 
-      {computedFullPath && (
-        <div className="mb-4 p-2 bg-muted rounded text-sm">
-          <strong>Полный путь:</strong> <code className="font-mono">{computedFullPath}</code>
-        </div>
-      )}
+          {selectedBlueprint && (
+            <Card size="small" className="mb-4">
+              <div className="text-sm">
+                <div>
+                  <strong>Выбранный Blueprint:</strong> {selectedBlueprint.name}
+                </div>
+                <div className="text-muted-foreground mt-1">
+                  Код: <code>{selectedBlueprint.code}</code>
+                </div>
+              </div>
+            </Card>
+          )}
 
-      {mode !== 'embed' && (
-        <Form.Item
-          label="Тип данных"
-          name="data_type"
-          rules={[{ required: true, message: 'Выберите тип данных' }]}
-        >
-          <Select
-            placeholder="Выберите тип данных"
-            options={dataTypeOptions}
-            disabled={isReadonly || mode === 'edit'}
+          <Alert
+            message="Внимание"
+            description="При встраивании все поля выбранного Blueprint будут скопированы в текущий Blueprint как readonly. Изменить их структуру можно только в исходном Blueprint."
+            type="info"
+            showIcon
+            className="mt-4"
           />
-        </Form.Item>
+        </>
+      ) : (
+        <>
+          <Form.Item
+            label="Имя поля"
+            name="name"
+            rules={[
+              { required: true, message: 'Имя поля обязательно' },
+              {
+                validator: (_rule, value) => {
+                  if (!value) return Promise.resolve();
+                  if (!validateFieldName(value)) {
+                    return Promise.reject(new Error('Только a-z, 0-9 и _ (максимум 255 символов)'));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            tooltip="Имя поля должно быть уникальным на уровне родительского узла."
+          >
+            <Input
+              placeholder="field_name"
+              disabled={isReadonly}
+              onChange={e => {
+                onNameChange?.(e.target.value);
+              }}
+              style={{ fontFamily: 'monospace' }}
+            />
+          </Form.Item>
+
+          {computedFullPath && (
+            <div className="mb-4 p-2 bg-muted rounded text-sm">
+              <strong>Полный путь:</strong> <code className="font-mono">{computedFullPath}</code>
+            </div>
+          )}
+
+          <Form.Item
+            label="Тип данных"
+            name="data_type"
+            rules={[{ required: true, message: 'Выберите тип данных' }]}
+          >
+            <Select
+              placeholder="Выберите тип данных"
+              options={dataTypeOptions}
+              disabled={isReadonly || mode === 'edit'}
+            />
+          </Form.Item>
+        </>
       )}
 
       {dataType && dataType !== 'json' && (

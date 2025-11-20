@@ -12,7 +12,6 @@ export const onError = (error: unknown): void => {
   console.error(error);
   if (axios.isAxiosError(error)) {
     const problemResult = zProblemJson.safeParse(error.response?.data);
-
     if (problemResult.success) {
       const problem = problemResult.data;
       notificationMessage = problem.title ?? problem.code ?? notificationMessage;

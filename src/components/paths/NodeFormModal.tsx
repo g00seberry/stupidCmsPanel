@@ -15,9 +15,11 @@ export type PropsNodeFormModal = Omit<PropsNodeForm, 'form'> & {
   /** Обработчик закрытия модального окна. */
   onCancel: () => void;
   /** Обработчик подтверждения формы. */
-  onOk: (values: ZCreatePathDto | ZUpdatePathDto) => Promise<void> | void;
+  onOk: (
+    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
+  ) => Promise<void> | void;
   /** Начальные значения формы. */
-  initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto>;
+  initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>;
   /** Флаг загрузки (для блокировки кнопки OK). */
   loading?: boolean;
 };
@@ -39,14 +41,19 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
   onNameChange,
   ...restProps
 }) => {
-  const [form] = Form.useForm<ZCreatePathDto | ZUpdatePathDto>();
+  const [form] = Form.useForm<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>();
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      const validatedValues =
-        mode === 'edit' ? zUpdatePathDto.parse(values) : zCreatePathDto.parse(values);
-      await onOk(validatedValues);
+      if (mode === 'embed') {
+        // Для режима встраивания просто передаём значения как есть
+        await onOk(values as { embedded_blueprint_id: number });
+      } else {
+        const validatedValues =
+          mode === 'edit' ? zUpdatePathDto.parse(values) : zCreatePathDto.parse(values);
+        await onOk(validatedValues);
+      }
       form.resetFields();
     } catch (error) {
       // Валидация уже обработана Ant Design Form
@@ -58,10 +65,23 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     onCancel();
   };
 
+  const getTitle = () => {
+    if (title) return title;
+    if (mode === 'edit') return 'Редактировать поле';
+    if (mode === 'embed') return 'Встроить Blueprint';
+    return 'Создать поле';
+  };
+
+  const getButtonText = () => {
+    if (mode === 'edit') return 'Сохранить';
+    if (mode === 'embed') return 'Встроить';
+    return 'Создать';
+  };
+
   return (
     <Modal
       open={open}
-      title={title || (mode === 'edit' ? 'Редактировать поле' : 'Создать поле')}
+      title={getTitle()}
       onCancel={handleCancel}
       footer={[
         <Button key="cancel" onClick={handleCancel}>
@@ -74,7 +94,7 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
           onClick={handleOk}
           disabled={isReadonly && mode === 'edit'}
         >
-          {mode === 'edit' ? 'Сохранить' : 'Создать'}
+          {getButtonText()}
         </Button>,
       ]}
       width={600}

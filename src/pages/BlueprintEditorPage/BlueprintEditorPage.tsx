@@ -57,6 +57,8 @@ type PropsContextMenu = {
   onEdit: () => void;
   /** Обработчик добавления дочернего узла. */
   onAddChild: () => void;
+  /** Обработчик встраивания Blueprint. */
+  onEmbed: () => void;
   /** Обработчик удаления узла. */
   onDelete: () => void;
   /** Store для получения информации о пути. */
@@ -72,6 +74,7 @@ const ContextMenu: React.FC<PropsContextMenu> = ({
   onClose,
   onEdit,
   onAddChild,
+  onEmbed,
   onDelete,
   pathStore,
 }) => {
@@ -124,6 +127,13 @@ const ContextMenu: React.FC<PropsContextMenu> = ({
       label: 'Добавить дочерний узел',
       icon: <Plus className="w-4 h-4" />,
       onClick: onAddChild,
+      disabled: !canAddChild,
+    },
+    {
+      key: 'embed',
+      label: 'Встроить Blueprint',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: onEmbed,
       disabled: !canAddChild,
     },
     {
@@ -219,7 +229,7 @@ export const BlueprintEditorPage = observer(() => {
   const [activeTab, setActiveTab] = useState('info');
   const [selectedPathId, setSelectedPathId] = useState<number | null>(null);
   const [nodeFormOpen, setNodeFormOpen] = useState(false);
-  const [nodeFormMode, setNodeFormMode] = useState<'create' | 'edit'>('create');
+  const [nodeFormMode, setNodeFormMode] = useState<'create' | 'edit' | 'embed'>('create');
   const [nodeFormParentId, setNodeFormParentId] = useState<number | null>(null);
   const [dependencies, setDependencies] = useState<ZBlueprintDependencies | null>(null);
   const [loadingDependencies, setLoadingDependencies] = useState(false);
@@ -353,6 +363,24 @@ export const BlueprintEditorPage = observer(() => {
   );
 
   /**
+   * Обработчик встраивания Blueprint из контекстного меню.
+   */
+  const handleEmbedBlueprint = useCallback(
+    (parentId: number) => {
+      const parentPath = findPathInTree(pathStore.paths, parentId);
+      if (parentPath && parentPath.data_type === 'json') {
+        setNodeFormMode('embed');
+        setNodeFormParentId(parentId);
+        setNodeFormOpen(true);
+        handleCloseContextMenu();
+      } else {
+        message.warning('Встраивание возможно только в поля типа JSON');
+      }
+    },
+    [pathStore.paths, handleCloseContextMenu]
+  );
+
+  /**
    * Обработчик удаления узла.
    */
   const handleDeleteNode = useCallback(
@@ -396,21 +424,34 @@ export const BlueprintEditorPage = observer(() => {
   }, []);
 
   /**
-   * Обработчик встраивания Blueprint из панели управления.
+   * Обработчик встраивания Blueprint в корень.
    */
-  const handleEmbedBlueprint = useCallback(() => {
-    setActiveTab('embeds');
+  const handleEmbedRootNode = useCallback(() => {
+    setNodeFormMode('embed');
+    setNodeFormParentId(null);
+    setNodeFormOpen(true);
   }, []);
 
   /**
-   * Обработчик сохранения узла (создание или обновление).
+   * Обработчик сохранения узла (создание, обновление или встраивание).
    */
   const handleNodeSave = useCallback(
-    async (values: ZCreatePathDto | ZUpdatePathDto) => {
+    async (values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }) => {
       if (!blueprintId) return;
 
       try {
-        if (nodeFormMode === 'edit' && selectedPathId) {
+        if (nodeFormMode === 'embed') {
+          // Режим встраивания Blueprint
+          const embedDto = {
+            embedded_blueprint_id: (values as { embedded_blueprint_id: number })
+              .embedded_blueprint_id,
+            host_path_id: nodeFormParentId || undefined,
+          };
+          await embedStore.createEmbed(embedDto);
+          // Перезагружаем пути после встраивания
+          await pathStore.loadPaths(blueprintId);
+          message.success('Blueprint встроен');
+        } else if (nodeFormMode === 'edit' && selectedPathId) {
           await pathStore.updatePath(selectedPathId, values as ZUpdatePathDto);
           message.success('Поле обновлено');
         } else {
@@ -437,6 +478,8 @@ export const BlueprintEditorPage = observer(() => {
             message.error(handleReadonlyFieldError(axiosError));
           } else if (lowerMessage.includes('конфликт') || lowerMessage.includes('уже существует')) {
             message.error(handlePathConflictError(axiosError));
+          } else if (lowerMessage.includes('цикл') || lowerMessage.includes('cyclic')) {
+            message.error(handleCyclicDependencyError(axiosError));
           } else {
             onError(error);
           }
@@ -445,7 +488,7 @@ export const BlueprintEditorPage = observer(() => {
         }
       }
     },
-    [blueprintId, nodeFormMode, selectedPathId, nodeFormParentId, pathStore]
+    [blueprintId, nodeFormMode, selectedPathId, nodeFormParentId, pathStore, embedStore]
   );
 
   /**
@@ -530,12 +573,13 @@ export const BlueprintEditorPage = observer(() => {
                     <Card className="mt-4">
                       <GraphControls
                         onAddRoot={handleAddRootNode}
+                        onEmbedRoot={handleEmbedRootNode}
                         onCenter={handleCenter}
                         onAutoLayout={handleAutoLayout}
                         onZoomIn={handleZoomIn}
                         onZoomOut={handleZoomOut}
                         onResetZoom={handleResetZoom}
-                        onEmbedBlueprint={handleEmbedBlueprint}
+                        onEmbedBlueprint={() => setActiveTab('embeds')}
                       />
                       <div className="h-[600px]">
                         <PathGraphEditor
@@ -573,7 +617,8 @@ export const BlueprintEditorPage = observer(() => {
                             undefined
                           : undefined
                       }
-                      loading={pathStore.pending}
+                      embeddableBlueprints={embedStore.embeddableBlueprints}
+                      loading={pathStore.pending || embedStore.pending}
                     />
                     {contextMenuNodeId && contextMenuPosition && (
                       <ContextMenu
@@ -587,6 +632,7 @@ export const BlueprintEditorPage = observer(() => {
                           handleCloseContextMenu();
                         }}
                         onAddChild={() => handleAddChildNode(contextMenuNodeId)}
+                        onEmbed={() => handleEmbedBlueprint(contextMenuNodeId)}
                         onDelete={() => handleDeleteNode(contextMenuNodeId)}
                         pathStore={pathStore}
                       />
