@@ -1,5 +1,5 @@
 import { Modal } from 'antd';
-import type { BlueprintEditorStore } from '@/stores/BlueprintEditorStore';
+import type { BlueprintEditorStore } from '@/pages/BlueprintEditorPage/BlueprintEditorStore';
 
 /**
  * Параметры для функции подтверждения удаления Blueprint.

@@ -13,6 +13,7 @@ import { MediaListPageMain, MediaListPageTrash } from '@/pages/MediaListPage/Med
 import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
 import { BlueprintListPage } from '@/pages/BlueprintsPage/BlueprintListPage';
 import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
+import { BlueprintSchemaPage } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -36,5 +37,6 @@ export const routes = [
   { path: PageUrl.MediaTrash, element: <MediaListPageTrash /> },
   { path: PageUrl.Blueprints, element: <BlueprintListPage /> },
   { path: PageUrl.BlueprintsEdit, element: <BlueprintEditorPage /> },
+  { path: PageUrl.BlueprintsSchema, element: <BlueprintSchemaPage /> },
   { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

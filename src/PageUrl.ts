@@ -21,6 +21,7 @@ export const PageUrl = {
   EntryEdit: '/entries/:postType/:id',
   Blueprints: '/blueprints',
   BlueprintsEdit: '/blueprints/:id',
+  BlueprintsSchema: '/blueprints/:id/schema',
 } as const;
 
 /**
