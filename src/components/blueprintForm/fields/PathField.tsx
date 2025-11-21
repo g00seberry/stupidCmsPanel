@@ -43,10 +43,11 @@ export const PathField: React.FC<PropsPathField> = ({ node, name, readonly, stor
     store,
   };
 
-  const fieldComponent = <def.Component {...props} />;
   const label = node.label;
   const rules = getFormItemRulesFromNode(node);
   const fieldName = createFieldName(name, node.name);
+
+  const fieldComponent = <def.Component {...props} />;
   const valuePropName = node.dataType === 'bool' ? 'checked' : undefined;
   // Для полей без CardinalityWrapper (bool, ref) добавляем Form.Item здесь
   if (node.dataType === 'bool' || node.dataType === 'ref') {
