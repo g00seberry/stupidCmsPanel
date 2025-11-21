@@ -1,16 +1,19 @@
 import { createEntry, getEntry, getEntryTerms, updateEntry } from '@/api/apiEntries';
 import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
+import { listPaths } from '@/api/pathApi';
 import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
+import { type BlueprintFormValues } from '@/components/blueprintForm';
 import { notificationService } from '@/services/notificationService';
+import type { ZId } from '@/types/ZId';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
+import type { ZPathTreeNode } from '@/types/path';
 import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
-import { onError } from '@/utils/onError';
 import { serverDate, viewDate } from '@/utils/dateUtils';
-import { makeAutoObservable } from 'mobx';
+import { onError } from '@/utils/onError';
 import type { Dayjs } from 'dayjs';
-import type { ZId } from '@/types/ZId';
+import { makeAutoObservable } from 'mobx';
 
 const idNew = 'new';
 
@@ -24,6 +27,7 @@ export interface FormValues {
   readonly published_at: Dayjs | null;
   readonly template_override: string;
   readonly term_ids: ZId[];
+  readonly content_json?: BlueprintFormValues;
 }
 
 const defaultFormValues: FormValues = {
@@ -33,12 +37,14 @@ const defaultFormValues: FormValues = {
   published_at: null,
   template_override: '',
   term_ids: [],
+  content_json: {},
 };
 
 /**
  * Преобразует данные записи в значения формы.
  * @param entry Запись, полученная из API.
  * @param termIds Массив ID термов записи (опционально).
+ * @param paths Дерево Path для преобразования content_json (опционально).
  * @returns Значения формы, готовые к отображению пользователю.
  */
 const toFormValues = (entry: ZEntry, termIds: ZId[] = []): FormValues => {
@@ -49,6 +55,7 @@ const toFormValues = (entry: ZEntry, termIds: ZId[] = []): FormValues => {
     published_at: viewDate(entry.published_at),
     template_override: entry.template_override ?? '',
     term_ids: termIds,
+    content_json: entry.content_json || {},
   };
 };
 
@@ -56,16 +63,22 @@ const toFormValues = (entry: ZEntry, termIds: ZId[] = []): FormValues => {
  * Store для управления состоянием редактора записи.
  */
 export class EntryEditorStore {
-  formValues: FormValues = defaultFormValues;
+  initialFormValues: FormValues = defaultFormValues;
   initialLoading = false;
   pending = false;
   templates: ZTemplate[] = [];
   loading = false;
   postType: ZPostType | null = null;
-  currentPostTypeSlug: string;
+  postTypeSlug: string;
   entryId: ZId | typeof idNew;
   /** Store для управления термами записи. Создаётся только в режиме редактирования. */
   termsManagerStore: EntryTermsManagerStore | null = null;
+  /** Дерево Path для текущего Blueprint. */
+  paths: ZPathTreeNode[] = [];
+  /** Флаг загрузки Path. */
+  loadingPaths = false;
+  /** Blueprint из Entry (если есть). */
+  blueprintId: number | null = null;
 
   get isEditMode(): boolean {
     return this.entryId !== idNew;
@@ -76,7 +89,7 @@ export class EntryEditorStore {
    * @param entryId ID записи для редактирования (опционально).
    */
   constructor(postTypeSlug: string, entryId: ZId) {
-    this.currentPostTypeSlug = postTypeSlug;
+    this.postTypeSlug = postTypeSlug;
     this.entryId = entryId;
     makeAutoObservable(this);
     void this.init();
@@ -103,7 +116,7 @@ export class EntryEditorStore {
    * @param values Новые значения формы.
    */
   setFormValues(values: FormValues): void {
-    this.formValues = values;
+    this.initialFormValues = values;
   }
 
   /**
@@ -123,6 +136,30 @@ export class EntryEditorStore {
   }
 
   /**
+   * Загружает Path дерево для Blueprint.
+   * Использует blueprint из Entry, если доступен, иначе fallback на postType.blueprint_id.
+   */
+  async loadPaths(blueprintId?: number | null): Promise<void> {
+    const id = blueprintId ?? this.blueprintId ?? this.postType?.blueprint_id ?? null;
+
+    if (!id) {
+      this.paths = [];
+      return;
+    }
+
+    this.loadingPaths = true;
+    try {
+      this.blueprintId = id;
+      this.paths = await listPaths(id);
+    } catch (error) {
+      onError(error);
+      this.paths = [];
+    } finally {
+      this.loadingPaths = false;
+    }
+  }
+
+  /**
    * Инициализирует стор: загружает шаблоны, тип контента (если указан) и запись (если указан ID).
    * @param postTypeSlug Slug типа контента (опционально).
    * @param entryId ID записи для редактирования (опционально).
@@ -130,11 +167,23 @@ export class EntryEditorStore {
   async init(): Promise<void> {
     try {
       this.setLoading(true);
+      this.setPostType(await getPostType(this.postTypeSlug));
+
       if (this.isEditMode) {
         const [entry, entryTerms] = await Promise.all([
           getEntry(this.entryId),
           getEntryTerms(this.entryId),
         ]);
+
+        // Используем blueprint из Entry, если доступен
+        if (entry.blueprint) {
+          this.blueprintId = entry.blueprint.id;
+          await this.loadPaths(entry.blueprint.id);
+        } else {
+          // Fallback на blueprint_id из PostType
+          await this.loadPaths();
+        }
+
         const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
           group.terms.map(term => term.id)
         );
@@ -142,8 +191,11 @@ export class EntryEditorStore {
         // Создаём стор для управления термами
         this.termsManagerStore = new EntryTermsManagerStore(this.entryId);
         await this.termsManagerStore.initialize(termIds);
+      } else {
+        // При создании используем blueprint_id из PostType
+        await this.loadPaths();
       }
-      this.setPostType(await getPostType(this.currentPostTypeSlug));
+
       this.setTemplates(await getTemplates());
     } catch (error) {
       onError(error);
@@ -185,6 +237,7 @@ export class EntryEditorStore {
         published_at: serverDate(values.published_at),
         template_override: (values.template_override || '').trim() || null,
         term_ids: values.term_ids,
+        content_json: values.content_json,
         ...(postType && { post_type: postType }),
       };
 
@@ -205,7 +258,7 @@ export class EntryEditorStore {
           this.termsManagerStore.pendingTermIds = new Set(termIds);
         }
       } else {
-        this.setFormValues(toFormValues(nextEntry));
+        this.setFormValues(toFormValues(nextEntry, []));
       }
       return nextEntry;
     } catch (error) {

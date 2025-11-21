@@ -12,6 +12,7 @@ export const PageUrl = {
   TermEdit: '/taxonomies/:taxonomyId/terms/:id',
   ContentTypes: '/content-types',
   ContentTypesEdit: '/content-types/:slug',
+  ContentTypesBlueprints: '/content-types/:slug/blueprints',
   Seo: '/seo',
   Settings: '/settings',
   Login: '/login',

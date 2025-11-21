@@ -4,10 +4,10 @@ import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Spin } from 'antd';
 import axios from 'axios';
-import { Check, Info, Trash2 } from 'lucide-react';
+import { Check, Info, Trash2, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
 
 /**
@@ -125,14 +125,19 @@ export const PostTypeEditorPage = observer(() => {
             </div>
             <div className="flex items-center gap-3">
               {isEditMode && (
-                <Button
-                  danger
-                  onClick={handleDelete}
-                  loading={store.pending}
-                  icon={<Trash2 className="w-4 h-4" />}
-                >
-                  Удалить
-                </Button>
+                <>
+                  <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { slug: slug! })}>
+                    <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
+                  </Link>
+                  <Button
+                    danger
+                    onClick={handleDelete}
+                    loading={store.pending}
+                    icon={<Trash2 className="w-4 h-4" />}
+                  >
+                    Удалить
+                  </Button>
+                </>
               )}
               <Button onClick={handleCancel}>Отмена</Button>
               <Button

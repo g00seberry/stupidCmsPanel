@@ -41,6 +41,8 @@ export const zPostType = z.object({
   name: z.string(),
   /** Дополнительные настройки типа контента в формате JSON. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
+  /** ID привязанного Blueprint. `null` если Blueprint не привязан. */
+  blueprint_id: z.number().nullable().optional(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -69,6 +71,8 @@ export const zPostTypePayload = z.object({
   name: z.string().min(1),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
+  /** ID Blueprint для привязки. `null` для отвязки. Опционально. */
+  blueprint_id: z.number().nullable().optional(),
 });
 
 /**

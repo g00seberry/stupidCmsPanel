@@ -6,8 +6,9 @@ import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { EntryEditorStore, type FormValues } from './EntryEditorStore';
 import { EntryEditorHeader } from './EntryEditorHeader';
+import { EntryEditorStore, type FormValues } from './EntryEditorStore';
+import { BlueprintForm } from '@/components/blueprintForm';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -29,19 +30,19 @@ interface PropsInner {
   store: EntryEditorStore;
 }
 const Inner = observer(({ store }: PropsInner) => {
-  const [form] = Form.useForm<FormValues>();
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
-  const { currentPostTypeSlug: postTypeSlug, entryId: id } = store;
+  const { postTypeSlug, entryId } = store;
 
   useEffect(() => {
-    form.setFieldsValue(store?.formValues ?? {});
-  }, [form, store?.formValues]);
+    form.setFieldsValue(store.initialFormValues);
+  }, [store.initialFormValues]);
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      const nextEntry = await store.saveEntry(values, isEditMode, id, postTypeSlug);
+      const nextEntry = await store.saveEntry(values, isEditMode, entryId, postTypeSlug);
       if (nextEntry) {
         const url = buildUrl(PageUrl.EntryEdit, {
           postType: postTypeSlug,
@@ -50,18 +51,21 @@ const Inner = observer(({ store }: PropsInner) => {
         navigate(url, { replace: !isEditMode });
       }
     },
-    [isEditMode, navigate, postTypeSlug, id, store]
+    [isEditMode, navigate, postTypeSlug, entryId, store]
   );
 
   const handleCancel = useCallback(() => {
-    navigate(
-      postTypeSlug ? buildUrl(PageUrl.EntriesByType, { postType: postTypeSlug }) : PageUrl.Entries
-    );
-  }, [navigate, postTypeSlug]);
+    navigate(buildUrl(PageUrl.EntriesByType, { postType: postTypeSlug }));
+  }, [postTypeSlug]);
 
   const handleSave = useCallback(() => {
     form.submit();
   }, [form]);
+
+  const handleValuesChange = useCallback((changedFields: any, allFields: any) => {
+    console.log(changedFields);
+    console.log(allFields);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -82,8 +86,8 @@ const Inner = observer(({ store }: PropsInner) => {
           <Form<FormValues>
             form={form}
             layout="vertical"
-            initialValues={store.formValues}
             onFinish={handleSubmit}
+            onValuesChange={handleValuesChange}
           >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
@@ -199,6 +203,17 @@ const Inner = observer(({ store }: PropsInner) => {
                 )}
               </div>
             </div>
+
+            {store.paths.length > 0 && (
+              <Card className="p-6 mt-6">
+                <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
+                <BlueprintForm
+                  paths={store.paths}
+                  fieldNamePrefix={['content_json']}
+                  readonly={store.pending || store.loading}
+                />
+              </Card>
+            )}
           </Form>
         )}
       </div>

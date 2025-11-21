@@ -4,6 +4,7 @@ import { EntryEditorPage } from '@/pages/EntryEditorPage/EntryEditorPage';
 import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { PostTypeEditorPage } from '@/pages/PostTypeEditorPage/PostTypeEditorPage';
 import { PostTypesPage } from '@/pages/PostTypesPage/PostTypesPage';
+import { PostTypeBlueprintsPage } from '@/pages/PostTypeBlueprintsPage/PostTypeBlueprintsPage';
 import { TaxonomiesPage } from '@/pages/TaxonomiesPage/TaxonomiesPage';
 import { TaxonomiesEditorPage } from '@/pages/TaxonomiesEditorPage/TaxonomiesEditorPage';
 import { TermsPage } from '@/pages/TermsPage/TermsPage';
@@ -25,6 +26,7 @@ export const routes = [
   { path: PageUrl.Entries, element: <EntriesListPage /> },
   { path: PageUrl.ContentTypes, element: <PostTypesPage /> },
   { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },
+  { path: PageUrl.ContentTypesBlueprints, element: <PostTypeBlueprintsPage /> },
   { path: PageUrl.Taxonomies, element: <TaxonomiesPage /> },
   { path: PageUrl.TaxonomiesEdit, element: <TaxonomiesEditorPage /> },
   { path: PageUrl.TermsByTaxonomy, element: <TermsPage /> },

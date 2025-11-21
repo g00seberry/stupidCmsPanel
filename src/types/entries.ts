@@ -5,6 +5,25 @@ import { z } from 'zod';
 import { zId, type ZId } from './ZId';
 
 /**
+ * Схема валидации Blueprint в контексте Entry.
+ * Упрощённая версия Blueprint, возвращаемая в ответе Entry.
+ */
+const zEntryBlueprint = z.object({
+  /** Уникальный идентификатор Blueprint. */
+  id: z.number(),
+  /** Отображаемое название Blueprint. */
+  name: z.string(),
+  /** Уникальный код Blueprint (URL-friendly строка). */
+  code: z.string(),
+  /** Описание Blueprint. Может быть `null`. */
+  description: z.string().nullable(),
+  /** Дата создания в формате ISO 8601. Может быть `null`. */
+  created_at: z.string().nullable(),
+  /** Дата последнего обновления в формате ISO 8601. Может быть `null`. */
+  updated_at: z.string().nullable(),
+});
+
+/**
  * Схема валидации записи CMS.
  * Запись представляет собой единицу контента определённого типа.
  * @example
@@ -45,6 +64,8 @@ export const zEntry = z.object({
   meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Переопределение шаблона для записи. Может быть `null`. */
   template_override: z.string().nullable().optional(),
+  /** Blueprint, назначенный в PostType. Присутствует только если PostType имеет blueprint_id. */
+  blueprint: zEntryBlueprint.optional(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
