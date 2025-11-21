@@ -28,7 +28,6 @@ export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprint
       title: 'Название',
       dataIndex: 'name',
       key: 'name',
-      sorter: true,
       render: (text: string, record: ZBlueprintListItem) => {
         return (
           <Link to={buildUrl(PageUrl.BlueprintsEdit, { id: record.id })}>
@@ -41,7 +40,6 @@ export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprint
       title: 'Код',
       dataIndex: 'code',
       key: 'code',
-      sorter: true,
       render: (code: string) => (
         <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{code}</code>
       ),
@@ -63,14 +61,6 @@ export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprint
       render: (count: number) => <Tag>{count}</Tag>,
     },
     {
-      title: 'Встраивания',
-      dataIndex: 'embeds_count',
-      key: 'embeds_count',
-      width: 120,
-      align: 'center',
-      render: (count: number) => <Tag color="blue">{count}</Tag>,
-    },
-    {
       title: 'Типы контента',
       dataIndex: 'post_types_count',
       key: 'post_types_count',
@@ -82,7 +72,6 @@ export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprint
       title: 'Создан',
       dataIndex: 'created_at',
       key: 'created_at',
-      sorter: true,
       width: 150,
       render: (date: string) => new Date(date).toLocaleDateString('ru-RU'),
     },

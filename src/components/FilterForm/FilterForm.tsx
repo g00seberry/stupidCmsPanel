@@ -82,11 +82,6 @@ export const FilterForm = observer(
       form.setFieldsValue(store.values);
     }, [form, store.values]);
 
-    // Инициализация значений по умолчанию
-    useEffect(() => {
-      store.setValues(defaultValues);
-    }, [store, defaultValues]);
-
     /**
      * Обработчик применения фильтров.
      */
@@ -103,7 +98,13 @@ export const FilterForm = observer(
 
     return (
       <Card className={cardClassName}>
-        <Form form={form} layout="inline" onFinish={handleApply} className="w-full">
+        <Form
+          form={form}
+          layout="inline"
+          onFinish={handleApply}
+          className="w-full"
+          initialValues={defaultValues}
+        >
           <Space wrap className="w-full">
             {fields.map(field => (
               <Form.Item
