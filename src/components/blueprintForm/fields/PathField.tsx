@@ -6,6 +6,7 @@ import type { FieldComponentProps } from './fieldRegistry';
 import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
 import { createFieldName } from '../utils/fieldNodeUtils';
 import { CardinalityWrapper } from '../components/CardinalityWrapper';
+import type { BlueprintFormStore } from '../stores/BlueprintFormStore';
 
 /**
  * Пропсы компонента поля формы на основе FieldNode.
@@ -17,6 +18,8 @@ export interface PropsPathField {
   name: (string | number)[];
   /** Флаг режима только для чтения. */
   readonly?: boolean;
+  /** Store для управления формой. */
+  store: BlueprintFormStore;
 }
 
 /**
@@ -27,7 +30,7 @@ export interface PropsPathField {
  * @example
  * <PathField node={fieldNode} name={['blueprint_data', 'title']} readonly={false} />
  */
-export const PathField: React.FC<PropsPathField> = ({ node, name, readonly }) => {
+export const PathField: React.FC<PropsPathField> = ({ node, name, readonly, store }) => {
   const def = fieldRegistry[node.dataType];
   if (!def) {
     throw new Error(`Unknown dataType: ${node.dataType}`);
@@ -37,6 +40,7 @@ export const PathField: React.FC<PropsPathField> = ({ node, name, readonly }) =>
     node,
     name,
     readonly,
+    store,
   };
 
   const fieldComponent = <def.Component {...props} />;

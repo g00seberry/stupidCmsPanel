@@ -1,9 +1,11 @@
 import type { ZPathTreeNode } from '@/types/path';
 import type React from 'react';
 import { useEffect, useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
 import { buildFormSchema } from './utils/buildFormSchema';
 import { PathField } from './fields/PathField';
-import { useZodValidation } from './hooks/useZodValidation';
+import { BlueprintFormStore } from './stores/BlueprintFormStore';
+import type { z } from 'zod';
 
 /**
  * Пропсы компонента формы Blueprint.
@@ -16,7 +18,9 @@ export interface PropsBlueprintForm {
   /** Флаг режима только для чтения. */
   readonly?: boolean;
   /** Callback для получения Zod-схемы валидации (опционально). */
-  onSchemaReady?: (schema: ReturnType<typeof useZodValidation>) => void;
+  onSchemaReady?: (schema: z.ZodObject<Record<string, z.ZodTypeAny>> | null) => void;
+  /** Store для управления формой (опционально, создаётся автоматически). */
+  store?: BlueprintFormStore;
 }
 
 /**
@@ -31,30 +35,47 @@ export interface PropsBlueprintForm {
  *   onSchemaReady={(schema) => { /* использовать схему для валидации *\/ }}
  * />
  */
-export const BlueprintForm: React.FC<PropsBlueprintForm> = ({
-  paths,
-  fieldNamePrefix = [],
-  readonly = false,
-  onSchemaReady,
-}) => {
-  // Преобразуем ZPathTreeNode[] в FieldNode[] через buildFormSchema
-  const fieldNodes = useMemo(() => buildFormSchema(paths), [paths]);
+export const BlueprintForm: React.FC<PropsBlueprintForm> = observer(
+  ({ paths, fieldNamePrefix = [], readonly = false, onSchemaReady, store: externalStore }) => {
+    // Создаём или используем переданный store
+    const store = useMemo(() => externalStore || new BlueprintFormStore(), [externalStore]);
 
-  // Генерируем Zod-схему для валидации
-  const zodSchema = useZodValidation(fieldNodes);
+    // Преобразуем ZPathTreeNode[] в FieldNode[] через buildFormSchema
+    const fieldNodes = useMemo(() => buildFormSchema(paths), [paths]);
 
-  // Передаём схему в callback, если он предоставлен
-  useEffect(() => {
-    if (onSchemaReady) {
-      onSchemaReady(zodSchema);
-    }
-  }, [zodSchema, onSchemaReady]);
+    // Генерируем Zod-схему для валидации
+    useEffect(() => {
+      store.buildSchema(fieldNodes);
+    }, [store, fieldNodes]);
 
-  return (
-    <>
-      {fieldNodes.map(node => (
-        <PathField key={node.id} node={node} name={fieldNamePrefix} readonly={readonly} />
-      ))}
-    </>
-  );
-};
+    // Передаём схему в callback, если он предоставлен
+    useEffect(() => {
+      if (onSchemaReady) {
+        onSchemaReady(store.schema);
+      }
+    }, [store.schema, onSchemaReady]);
+
+    // Очищаем store при размонтировании, если он был создан внутри компонента
+    useEffect(() => {
+      if (!externalStore) {
+        return () => {
+          store.cleanup();
+        };
+      }
+    }, [externalStore, store]);
+
+    return (
+      <>
+        {fieldNodes.map(node => (
+          <PathField
+            key={node.id}
+            node={node}
+            name={fieldNamePrefix}
+            readonly={readonly}
+            store={store}
+          />
+        ))}
+      </>
+    );
+  }
+);

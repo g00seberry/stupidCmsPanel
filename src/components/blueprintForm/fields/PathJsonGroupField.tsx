@@ -11,7 +11,12 @@ import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
  * Рекурсивно рендерит дочерние поля через PathField.
  * Использует CardinalityWrapper для обработки cardinality на уровне группы.
  */
-export const PathJsonGroupField: React.FC<FieldComponentProps> = ({ node, name, readonly }) => {
+export const PathJsonGroupField: React.FC<FieldComponentProps> = ({
+  node,
+  name,
+  readonly,
+  store,
+}) => {
   if (node.dataType !== 'json') {
     return null;
   }
@@ -32,7 +37,13 @@ export const PathJsonGroupField: React.FC<FieldComponentProps> = ({ node, name, 
         {itemName => (
           <>
             {sortedChildren.map(child => (
-              <PathField key={child.id} node={child} name={itemName} readonly={readonly} />
+              <PathField
+                key={child.id}
+                node={child}
+                name={itemName}
+                readonly={readonly}
+                store={store}
+              />
             ))}
           </>
         )}

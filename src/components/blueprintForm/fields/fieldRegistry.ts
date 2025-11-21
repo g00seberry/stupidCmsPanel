@@ -10,6 +10,7 @@ import { PathDateTimeFieldNode } from './PathDateTimeFieldNode';
 import { PathRefFieldNode } from './PathRefFieldNode';
 import { PathJsonGroupField } from './PathJsonGroupField';
 import type { Rule } from 'antd/es/form';
+import type { BlueprintFormStore } from '../stores/BlueprintFormStore';
 
 /**
  * Пропсы компонента поля формы (используется на уровне PathField).
@@ -21,6 +22,8 @@ export interface FieldComponentProps {
   name: (string | number)[];
   /** Флаг режима только для чтения. */
   readonly?: boolean;
+  /** Store для управления формой. */
+  store: BlueprintFormStore;
 }
 
 /**
@@ -53,8 +56,9 @@ export interface FieldDefinition {
  * Реестр типов полей формы.
  * Связывает типы данных (dataType) с компонентами и функциями для работы с полями.
  * Все типы из ScalarDataType | 'json' должны быть представлены в реестре.
+ * Использует `satisfies` для проверки полноты реестра на этапе компиляции.
  */
-export const fieldRegistry: Record<ScalarDataType | 'json', FieldDefinition> = {
+export const fieldRegistry = {
   string: {
     Component: PathStringFieldNode,
   },
@@ -82,18 +86,4 @@ export const fieldRegistry: Record<ScalarDataType | 'json', FieldDefinition> = {
   json: {
     Component: PathJsonGroupField,
   },
-};
-
-/**
- * Проверка, что все типы данных имеют реализацию в реестре.
- * Эта проверка выполняется на этапе компиляции TypeScript.
- */
-type RegistryKeys = keyof typeof fieldRegistry;
-type DataTypeKeys = ScalarDataType | 'json';
-// Если эта проверка не проходит, значит какой-то тип данных не представлен в реестре
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _AssertRegistryComplete = RegistryKeys extends DataTypeKeys
-  ? DataTypeKeys extends RegistryKeys
-    ? true
-    : never
-  : never;
+} satisfies Record<ScalarDataType | 'json', FieldDefinition>;

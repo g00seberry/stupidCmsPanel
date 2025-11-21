@@ -18,19 +18,3 @@ export interface ReferenceOption {
   label: string;
 }
 
-/**
- * Результат загрузки справочных данных.
- */
-export interface ReferenceDataResult {
-  /** Флаг выполнения загрузки. */
-  loading: boolean;
-  /** Ошибка загрузки, если произошла. */
-  error?: Error;
-  /** Массив опций для выбора. */
-  options: ReferenceOption[];
-  /** Функция для загрузки следующей страницы (для пагинации). */
-  loadMore?: () => void;
-  /** Функция для поиска по справочнику. */
-  search?: (term: string) => void;
-}
-

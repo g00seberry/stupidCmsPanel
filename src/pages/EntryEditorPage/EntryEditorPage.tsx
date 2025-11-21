@@ -8,7 +8,8 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore, type FormValues } from './EntryEditorStore';
-import { BlueprintForm, ReferenceDataProvider } from '@/components/blueprintForm';
+import { BlueprintForm } from '@/components/blueprintForm';
+import { BlueprintFormStore } from '@/components/blueprintForm/stores/BlueprintFormStore';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -35,6 +36,9 @@ const Inner = observer(({ store }: PropsInner) => {
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
   const { postTypeSlug, entryId } = store;
+
+  // Создаём store для BlueprintForm
+  const blueprintFormStore = useMemo(() => new BlueprintFormStore(), []);
 
   useEffect(() => {
     form.setFieldsValue(store.initialFormValues);
@@ -207,13 +211,12 @@ const Inner = observer(({ store }: PropsInner) => {
             {store.paths.length > 0 && (
               <Card className="p-6 mt-6">
                 <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
-                <ReferenceDataProvider>
-                  <BlueprintForm
-                    paths={store.paths}
-                    fieldNamePrefix={['content_json']}
-                    readonly={store.pending || store.loading}
-                  />
-                </ReferenceDataProvider>
+                <BlueprintForm
+                  paths={store.paths}
+                  fieldNamePrefix={['content_json']}
+                  readonly={store.pending || store.loading}
+                  store={blueprintFormStore}
+                />
               </Card>
             )}
           </Form>
