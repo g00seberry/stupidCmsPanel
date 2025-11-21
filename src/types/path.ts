@@ -37,6 +37,71 @@ export const zCardinality = z.enum(['one', 'many']);
 export type ZCardinality = z.infer<typeof zCardinality>;
 
 /**
+ * Схема валидации правила валидации поля Path в новом формате (объект).
+ * Определяет различные типы правил валидации через discriminatedUnion.
+ * @example
+ * const rule: ZValidationRuleObject = { type: 'min', value: 5 };
+ * const rule2: ZValidationRuleObject = { type: 'max', value: 100 };
+ * const rule3: ZValidationRuleObject = { type: 'regex', pattern: '^[a-z]+$' };
+ */
+export const zValidationRuleObject = z.discriminatedUnion('type', [
+  /** Правило минимального значения/длины. */
+  z.object({
+    type: z.literal('min'),
+    value: z.number(),
+  }),
+  /** Правило максимального значения/длины. */
+  z.object({
+    type: z.literal('max'),
+    value: z.number(),
+  }),
+  /** Правило регулярного выражения. */
+  z.object({
+    type: z.literal('regex'),
+    pattern: z.string(),
+  }),
+  /** Правило минимальной длины строки/массива. */
+  z.object({
+    type: z.literal('length'),
+    min: z.number().optional(),
+    max: z.number().optional(),
+  }),
+  /** Правило перечисления допустимых значений. */
+  z.object({
+    type: z.literal('enum'),
+    values: z.array(z.union([z.string(), z.number()])),
+  }),
+  /** Кастомное правило валидации. */
+  z.object({
+    type: z.literal('custom'),
+    validator: z.string(),
+    message: z.string().optional(),
+  }),
+]);
+
+/**
+ * Тип правила валидации поля Path в новом формате (объект).
+ */
+export type ZValidationRuleObject = z.infer<typeof zValidationRuleObject>;
+
+/**
+ * Схема валидации правила валидации поля Path.
+ * Поддерживает как новый формат (объект), так и старый формат (строка "type:value").
+ * Это обеспечивает обратную совместимость с существующими данными.
+ * @example
+ * const rule: ZValidationRule = { type: 'min', value: 5 };
+ * const rule2: ZValidationRule = 'max:100';
+ * const rule3: ZValidationRule = { type: 'regex', pattern: '^[a-z]+$' };
+ */
+export const zValidationRule = z.union([zValidationRuleObject, z.string()]);
+
+/**
+ * Тип правила валидации поля Path.
+ * Может быть объектом (новый формат) или строкой (старый формат "type:value").
+ */
+export type ZValidationRule = z.infer<typeof zValidationRule>;
+
+/**
  * Схема валидации вложенного объекта source_blueprint в Path.
  * Используется для представления информации об исходном Blueprint,
  * из которого было скопировано поле (для readonly полей).
@@ -54,7 +119,73 @@ const zSourceBlueprint = z
   .nullish();
 
 /**
- * Схема валидации поля Path.
+ * Базовая схема валидации поля Path без рекурсивного поля children.
+ * Используется как основа для создания полных схем с рекурсией.
+ * @example
+ * const pathBase: ZPathBase = {
+ *   id: 1,
+ *   blueprint_id: 1,
+ *   parent_id: null,
+ *   name: 'title',
+ *   full_path: 'title',
+ *   data_type: 'string',
+ *   cardinality: 'one',
+ *   is_required: true,
+ *   is_indexed: true,
+ *   is_readonly: false,
+ *   sort_order: 0,
+ *   validation_rules: null,
+ *   source_blueprint_id: null,
+ *   blueprint_embed_id: null,
+ *   source_blueprint: undefined,
+ *   created_at: '2025-01-10T12:45:00+00:00',
+ *   updated_at: '2025-01-10T12:45:00+00:00'
+ * };
+ */
+export const zPathBase = z.object({
+  /** Уникальный идентификатор поля. */
+  id: z.number(),
+  /** Идентификатор Blueprint, к которому принадлежит поле. */
+  blueprint_id: z.number(),
+  /** Идентификатор родительского поля. `null` для корневых полей. */
+  parent_id: z.number().nullable(),
+  /** Имя поля (URL-friendly строка). */
+  name: z.string(),
+  /** Полный путь поля в иерархии (например, "author.contacts.email"). */
+  full_path: z.string(),
+  /** Тип данных поля. */
+  data_type: zDataType,
+  /** Мощность поля: одно значение или множество. */
+  cardinality: zCardinality,
+  /** Флаг обязательности поля. */
+  is_required: z.boolean(),
+  /** Флаг индексации поля для поиска. */
+  is_indexed: z.boolean(),
+  /** Флаг только для чтения. `true` для полей, скопированных из встроенных Blueprint. */
+  is_readonly: z.boolean(),
+  /** Порядок сортировки поля среди полей одного уровня. */
+  sort_order: z.number(),
+  /** Правила валидации поля. Может быть `null`. */
+  validation_rules: z.array(zValidationRule).nullable(),
+  /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
+  source_blueprint_id: z.number().nullable(),
+  /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
+  blueprint_embed_id: z.number().nullable(),
+  /** Информация об исходном Blueprint (для readonly полей). */
+  source_blueprint: zSourceBlueprint,
+  /** Дата создания в формате ISO 8601. */
+  created_at: z.string(),
+  /** Дата последнего обновления в формате ISO 8601. */
+  updated_at: z.string(),
+});
+
+/**
+ * Тип базового поля Path без рекурсивного поля children.
+ */
+export type ZPathBase = z.infer<typeof zPathBase>;
+
+/**
+ * Схема валидации поля Path с опциональными дочерними полями.
  * Path определяет структуру одного поля в Blueprint.
  * @example
  * const path: ZPath = {
@@ -78,43 +209,9 @@ const zSourceBlueprint = z
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
  */
-export const zPath: z.ZodType<any> = z.object({
-  /** Уникальный идентификатор поля. */
-  id: z.number(),
-  /** Идентификатор Blueprint, к которому принадлежит поле. */
-  blueprint_id: z.number(),
-  /** Идентификатор родительского поля. `null` для корневых полей. */
-  parent_id: z.number().nullable(),
-  /** Имя поля (URL-friendly строка). */
-  name: z.string(),
-  /** Полный путь поля в иерархии (например, "author.contacts.email"). */
-  full_path: z.string(),
-  /** Тип данных поля. */
-  data_type: zDataType,
-  /** Мощность поля: одно значение или множество. */
-  cardinality: zCardinality,
-  /** Флаг обязательности поля. */
-  is_required: z.boolean(),
-  /** Флаг индексации поля для поиска. */
-  is_indexed: z.boolean(),
-  /** Флаг только для чтения. `true` для полей, скопированных из встроенных Blueprint. */
-  is_readonly: z.boolean(),
-  /** Порядок сортировки поля среди полей одного уровня. */
-  sort_order: z.number(),
-  /** Правила валидации поля в формате JSON массива. Может быть `null`. */
-  validation_rules: z.array(z.any()).nullable(),
-  /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
-  source_blueprint_id: z.number().nullable(),
-  /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
-  blueprint_embed_id: z.number().nullable(),
-  /** Информация об исходном Blueprint (для readonly полей). */
-  source_blueprint: zSourceBlueprint,
+export const zPath: z.ZodType<ZPathBase & { children?: ZPath[] }> = zPathBase.extend({
   /** Дочерние поля (для полей типа json). Используется lazy для рекурсивной структуры. */
-  children: z.array(z.lazy((): z.ZodType<any> => zPath)).optional(),
-  /** Дата создания в формате ISO 8601. */
-  created_at: z.string(),
-  /** Дата последнего обновления в формате ISO 8601. */
-  updated_at: z.string(),
+  children: z.array(z.lazy((): typeof zPath => zPath)).optional(),
 });
 
 /**
@@ -124,9 +221,61 @@ export const zPath: z.ZodType<any> = z.object({
 export type ZPath = z.infer<typeof zPath>;
 
 /**
+ * Тип данных узла дерева Path.
+ * Дискриминированный union по data_type: для 'json' обязательны children, для остальных - нет.
+ * Используется для представления иерархической структуры полей Blueprint.
+ */
+export type ZPathTreeNode =
+  | (ZPathBase & { data_type: 'json'; children: ZPathTreeNode[] })
+  | (ZPathBase & {
+      data_type: 'string' | 'text' | 'int' | 'float' | 'bool' | 'date' | 'datetime' | 'ref';
+      children?: never;
+    });
+
+/**
+ * Схема валидации узла дерева Path для типа 'json'.
+ * Для полей типа 'json' дочерние поля обязательны.
+ */
+const zPathTreeNodeJson = zPathBase
+  .extend({
+    data_type: z.literal('json'),
+  })
+  .extend({
+    /** Дочерние поля обязательны для полей типа json. */
+    children: z.array(z.lazy((): typeof zPathTreeNode => zPathTreeNode)),
+  });
+
+/**
+ * Схема валидации узла дерева Path для скалярных типов.
+ * Для скалярных типов дочерние поля отсутствуют или undefined.
+ * Принимает также пустой массив и нормализует его в undefined.
+ */
+const zPathTreeNodeScalar = zPathBase
+  .extend({
+    data_type: z.enum(['string', 'text', 'int', 'float', 'bool', 'date', 'datetime', 'ref']),
+    /** Дочерние поля отсутствуют для скалярных типов. Может быть undefined, отсутствовать или пустой массив. */
+    children: z
+      .union([z.array(z.any()), z.undefined()])
+      .nullish()
+      .transform(val => (Array.isArray(val) && val.length === 0 ? undefined : undefined)),
+  })
+  .transform(data => {
+    // Убеждаемся, что children всегда undefined для скалярных типов
+    const { children, ...rest } = data;
+    return {
+      ...rest,
+      children: undefined,
+    } as ZPathBase & {
+      data_type: 'string' | 'text' | 'int' | 'float' | 'bool' | 'date' | 'datetime' | 'ref';
+      children?: never;
+    };
+  });
+
+/**
  * Схема валидации узла дерева Path.
  * Расширенная версия zPath с обязательной поддержкой рекурсивной структуры children.
  * Используется для представления иерархической структуры полей Blueprint.
+ * Дискриминированный union по data_type: для 'json' обязательны children, для остальных - нет.
  * @example
  * const pathTree: ZPathTreeNode = {
  *   id: 1,
@@ -158,16 +307,10 @@ export type ZPath = z.infer<typeof zPath>;
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
  */
-export const zPathTreeNode: z.ZodType<any> = (zPath as z.ZodObject<any>).extend({
-  /** Дочерние поля с поддержкой рекурсивной структуры. */
-  children: z.array(z.lazy((): z.ZodType<any> => zPathTreeNode)).optional(),
-});
-
-/**
- * Тип данных узла дерева Path.
- * Используется для представления иерархической структуры полей Blueprint.
- */
-export type ZPathTreeNode = z.infer<typeof zPathTreeNode>;
+export const zPathTreeNode: z.ZodType<ZPathTreeNode> = z.union([
+  zPathTreeNodeJson,
+  zPathTreeNodeScalar,
+]);
 
 /**
  * Схема валидации данных для создания нового поля Path.
@@ -201,8 +344,8 @@ export const zCreatePathDto = z.object({
   is_indexed: z.boolean().default(false),
   /** Порядок сортировки поля среди полей одного уровня. Минимум 0. По умолчанию 0. */
   sort_order: z.number().int().min(0, 'Минимум 0').default(0),
-  /** Правила валидации поля в формате JSON массива. */
-  validation_rules: z.array(z.any()).optional(),
+  /** Правила валидации поля. */
+  validation_rules: z.array(zValidationRule).optional(),
 });
 
 /**

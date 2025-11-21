@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore, type FormValues } from './EntryEditorStore';
-import { BlueprintForm } from '@/components/blueprintForm';
+import { BlueprintForm, ReferenceDataProvider } from '@/components/blueprintForm';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -207,11 +207,13 @@ const Inner = observer(({ store }: PropsInner) => {
             {store.paths.length > 0 && (
               <Card className="p-6 mt-6">
                 <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
-                <BlueprintForm
-                  paths={store.paths}
-                  fieldNamePrefix={['content_json']}
-                  readonly={store.pending || store.loading}
-                />
+                <ReferenceDataProvider>
+                  <BlueprintForm
+                    paths={store.paths}
+                    fieldNamePrefix={['content_json']}
+                    readonly={store.pending || store.loading}
+                  />
+                </ReferenceDataProvider>
               </Card>
             )}
           </Form>

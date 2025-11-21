@@ -1,47 +1,67 @@
+import { Form } from 'antd';
 import type React from 'react';
-import { PathStringField } from './PathStringField';
-import { PathTextAreaField } from './PathTextAreaField';
-import { PathIntField } from './PathIntField';
-import { PathFloatField } from './PathFloatField';
-import { PathBoolField } from './PathBoolField';
-import { PathDateField } from './PathDateField';
-import { PathDateTimeField } from './PathDateTimeField';
-import { PathRefField } from './PathRefField';
-import { PathJsonGroupField } from './PathJsonGroupField';
-import type { PropsPathFieldBase } from './PathField.types';
+import type { FieldNode } from '../types/formField';
+import { fieldRegistry } from './fieldRegistry';
+import type { FieldComponentProps } from './fieldRegistry';
+import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
+import { createFieldName } from '../utils/fieldNodeUtils';
+import { CardinalityWrapper } from '../components/CardinalityWrapper';
 
 /**
- * Пропсы базового компонента поля Path.
+ * Пропсы компонента поля формы на основе FieldNode.
  */
-export type PropsPathField = PropsPathFieldBase;
+export interface PropsPathField {
+  /** Узел поля формы. */
+  node: FieldNode;
+  /** Имя поля в форме (массив сегментов пути). */
+  name: (string | number)[];
+  /** Флаг режима только для чтения. */
+  readonly?: boolean;
+}
 
 /**
- * Базовый компонент для рендеринга поля Path.
- * Выбирает соответствующий компонент на основе data_type.
+ * Базовый компонент для рендеринга поля формы.
+ * Использует реестр типов полей для выбора соответствующего компонента на основе dataType.
+ * Проверяет cardinality и оборачивает компонент в CardinalityWrapper при необходимости.
+ * Добавляет Form.Item для полей без CardinalityWrapper (bool, ref).
+ * @example
+ * <PathField node={fieldNode} name={['blueprint_data', 'title']} readonly={false} />
  */
-export const PathField: React.FC<PropsPathField> = ({ path, ...props }) => {
-  if (path.data_type === 'json') {
-    return <PathJsonGroupField path={path} {...props} />;
+export const PathField: React.FC<PropsPathField> = ({ node, name, readonly }) => {
+  const def = fieldRegistry[node.dataType];
+  if (!def) {
+    throw new Error(`Unknown dataType: ${node.dataType}`);
   }
 
-  switch (path.data_type) {
-    case 'string':
-      return <PathStringField path={path} {...props} />;
-    case 'text':
-      return <PathTextAreaField path={path} {...props} />;
-    case 'int':
-      return <PathIntField path={path} {...props} />;
-    case 'float':
-      return <PathFloatField path={path} {...props} />;
-    case 'bool':
-      return <PathBoolField path={path} {...props} />;
-    case 'date':
-      return <PathDateField path={path} {...props} />;
-    case 'datetime':
-      return <PathDateTimeField path={path} {...props} />;
-    case 'ref':
-      return <PathRefField path={path} {...props} />;
-    default:
-      return <PathStringField path={path} {...props} />;
+  const props: FieldComponentProps = {
+    node,
+    name,
+    readonly,
+  };
+
+  const fieldComponent = <def.Component {...props} />;
+  const label = node.label;
+  const rules = getFormItemRulesFromNode(node);
+  const fieldName = createFieldName(name, node.name);
+  const valuePropName = node.dataType === 'bool' ? 'checked' : undefined;
+  // Для полей без CardinalityWrapper (bool, ref) добавляем Form.Item здесь
+  if (node.dataType === 'bool' || node.dataType === 'ref') {
+    return (
+      <Form.Item name={fieldName} label={label} rules={rules} valuePropName={valuePropName}>
+        {fieldComponent}
+      </Form.Item>
+    );
   }
+
+  return (
+    <CardinalityWrapper
+      node={node}
+      name={fieldName}
+      readonly={readonly}
+      label={label}
+      rules={rules}
+    >
+      {() => fieldComponent}
+    </CardinalityWrapper>
+  );
 };
