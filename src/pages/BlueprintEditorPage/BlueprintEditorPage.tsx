@@ -515,6 +515,52 @@ export const BlueprintEditorPage = observer(() => {
     reactFlowInstanceRef.current?.setViewport({ x: 0, y: 0, zoom: 1 });
   }, []);
 
+  /**
+   * Обработчик удаления встраивания.
+   */
+  const handleDeleteEmbed = useCallback(
+    async (embedId: number) => {
+      try {
+        await embedStore.deleteEmbed(embedId);
+        message.success('Встраивание удалено');
+      } catch (error) {
+        onError(error);
+      }
+    },
+    [embedStore]
+  );
+
+  /**
+   * Обработчик показа встраивания в графе.
+   */
+  const handleShowEmbedInGraph = useCallback(
+    (embed: { embedded_blueprint_id: number; host_path_id: number | null }) => {
+      // Переключиться на вкладку схемы
+      setActiveTab('schema');
+      // Подсветить узлы встраивания в графе
+      const embedNodes = pathStore.paths
+        .flatMap(p => [p, ...(p.children || [])])
+        .filter(p => p.source_blueprint_id === embed.embedded_blueprint_id)
+        .map(p => p.id);
+      if (embedNodes.length > 0) {
+        // Выделить первый узел и центрировать граф
+        setSelectedPathId(embedNodes[0]);
+        setTimeout(() => {
+          reactFlowInstanceRef.current?.fitView();
+        }, 100);
+      }
+    },
+    [pathStore.paths]
+  );
+
+  /**
+   * Обработчик получения URL редактирования для зависимости.
+   */
+  const handleGetEditUrl = useCallback(
+    (id: number) => buildUrl(PageUrl.BlueprintsEdit, { id: String(id) }),
+    []
+  );
+
   return (
     <div className="min-h-screen bg-background w-full">
       <div className="border-b bg-card w-full">
@@ -647,36 +693,8 @@ export const BlueprintEditorPage = observer(() => {
                   <Card className="mt-4">
                     <EmbedList
                       store={embedStore}
-                      onDelete={useCallback(
-                        async (id: number) => {
-                          try {
-                            await embedStore.deleteEmbed(id);
-                            message.success('Встраивание удалено');
-                          } catch (error) {
-                            onError(error);
-                          }
-                        },
-                        [embedStore]
-                      )}
-                      onShowInGraph={useCallback(
-                        (embed: { embedded_blueprint_id: number; host_path_id: number | null }) => {
-                          // Переключиться на вкладку схемы
-                          setActiveTab('schema');
-                          // Подсветить узлы встраивания в графе
-                          const embedNodes = pathStore.paths
-                            .flatMap(p => [p, ...(p.children || [])])
-                            .filter(p => p.source_blueprint_id === embed.embedded_blueprint_id)
-                            .map(p => p.id);
-                          if (embedNodes.length > 0) {
-                            // Выделить первый узел и центрировать граф
-                            setSelectedPathId(embedNodes[0]);
-                            setTimeout(() => {
-                              reactFlowInstanceRef.current?.fitView();
-                            }, 100);
-                          }
-                        },
-                        [pathStore.paths]
-                      )}
+                      onDelete={handleDeleteEmbed}
+                      onShowInGraph={handleShowEmbedInGraph}
                     />
                     <div className="mt-4">
                       <EmbedFormWrapper embedStore={embedStore} pathStore={pathStore} />
@@ -692,10 +710,7 @@ export const BlueprintEditorPage = observer(() => {
                     <DependencyGraph
                       dependencies={dependencies}
                       loading={loadingDependencies}
-                      getEditUrl={useCallback(
-                        (id: number) => buildUrl(PageUrl.BlueprintsEdit, { id: String(id) }),
-                        []
-                      )}
+                      getEditUrl={handleGetEditUrl}
                     />
                   </Card>
                 ),
