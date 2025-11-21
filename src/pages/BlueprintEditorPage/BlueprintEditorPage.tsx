@@ -11,7 +11,7 @@ import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { EmbedList, EmbedForm } from '@/components/embeds';
 import { DependencyGraph } from '@/components/blueprints/DependencyGraph';
-import { BlueprintStore } from '@/stores/BlueprintStore';
+import { BlueprintEditorStore } from '@/stores/BlueprintEditorStore';
 import { PathStore } from '@/stores/PathStore';
 import { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
 import type {
@@ -242,7 +242,7 @@ export const BlueprintEditorPage = observer(() => {
   const isEditMode = id !== 'new' && id !== undefined;
   const blueprintId = isEditMode ? Number(id) : null;
 
-  const blueprintStore = useMemo(() => new BlueprintStore(), []);
+  const blueprintStore = useMemo(() => new BlueprintEditorStore(), []);
   const pathStore = useMemo(() => new PathStore(), []);
   const embedStore = useMemo(() => new BlueprintEmbedStore(), []);
   const { modal } = App.useApp();

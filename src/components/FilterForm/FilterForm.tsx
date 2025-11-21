@@ -23,13 +23,13 @@ export type FilterFieldConfig = {
 /**
  * Пропсы компонента формы фильтрации.
  */
-export type PropsFilterForm = {
+export type PropsFilterForm<TValues extends Record<string, unknown> = Record<string, unknown>> = {
   /** Store для управления состоянием фильтров. */
-  store: FilterFormStore;
+  store: FilterFormStore<TValues>;
   /** Конфигурация полей фильтрации. */
   fields: FilterFieldConfig[];
   /** Значения фильтров по умолчанию. */
-  defaultValues?: Record<string, unknown>;
+  defaultValues?: TValues;
   /** Текст кнопки применения. По умолчанию: 'Применить'. */
   applyText?: string;
   /** Текст кнопки сброса. По умолчанию: 'Сбросить'. */
@@ -38,8 +38,6 @@ export type PropsFilterForm = {
   showFilterIcon?: boolean;
   /** Дополнительный класс для карточки. */
   cardClassName?: string;
-  /** Обработчик сброса фильтров. Вызывается при нажатии кнопки сброса. */
-  onReset?: () => void;
 };
 
 /**
@@ -66,36 +64,33 @@ export type PropsFilterForm = {
  *   defaultValues={{ status: 'all' }}
  * />
  */
-export const FilterForm = observer<PropsFilterForm>(
-  ({
+export const FilterForm = observer(
+  <TValues extends Record<string, unknown> = Record<string, unknown>>({
     store,
     fields,
-    defaultValues = {},
+    defaultValues = {} as TValues,
     applyText = 'Применить',
     resetText = 'Сбросить',
     showFilterIcon = true,
     cardClassName,
-    onReset,
-  }) => {
+  }: PropsFilterForm<TValues>) => {
     const [form] = Form.useForm();
 
     // Синхронизация формы со стором
     useEffect(() => {
+      form.resetFields();
       form.setFieldsValue(store.values);
     }, [form, store.values]);
 
     // Инициализация значений по умолчанию
     useEffect(() => {
-      if (Object.keys(store.values).length === 0 && Object.keys(defaultValues).length > 0) {
-        store.setValues(defaultValues);
-        form.setFieldsValue(defaultValues);
-      }
-    }, [form, store, defaultValues]);
+      store.setValues(defaultValues);
+    }, [store, defaultValues]);
 
     /**
      * Обработчик применения фильтров.
      */
-    const handleApply = (values: Record<string, unknown>): void => {
+    const handleApply = (values: TValues): void => {
       store.setValues(values);
     };
 
@@ -103,16 +98,7 @@ export const FilterForm = observer<PropsFilterForm>(
      * Обработчик сброса фильтров.
      */
     const handleReset = (): void => {
-      // Создаём объект значений для сброса: для каждого поля берём значение из defaultValues или undefined
-      const resetValues: Record<string, unknown> = {};
-      fields.forEach(field => {
-        resetValues[field.name] = defaultValues[field.name] ?? undefined;
-      });
-
-      store.reset(resetValues);
-      form.resetFields();
-      form.setFieldsValue(resetValues);
-      onReset?.();
+      store.reset(defaultValues);
     };
 
     return (

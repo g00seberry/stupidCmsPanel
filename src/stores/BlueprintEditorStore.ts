@@ -1,17 +1,14 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type {
   ZBlueprint,
-  ZBlueprintListItem,
   ZCreateBlueprintDto,
   ZUpdateBlueprintDto,
   ZCanDeleteBlueprint,
   ZBlueprintDependencies,
   ZEmbeddableBlueprints,
 } from '@/types/blueprint';
-import type { ZPaginationMeta } from '@/types/pagination';
 import { onError } from '@/utils/onError';
 import {
-  listBlueprints,
   getBlueprint,
   createBlueprint as createBlueprintApi,
   updateBlueprint as updateBlueprintApi,
@@ -22,19 +19,15 @@ import {
 } from '@/api/blueprintApi';
 
 /**
- * Store для управления Blueprint.
+ * Store для управления редактированием отдельного Blueprint.
  * Обеспечивает загрузку, создание, обновление и удаление Blueprint,
  * а также работу с зависимостями и встраиваниями.
  */
-export class BlueprintStore {
-  /** Список Blueprint для отображения в таблице. */
-  blueprints: ZBlueprintListItem[] = [];
-  /** Текущий выбранный Blueprint с полной информацией. */
+export class BlueprintEditorStore {
+  /** Текущий редактируемый Blueprint с полной информацией. */
   currentBlueprint: ZBlueprint | null = null;
-  /** Метаданные пагинации. */
-  pagination: ZPaginationMeta | null = null;
 
-  /** Флаг выполнения запроса загрузки списка. */
+  /** Флаг выполнения запроса загрузки. */
   pending = false;
   /** Флаг выполнения запроса создания. */
   creating = false;
@@ -43,74 +36,8 @@ export class BlueprintStore {
   /** Флаг выполнения запроса удаления. */
   deleting = false;
 
-  /** Поисковый запрос. */
-  search = '';
-  /** Поле для сортировки. */
-  sortBy = 'created_at';
-  /** Направление сортировки. */
-  sortDir: 'asc' | 'desc' = 'desc';
-  /** Количество элементов на странице. */
-  perPage = 15;
-  /** Текущая страница. */
-  currentPage = 1;
-
   constructor() {
     makeAutoObservable(this);
-  }
-
-  /**
-   * Загрузить список Blueprint с текущими фильтрами.
-   */
-  async loadBlueprints(): Promise<void> {
-    this.pending = true;
-    try {
-      const response = await listBlueprints({
-        search: this.search || undefined,
-        sort_by: this.sortBy,
-        sort_dir: this.sortDir,
-        per_page: this.perPage,
-        page: this.currentPage,
-      });
-      runInAction(() => {
-        this.blueprints = response.data;
-        this.pagination = response.meta;
-      });
-    } catch (error) {
-      onError(error);
-    } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
-    }
-  }
-
-  /**
-   * Установить поисковый запрос.
-   * @param value Новый поисковый запрос.
-   */
-  setSearch(value: string): void {
-    this.search = value;
-    this.currentPage = 1;
-  }
-
-  /**
-   * Установить сортировку.
-   * @param sortBy Поле для сортировки.
-   * @param sortDir Направление сортировки.
-   */
-  setSort(sortBy: string, sortDir: 'asc' | 'desc'): void {
-    this.sortBy = sortBy;
-    this.sortDir = sortDir;
-    this.currentPage = 1;
-  }
-
-  /**
-   * Перейти на страницу.
-   * @param page Номер страницы.
-   */
-  async goToPage(page: number): Promise<void> {
-    this.currentPage = page;
-    await this.loadBlueprints();
   }
 
   /**
@@ -145,7 +72,9 @@ export class BlueprintStore {
     this.creating = true;
     try {
       const blueprint = await createBlueprintApi(dto);
-      await this.loadBlueprints();
+      runInAction(() => {
+        this.currentBlueprint = blueprint;
+      });
       return blueprint;
     } catch (error) {
       onError(error);
@@ -169,7 +98,6 @@ export class BlueprintStore {
       runInAction(() => {
         this.currentBlueprint = updated;
       });
-      await this.loadBlueprints();
     } catch (error) {
       onError(error);
       throw error;
@@ -193,7 +121,6 @@ export class BlueprintStore {
           this.currentBlueprint = null;
         }
       });
-      await this.loadBlueprints();
     } catch (error) {
       onError(error);
       throw error;
@@ -246,3 +173,4 @@ export class BlueprintStore {
     }
   }
 }
+

@@ -15,6 +15,10 @@ import { PaginatedTable } from '@/components/PaginatedTable';
 import { FilterForm, FilterFormStore } from '@/components/FilterForm';
 import { viewDate } from '@/utils/dateUtils';
 
+type FilterValues = {
+  q: string;
+  status: string;
+};
 const { Title, Paragraph } = Typography;
 
 /**
@@ -24,7 +28,10 @@ export const EntriesListPage = observer(() => {
   const { postType: postTypeSlug } = useParams<{ postType?: string }>();
   const navigate = useNavigate();
   const store = useMemo(() => new EntriesListStore(), []);
-  const filterStore = useMemo(() => new FilterFormStore({ status: 'all' }), []);
+  const filterStore = useMemo(
+    () => new FilterFormStore<FilterValues>({ q: '', status: 'all' }),
+    []
+  );
   const [postType, setPostType] = useState<ZPostType | null>(null);
   const [loadingPostType, setLoadingPostType] = useState(false);
 
@@ -52,7 +59,9 @@ export const EntriesListPage = observer(() => {
       const values = filterStore.values;
       const status = (values.status as string) || 'all';
       const q = values.q as string | undefined;
-      void store.setFilters({ status: status as any, q, page: 1 }, postTypeSlug);
+      void store.setFilters({ status: status as any, q }, postTypeSlug);
+      // Сбрасываем страницу на первую при изменении фильтров
+      void store.goToPage(1, postTypeSlug);
     }
   }, [filterStore.values, postTypeSlug, store]);
 
@@ -121,7 +130,9 @@ export const EntriesListPage = observer(() => {
             type="link"
             onClick={() => {
               if (postTypeSlug) {
-                navigate(buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(record.id) }));
+                navigate(
+                  buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(record.id) })
+                );
               }
             }}
           >
@@ -172,6 +183,7 @@ export const EntriesListPage = observer(() => {
     [statusMap, postTypeSlug, navigate]
   );
 
+  const defaultValues: FilterValues = useMemo(() => ({ q: '', status: 'all' }), []);
   const pageTitle = postType ? `Записи: ${postType.name}` : 'Записи';
   const pageDescription = postType
     ? `Список записей типа контента "${postType.name}"`
@@ -238,7 +250,7 @@ export const EntriesListPage = observer(() => {
         <FilterForm
           store={filterStore}
           fields={filterFields}
-          defaultValues={{ status: 'all' }}
+          defaultValues={defaultValues}
           cardClassName="mb-6"
         />
 

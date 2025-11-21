@@ -1,12 +1,12 @@
 import { Modal } from 'antd';
-import type { BlueprintStore } from '@/stores/BlueprintStore';
+import type { BlueprintEditorStore } from '@/stores/BlueprintEditorStore';
 
 /**
  * Параметры для функции подтверждения удаления Blueprint.
  */
 export type ConfirmDeleteBlueprintParams = {
   /** Store для управления Blueprint. */
-  store: BlueprintStore;
+  store: BlueprintEditorStore;
   /** Идентификатор Blueprint для удаления. */
   blueprintId: number;
   /** Название Blueprint (для отображения в сообщении). */

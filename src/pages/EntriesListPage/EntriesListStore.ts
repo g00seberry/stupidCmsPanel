@@ -79,14 +79,17 @@ export class EntriesListStore {
 
   /**
    * Устанавливает фильтры и перезагружает данные.
-   * @param filters Новые параметры фильтрации.
+   * @param filters Новые параметры фильтрации (без пагинации и сортировки).
    * @param postType Slug типа контента для фильтрации.
    */
   async setFilters(filters: Partial<ZEntriesListParams>, postType?: string): Promise<void> {
-    const updatedFilters = { ...filters };
+    const updatedFilters: Partial<ZEntriesListParams> = { ...filters };
     if (postType !== undefined) {
       updatedFilters.post_type = postType;
     }
+    // Удаляем параметры пагинации из фильтров
+    delete updatedFilters.page;
+    delete updatedFilters.per_page;
     await this.loader.setFilters(updatedFilters);
   }
 
@@ -97,10 +100,10 @@ export class EntriesListStore {
    */
   async goToPage(page: number, postType?: string): Promise<void> {
     if (postType !== undefined) {
-      await this.loader.setFilters({ page, post_type: postType } as Partial<ZEntriesListParams>);
-    } else {
-      await this.loader.goToPage(page);
+      // Сначала устанавливаем фильтр post_type, если нужно
+      await this.loader.setFilters({ post_type: postType } as Partial<ZEntriesListParams>);
     }
+    await this.loader.goToPage(page);
   }
 
   /**
