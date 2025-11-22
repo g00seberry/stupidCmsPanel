@@ -37,3 +37,30 @@ export const createFieldName = (
 ): (string | number)[] => {
   return [...fieldNamePrefix, fieldName];
 };
+
+/**
+ * Определяет значение по умолчанию для нового элемента в зависимости от типа данных.
+ * @param node Узел поля формы.
+ * @returns Значение по умолчанию для нового элемента.
+ */
+export const getDefaultValueForDataType = (node: FieldNode): unknown => {
+  switch (node.dataType) {
+    case 'string':
+    case 'text':
+      return '';
+    case 'int':
+    case 'float':
+      return undefined;
+    case 'bool':
+      return false;
+    case 'date':
+    case 'datetime':
+      return undefined;
+    case 'ref':
+      return node.cardinality === 'many' ? [] : undefined;
+    case 'json':
+      return {};
+    default:
+      return undefined;
+  }
+};

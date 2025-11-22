@@ -1,12 +1,11 @@
-import { Form } from 'antd';
 import type React from 'react';
-import type { FieldNode } from '../types/formField';
-import { fieldRegistry } from './fieldRegistry';
-import type { FieldComponentProps } from './fieldRegistry';
-import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
-import { createFieldName, isFieldDisabled, getFieldPlaceholder } from '../utils/fieldNodeUtils';
 import { CardinalityWrapper } from '../components/CardinalityWrapper';
 import type { SchemaFormStore } from '../SchemaFormStore';
+import type { FieldNode } from '../types/formField';
+import { createFieldName, getFieldPlaceholder, isFieldDisabled } from '../utils/fieldNodeUtils';
+import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
+import type { FieldComponentProps } from './fieldRegistry';
+import { fieldRegistry } from './fieldRegistry';
 
 /**
  * Пропсы компонента поля формы на основе FieldNode.
@@ -52,13 +51,6 @@ export const PathField: React.FC<PropsPathField> = ({ node, name, readonly, stor
   };
 
   const fieldComponent = <def.Component {...props} />;
-  if (node.dataType === 'bool' || node.dataType === 'ref') {
-    return (
-      <Form.Item name={fieldName} label={label} rules={rules} valuePropName="checked">
-        {fieldComponent}
-      </Form.Item>
-    );
-  }
 
   return (
     <CardinalityWrapper

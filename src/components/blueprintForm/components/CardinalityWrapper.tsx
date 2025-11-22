@@ -1,7 +1,8 @@
-import { Form, Button } from 'antd';
 import type React from 'react';
 import type { FieldNode } from '../types/formField';
 import type { Rule } from 'antd/es/form';
+import { SingleFieldWrapper } from './SingleFieldWrapper';
+import { ManyFieldWrapper } from './ManyFieldWrapper';
 
 /**
  * Пропсы компонента-обёртки для обработки cardinality.
@@ -38,113 +39,22 @@ export const CardinalityWrapper: React.FC<PropsCardinalityWrapper> = ({
   rules,
   children,
 }) => {
+  // Для bool полей используем valuePropName="checked"
+  const useChecked = node.dataType === 'bool';
+
+  // Для одного поля используем SingleFieldWrapper
   if (node.cardinality === 'one') {
-    // Для 'one' оборачиваем children в Form.Item
     return (
-      <Form.Item name={name} label={label} rules={rules}>
+      <SingleFieldWrapper name={name} label={label} rules={rules} useChecked={useChecked}>
         {children(name)}
-      </Form.Item>
+      </SingleFieldWrapper>
     );
   }
 
-  // Для 'many' используем Form.List
-  const disabled = node.readonly || readonly;
-
-  // Убеждаемся, что name - это массив и нормализуем его
-  const nameArray: (string | number)[] = (() => {
-    if (!name) {
-      return [];
-    }
-    if (Array.isArray(name)) {
-      // Фильтруем и проверяем, что все элементы валидны
-      return name.filter((item): item is string | number => {
-        return typeof item === 'string' || typeof item === 'number';
-      });
-    }
-    // Если name не массив, создаём массив из одного элемента
-    if (typeof name === 'string' || typeof name === 'number') {
-      return [name];
-    }
-    return [];
-  })();
-
-  // Определяем начальное значение для нового элемента в зависимости от типа данных
-  const getDefaultValue = (): unknown => {
-    switch (node.dataType) {
-      case 'string':
-      case 'text':
-        return '';
-      case 'int':
-      case 'float':
-        return undefined;
-      case 'bool':
-        return false;
-      case 'date':
-      case 'datetime':
-        return undefined;
-      case 'ref':
-        return node.cardinality === 'many' ? [] : undefined;
-      case 'json':
-        return {};
-      default:
-        return undefined;
-    }
-  };
-
+  // Для множества полей используем ManyFieldWrapper
   return (
-    <Form.List name={nameArray}>
-      {(fields, { add, remove }) => (
-        <>
-          {fields.map(({ key, name: itemName }) => {
-            // Убеждаемся, что itemName - это число (индекс в Form.List)
-            const itemIndex = typeof itemName === 'number' ? itemName : Number(itemName);
-            if (isNaN(itemIndex) || itemIndex < 0) {
-              console.error('Invalid itemName in Form.List:', itemName);
-              return null;
-            }
-            // Создаём полное имя поля
-            const fullName: (string | number)[] = nameArray.concat(itemIndex);
-            return (
-              <div key={key} className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-gray-600">
-                    {label || node.label} {itemIndex + 1}
-                  </span>
-                  {!disabled && (
-                    <Button type="text" danger size="small" onClick={() => remove(itemIndex)}>
-                      Удалить
-                    </Button>
-                  )}
-                </div>
-                <Form.Item name={fullName} rules={rules}>
-                  {children(fullName)}
-                </Form.Item>
-              </div>
-            );
-          })}
-          {!disabled && (
-            <Form.Item>
-              <Button
-                type="dashed"
-                block
-                onClick={() => {
-                  try {
-                    const defaultValue = getDefaultValue();
-                    add(defaultValue);
-                  } catch (error) {
-                    console.error('Error adding item to Form.List:', error, {
-                      nameArray,
-                      node: node.dataType,
-                    });
-                  }
-                }}
-              >
-                Добавить {node.label.toLowerCase()}
-              </Button>
-            </Form.Item>
-          )}
-        </>
-      )}
-    </Form.List>
+    <ManyFieldWrapper node={node} name={name} readonly={readonly} label={label} rules={rules}>
+      {children}
+    </ManyFieldWrapper>
   );
 };
