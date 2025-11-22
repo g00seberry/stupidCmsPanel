@@ -9,7 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore, type FormValues } from './EntryEditorStore';
 import { BlueprintForm } from '@/components/blueprintForm';
-import { BlueprintFormStore } from '@/components/blueprintForm/stores/BlueprintFormStore';
+import { SchemaFormStore } from '@/components/blueprintForm/SchemaFormStore';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -38,7 +38,7 @@ const Inner = observer(({ store }: PropsInner) => {
   const { postTypeSlug, entryId } = store;
 
   // Создаём store для BlueprintForm
-  const blueprintFormStore = useMemo(() => new BlueprintFormStore(), []);
+  const blueprintFormStore = useMemo(() => new SchemaFormStore(), []);
 
   useEffect(() => {
     form.setFieldsValue(store.initialFormValues);

@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { ZPath, ZPathTreeNode, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZPath, ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { onError } from '@/utils/onError';
 import {
   listPaths,
@@ -16,7 +16,7 @@ import {
  */
 export class PathStore {
   /** Дерево полей Blueprint. */
-  paths: ZPathTreeNode[] = [];
+  paths: ZPath[] = [];
   /** Текущее выбранное поле. */
   currentPath: ZPath | null = null;
   /** Флаг выполнения запроса. */
@@ -165,7 +165,7 @@ export class PathStore {
       return name;
     }
 
-    const findPath = (paths: ZPathTreeNode[], id: number): ZPathTreeNode | null => {
+    const findPath = (paths: ZPath[], id: number): ZPath | null => {
       for (const path of paths) {
         if (path.id === id) {
           return path;

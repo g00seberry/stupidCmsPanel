@@ -28,11 +28,6 @@ export const getFieldTooltip = (node: FieldNode): string | undefined => {
  * @returns Текст placeholder.
  */
 export const getFieldPlaceholder = (node: FieldNode, action?: string): string => {
-  // Если есть ключ локализации для placeholder, используем его
-  if (node.ui?.placeholderKey) {
-    return t(node.ui.placeholderKey);
-  }
-
   // Используем переданное действие или дефолтное
   const actionText = action || t('blueprint.field.enter');
   const label = node.label;
@@ -45,9 +40,6 @@ export const getFieldPlaceholder = (node: FieldNode, action?: string): string =>
  * @returns Локализованный label или дефолтный label.
  */
 export const getLocalizedLabel = (node: FieldNode): string => {
-  if (node.ui?.labelKey) {
-    return t(node.ui.labelKey);
-  }
   return node.label;
 };
 
@@ -57,9 +49,6 @@ export const getLocalizedLabel = (node: FieldNode): string => {
  * @returns Локализованный help text или дефолтный.
  */
 export const getLocalizedHelpText = (node: FieldNode): string | undefined => {
-  if (node.ui?.helpKey) {
-    return t(node.ui.helpKey);
-  }
   return node.helpText;
 };
 

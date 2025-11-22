@@ -17,4 +17,3 @@ export interface ReferenceOption {
   /** Отображаемый текст опции. */
   label: string;
 }
-

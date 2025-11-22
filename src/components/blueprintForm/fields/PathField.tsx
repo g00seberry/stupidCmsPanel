@@ -6,7 +6,7 @@ import type { FieldComponentProps } from './fieldRegistry';
 import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
 import { createFieldName } from '../utils/fieldNodeUtils';
 import { CardinalityWrapper } from '../components/CardinalityWrapper';
-import type { BlueprintFormStore } from '../stores/BlueprintFormStore';
+import type { SchemaFormStore } from '../SchemaFormStore';
 
 /**
  * Пропсы компонента поля формы на основе FieldNode.
@@ -19,7 +19,7 @@ export interface PropsPathField {
   /** Флаг режима только для чтения. */
   readonly?: boolean;
   /** Store для управления формой. */
-  store: BlueprintFormStore;
+  store: SchemaFormStore;
 }
 
 /**

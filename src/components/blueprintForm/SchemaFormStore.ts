@@ -2,10 +2,10 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import { onError } from '@/utils/onError';
-import type { FieldNode } from '../types/formField';
-import { buildZodSchemaFromPaths } from '../utils/buildZodSchemaFromPaths';
+import type { FieldNode } from './types/formField';
+import { buildZodSchemaFromPaths } from './utils/buildZodSchemaFromPaths';
 import type { z } from 'zod';
-import type { ReferenceQuery, ReferenceOption } from './BlueprintFormStore.types';
+import type { ReferenceQuery, ReferenceOption } from './SchemaFormStore.types';
 
 /**
  * Кэш для справочных данных.
@@ -30,7 +30,7 @@ interface ReferenceDataState {
  * Store для управления формой Blueprint.
  * Обеспечивает загрузку справочных данных с кэшированием и генерацию Zod-схемы валидации.
  */
-export class BlueprintFormStore {
+export class SchemaFormStore {
   /** Кэш справочных данных. */
   private dataCache = new Map<string, CacheEntry>();
 

@@ -20,12 +20,9 @@ export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
 
     const disabled = isFieldDisabled(node, readonly);
 
-    // Получаем параметры запроса из ui-конфигурации или используем дефолтные
-    const refConfig = node.ui?.refConfig as
-      | { resource?: string; params?: Record<string, unknown> }
-      | undefined;
-    const resource = refConfig?.resource || 'entries';
-    const params = refConfig?.params || { per_page: 100 };
+    // Используем дефолтные параметры запроса
+    const resource = 'entries';
+    const params = { per_page: 100 };
 
     // Используем store для загрузки данных
     const query = useMemo(() => ({ resource, params }), [resource, params]);
@@ -43,9 +40,7 @@ export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
       <Select
         mode={node.cardinality === 'many' ? 'multiple' : undefined}
         showSearch
-        placeholder={
-          node.ui?.placeholderKey ? t(node.ui.placeholderKey) : t('blueprint.entry.select')
-        }
+        placeholder={t('blueprint.entry.select')}
         loading={loading}
         disabled={disabled}
         onSearch={handleSearch}

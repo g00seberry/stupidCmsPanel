@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { FieldNode, ScalarDataType } from '../types/formField';
+import type { FieldNode, DataType } from '../types/formField';
 import { PathStringFieldNode } from './PathStringFieldNode';
 import { PathTextAreaFieldNode } from './PathTextAreaFieldNode';
 import { PathIntFieldNode } from './PathIntFieldNode';
@@ -10,7 +10,7 @@ import { PathDateTimeFieldNode } from './PathDateTimeFieldNode';
 import { PathRefFieldNode } from './PathRefFieldNode';
 import { PathJsonGroupField } from './PathJsonGroupField';
 import type { Rule } from 'antd/es/form';
-import type { BlueprintFormStore } from '../stores/BlueprintFormStore';
+import type { SchemaFormStore } from '../SchemaFormStore';
 
 /**
  * Пропсы компонента поля формы (используется на уровне PathField).
@@ -23,7 +23,7 @@ export interface FieldComponentProps {
   /** Флаг режима только для чтения. */
   readonly?: boolean;
   /** Store для управления формой. */
-  store: BlueprintFormStore;
+  store: SchemaFormStore;
 }
 
 /**
@@ -55,7 +55,7 @@ export interface FieldDefinition {
 /**
  * Реестр типов полей формы.
  * Связывает типы данных (dataType) с компонентами и функциями для работы с полями.
- * Все типы из ScalarDataType | 'json' должны быть представлены в реестре.
+ * Все типы из DataType должны быть представлены в реестре.
  * Использует `satisfies` для проверки полноты реестра на этапе компиляции.
  */
 export const fieldRegistry = {
@@ -86,4 +86,4 @@ export const fieldRegistry = {
   json: {
     Component: PathJsonGroupField,
   },
-} satisfies Record<ScalarDataType | 'json', FieldDefinition>;
+} satisfies Record<DataType, FieldDefinition>;

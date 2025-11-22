@@ -1,4 +1,4 @@
-import type { ZPathTreeNode } from '@/types/path';
+import type { ZPath } from '@/types/path';
 import dagre from 'dagre';
 
 /**
@@ -8,7 +8,7 @@ export type FlowNode = {
   id: string;
   type: string;
   data: {
-    path: ZPathTreeNode;
+    path: ZPath;
     label: string;
     dataType: string;
     isRequired: boolean;
@@ -35,13 +35,11 @@ export type FlowEdge = {
  * @param paths Дерево полей Blueprint.
  * @returns Объект с узлами и связями для React Flow.
  */
-export const pathTreeToGraph = (
-  paths: ZPathTreeNode[]
-): { nodes: FlowNode[]; edges: FlowEdge[] } => {
+export const pathTreeToGraph = (paths: ZPath[]): { nodes: FlowNode[]; edges: FlowEdge[] } => {
   const nodes: FlowNode[] = [];
   const edges: FlowEdge[] = [];
 
-  const traverse = (path: ZPathTreeNode, level: number, parentX: number, parentY: number) => {
+  const traverse = (path: ZPath, level: number, parentX: number, parentY: number) => {
     // Определить тип узла
     let nodeType = 'simpleField';
     if (path.data_type === 'json') {
@@ -80,7 +78,7 @@ export const pathTreeToGraph = (
 
     // Обработать дочерние узлы
     if (path.children) {
-      path.children.forEach((child: ZPathTreeNode, index: number) => {
+      path.children.forEach((child: ZPath, index: number) => {
         traverse(child, level + 1, parentX + index * 200, parentY);
       });
     }

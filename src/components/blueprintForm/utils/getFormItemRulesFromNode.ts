@@ -19,9 +19,9 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
     });
   }
 
-  // Правила из validation_rules (из ui.validationRules)
-  if (node.ui?.validationRules && Array.isArray(node.ui.validationRules)) {
-    node.ui.validationRules.forEach(rule => {
+  // Правила из validation_rules
+  if (node.validationRules && Array.isArray(node.validationRules)) {
+    node.validationRules.forEach(rule => {
       if (typeof rule === 'object' && rule.type) {
         switch (rule.type) {
           case 'max':

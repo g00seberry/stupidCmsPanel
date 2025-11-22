@@ -2,7 +2,7 @@ import { Form, Select, TreeSelect, Alert, Card, Space, Tag } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
 import type { PathStore } from '@/stores/PathStore';
-import type { ZPathTreeNode } from '@/types/path';
+import type { ZPath } from '@/types/path';
 import { useMemo, useCallback } from 'react';
 import { canEmbedInPath } from '@/utils/blueprintValidation';
 
@@ -41,7 +41,7 @@ export const EmbedForm: React.FC<PropsEmbedForm> = ({
   };
 
   const treeData = useMemo(() => {
-    const convertPathsToTree = (paths: ZPathTreeNode[]): TreeDataNode[] => {
+    const convertPathsToTree = (paths: ZPath[]): TreeDataNode[] => {
       return paths
         .filter(path => path.data_type === 'json')
         .map(path => ({

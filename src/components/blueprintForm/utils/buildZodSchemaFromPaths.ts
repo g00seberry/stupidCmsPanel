@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { FieldNode, JsonFieldNode, ScalarFieldNode } from '../types/formField';
+import type { FieldNode } from '../types/formField';
 import { t } from './i18n';
 
 /**
@@ -8,13 +8,13 @@ import { t } from './i18n';
  * @param node Узел поля формы.
  * @returns Zod-схема с применёнными правилами валидации.
  */
-const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode): T => {
-  const validationRules = node.ui?.validationRules;
+const applyValidationRules = (schema: z.ZodTypeAny, node: FieldNode): z.ZodTypeAny => {
+  const validationRules = node.validationRules;
   if (!validationRules || !Array.isArray(validationRules)) {
     return schema;
   }
 
-  let result = schema;
+  let result: z.ZodTypeAny = schema;
 
   for (const rule of validationRules) {
     if (typeof rule === 'object' && rule.type) {
@@ -25,12 +25,12 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
               result = (result as z.ZodString).min(
                 rule.value,
                 t('blueprint.field.minLength', { min: String(rule.value) })
-              ) as T;
+              );
             } else if (node.dataType === 'int' || node.dataType === 'float') {
               result = (result as z.ZodNumber).min(
                 rule.value,
                 t('blueprint.field.minValue', { min: String(rule.value) })
-              ) as T;
+              );
             } else if (node.dataType === 'date' || node.dataType === 'datetime') {
               // Для дат min/max не применяются напрямую
             }
@@ -42,12 +42,12 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
               result = (result as z.ZodString).max(
                 rule.value,
                 t('blueprint.field.maxLength', { max: String(rule.value) })
-              ) as T;
+              );
             } else if (node.dataType === 'int' || node.dataType === 'float') {
               result = (result as z.ZodNumber).max(
                 rule.value,
                 t('blueprint.field.maxValue', { max: String(rule.value) })
-              ) as T;
+              );
             }
           }
           break;
@@ -55,7 +55,7 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
           if (typeof rule.pattern === 'string') {
             try {
               const regex = new RegExp(rule.pattern);
-              result = (result as z.ZodString).regex(regex, t('blueprint.field.invalidFormat')) as T;
+              result = (result as z.ZodString).regex(regex, t('blueprint.field.invalidFormat'));
             } catch {
               // Игнорируем невалидные regex
             }
@@ -67,7 +67,7 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
               result = (result as z.ZodString).min(
                 rule.min,
                 t('blueprint.field.minLength', { min: String(rule.min) })
-              ) as T;
+              );
             }
           }
           if (typeof rule.max === 'number') {
@@ -75,7 +75,7 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
               result = (result as z.ZodString).max(
                 rule.max,
                 t('blueprint.field.maxLength', { max: String(rule.max) })
-              ) as T;
+              );
             }
           }
           break;
@@ -84,9 +84,18 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
             // Для enum создаём union из допустимых значений
             const enumValues = rule.values as Array<string | number>;
             if (enumValues.length > 0) {
-              result = z.union(
-                enumValues.map(val => (typeof val === 'string' ? z.literal(val) : z.literal(val))) as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]
-              ) as T;
+              const literals = enumValues.map(val =>
+                typeof val === 'string' ? z.literal(val) : z.literal(val)
+              );
+              if (literals.length === 1) {
+                result = literals[0];
+              } else {
+                result = z.union([literals[0], literals[1], ...literals.slice(2)] as [
+                  z.ZodTypeAny,
+                  z.ZodTypeAny,
+                  ...z.ZodTypeAny[],
+                ]);
+              }
             }
           }
           break;
@@ -102,7 +111,7 @@ const applyValidationRules = <T extends z.ZodTypeAny>(schema: T, node: FieldNode
  * @param node Узел скалярного поля.
  * @returns Zod-схема для скалярного поля.
  */
-const buildScalarSchema = (node: ScalarFieldNode): z.ZodTypeAny => {
+const buildScalarSchema = (node: FieldNode): z.ZodTypeAny => {
   let schema: z.ZodTypeAny;
 
   switch (node.dataType) {
@@ -123,7 +132,9 @@ const buildScalarSchema = (node: ScalarFieldNode): z.ZodTypeAny => {
       schema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t('blueprint.field.invalidDate'));
       break;
     case 'datetime':
-      schema = z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, t('blueprint.field.invalidDateTime'));
+      schema = z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, t('blueprint.field.invalidDateTime'));
       break;
     case 'ref':
       schema = z.union([z.string(), z.number()]);
@@ -147,13 +158,15 @@ const buildScalarSchema = (node: ScalarFieldNode): z.ZodTypeAny => {
  * @param node Узел json-группы.
  * @returns Zod-схема для json-группы.
  */
-const buildJsonSchema = (node: JsonFieldNode): z.ZodTypeAny => {
+const buildJsonSchema = (node: FieldNode): z.ZodTypeAny => {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   // Рекурсивно строим схемы для дочерних полей
-  for (const child of node.children) {
-    const childSchema = buildFieldSchema(child);
-    shape[child.name] = childSchema;
+  if (node.children) {
+    for (const child of node.children) {
+      const childSchema = buildFieldSchema(child);
+      shape[child.name] = childSchema;
+    }
   }
 
   let schema = z.object(shape);
@@ -182,7 +195,7 @@ const buildFieldSchema = (node: FieldNode): z.ZodTypeAny => {
   // Применяем cardinality (массивы)
   if (node.cardinality === 'many') {
     // Получаем minItems и maxItems из validation_rules
-    const validationRules = node.ui?.validationRules;
+    const validationRules = node.validationRules;
     let minItems: number | undefined;
     let maxItems: number | undefined;
 
@@ -201,10 +214,16 @@ const buildFieldSchema = (node: FieldNode): z.ZodTypeAny => {
 
     let arraySchema = z.array(schema);
     if (minItems !== undefined) {
-      arraySchema = arraySchema.min(minItems, t('blueprint.field.minItems', { min: String(minItems) }));
+      arraySchema = arraySchema.min(
+        minItems,
+        t('blueprint.field.minItems', { min: String(minItems) })
+      );
     }
     if (maxItems !== undefined) {
-      arraySchema = arraySchema.max(maxItems, t('blueprint.field.maxItems', { max: String(maxItems) }));
+      arraySchema = arraySchema.max(
+        maxItems,
+        t('blueprint.field.maxItems', { max: String(maxItems) })
+      );
     }
 
     // Для массивов required означает, что массив должен существовать (может быть пустым)
@@ -226,7 +245,9 @@ const buildFieldSchema = (node: FieldNode): z.ZodTypeAny => {
  * const schema = buildZodSchemaFromPaths(fieldNodes);
  * const result = schema.parse(formData);
  */
-export const buildZodSchemaFromPaths = (nodes: FieldNode[]): z.ZodObject<Record<string, z.ZodTypeAny>> => {
+export const buildZodSchemaFromPaths = (
+  nodes: FieldNode[]
+): z.ZodObject<Record<string, z.ZodTypeAny>> => {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   for (const node of nodes) {
@@ -235,4 +256,3 @@ export const buildZodSchemaFromPaths = (nodes: FieldNode[]): z.ZodObject<Record<
 
   return z.object(shape);
 };
-

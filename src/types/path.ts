@@ -266,60 +266,6 @@ export const zPath: z.ZodType<ZPathBase & { children?: ZPath[] }> = zPathBase.ex
 export type ZPath = z.infer<typeof zPath>;
 
 // ============================================================================
-// Схемы дерева Path (ZPathTreeNode)
-// ============================================================================
-
-/**
- * Тип данных узла дерева Path.
- * Используется для представления иерархической структуры полей Blueprint.
- * Дочерние поля опциональны для всех типов данных.
- */
-export type ZPathTreeNode = ZPathBase & {
-  /** Дочерние поля (для полей типа json и вложенных структур). Опциональны для всех типов. */
-  children?: ZPathTreeNode[];
-};
-
-/**
- * Схема валидации узла дерева Path.
- * Расширенная версия zPathBase с опциональными дочерними полями.
- * Используется для представления иерархической структуры полей Blueprint.
- * @example
- * const pathTree: ZPathTreeNode = {
- *   id: 1,
- *   blueprint_id: 1,
- *   parent_id: null,
- *   name: 'author',
- *   full_path: 'author',
- *   data_type: 'json',
- *   cardinality: 'one',
- *   is_required: false,
- *   is_indexed: false,
- *   is_readonly: false,
- *   sort_order: 0,
- *   validation_rules: null,
- *   source_blueprint_id: null,
- *   blueprint_embed_id: null,
- *   source_blueprint: undefined,
- *   children: [
- *     {
- *       id: 2,
- *       name: 'name',
- *       full_path: 'author.name',
- *       data_type: 'string',
- *       // ... остальные поля
- *       children: undefined
- *     }
- *   ],
- *   created_at: '2025-01-10T12:45:00+00:00',
- *   updated_at: '2025-01-10T12:45:00+00:00'
- * };
- */
-export const zPathTreeNode: z.ZodType<ZPathTreeNode> = zPathBase.extend({
-  /** Дочерние поля (для полей типа json и вложенных структур). Опциональны для всех типов. */
-  children: z.array(z.lazy((): typeof zPathTreeNode => zPathTreeNode)).optional(),
-});
-
-// ============================================================================
 // DTO схемы (для создания и обновления)
 // ============================================================================
 
@@ -396,7 +342,7 @@ export type ZUpdatePathDto = z.infer<typeof zUpdatePathDto>;
  */
 export const zPathsResponse = z.object({
   /** Массив узлов дерева полей. */
-  data: z.array(zPathTreeNode),
+  data: z.array(zPath),
 });
 
 /**

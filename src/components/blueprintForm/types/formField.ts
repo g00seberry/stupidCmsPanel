@@ -1,23 +1,16 @@
-import type { FieldUIConfig } from './uiConfig';
+import type { ZDataType } from '@/types/path';
 
 /**
- * Скалярные типы данных полей формы.
+ * Типы данных полей формы.
+ * Использует ZDataType из path.ts как единый источник истины.
  */
-export type ScalarDataType =
-  | 'string'
-  | 'text'
-  | 'int'
-  | 'float'
-  | 'bool'
-  | 'date'
-  | 'datetime'
-  | 'ref';
+export type DataType = ZDataType;
 
 /**
- * Базовый узел поля формы.
- * Содержит общие свойства для всех типов полей.
+ * Узел поля формы.
+ * Содержит все свойства поля, включая опциональные дочерние поля.
  */
-export interface BaseFieldNode {
+export interface FieldNode {
   /** Уникальный идентификатор поля. */
   id: number;
   /** Имя поля (URL-friendly строка). */
@@ -25,7 +18,7 @@ export interface BaseFieldNode {
   /** Полный путь поля в виде массива сегментов (например, ['author', 'contacts', 'email']). */
   fullPath: string[];
   /** Тип данных поля. */
-  dataType: ScalarDataType | 'json';
+  dataType: DataType;
   /** Мощность поля: одно значение или множество. */
   cardinality: 'one' | 'many';
   /** Отображаемая метка поля. */
@@ -36,34 +29,10 @@ export interface BaseFieldNode {
   readonly: boolean;
   /** Текст подсказки для поля. */
   helpText?: string;
-  /** UI-конфигурация поля. */
-  ui?: FieldUIConfig;
+  /** Правила валидации поля. */
+  validationRules?: Array<{ type: string; [key: string]: unknown }>;
   /** Порядок сортировки поля среди полей одного уровня. */
   sortOrder: number;
+  /** Дочерние поля (для полей типа json). Опциональны для всех типов. */
+  children?: FieldNode[];
 }
-
-/**
- * Узел поля формы типа json.
- * Содержит дочерние поля.
- */
-export interface JsonFieldNode extends BaseFieldNode {
-  dataType: 'json';
-  /** Дочерние поля (обязательны для json). */
-  children: FieldNode[];
-}
-
-/**
- * Узел поля формы скалярного типа.
- * Не содержит дочерних полей.
- */
-export type ScalarFieldNode = BaseFieldNode & {
-  dataType: ScalarDataType;
-  /** Дочерние поля отсутствуют для скалярных типов. */
-  children?: never;
-};
-
-/**
- * Узел поля формы.
- * Дискриминированный union по dataType: для 'json' обязательны children, для остальных - нет.
- */
-export type FieldNode = JsonFieldNode | ScalarFieldNode;

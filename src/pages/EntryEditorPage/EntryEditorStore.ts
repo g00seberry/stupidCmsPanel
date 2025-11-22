@@ -7,7 +7,7 @@ import { type BlueprintFormValues } from '@/components/blueprintForm';
 import { notificationService } from '@/services/notificationService';
 import type { ZId } from '@/types/ZId';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
-import type { ZPathTreeNode } from '@/types/path';
+import type { ZPath } from '@/types/path';
 import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
 import { serverDate, viewDate } from '@/utils/dateUtils';
@@ -74,7 +74,7 @@ export class EntryEditorStore {
   /** Store для управления термами записи. Создаётся только в режиме редактирования. */
   termsManagerStore: EntryTermsManagerStore | null = null;
   /** Дерево Path для текущего Blueprint. */
-  paths: ZPathTreeNode[] = [];
+  paths: ZPath[] = [];
   /** Флаг загрузки Path. */
   loadingPaths = false;
   /** Blueprint из Entry (если есть). */

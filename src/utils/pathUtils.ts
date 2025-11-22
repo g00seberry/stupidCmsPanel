@@ -1,4 +1,4 @@
-import type { ZPathTreeNode } from '@/types/path';
+import type { ZPath } from '@/types/path';
 
 /**
  * Найти путь в дереве по ID.
@@ -12,10 +12,7 @@ import type { ZPathTreeNode } from '@/types/path';
  *   console.log(path.name); // 'fieldName'
  * }
  */
-export const findPathInTree = (
-  paths: ZPathTreeNode[],
-  pathId: number
-): ZPathTreeNode | undefined => {
+export const findPathInTree = (paths: ZPath[], pathId: number): ZPath | undefined => {
   for (const path of paths) {
     if (path.id === pathId) return path;
     if (path.data_type === 'json' && path.children) {

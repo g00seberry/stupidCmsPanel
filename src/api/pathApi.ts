@@ -1,6 +1,6 @@
 import { rest } from '@/api/rest';
 import { zCreatePathDto, zUpdatePathDto, zPathsResponse, zPathResponse } from '@/types/path';
-import type { ZPath, ZPathTreeNode, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZPath, ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;
 const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =>
@@ -19,7 +19,7 @@ const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =
  *   }
  * });
  */
-export const listPaths = async (blueprintId: number): Promise<ZPathTreeNode[]> => {
+export const listPaths = async (blueprintId: number): Promise<ZPath[]> => {
   const response = await rest.get(getAdminBlueprintsPathsUrl(blueprintId, ''));
   return zPathsResponse.parse(response.data).data;
 };
