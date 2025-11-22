@@ -32,6 +32,8 @@ export type PropsPathGraphEditor = {
   onNodeDoubleClick?: (pathId: number) => void;
   /** Обработчик контекстного меню на узле. */
   onNodeContextMenu?: (pathId: number, event: React.MouseEvent) => void;
+  /** Обработчик контекстного меню на пустой области графа. */
+  onPaneContextMenu?: (event: React.MouseEvent) => void;
   /** Выделенные узлы (для подсветки). */
   highlightedNodes?: number[];
   /** Референс на ReactFlow instance (для управления извне через GraphControls). */
@@ -57,6 +59,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
     onNodeSelect,
     onNodeDoubleClick,
     onNodeContextMenu,
+    onPaneContextMenu,
     highlightedNodes = [],
     reactFlowInstanceRef,
   }) => {
@@ -134,6 +137,14 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
       [onNodeContextMenu]
     );
 
+    const handlePaneContextMenu = useCallback(
+      (event: React.MouseEvent) => {
+        event.preventDefault();
+        onPaneContextMenu?.(event);
+      },
+      [onPaneContextMenu]
+    );
+
     const onInit = useCallback(
       (instance: ReactFlowInstance) => {
         internalInstanceRef.current = instance;
@@ -156,7 +167,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
       return (
         <div className="w-full h-full min-h-[400px] border rounded bg-background flex items-center justify-center">
           <div className="text-gray-500">
-            Нет полей. Добавьте первое поле через панель управления.
+            Нет полей. Кликните правой кнопкой мыши на пустом месте для добавления первого поля.
           </div>
         </div>
       );
@@ -172,6 +183,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           onNodeContextMenu={handleNodeContextMenu}
+          onPaneContextMenu={handlePaneContextMenu}
           onInit={onInit}
           nodeTypes={nodeTypes}
           nodesDraggable={true}

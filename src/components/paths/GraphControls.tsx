@@ -1,12 +1,10 @@
 import { Button, Space } from 'antd';
-import { Plus, Maximize2, Layout, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Maximize2, Layout, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 /**
  * Пропсы компонента панели управления графом.
  */
 export type PropsGraphControls = {
-  /** Обработчик добавления корневого узла. */
-  onAddRoot?: () => void;
   /** Обработчик центрирования графа. */
   onCenter?: () => void;
   /** Обработчик автоматической компоновки графа. */
@@ -17,8 +15,6 @@ export type PropsGraphControls = {
   onZoomOut?: () => void;
   /** Обработчик сброса масштаба. */
   onResetZoom?: () => void;
-  /** Обработчик встраивания Blueprint (для переключения на вкладку). */
-  onEmbedBlueprint?: () => void;
   /** Текущий уровень масштаба (для отображения). */
   zoomLevel?: number;
 };
@@ -28,30 +24,15 @@ export type PropsGraphControls = {
  * Содержит кнопки для управления графом: добавление узлов, навигация, масштабирование.
  */
 export const GraphControls: React.FC<PropsGraphControls> = ({
-  onAddRoot,
   onCenter,
   onAutoLayout,
   onZoomIn,
   onZoomOut,
   onResetZoom,
-  onEmbedBlueprint,
   zoomLevel,
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 border-b bg-card">
-      <Space>
-        {onAddRoot && (
-          <Button type="primary" icon={<Plus className="w-4 h-4" />} onClick={onAddRoot}>
-            Добавить корневой узел
-          </Button>
-        )}
-        {onEmbedBlueprint && (
-          <Button icon={<Layout className="w-4 h-4" />} onClick={onEmbedBlueprint}>
-            Управление встраиваниями
-          </Button>
-        )}
-      </Space>
-
+    <div className="flex items-center justify-end p-4 border-b bg-card">
       <Space>
         {onCenter && (
           <Button icon={<Maximize2 className="w-4 h-4" />} onClick={onCenter} title="Центрировать">
@@ -59,7 +40,11 @@ export const GraphControls: React.FC<PropsGraphControls> = ({
           </Button>
         )}
         {onAutoLayout && (
-          <Button icon={<Layout className="w-4 h-4" />} onClick={onAutoLayout} title="Авто-компоновка">
+          <Button
+            icon={<Layout className="w-4 h-4" />}
+            onClick={onAutoLayout}
+            title="Авто-компоновка"
+          >
             Авто
           </Button>
         )}
@@ -82,4 +67,3 @@ export const GraphControls: React.FC<PropsGraphControls> = ({
     </div>
   );
 };
-

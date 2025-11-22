@@ -1,12 +1,13 @@
 import { z } from 'zod';
 
+// ============================================================================
+// Константы и базовые типы данных
+// ============================================================================
+
 /**
- * Схема валидации типа данных поля Path.
- * Определяет допустимые типы данных для полей в Blueprint.
- * @example
- * const dataType: ZDataType = 'string';
+ * Допустимые типы данных для полей Path.
  */
-export const zDataType = z.enum([
+const DATA_TYPES = [
   'string',
   'text',
   'int',
@@ -16,7 +17,15 @@ export const zDataType = z.enum([
   'datetime',
   'json',
   'ref',
-]);
+] as const;
+
+/**
+ * Схема валидации типа данных поля Path.
+ * Определяет допустимые типы данных для полей в Blueprint.
+ * @example
+ * const dataType: ZDataType = 'string';
+ */
+export const zDataType = z.enum(DATA_TYPES);
 
 /**
  * Тип данных поля Path.
@@ -36,6 +45,64 @@ export const zCardinality = z.enum(['one', 'many']);
  */
 export type ZCardinality = z.infer<typeof zCardinality>;
 
+// ============================================================================
+// Правила валидации
+// ============================================================================
+
+/**
+ * Схема валидации правила минимального/максимального значения.
+ */
+const zValidationRuleMinMax = z.object({
+  /** Тип правила. */
+  type: z.literal('min').or(z.literal('max')),
+  /** Значение правила. */
+  value: z.number(),
+});
+
+/**
+ * Схема валидации правила регулярного выражения.
+ */
+const zValidationRuleRegex = z.object({
+  /** Тип правила. */
+  type: z.literal('regex'),
+  /** Паттерн регулярного выражения. */
+  pattern: z.string(),
+});
+
+/**
+ * Схема валидации правила длины.
+ */
+const zValidationRuleLength = z.object({
+  /** Тип правила. */
+  type: z.literal('length'),
+  /** Минимальная длина. */
+  min: z.number().optional(),
+  /** Максимальная длина. */
+  max: z.number().optional(),
+});
+
+/**
+ * Схема валидации правила перечисления значений.
+ */
+const zValidationRuleEnum = z.object({
+  /** Тип правила. */
+  type: z.literal('enum'),
+  /** Допустимые значения. */
+  values: z.array(z.union([z.string(), z.number()])),
+});
+
+/**
+ * Схема валидации кастомного правила валидации.
+ */
+const zValidationRuleCustom = z.object({
+  /** Тип правила. */
+  type: z.literal('custom'),
+  /** Имя валидатора. */
+  validator: z.string(),
+  /** Сообщение об ошибке. */
+  message: z.string().optional(),
+});
+
 /**
  * Схема валидации правила валидации поля Path в новом формате (объект).
  * Определяет различные типы правил валидации через discriminatedUnion.
@@ -45,38 +112,11 @@ export type ZCardinality = z.infer<typeof zCardinality>;
  * const rule3: ZValidationRuleObject = { type: 'regex', pattern: '^[a-z]+$' };
  */
 export const zValidationRuleObject = z.discriminatedUnion('type', [
-  /** Правило минимального значения/длины. */
-  z.object({
-    type: z.literal('min'),
-    value: z.number(),
-  }),
-  /** Правило максимального значения/длины. */
-  z.object({
-    type: z.literal('max'),
-    value: z.number(),
-  }),
-  /** Правило регулярного выражения. */
-  z.object({
-    type: z.literal('regex'),
-    pattern: z.string(),
-  }),
-  /** Правило минимальной длины строки/массива. */
-  z.object({
-    type: z.literal('length'),
-    min: z.number().optional(),
-    max: z.number().optional(),
-  }),
-  /** Правило перечисления допустимых значений. */
-  z.object({
-    type: z.literal('enum'),
-    values: z.array(z.union([z.string(), z.number()])),
-  }),
-  /** Кастомное правило валидации. */
-  z.object({
-    type: z.literal('custom'),
-    validator: z.string(),
-    message: z.string().optional(),
-  }),
+  zValidationRuleMinMax,
+  zValidationRuleRegex,
+  zValidationRuleLength,
+  zValidationRuleEnum,
+  zValidationRuleCustom,
 ]);
 
 /**
@@ -101,22 +141,27 @@ export const zValidationRule = z.union([zValidationRuleObject, z.string()]);
  */
 export type ZValidationRule = z.infer<typeof zValidationRule>;
 
+// ============================================================================
+// Связанные типы
+// ============================================================================
+
 /**
  * Схема валидации вложенного объекта source_blueprint в Path.
  * Используется для представления информации об исходном Blueprint,
  * из которого было скопировано поле (для readonly полей).
- * Может быть `null`, `undefined` или отсутствовать в ответе API.
  */
-const zSourceBlueprint = z
-  .object({
-    /** Идентификатор исходного Blueprint. */
-    id: z.number(),
-    /** Код исходного Blueprint. */
-    code: z.string(),
-    /** Название исходного Blueprint. */
-    name: z.string(),
-  })
-  .nullish();
+const zSourceBlueprint = z.object({
+  /** Идентификатор исходного Blueprint. */
+  id: z.number(),
+  /** Код исходного Blueprint. */
+  code: z.string(),
+  /** Название исходного Blueprint. */
+  name: z.string(),
+});
+
+// ============================================================================
+// Базовые схемы Path
+// ============================================================================
 
 /**
  * Базовая схема валидации поля Path без рекурсивного поля children.
@@ -171,8 +216,8 @@ export const zPathBase = z.object({
   source_blueprint_id: z.number().nullable(),
   /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
   blueprint_embed_id: z.number().nullable(),
-  /** Информация об исходном Blueprint (для readonly полей). */
-  source_blueprint: zSourceBlueprint,
+  /** Информация об исходном Blueprint (для readonly полей). Может быть `null` или `undefined`. */
+  source_blueprint: zSourceBlueprint.nullish(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -220,62 +265,24 @@ export const zPath: z.ZodType<ZPathBase & { children?: ZPath[] }> = zPathBase.ex
  */
 export type ZPath = z.infer<typeof zPath>;
 
+// ============================================================================
+// Схемы дерева Path (ZPathTreeNode)
+// ============================================================================
+
 /**
  * Тип данных узла дерева Path.
- * Дискриминированный union по data_type: для 'json' обязательны children, для остальных - нет.
  * Используется для представления иерархической структуры полей Blueprint.
+ * Дочерние поля опциональны для всех типов данных.
  */
-export type ZPathTreeNode =
-  | (ZPathBase & { data_type: 'json'; children: ZPathTreeNode[] })
-  | (ZPathBase & {
-      data_type: 'string' | 'text' | 'int' | 'float' | 'bool' | 'date' | 'datetime' | 'ref';
-      children?: never;
-    });
-
-/**
- * Схема валидации узла дерева Path для типа 'json'.
- * Для полей типа 'json' дочерние поля обязательны.
- */
-const zPathTreeNodeJson = zPathBase
-  .extend({
-    data_type: z.literal('json'),
-  })
-  .extend({
-    /** Дочерние поля обязательны для полей типа json. */
-    children: z.array(z.lazy((): typeof zPathTreeNode => zPathTreeNode)),
-  });
-
-/**
- * Схема валидации узла дерева Path для скалярных типов.
- * Для скалярных типов дочерние поля отсутствуют или undefined.
- * Принимает также пустой массив и нормализует его в undefined.
- */
-const zPathTreeNodeScalar = zPathBase
-  .extend({
-    data_type: z.enum(['string', 'text', 'int', 'float', 'bool', 'date', 'datetime', 'ref']),
-    /** Дочерние поля отсутствуют для скалярных типов. Может быть undefined, отсутствовать или пустой массив. */
-    children: z
-      .union([z.array(z.any()), z.undefined()])
-      .nullish()
-      .transform(val => (Array.isArray(val) && val.length === 0 ? undefined : undefined)),
-  })
-  .transform(data => {
-    // Убеждаемся, что children всегда undefined для скалярных типов
-    const { children, ...rest } = data;
-    return {
-      ...rest,
-      children: undefined,
-    } as ZPathBase & {
-      data_type: 'string' | 'text' | 'int' | 'float' | 'bool' | 'date' | 'datetime' | 'ref';
-      children?: never;
-    };
-  });
+export type ZPathTreeNode = ZPathBase & {
+  /** Дочерние поля (для полей типа json и вложенных структур). Опциональны для всех типов. */
+  children?: ZPathTreeNode[];
+};
 
 /**
  * Схема валидации узла дерева Path.
- * Расширенная версия zPath с обязательной поддержкой рекурсивной структуры children.
+ * Расширенная версия zPathBase с опциональными дочерними полями.
  * Используется для представления иерархической структуры полей Blueprint.
- * Дискриминированный union по data_type: для 'json' обязательны children, для остальных - нет.
  * @example
  * const pathTree: ZPathTreeNode = {
  *   id: 1,
@@ -307,10 +314,14 @@ const zPathTreeNodeScalar = zPathBase
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
  */
-export const zPathTreeNode: z.ZodType<ZPathTreeNode> = z.union([
-  zPathTreeNodeJson,
-  zPathTreeNodeScalar,
-]);
+export const zPathTreeNode: z.ZodType<ZPathTreeNode> = zPathBase.extend({
+  /** Дочерние поля (для полей типа json и вложенных структур). Опциональны для всех типов. */
+  children: z.array(z.lazy((): typeof zPathTreeNode => zPathTreeNode)).optional(),
+});
+
+// ============================================================================
+// DTO схемы (для создания и обновления)
+// ============================================================================
 
 /**
  * Схема валидации данных для создания нового поля Path.
@@ -370,3 +381,43 @@ export const zUpdatePathDto = zCreatePathDto.partial();
  * Используется при отправке запроса на обновление поля.
  */
 export type ZUpdatePathDto = z.infer<typeof zUpdatePathDto>;
+
+// ============================================================================
+// API Response схемы
+// ============================================================================
+
+/**
+ * Схема валидации ответа со списком полей (дерево).
+ * Используется для валидации ответа API при получении списка полей.
+ * @example
+ * const response = await rest.get('/api/v1/admin/blueprints/1/paths');
+ * const validated = zPathsResponse.parse(response.data);
+ * validated.data.forEach(path => console.log(path.full_path));
+ */
+export const zPathsResponse = z.object({
+  /** Массив узлов дерева полей. */
+  data: z.array(zPathTreeNode),
+});
+
+/**
+ * Тип ответа со списком полей (дерево).
+ */
+export type ZPathsResponse = z.infer<typeof zPathsResponse>;
+
+/**
+ * Схема валидации ответа с одним полем.
+ * Используется для валидации ответа API при получении одного поля.
+ * @example
+ * const response = await rest.get('/api/v1/admin/paths/1');
+ * const validated = zPathResponse.parse(response.data);
+ * console.log(validated.data.full_path);
+ */
+export const zPathResponse = z.object({
+  /** Поле с полной информацией (включая дочерние поля, если есть). */
+  data: zPath,
+});
+
+/**
+ * Тип ответа с одним полем.
+ */
+export type ZPathResponse = z.infer<typeof zPathResponse>;

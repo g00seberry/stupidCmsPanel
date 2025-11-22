@@ -1,25 +1,10 @@
 import { rest } from '@/api/rest';
-import { zPath, zPathTreeNode, zCreatePathDto, zUpdatePathDto } from '@/types/path';
+import { zCreatePathDto, zUpdatePathDto, zPathsResponse, zPathResponse } from '@/types/path';
 import type { ZPath, ZPathTreeNode, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import { z } from 'zod';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;
 const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =>
   `/api/v1/admin/blueprints/${blueprintId}/paths${path}`;
-
-/**
- * Схема валидации ответа со списком полей (дерево).
- */
-const zPathsResponse = z.object({
-  data: z.array(zPathTreeNode),
-});
-
-/**
- * Схема валидации ответа с одним полем.
- */
-const zPathResponse = z.object({
-  data: zPath,
-});
 
 /**
  * Получить дерево полей Blueprint.

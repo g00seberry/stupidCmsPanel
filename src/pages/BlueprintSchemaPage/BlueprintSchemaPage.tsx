@@ -7,6 +7,7 @@ import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathContextMenu } from '@/components/paths/PathContextMenu';
+import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
 import { PathStore } from '@/stores/PathStore';
 import { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
@@ -29,6 +30,10 @@ export const BlueprintSchemaPage = observer(() => {
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(
     null
   );
+  const [emptyAreaContextMenuPosition, setEmptyAreaContextMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
 
   const blueprintId = id ? Number(id) : null;
@@ -60,11 +65,23 @@ export const BlueprintSchemaPage = observer(() => {
     setSelectedPathId(pathId);
     setContextMenuNodeId(pathId);
     setContextMenuPosition({ x: event.clientX, y: event.clientY });
+    setEmptyAreaContextMenuPosition(null);
+  };
+
+  const handlePaneContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setEmptyAreaContextMenuPosition({ x: event.clientX, y: event.clientY });
+    setContextMenuNodeId(null);
+    setContextMenuPosition(null);
   };
 
   const handleCloseContextMenu = () => {
     setContextMenuNodeId(null);
     setContextMenuPosition(null);
+  };
+
+  const handleCloseEmptyAreaContextMenu = () => {
+    setEmptyAreaContextMenuPosition(null);
   };
 
   const handleAddChildNode = (parentId: number) => {
@@ -123,6 +140,14 @@ export const BlueprintSchemaPage = observer(() => {
     setNodeFormMode('create');
     setNodeFormParentId(null);
     setNodeFormOpen(true);
+    handleCloseEmptyAreaContextMenu();
+  };
+
+  const handleEmbedRootNode = () => {
+    setNodeFormMode('embed');
+    setNodeFormParentId(null);
+    setNodeFormOpen(true);
+    handleCloseEmptyAreaContextMenu();
   };
 
   const handleNodeSave = async (
@@ -214,7 +239,6 @@ export const BlueprintSchemaPage = observer(() => {
       <div className="p-6">
         <Card className="mt-4">
           <GraphControls
-            onAddRoot={handleAddRootNode}
             onCenter={handleCenter}
             onAutoLayout={handleAutoLayout}
             onZoomIn={handleZoomIn}
@@ -227,6 +251,7 @@ export const BlueprintSchemaPage = observer(() => {
               onNodeSelect={handleNodeSelect}
               onNodeDoubleClick={handleNodeDoubleClick}
               onNodeContextMenu={handleNodeContextMenu}
+              onPaneContextMenu={handlePaneContextMenu}
               highlightedNodes={selectedPathId ? [selectedPathId] : []}
               reactFlowInstanceRef={reactFlowInstanceRef}
             />
@@ -272,6 +297,14 @@ export const BlueprintSchemaPage = observer(() => {
             onEmbed={() => handleEmbedBlueprint(contextMenuNodeId)}
             onDelete={() => handleDeleteNode(contextMenuNodeId)}
             pathStore={pathStore}
+          />
+        )}
+        {emptyAreaContextMenuPosition && (
+          <EmptyAreaContextMenu
+            position={emptyAreaContextMenuPosition}
+            onClose={handleCloseEmptyAreaContextMenu}
+            onAddRoot={handleAddRootNode}
+            onEmbedRoot={handleEmbedRootNode}
           />
         )}
       </div>
