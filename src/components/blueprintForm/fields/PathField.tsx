@@ -4,7 +4,7 @@ import type { FieldNode } from '../types/formField';
 import { fieldRegistry } from './fieldRegistry';
 import type { FieldComponentProps } from './fieldRegistry';
 import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
-import { createFieldName } from '../utils/fieldNodeUtils';
+import { createFieldName, isFieldDisabled, getFieldPlaceholder } from '../utils/fieldNodeUtils';
 import { CardinalityWrapper } from '../components/CardinalityWrapper';
 import type { SchemaFormStore } from '../SchemaFormStore';
 
@@ -36,23 +36,25 @@ export const PathField: React.FC<PropsPathField> = ({ node, name, readonly, stor
     throw new Error(`Unknown dataType: ${node.dataType}`);
   }
 
+  const label = node.label;
+  const rules = getFormItemRulesFromNode(node);
+  const fieldName = createFieldName(name, node.name);
+  const disabled = isFieldDisabled(node, readonly);
+  const placeholder = getFieldPlaceholder(node);
+
   const props: FieldComponentProps = {
     node,
     name,
     readonly,
     store,
+    disabled,
+    placeholder,
   };
 
-  const label = node.label;
-  const rules = getFormItemRulesFromNode(node);
-  const fieldName = createFieldName(name, node.name);
-
   const fieldComponent = <def.Component {...props} />;
-  const valuePropName = node.dataType === 'bool' ? 'checked' : undefined;
-  // Для полей без CardinalityWrapper (bool, ref) добавляем Form.Item здесь
   if (node.dataType === 'bool' || node.dataType === 'ref') {
     return (
-      <Form.Item name={fieldName} label={label} rules={rules} valuePropName={valuePropName}>
+      <Form.Item name={fieldName} label={label} rules={rules} valuePropName="checked">
         {fieldComponent}
       </Form.Item>
     );

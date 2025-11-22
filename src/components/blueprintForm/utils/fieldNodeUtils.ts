@@ -16,8 +16,11 @@ export const isFieldDisabled = (node: FieldNode, readonly?: boolean): boolean =>
  * @param action Действие (по умолчанию "Введите").
  * @returns Текст placeholder.
  */
-export const getFieldPlaceholder = (node: FieldNode, action?: string): string => {
-  const actionText = action || 'Введите';
+export const getFieldPlaceholder = (node: FieldNode): string => {
+  if (node.dataType === 'date' || node.dataType === 'datetime') {
+    return 'Выберите';
+  }
+  const actionText = 'Введите';
   const label = node.label;
   return `${actionText} ${label.toLowerCase()}`;
 };
@@ -34,4 +37,3 @@ export const createFieldName = (
 ): (string | number)[] => {
   return [...fieldNamePrefix, fieldName];
 };
-

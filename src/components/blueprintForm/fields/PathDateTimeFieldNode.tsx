@@ -1,20 +1,18 @@
 import { DatePicker } from 'antd';
+import type { Dayjs } from 'dayjs';
 import type React from 'react';
 import type { FieldComponentProps } from './fieldRegistry';
-import { isFieldDisabled, getFieldPlaceholder } from '../utils/fieldNodeUtils';
 
 /**
  * Компонент поля типа datetime (дата и время) для работы с FieldNode.
  * Возвращает только контрол DatePicker, без Form.Item и CardinalityWrapper.
  */
-export const PathDateTimeFieldNode: React.FC<FieldComponentProps> = ({ node, readonly }) => {
-  if (node.dataType !== 'datetime') {
-    return null;
-  }
-
-  const disabled = isFieldDisabled(node, readonly);
-  const placeholder = getFieldPlaceholder(node, 'Выберите');
-
+export const PathDateTimeFieldNode: React.FC<FieldComponentProps> = ({
+  disabled,
+  placeholder,
+  value,
+  onChange,
+}) => {
   return (
     <DatePicker
       showTime
@@ -22,6 +20,8 @@ export const PathDateTimeFieldNode: React.FC<FieldComponentProps> = ({ node, rea
       format="YYYY-MM-DD HH:mm:ss"
       placeholder={placeholder}
       disabled={disabled}
+      value={value as Dayjs | null}
+      onChange={date => onChange?.(date)}
     />
   );
 };

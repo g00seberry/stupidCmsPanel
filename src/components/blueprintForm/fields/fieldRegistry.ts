@@ -15,6 +15,7 @@ import { PathTextAreaFieldNode } from './PathTextAreaFieldNode';
 
 /**
  * Пропсы компонента поля формы (используется на уровне PathField).
+ * Компоненты должны принимать value и onChange для совместимости с Form.Item.
  */
 export interface FieldComponentProps {
   /** Узел поля формы. */
@@ -25,6 +26,14 @@ export interface FieldComponentProps {
   readonly?: boolean;
   /** Store для управления формой. */
   store: SchemaFormStore;
+  /** Флаг отключения поля. */
+  disabled: boolean;
+  /** Placeholder для поля. */
+  placeholder?: string;
+  /** Текущее значение поля. Передаётся Form.Item автоматически. */
+  value?: unknown;
+  /** Обработчик изменения значения. Передаётся Form.Item автоматически. */
+  onChange?: (value: unknown) => void;
 }
 
 /**

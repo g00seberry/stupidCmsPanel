@@ -2,7 +2,6 @@ import { Select } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldComponentProps } from './fieldRegistry';
-import { isFieldDisabled } from '../utils/fieldNodeUtils';
 import { useMemo } from 'react';
 
 /**
@@ -12,13 +11,7 @@ import { useMemo } from 'react';
  * Возвращает контрол, который должен быть обёрнут в Form.Item на уровне выше.
  */
 export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
-  ({ node, readonly, store }) => {
-    if (node.dataType !== 'ref') {
-      return null;
-    }
-
-    const disabled = isFieldDisabled(node, readonly);
-
+  ({ node, disabled, store, placeholder, value, onChange }) => {
     // Используем дефолтные параметры запроса
     const resource = 'entries';
     const params = { per_page: 100 };
@@ -29,8 +22,8 @@ export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
 
     // Обработчик поиска с debounce
     const handleSearch = useMemo(() => {
-      return (value: string) => {
-        store.searchReferenceData(query, value);
+      return (searchValue: string) => {
+        store.searchReferenceData(query, searchValue);
       };
     }, [store, query]);
 
@@ -39,9 +32,11 @@ export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
       <Select
         mode={node.cardinality === 'many' ? 'multiple' : undefined}
         showSearch
-        placeholder="Выберите Entry"
+        placeholder={placeholder || 'Выберите Entry'}
         loading={loading}
         disabled={disabled}
+        value={value as number | number[] | undefined}
+        onChange={val => onChange?.(val)}
         onSearch={handleSearch}
         filterOption={false} // Отключаем клиентскую фильтрацию, используем серверный поиск
         options={options}
