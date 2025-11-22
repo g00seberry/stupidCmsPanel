@@ -8,12 +8,22 @@ import type { FieldRendererProps } from '../widgetRegistry';
  * @param props Пропсы рендерера поля.
  * @returns Компонент InputNumber для ввода цены.
  */
-export const PriceWidget: React.FC<FieldRendererProps> = ({ schema }) => (
+export const PriceWidget: React.FC<FieldRendererProps> = ({
+  schema,
+  value,
+  onChange,
+  disabled,
+  readOnly,
+}) => (
   <InputNumber
+    value={value}
+    onChange={onChange}
     prefix="₽"
     min={0}
     style={{ width: '100%' }}
     placeholder={schema.placeholder}
+    disabled={disabled}
+    readOnly={readOnly}
     {...schema.uiProps}
   />
 );

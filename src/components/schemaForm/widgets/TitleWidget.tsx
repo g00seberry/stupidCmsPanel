@@ -8,7 +8,21 @@ import type { FieldRendererProps } from '../widgetRegistry';
  * @param props Пропсы рендерера поля.
  * @returns Компонент Input для ввода заголовка.
  */
-export const TitleWidget: React.FC<FieldRendererProps> = ({ schema }) => (
-  <Input maxLength={200} placeholder={schema.placeholder} {...schema.uiProps} />
+export const TitleWidget: React.FC<FieldRendererProps> = ({
+  schema,
+  value,
+  onChange,
+  disabled,
+  readOnly,
+}) => (
+  <Input
+    value={value}
+    onChange={e => onChange?.(e.target.value)}
+    maxLength={200}
+    placeholder={schema.placeholder}
+    disabled={disabled}
+    readOnly={readOnly}
+    {...schema.uiProps}
+  />
 );
 

@@ -12,8 +12,7 @@ import { convertBlueprintSchemaToEntitySchema } from './schemaConverter';
  * @returns Готовый FormModel для использования в SchemaForm.
  * @example
  * const model = await createFormModelFromBlueprintSchema(1, { title: 'Initial Title' });
- * const [form] = Form.useForm();
- * <SchemaForm form={form} model={model} schema={model.schema} />
+ * <SchemaForm model={model} schema={model.schema} />
  */
 export const createFormModelFromBlueprintSchema = async <
   E extends EntitySchema = EntitySchema

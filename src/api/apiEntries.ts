@@ -1,20 +1,20 @@
 import { rest } from '@/api/rest';
-import {
-  zEntriesResponse,
-  zEntriesStatusesResponse,
-  zEntryResponse,
-  zEntryPayload,
-  zEntryTermsResponse,
-  zEntryTermsPayload,
-} from '@/types/entries';
 import type {
-  ZEntry,
   ZEntriesListParams,
+  ZEntry,
   ZEntryPayload,
   ZEntryTermsData,
   ZEntryTermsPayload,
 } from '@/types/entries';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import {
+  zEntriesResponse,
+  zEntriesStatusesResponse,
+  zEntryPayload,
+  zEntryResponse,
+  zEntryTermsPayload,
+  zEntryTermsResponse,
+} from '@/types/entries';
+import type { ZPaginationLinks, ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
@@ -168,8 +168,7 @@ export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
  * });
  */
 export const updateEntry = async (id: ZId, payload: ZEntryPayload): Promise<ZEntry> => {
-  const parsedPayload = zEntryPayload.parse(payload);
-  const response = await rest.put(getAdminEntriesUrl(`/${id}`), parsedPayload);
+  const response = await rest.put(getAdminEntriesUrl(`/${id}`), payload);
   const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
 };

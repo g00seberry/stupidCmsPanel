@@ -12,7 +12,14 @@ import type { FieldRendererProps } from '../widgetRegistry';
  * @param props Пропсы рендерера поля.
  * @returns Компонент Select для выбора ссылки.
  */
-export const RefFieldWidget: React.FC<FieldRendererProps> = ({ schema, namePath }) => {
+export const RefFieldWidget: React.FC<FieldRendererProps> = ({
+  schema,
+  namePath,
+  value,
+  onChange,
+  disabled,
+  readOnly,
+}) => {
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -114,6 +121,8 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({ schema, namePath 
 
   return (
     <Select
+      value={value}
+      onChange={onChange}
       showSearch
       placeholder={schema.placeholder}
       loading={loading}
@@ -121,6 +130,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({ schema, namePath 
       filterOption={false}
       onSearch={handleSearch}
       style={{ width: '100%' }}
+      disabled={disabled || readOnly}
       {...schema.uiProps}
     />
   );

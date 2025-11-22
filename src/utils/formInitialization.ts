@@ -1,6 +1,6 @@
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { ZEntry } from '@/types/entries';
-import type { EntitySchema, FieldSchema, FormValues } from '@/types/schemaForm';
+import type { EntitySchema, FormValues } from '@/types/schemaForm';
 
 /**
  * Преобразует значение из Entry в значение для формы на основе схемы поля.
@@ -20,11 +20,17 @@ const convertEntryValueToFormValue = (value: any, field: ZBlueprintSchemaField):
     if (field.cardinality === 'many') {
       // Массив json объектов
       if (Array.isArray(value)) {
-        return value.map(item =>
-          typeof item === 'object' && item !== null
-            ? convertEntryValueToFormValue(item, field)
-            : item
-        );
+        return value.map(item => {
+          // Каждый элемент массива - это объект, обрабатываем его children
+          if (typeof item === 'object' && item !== null && !Array.isArray(item) && field.children) {
+            const result: Record<string, any> = {};
+            for (const [childName, childField] of Object.entries(field.children)) {
+              result[childName] = convertEntryValueToFormValue(item[childName], childField);
+            }
+            return result;
+          }
+          return item;
+        });
       }
       return [];
     } else {

@@ -37,7 +37,6 @@ interface PropsInner {
 }
 const Inner = observer(({ store }: PropsInner) => {
   const [form] = Form.useForm();
-  const [blueprintForm] = Form.useForm();
   const navigate = useNavigate();
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
@@ -86,15 +85,16 @@ const Inner = observer(({ store }: PropsInner) => {
       // Валидируем и получаем данные Blueprint формы, если она есть
       let blueprintData: Record<string, any> | undefined = undefined;
 
-      if (blueprintModel && blueprintForm) {
-        const result = await handleFormSubmit(blueprintForm, blueprintModel);
+      if (blueprintModel) {
+        const result = await handleFormSubmit(blueprintModel);
         if (!result.success) {
-          // Ошибки уже установлены в форму через handleFormSubmit
+          // Ошибки валидации Blueprint формы - не сохраняем
           return;
         }
         blueprintData = result.values;
       }
 
+      console.log(blueprintData);
       // Объединяем данные основной формы с данными Blueprint
       const finalValues: FormValues = {
         ...values,
@@ -110,7 +110,7 @@ const Inner = observer(({ store }: PropsInner) => {
         navigate(url, { replace: !isEditMode });
       }
     },
-    [isEditMode, navigate, postTypeSlug, entryId, store, blueprintModel, blueprintForm]
+    [isEditMode, navigate, postTypeSlug, entryId, store, blueprintModel]
   );
 
   const handleCancel = useCallback(() => {
@@ -274,7 +274,6 @@ const Inner = observer(({ store }: PropsInner) => {
               </div>
             ) : (
               <SchemaForm
-                form={blueprintForm}
                 model={blueprintModel}
                 schema={blueprintModel.schema}
                 readonly={store.pending || store.loading}

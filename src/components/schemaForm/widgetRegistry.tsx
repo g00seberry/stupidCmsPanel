@@ -14,6 +14,14 @@ export interface FieldRendererProps {
   schema: FieldSchema;
   /** Путь к полю в форме (массив сегментов). */
   namePath: PathSegment[];
+  /** Текущее значение поля. */
+  value?: any;
+  /** Обработчик изменения значения поля. */
+  onChange?: (value: any) => void;
+  /** Флаг отключения поля. */
+  disabled?: boolean;
+  /** Флаг режима только для чтения. */
+  readOnly?: boolean;
 }
 
 /**
@@ -28,37 +36,87 @@ export type FieldRenderer = (props: FieldRendererProps) => React.ReactNode;
  */
 export const defaultRenderers: Record<string, FieldRenderer> = {
   /** Рендерер для строковых полей. */
-  string: ({ schema }) => <Input placeholder={schema.placeholder} {...schema.uiProps} />,
+  string: ({ schema, value, onChange, disabled, readOnly }) => (
+    <Input
+      value={value}
+      onChange={e => onChange?.(e.target.value)}
+      placeholder={schema.placeholder}
+      disabled={disabled}
+      readOnly={readOnly}
+      {...schema.uiProps}
+    />
+  ),
 
   /** Рендерер для текстовых полей (многострочный текст). */
-  text: ({ schema }) => (
-    <Input.TextArea autoSize placeholder={schema.placeholder} {...schema.uiProps} />
+  text: ({ schema, value, onChange, disabled, readOnly }) => (
+    <Input.TextArea
+      value={value}
+      onChange={e => onChange?.(e.target.value)}
+      autoSize
+      placeholder={schema.placeholder}
+      disabled={disabled}
+      readOnly={readOnly}
+      {...schema.uiProps}
+    />
   ),
 
   /** Рендерер для целочисленных полей. */
-  int: ({ schema }) => (
-    <InputNumber style={{ width: '100%' }} placeholder={schema.placeholder} {...schema.uiProps} />
+  int: ({ schema, value, onChange, disabled, readOnly }) => (
+    <InputNumber
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%' }}
+      placeholder={schema.placeholder}
+      disabled={disabled}
+      readOnly={readOnly}
+      {...schema.uiProps}
+    />
   ),
 
   /** Рендерер для чисел с плавающей точкой. */
-  float: ({ schema }) => (
-    <InputNumber style={{ width: '100%' }} placeholder={schema.placeholder} {...schema.uiProps} />
+  float: ({ schema, value, onChange, disabled, readOnly }) => (
+    <InputNumber
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%' }}
+      placeholder={schema.placeholder}
+      disabled={disabled}
+      readOnly={readOnly}
+      {...schema.uiProps}
+    />
   ),
 
   /** Рендерер для булевых полей. */
-  bool: ({ schema }) => <Switch {...schema.uiProps} />,
+  bool: ({ schema, value, onChange, disabled, readOnly }) => (
+    <Switch
+      checked={value}
+      onChange={onChange}
+      disabled={disabled || readOnly}
+      {...schema.uiProps}
+    />
+  ),
 
   /** Рендерер для полей даты. */
-  date: ({ schema }) => (
-    <DatePicker style={{ width: '100%' }} placeholder={schema.placeholder} {...schema.uiProps} />
+  date: ({ schema, value, onChange, disabled, readOnly }) => (
+    <DatePicker
+      value={value}
+      onChange={onChange}
+      style={{ width: '100%' }}
+      placeholder={schema.placeholder}
+      disabled={disabled || readOnly}
+      {...schema.uiProps}
+    />
   ),
 
   /** Рендерер для полей даты и времени. */
-  datetime: ({ schema }) => (
+  datetime: ({ schema, value, onChange, disabled, readOnly }) => (
     <DatePicker
+      value={value}
+      onChange={onChange}
       showTime
       style={{ width: '100%' }}
       placeholder={schema.placeholder}
+      disabled={disabled || readOnly}
       {...schema.uiProps}
     />
   ),
@@ -123,8 +181,15 @@ export const getFieldRenderer = (schema: FieldSchema): FieldRenderer => {
   }
 
   // Fallback - обычный Input
-  return ({ schema: fallbackSchema }) => (
-    <Input placeholder={fallbackSchema.placeholder} {...fallbackSchema.uiProps} />
+  return ({ schema: fallbackSchema, value, onChange, disabled, readOnly }) => (
+    <Input
+      value={value}
+      onChange={e => onChange?.(e.target.value)}
+      placeholder={fallbackSchema.placeholder}
+      disabled={disabled}
+      readOnly={readOnly}
+      {...fallbackSchema.uiProps}
+    />
   );
 };
 

@@ -1,19 +1,15 @@
-import { Button, Card, Form, Space } from 'antd';
-import type { FormInstance } from 'antd/es/form';
+import { Button, Card, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import type { EntitySchema, FieldSchema } from '@/types/schemaForm';
 import type { FormModel } from '@/stores/FormModel';
-import { buildAntdRules } from '@/utils/antdRulesBuilder';
 import { getFieldRenderer } from './widgetRegistry';
-import { pathToString, type PathSegment } from '@/utils/pathUtils';
+import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента SchemaForm.
  */
 export interface PropsSchemaForm<E extends EntitySchema> {
-  /** Экземпляр формы Ant Design. */
-  form: FormInstance;
   /** Модель формы на MobX для управления состоянием. */
   model: FormModel<E>;
   /** Схема сущности для формы. */
@@ -24,41 +20,45 @@ export interface PropsSchemaForm<E extends EntitySchema> {
 
 /**
  * Компонент формы на основе схемы сущности.
- * Рендерит форму Ant Design, синхронизированную с FormModel на MobX.
+ * Рендерит форму напрямую через контролируемые компоненты, синхронизированные с FormModel на MobX.
  * Поддерживает примитивные поля и json поля с cardinality 'one' и 'many'.
  * Поддерживает группировку полей через поле `group` в FieldSchema.
  * Поддерживает режим только для чтения через проп `readonly`.
- * Обеспечивает двустороннюю синхронизацию: изменения в форме обновляют модель,
- * изменения в модели обновляют форму (с защитой от циклических обновлений).
+ * Все изменения сразу обновляют FormModel.values.
  * @template E Схема сущности.
  * @example
- * const [form] = Form.useForm();
  * const model = new FormModel(schema, initialValues);
- * <SchemaForm form={form} model={model} schema={schema} readonly={false} />
+ * <SchemaForm model={model} schema={schema} readonly={false} />
  */
 export const SchemaForm = observer(
-  <E extends EntitySchema>({ form, model, schema, readonly = false }: PropsSchemaForm<E>) => {
-    // Флаг для предотвращения циклических обновлений
-    const isUpdatingFromModel = useRef(false);
-    const previousValuesRef = useRef(model.values);
+  <E extends EntitySchema>({ model, schema, readonly = false }: PropsSchemaForm<E>) => {
+    /**
+     * Обработчик изменения значения поля.
+     * Обновляет значение в FormModel по указанному пути.
+     * @param path Путь к полю.
+     * @param value Новое значение.
+     */
+    const handleFieldChange = (path: PathSegment[], value: any): void => {
+      model.setValue(path, value);
+    };
 
-    // Синхронизация значений из модели в форму
-    useEffect(() => {
-      // Проверяем, действительно ли значения изменились
-      const currentValues = model.values;
-      const previousValues = previousValuesRef.current;
+    /**
+     * Обработчик добавления элемента в массив.
+     * @param path Путь к массиву.
+     * @param defaultValue Значение по умолчанию для нового элемента.
+     */
+    const handleAddArrayItem = (path: PathSegment[], defaultValue: any): void => {
+      model.addArrayItem(path, defaultValue);
+    };
 
-      // Простое сравнение по ссылке (для глубокого сравнения можно использовать lodash.isEqual)
-      if (currentValues !== previousValues && !isUpdatingFromModel.current) {
-        isUpdatingFromModel.current = true;
-        form.setFieldsValue(currentValues as any);
-        previousValuesRef.current = currentValues;
-        // Сбрасываем флаг после небольшой задержки, чтобы избежать конфликтов
-        setTimeout(() => {
-          isUpdatingFromModel.current = false;
-        }, 0);
-      }
-    }, [form, model.values]);
+    /**
+     * Обработчик удаления элемента из массива.
+     * @param path Путь к массиву.
+     * @param index Индекс элемента для удаления.
+     */
+    const handleRemoveArrayItem = (path: PathSegment[], index: number): void => {
+      model.removeArrayItem(path, index);
+    };
 
     /**
      * Рекурсивно рендерит поле формы на основе его схемы.
@@ -76,7 +76,8 @@ export const SchemaForm = observer(
     ): React.ReactNode => {
       const namePath = [...parentPath, key];
       const pathStr = pathToString(namePath);
-      const rules = buildAntdRules(field);
+      const currentValue = getValueByPath(model.values, namePath);
+      const error = model.errorFor(pathStr);
 
       // Json поля
       if (field.type === 'json') {
@@ -93,37 +94,43 @@ export const SchemaForm = observer(
         }
 
         // Json поле с cardinality: 'many'
+        const arrayValue = Array.isArray(currentValue) ? currentValue : [];
         return (
-          <Form.List key={pathStr} name={namePath}>
-            {(fields, { add, remove }) => (
-              <Card
-                title={field.label ?? key}
-                extra={!isReadonly ? <Button onClick={() => add()}>Добавить</Button> : null}
-                style={{ marginBottom: 16 }}
-              >
-                {fields.map(f => {
-                  const itemPath = [...namePath, f.name];
-                  const itemPathStr = pathToString(itemPath);
+          <Card
+            key={pathStr}
+            title={field.label ?? key}
+            extra={
+              !isReadonly ? (
+                <Button onClick={() => handleAddArrayItem(namePath, {})}>Добавить</Button>
+              ) : null
+            }
+            style={{ marginBottom: 16 }}
+          >
+            {arrayValue.map((_item, index) => {
+              const itemPath = [...namePath, index];
+              const itemPathStr = pathToString(itemPath);
 
-                  return (
-                    <Card
-                      key={itemPathStr}
-                      size="small"
-                      style={{ marginBottom: 8 }}
-                      extra={
-                        !isReadonly ? <Button onClick={() => remove(f.name)}>Удалить</Button> : null
-                      }
-                    >
-                      {field.children &&
-                        Object.entries(field.children).map(([childKey, childField]) =>
-                          renderField(childKey, childField, itemPath, isReadonly)
-                        )}
-                    </Card>
-                  );
-                })}
-              </Card>
-            )}
-          </Form.List>
+              return (
+                <Card
+                  key={itemPathStr}
+                  size="small"
+                  style={{ marginBottom: 8 }}
+                  extra={
+                    !isReadonly ? (
+                      <Button onClick={() => handleRemoveArrayItem(namePath, index)}>
+                        Удалить
+                      </Button>
+                    ) : null
+                  }
+                >
+                  {field.children &&
+                    Object.entries(field.children).map(([childKey, childField]) =>
+                      renderField(childKey, childField, itemPath, isReadonly)
+                    )}
+                </Card>
+              );
+            })}
+          </Card>
         );
       }
 
@@ -132,67 +139,71 @@ export const SchemaForm = observer(
 
       // Примитивное поле с cardinality: 'one'
       if (field.cardinality === 'one') {
-        const widgetElement = renderer({ schema: field, namePath });
-        // Добавляем disabled/readOnly для readonly полей
-        const disabledWidget =
-          isReadonly && React.isValidElement(widgetElement)
-            ? React.cloneElement(widgetElement, { disabled: true, readOnly: true } as any)
-            : widgetElement;
+        const widgetElement = renderer({
+          schema: field,
+          namePath,
+          value: currentValue,
+          onChange: (value: any) => handleFieldChange(namePath, value),
+          disabled: isReadonly,
+          readOnly: isReadonly,
+        });
 
         return (
-          <Form.Item
-            key={pathStr}
-            name={namePath}
-            label={field.label ?? key}
-            rules={rules}
-            validateStatus={model.errorFor(pathStr) ? 'error' : undefined}
-            help={model.errorFor(pathStr)}
-          >
-            {disabledWidget}
-          </Form.Item>
+          <div key={pathStr} style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
+              {field.label ?? key}
+            </label>
+            {widgetElement}
+            {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
+          </div>
         );
       }
 
       // Примитивное поле с cardinality: 'many'
+      const arrayValue = Array.isArray(currentValue) ? currentValue : [];
       return (
-        <Form.List key={pathStr} name={namePath}>
-          {(fields, { add, remove }) => (
-            <Card
-              title={field.label ?? key}
-              extra={!isReadonly ? <Button onClick={() => add()}>Добавить</Button> : null}
-            >
-              {fields.map(f => {
-                const itemPath = [...namePath, f.name];
-                const itemPathStr = pathToString(itemPath);
-                const widgetElement = renderer({ schema: field, namePath: itemPath });
-                // Добавляем disabled/readOnly для readonly полей
-                const disabledWidget =
-                  isReadonly && React.isValidElement(widgetElement)
-                    ? React.cloneElement(widgetElement, { disabled: true, readOnly: true } as any)
-                    : widgetElement;
+        <Card
+          key={pathStr}
+          title={field.label ?? key}
+          extra={
+            !isReadonly ? (
+              <Button onClick={() => handleAddArrayItem(namePath, undefined)}>Добавить</Button>
+            ) : null
+          }
+          style={{ marginBottom: 16 }}
+        >
+          {arrayValue.map((item, index) => {
+            const itemPath = [...namePath, index];
+            const itemPathStr = pathToString(itemPath);
+            const itemError = model.errorFor(itemPathStr);
+            const widgetElement = renderer({
+              schema: field,
+              namePath: itemPath,
+              value: item,
+              onChange: (value: any) => handleFieldChange(itemPath, value),
+              disabled: isReadonly,
+              readOnly: isReadonly,
+            });
 
-                return (
-                  <Space
-                    key={itemPathStr}
-                    align="baseline"
-                    style={{ display: 'flex', marginBottom: 8 }}
-                  >
-                    <Form.Item
-                      name={itemPath}
-                      rules={rules}
-                      validateStatus={model.errorFor(itemPathStr) ? 'error' : undefined}
-                      help={model.errorFor(itemPathStr)}
-                      style={{ flex: 1 }}
-                    >
-                      {disabledWidget}
-                    </Form.Item>
-                    {!isReadonly && <Button onClick={() => remove(f.name)}>Удалить</Button>}
-                  </Space>
-                );
-              })}
-            </Card>
-          )}
-        </Form.List>
+            return (
+              <Space
+                key={itemPathStr}
+                align="baseline"
+                style={{ display: 'flex', marginBottom: 8, width: '100%' }}
+              >
+                <div style={{ flex: 1 }}>
+                  {widgetElement}
+                  {itemError && (
+                    <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
+                  )}
+                </div>
+                {!isReadonly && (
+                  <Button onClick={() => handleRemoveArrayItem(namePath, index)}>Удалить</Button>
+                )}
+              </Space>
+            );
+          })}
+        </Card>
       );
     };
 
@@ -212,18 +223,7 @@ export const SchemaForm = observer(
     }
 
     return (
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={model.values}
-        onValuesChange={(_, allValues) => {
-          // Обновляем модель только если изменение идёт не из модели
-          if (!isUpdatingFromModel.current) {
-            model.setAll(allValues);
-            previousValuesRef.current = model.values;
-          }
-        }}
-      >
+      <div>
         {/* Поля без группы */}
         {ungroupedFields.map(([key, field]) => renderField(key, field))}
 
@@ -233,7 +233,7 @@ export const SchemaForm = observer(
             {fields.map(([key, field]) => renderField(key, field))}
           </Card>
         ))}
-      </Form>
+      </div>
     );
   }
 ) as <E extends EntitySchema>(props: PropsSchemaForm<E>) => React.ReactElement;
