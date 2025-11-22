@@ -3,7 +3,7 @@ import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
 import { listPaths } from '@/api/pathApi';
 import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
-import { type BlueprintFormValues } from '@/components/blueprintForm';
+// import { type BlueprintFormValues } from '@/components/blueprintForm';
 import { notificationService } from '@/services/notificationService';
 import type { ZId } from '@/types/ZId';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
@@ -27,7 +27,7 @@ export interface FormValues {
   readonly published_at: Dayjs | null;
   readonly template_override: string;
   readonly term_ids: ZId[];
-  readonly content_json?: BlueprintFormValues;
+  readonly content_json?: Record<string, any>;
 }
 
 const defaultFormValues: FormValues = {
