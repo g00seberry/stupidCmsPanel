@@ -165,7 +165,10 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
 
     if (store.paths.length === 0) {
       return (
-        <div className="w-full h-full min-h-[400px] border rounded bg-background flex items-center justify-center">
+        <div
+          className="w-full h-full min-h-[400px] border rounded bg-background flex items-center justify-center"
+          onContextMenu={handlePaneContextMenu}
+        >
           <div className="text-gray-500">
             Нет полей. Кликните правой кнопкой мыши на пустом месте для добавления первого поля.
           </div>

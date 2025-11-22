@@ -150,8 +150,7 @@ export const getEntry = async (id: ZId): Promise<ZEntry> => {
  * });
  */
 export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
-  const parsedPayload = zEntryPayload.parse(payload);
-  const response = await rest.post(getAdminEntriesUrl(''), parsedPayload);
+  const response = await rest.post(getAdminEntriesUrl(''), payload);
   const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
 };

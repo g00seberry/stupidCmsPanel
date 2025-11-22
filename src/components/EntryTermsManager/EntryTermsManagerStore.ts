@@ -12,7 +12,7 @@ import { makeAutoObservable } from 'mobx';
  */
 export class EntryTermsManagerStore {
   /** Данные о термах записи. */
-  entryTerms: ZEntryTermsData | null = null;
+  entryTerms: ZEntryTermsData;
   /** Флаг выполнения асинхронной операции. */
   loading = false;
   /** ID выбранной таксономии для добавления термов. */
@@ -29,26 +29,14 @@ export class EntryTermsManagerStore {
   /**
    * Создаёт экземпляр стора управления термами записи.
    */
-  constructor(entryId: ZId) {
+  constructor(entryId: ZId, initialEntryTerms: ZEntryTermsData) {
     this.entryId = entryId;
+    this.entryTerms = initialEntryTerms;
+    const termIds = this.entryTerms.terms_by_taxonomy.flatMap(group =>
+      group.terms.map(term => term.id)
+    );
+    this.pendingTermIds = new Set(termIds);
     makeAutoObservable(this);
-  }
-
-  /**
-   * Инициализирует стор с параметрами записи.
-   * @param termIds Массив ID термов из формы (опционально, используется только для инициализации pendingTermIds).
-   */
-  async initialize(termIds?: ZId[]): Promise<void> {
-    try {
-      const entryTerms = await getEntryTerms(this.entryId);
-      this.setEntryTerms(entryTerms);
-      // Инициализируем pendingTermIds если переданы termIds
-      if (termIds) {
-        this.pendingTermIds = new Set(termIds);
-      }
-    } catch (error) {
-      onError(error);
-    }
   }
 
   /**
@@ -84,6 +72,13 @@ export class EntryTermsManagerStore {
     return this.currentTerms.map(term => term.id);
   }
 
+  /**
+   * Устанавливает ID записи.
+   * @param entryId ID записи.
+   */
+  setEntryId(entryId: ZId): void {
+    this.entryId = entryId;
+  }
   /**
    * Устанавливает данные о термах записи.
    * @param entryTerms Данные о термах записи.

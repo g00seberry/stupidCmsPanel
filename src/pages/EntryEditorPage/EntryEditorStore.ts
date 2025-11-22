@@ -1,38 +1,25 @@
 import { createEntry, getEntry, getEntryTerms, updateEntry } from '@/api/apiEntries';
 import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
-import { listPaths } from '@/api/pathApi';
 import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
-// import { type BlueprintFormValues } from '@/components/blueprintForm';
 import { notificationService } from '@/services/notificationService';
 import { FormModel } from '@/stores/FormModel';
 import type { ZId } from '@/types/ZId';
-import type { ZEntry, ZEntryPayload } from '@/types/entries';
-import type { ZPath } from '@/types/path';
+import type { ZEntry } from '@/types/entries';
 import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
-import { serverDate, viewDate } from '@/utils/dateUtils';
 import { onError } from '@/utils/onError';
 import { createFormModelFromBlueprintSchema } from '@/utils/schemaFormAdapter';
-import type { Dayjs } from 'dayjs';
 import { makeAutoObservable } from 'mobx';
+import {
+  entry2formValues,
+  formValues2entryPayload,
+  type EntryEditorFormValues,
+} from './transforms';
 
 const idNew = 'new';
 
-/**
- * Значения формы редактора записи.
- */
-export interface FormValues {
-  readonly title: string;
-  readonly slug: string;
-  readonly is_published: boolean;
-  readonly published_at: Dayjs | null;
-  readonly template_override: string;
-  readonly term_ids: ZId[];
-  readonly content_json?: Record<string, any>;
-}
-
-const defaultFormValues: FormValues = {
+const defaultFormValues: EntryEditorFormValues = {
   title: '',
   slug: '',
   is_published: false,
@@ -43,52 +30,18 @@ const defaultFormValues: FormValues = {
 };
 
 /**
- * Преобразует данные записи в значения формы.
- * @param entry Запись, полученная из API.
- * @param termIds Массив ID термов записи (опционально).
- * @param paths Дерево Path для преобразования content_json (опционально).
- * @returns Значения формы, готовые к отображению пользователю.
- */
-const toFormValues = (entry: ZEntry, termIds: ZId[] = []): FormValues => {
-  return {
-    title: entry.title,
-    slug: entry.slug,
-    is_published: entry.is_published,
-    published_at: viewDate(entry.published_at),
-    template_override: entry.template_override ?? '',
-    term_ids: termIds,
-    content_json: entry.content_json || {},
-  };
-};
-
-/**
  * Store для управления состоянием редактора записи.
  */
 export class EntryEditorStore {
-  initialFormValues: FormValues = defaultFormValues;
-  initialLoading = false;
-  pending = false;
-  templates: ZTemplate[] = [];
+  initialFormValues: EntryEditorFormValues = defaultFormValues;
   loading = false;
+  templates: ZTemplate[] = [];
   postType: ZPostType | null = null;
   postTypeSlug: string;
   entryId: ZId | typeof idNew;
-  /** Store для управления термами записи. Создаётся только в режиме редактирования. */
   termsManagerStore: EntryTermsManagerStore | null = null;
-  /** Дерево Path для текущего Blueprint. */
-  paths: ZPath[] = [];
-  /** Флаг загрузки Path. */
-  loadingPaths = false;
-  /** Blueprint из Entry (если есть). */
-  blueprintId: number | null = null;
-  /** Модель формы для Blueprint данных. */
   blueprintModel: FormModel<any> | null = null;
-  /** Флаг загрузки Blueprint формы. */
-  blueprintLoading = false;
 
-  get isEditMode(): boolean {
-    return this.entryId !== idNew;
-  }
   /**
    * Создаёт экземпляр стора редактора записи.
    * @param postTypeSlug Slug типа контента (опционально).
@@ -121,34 +74,16 @@ export class EntryEditorStore {
    * Устанавливает значения формы.
    * @param values Новые значения формы.
    */
-  setFormValues(values: FormValues): void {
+  setFormValues(values: EntryEditorFormValues): void {
     this.initialFormValues = values;
   }
 
   /**
-   * Устанавливает флаг начальной загрузки.
+   * Устанавливает флаг выполнения асинхронной операции.
    * @param value Новое значение флага.
    */
   setLoading(value: boolean): void {
     this.loading = value;
-  }
-
-  /**
-   * Устанавливает флаг выполнения операции.
-   * @param value Новое значение флага.
-   */
-  setPending(value: boolean): void {
-    this.pending = value;
-  }
-
-  /**
-   * Устанавливает ID Blueprint.
-   * @param value ID Blueprint или null.
-   */
-  setBlueprintId(value: number | null): void {
-    this.blueprintId = value;
-    // При изменении blueprintId инициализируем форму
-    void this.initBlueprintForm();
   }
 
   /**
@@ -159,59 +94,12 @@ export class EntryEditorStore {
     this.blueprintModel = model;
   }
 
-  /**
-   * Устанавливает флаг загрузки Blueprint формы.
-   * @param value Новое значение флага.
-   */
-  setBlueprintLoading(value: boolean): void {
-    this.blueprintLoading = value;
+  setTermsManagerStore(store: EntryTermsManagerStore): void {
+    this.termsManagerStore = store;
   }
 
-  /**
-   * Инициализирует FormModel для Blueprint данных.
-   * Загружает схему Blueprint и создаёт модель формы с начальными значениями из Entry.
-   */
-  async initBlueprintForm(): Promise<void> {
-    if (!this.blueprintId) {
-      this.setBlueprintModel(null);
-      return;
-    }
-
-    this.setBlueprintLoading(true);
-    try {
-      const initialValues: any = this.initialFormValues.content_json;
-      const model = await createFormModelFromBlueprintSchema(this.blueprintId, initialValues);
-      this.setBlueprintModel(model);
-    } catch (error) {
-      onError(error);
-      this.setBlueprintModel(null);
-    } finally {
-      this.setBlueprintLoading(false);
-    }
-  }
-
-  /**
-   * Загружает Path дерево для Blueprint.
-   * Использует blueprint из Entry, если доступен, иначе fallback на postType.blueprint_id.
-   */
-  async loadPaths(blueprintId?: number | null): Promise<void> {
-    const id = blueprintId ?? this.blueprintId ?? this.postType?.blueprint_id ?? null;
-
-    if (!id) {
-      this.paths = [];
-      return;
-    }
-
-    this.loadingPaths = true;
-    try {
-      this.setBlueprintId(id);
-      this.paths = await listPaths(id);
-    } catch (error) {
-      onError(error);
-      this.paths = [];
-    } finally {
-      this.loadingPaths = false;
-    }
+  get isEditMode(): boolean {
+    return this.entryId !== idNew;
   }
 
   /**
@@ -222,7 +110,20 @@ export class EntryEditorStore {
   async init(): Promise<void> {
     try {
       this.setLoading(true);
-      this.setPostType(await getPostType(this.postTypeSlug));
+      const postType = await getPostType(this.postTypeSlug);
+      this.setPostType(postType);
+      const templates = await getTemplates();
+      this.setTemplates(templates);
+
+      // Инициализируем Blueprint форму
+      if (postType.blueprint_id) {
+        const initialValues: any = this.initialFormValues.content_json;
+        const model = await createFormModelFromBlueprintSchema(
+          postType.blueprint_id,
+          initialValues
+        );
+        this.setBlueprintModel(model);
+      }
 
       if (this.isEditMode) {
         const [entry, entryTerms] = await Promise.all([
@@ -230,36 +131,13 @@ export class EntryEditorStore {
           getEntryTerms(this.entryId),
         ]);
 
-        // Используем blueprint из Entry, если доступен
-        if (entry.blueprint) {
-          this.blueprintId = entry.blueprint.id;
-          await this.loadPaths(entry.blueprint.id);
-        } else {
-          // Fallback на blueprint_id из PostType
-          await this.loadPaths();
-        }
-
         const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
           group.terms.map(term => term.id)
         );
-        this.setFormValues(toFormValues(entry, termIds));
-        // Создаём стор для управления термами
-        this.termsManagerStore = new EntryTermsManagerStore(this.entryId);
-        await this.termsManagerStore.initialize(termIds);
-        // Инициализируем Blueprint форму после загрузки Entry
-        if (this.blueprintId) {
-          await this.initBlueprintForm();
-        }
-      } else {
-        // При создании используем blueprint_id из PostType
-        await this.loadPaths();
-        // Инициализируем Blueprint форму при создании
-        if (this.blueprintId) {
-          await this.initBlueprintForm();
-        }
+        this.setFormValues(entry2formValues(entry, termIds));
+        this.setTermsManagerStore(new EntryTermsManagerStore(this.entryId, entryTerms));
+        this.blueprintModel?.setAll(entry.content_json ?? {});
       }
-
-      this.setTemplates(await getTemplates());
     } catch (error) {
       onError(error);
     } finally {
@@ -276,59 +154,25 @@ export class EntryEditorStore {
    * @returns Обновлённая запись.
    * @throws Ошибка валидации JSON или ошибка API.
    */
-  async saveEntry(
-    values: FormValues,
-    isEditMode: boolean,
-    entryId?: ZId,
-    postType?: string
-  ): Promise<ZEntry | null> {
-    this.setPending(true);
+  async saveEntry(values: EntryEditorFormValues): Promise<ZEntry | null> {
+    this.setLoading(true);
     try {
-      // При создании post_type обязателен
-      if (!isEditMode && !postType) {
-        notificationService.showError({
-          message: 'Ошибка валидации',
-          description: 'Тип контента обязателен при создании записи',
-        });
-        return null;
-      }
-
-      const payload: ZEntryPayload = {
-        title: (values.title || '').trim(),
-        slug: (values.slug || '').trim(),
-        is_published: values.is_published,
-        published_at: serverDate(values.published_at),
-        template_override: (values.template_override || '').trim() || null,
-        term_ids: values.term_ids,
-        content_json: values.content_json,
-        ...(postType && { post_type: postType }),
-      };
-
-      const nextEntry =
-        isEditMode && entryId ? await updateEntry(entryId, payload) : await createEntry(payload);
-      const successMessage = isEditMode ? 'Запись обновлена' : 'Запись создана';
-      notificationService.showSuccess({ message: successMessage });
-      // После сохранения загружаем термы для обновления формы и стора
-      if (this.isEditMode && nextEntry) {
-        const entryTerms = await getEntryTerms(nextEntry.id);
-        const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
-          group.terms.map(term => term.id)
-        );
-        this.setFormValues(toFormValues(nextEntry, termIds));
-        // Обновляем стор термов
-        if (this.termsManagerStore) {
-          this.termsManagerStore.setEntryTerms(entryTerms);
-          this.termsManagerStore.pendingTermIds = new Set(termIds);
-        }
-      } else {
-        this.setFormValues(toFormValues(nextEntry, []));
-      }
+      const payload = formValues2entryPayload(values, this.postTypeSlug);
+      const nextEntry = this.isEditMode
+        ? await updateEntry(this.entryId, payload)
+        : await createEntry(payload);
+      const formValues = entry2formValues(nextEntry, values.term_ids);
+      this.setFormValues(formValues);
+      this.blueprintModel?.setAll(formValues.content_json ?? {});
+      notificationService.showSuccess({
+        message: this.isEditMode ? 'Запись обновлена' : 'Запись создана',
+      });
       return nextEntry;
     } catch (error) {
       onError(error);
       return null;
     } finally {
-      this.setPending(false);
+      this.setLoading(false);
     }
   }
 }

@@ -9,18 +9,22 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorHeader } from './EntryEditorHeader';
-import { EntryEditorStore, type FormValues } from './EntryEditorStore';
+import { EntryEditorStore } from './EntryEditorStore';
+import type { EntryEditorFormValues } from './transforms';
+import { toJS } from 'mobx';
 
 /**
  * Страница создания и редактирования записи CMS.
  */
 export const EntryEditorPage = observer(() => {
-  const { postType: postTypeSlug, id } = useParams<{ postType?: string; id?: string }>();
+  const { postType, id } = useParams<{ postType?: string; id?: string }>();
 
-  const store = useMemo(
-    () => (postTypeSlug && id ? new EntryEditorStore(postTypeSlug, id) : null),
-    [postTypeSlug, id]
-  );
+  const store = useMemo(() => {
+    if (postType && id) {
+      return new EntryEditorStore(postType, id);
+    }
+    return null;
+  }, [postType, id]);
 
   if (!store) return null;
 
@@ -42,7 +46,7 @@ const Inner = observer(({ store }: PropsInner) => {
   }, [store.initialFormValues]);
 
   const handleSubmit = useCallback(
-    async (values: FormValues) => {
+    async (values: EntryEditorFormValues) => {
       // Валидируем и получаем данные Blueprint формы, если она есть
       let blueprintData: Record<string, any> | undefined = undefined;
 
@@ -56,21 +60,22 @@ const Inner = observer(({ store }: PropsInner) => {
       }
 
       // Объединяем данные основной формы с данными Blueprint
-      const finalValues: FormValues = {
+      const finalValues: EntryEditorFormValues = {
         ...values,
         content_json: blueprintData || values.content_json,
       };
 
-      const nextEntry = await store.saveEntry(finalValues, isEditMode, entryId, postTypeSlug);
+      const nextEntry = await store.saveEntry(finalValues);
       if (nextEntry) {
-        const url = buildUrl(PageUrl.EntryEdit, {
-          postType: postTypeSlug,
-          id: String(nextEntry.id),
-        });
-        navigate(url, { replace: !isEditMode });
+        navigate(
+          buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(nextEntry.id) }),
+          {
+            replace: !isEditMode,
+          }
+        );
       }
     },
-    [isEditMode, navigate, postTypeSlug, entryId, store]
+    [isEditMode, navigate, postTypeSlug, store]
   );
 
   const handleCancel = useCallback(() => {
@@ -80,19 +85,14 @@ const Inner = observer(({ store }: PropsInner) => {
   const handleSave = useCallback(() => {
     form.submit();
   }, [form]);
-
-  const handleValuesChange = useCallback((changedFields: any, allFields: any) => {
-    console.log(changedFields);
-    console.log(allFields);
-  }, []);
-
+  console.log(toJS(store.blueprintModel));
   return (
     <div className="min-h-screen bg-background w-full">
       <EntryEditorHeader
         postType={store.postType}
         isEditMode={isEditMode}
         onSave={handleSave}
-        pending={store.pending}
+        pending={store.loading}
         onCancel={handleCancel}
       />
 
@@ -102,12 +102,7 @@ const Inner = observer(({ store }: PropsInner) => {
             <Spin size="large" />
           </div>
         ) : (
-          <Form<FormValues>
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            onValuesChange={handleValuesChange}
-          >
+          <Form<EntryEditorFormValues> form={form} layout="vertical" onFinish={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <Card className="p-6">
@@ -149,7 +144,7 @@ const Inner = observer(({ store }: PropsInner) => {
                           from={titleValue ?? ''}
                           holdOnChange={isEditMode}
                           placeholder="entry-slug"
-                          disabled={store.loading || store.pending}
+                          disabled={store.loading}
                         />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
@@ -213,10 +208,7 @@ const Inner = observer(({ store }: PropsInner) => {
                 {isEditMode && store.termsManagerStore && (
                   <Card className="p-6">
                     <Form.Item name="term_ids" className="mb-0">
-                      <EntryTermsManager
-                        store={store.termsManagerStore}
-                        disabled={store.pending || store.loading}
-                      />
+                      <EntryTermsManager store={store.termsManagerStore} disabled={store.loading} />
                     </Form.Item>
                   </Card>
                 )}
@@ -225,20 +217,14 @@ const Inner = observer(({ store }: PropsInner) => {
           </Form>
         )}
 
-        {!store.loading && store.blueprintId && store.blueprintModel && (
+        {!store.loading && store.postType?.blueprint_id && store.blueprintModel && (
           <Card className="p-6 mt-6">
             <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
-            {store.blueprintLoading ? (
-              <div className="flex justify-center py-8">
-                <Spin />
-              </div>
-            ) : (
-              <SchemaForm
-                model={store.blueprintModel}
-                schema={store.blueprintModel.schema}
-                readonly={store.pending || store.loading}
-              />
-            )}
+            <SchemaForm
+              model={store.blueprintModel}
+              schema={store.blueprintModel.schema}
+              readonly={store.loading}
+            />
           </Card>
         )}
       </div>
