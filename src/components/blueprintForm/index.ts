@@ -6,4 +6,4 @@ export { buildZodSchemaFromPaths } from './utils/buildZodSchemaFromPaths';
 export { SchemaFormStore as BlueprintFormStore } from './SchemaFormStore';
 export type { ReferenceQuery, ReferenceOption } from './SchemaFormStore.types';
 export { t, tWithDefault, setTranslations } from './utils/i18n';
-export type { FieldNode, DataType } from './types/formField';
+export type { FieldNode } from './types/formField';

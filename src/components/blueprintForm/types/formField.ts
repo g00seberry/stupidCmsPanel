@@ -1,12 +1,6 @@
 import type { ZDataType } from '@/types/path';
 
 /**
- * Типы данных полей формы.
- * Использует ZDataType из path.ts как единый источник истины.
- */
-export type DataType = ZDataType;
-
-/**
  * Узел поля формы.
  * Содержит все свойства поля, включая опциональные дочерние поля.
  */
@@ -18,7 +12,7 @@ export interface FieldNode {
   /** Полный путь поля в виде массива сегментов (например, ['author', 'contacts', 'email']). */
   fullPath: string[];
   /** Тип данных поля. */
-  dataType: DataType;
+  dataType: ZDataType;
   /** Мощность поля: одно значение или множество. */
   cardinality: 'one' | 'many';
   /** Отображаемая метка поля. */

@@ -1,16 +1,17 @@
+import type { ZDataType } from '@/types/path';
+import type { Rule } from 'antd/es/form';
 import type React from 'react';
-import type { FieldNode, DataType } from '../types/formField';
-import { PathStringFieldNode } from './PathStringFieldNode';
-import { PathTextAreaFieldNode } from './PathTextAreaFieldNode';
-import { PathIntFieldNode } from './PathIntFieldNode';
-import { PathFloatFieldNode } from './PathFloatFieldNode';
+import type { SchemaFormStore } from '../SchemaFormStore';
+import type { FieldNode } from '../types/formField';
 import { PathBoolFieldNode } from './PathBoolFieldNode';
 import { PathDateFieldNode } from './PathDateFieldNode';
 import { PathDateTimeFieldNode } from './PathDateTimeFieldNode';
-import { PathRefFieldNode } from './PathRefFieldNode';
+import { PathFloatFieldNode } from './PathFloatFieldNode';
+import { PathIntFieldNode } from './PathIntFieldNode';
 import { PathJsonGroupField } from './PathJsonGroupField';
-import type { Rule } from 'antd/es/form';
-import type { SchemaFormStore } from '../SchemaFormStore';
+import { PathRefFieldNode } from './PathRefFieldNode';
+import { PathStringFieldNode } from './PathStringFieldNode';
+import { PathTextAreaFieldNode } from './PathTextAreaFieldNode';
 
 /**
  * Пропсы компонента поля формы (используется на уровне PathField).
@@ -86,4 +87,4 @@ export const fieldRegistry = {
   json: {
     Component: PathJsonGroupField,
   },
-} satisfies Record<DataType, FieldDefinition>;
+} satisfies Record<ZDataType, FieldDefinition>;
