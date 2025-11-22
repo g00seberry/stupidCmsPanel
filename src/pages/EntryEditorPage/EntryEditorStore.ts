@@ -136,6 +136,14 @@ export class EntryEditorStore {
   }
 
   /**
+   * Устанавливает ID Blueprint.
+   * @param value ID Blueprint или null.
+   */
+  setBlueprintId(value: number | null): void {
+    this.blueprintId = value;
+  }
+
+  /**
    * Загружает Path дерево для Blueprint.
    * Использует blueprint из Entry, если доступен, иначе fallback на postType.blueprint_id.
    */
@@ -149,7 +157,7 @@ export class EntryEditorStore {
 
     this.loadingPaths = true;
     try {
-      this.blueprintId = id;
+      this.setBlueprintId(id);
       this.paths = await listPaths(id);
     } catch (error) {
       onError(error);
