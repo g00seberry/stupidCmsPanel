@@ -2,7 +2,6 @@ import { Form, Button } from 'antd';
 import type React from 'react';
 import type { FieldNode } from '../types/formField';
 import type { Rule } from 'antd/es/form';
-import { t } from '../utils/i18n';
 
 /**
  * Пропсы компонента-обёртки для обработки cardinality.
@@ -113,7 +112,7 @@ export const CardinalityWrapper: React.FC<PropsCardinalityWrapper> = ({
                   </span>
                   {!disabled && (
                     <Button type="text" danger size="small" onClick={() => remove(itemIndex)}>
-                      {t('blueprint.removeItem')}
+                      Удалить
                     </Button>
                   )}
                 </div>
@@ -140,7 +139,7 @@ export const CardinalityWrapper: React.FC<PropsCardinalityWrapper> = ({
                   }
                 }}
               >
-                {t('blueprint.addItem')} {node.label.toLowerCase()}
+                Добавить {node.label.toLowerCase()}
               </Button>
             </Form.Item>
           )}

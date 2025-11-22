@@ -3,7 +3,6 @@ import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldComponentProps } from './fieldRegistry';
 import { isFieldDisabled } from '../utils/fieldNodeUtils';
-import { t } from '../utils/i18n';
 import { useMemo } from 'react';
 
 /**
@@ -40,7 +39,7 @@ export const PathRefFieldNode: React.FC<FieldComponentProps> = observer(
       <Select
         mode={node.cardinality === 'many' ? 'multiple' : undefined}
         showSearch
-        placeholder={t('blueprint.entry.select')}
+        placeholder="Выберите Entry"
         loading={loading}
         disabled={disabled}
         onSearch={handleSearch}

@@ -4,5 +4,4 @@ export type { BlueprintFormValues } from './utils/formDataToContent';
 export { buildFormSchema } from './utils/buildFormSchema';
 export { SchemaFormStore as BlueprintFormStore } from './SchemaFormStore';
 export type { ReferenceQuery, ReferenceOption } from './SchemaFormStore.types';
-export { t, tWithDefault, setTranslations } from './utils/i18n';
 export type { FieldNode } from './types/formField';

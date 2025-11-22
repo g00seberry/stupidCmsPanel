@@ -3,7 +3,6 @@ import type React from 'react';
 import type { FieldComponentProps } from './fieldRegistry';
 import { PathField } from './PathField';
 import { CardinalityWrapper } from '../components/CardinalityWrapper';
-import { getLocalizedLabel } from '../utils/fieldNodeUtils';
 import { getFormItemRulesFromNode } from '../utils/getFormItemRulesFromNode';
 
 /**
@@ -28,7 +27,7 @@ export const PathJsonGroupField: React.FC<FieldComponentProps> = ({
   // Сортируем children по sortOrder (уже отсортированы в buildFormSchema, но на всякий случай)
   const sortedChildren = [...node.children].sort((a, b) => a.sortOrder - b.sortOrder);
 
-  const label = getLocalizedLabel(node);
+  const label = node.label;
   const rules = getFormItemRulesFromNode(node);
 
   return (

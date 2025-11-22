@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import { onError } from '@/utils/onError';
@@ -131,6 +131,54 @@ export class SchemaFormStore {
   }
 
   /**
+   * Устанавливает флаг загрузки для справочных данных.
+   * @param cacheKey Ключ кэша.
+   * @param value Новое значение флага.
+   */
+  private setReferenceLoading(cacheKey: string, value: boolean): void {
+    const state = this.referenceStates.get(cacheKey);
+    if (state) {
+      state.loading = value;
+    }
+  }
+
+  /**
+   * Устанавливает опции для справочных данных.
+   * @param cacheKey Ключ кэша.
+   * @param options Массив опций.
+   */
+  private setReferenceOptions(cacheKey: string, options: ReferenceOption[]): void {
+    const state = this.referenceStates.get(cacheKey);
+    if (state) {
+      state.options = options;
+    }
+  }
+
+  /**
+   * Устанавливает ошибку для справочных данных.
+   * @param cacheKey Ключ кэша.
+   * @param error Ошибка или undefined.
+   */
+  private setReferenceError(cacheKey: string, error: Error | undefined): void {
+    const state = this.referenceStates.get(cacheKey);
+    if (state) {
+      state.error = error;
+    }
+  }
+
+  /**
+   * Устанавливает поисковый запрос для справочных данных.
+   * @param cacheKey Ключ кэша.
+   * @param term Поисковый запрос.
+   */
+  private setReferenceSearchTerm(cacheKey: string, term: string): void {
+    const state = this.referenceStates.get(cacheKey);
+    if (state) {
+      state.searchTerm = term;
+    }
+  }
+
+  /**
    * Получает справочные данные для запроса.
    * Загружает данные из кэша или с сервера, если кэш устарел.
    * @param query Запрос на получение справочных данных.
@@ -146,9 +194,7 @@ export class SchemaFormStore {
 
     // Если кэш валиден и данные ещё не загружены, используем кэш
     if (isCacheValid && cached && state.options.length === 0 && !state.loading) {
-      runInAction(() => {
-        state.options = cached.data;
-      });
+      this.setReferenceOptions(cacheKey, cached.data);
     }
 
     // Если кэш невалиден и данные ещё не загружаются, загружаем
@@ -168,25 +214,19 @@ export class SchemaFormStore {
     const state = this.referenceStates.get(cacheKey);
     if (!state) return;
 
-    runInAction(() => {
-      state.loading = true;
-      state.error = undefined;
-    });
+    this.setReferenceLoading(cacheKey, true);
+    this.setReferenceError(cacheKey, undefined);
 
     try {
       const data = await this.loadReferenceData(query);
-      runInAction(() => {
-        state.options = data;
-        state.loading = false;
-      });
+      this.setReferenceOptions(cacheKey, data);
+      this.setReferenceLoading(cacheKey, false);
       // Сохраняем в кэш
       this.dataCache.set(cacheKey, { data, timestamp: Date.now() });
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to load reference data');
-      runInAction(() => {
-        state.error = error;
-        state.loading = false;
-      });
+      this.setReferenceError(cacheKey, error);
+      this.setReferenceLoading(cacheKey, false);
       onError(error);
     }
   }
@@ -200,11 +240,7 @@ export class SchemaFormStore {
     const cacheKey = this.getCacheKey(query);
     this.initReferenceState(cacheKey);
 
-    const state = this.referenceStates.get(cacheKey)!;
-
-    runInAction(() => {
-      state.searchTerm = term;
-    });
+    this.setReferenceSearchTerm(cacheKey, term);
 
     // Очищаем предыдущий timeout
     const existingTimeout = this.searchTimeouts.get(cacheKey);

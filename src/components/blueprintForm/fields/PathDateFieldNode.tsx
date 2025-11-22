@@ -2,7 +2,6 @@ import { DatePicker } from 'antd';
 import type React from 'react';
 import type { FieldComponentProps } from './fieldRegistry';
 import { isFieldDisabled, getFieldPlaceholder } from '../utils/fieldNodeUtils';
-import { t } from '../utils/i18n';
 
 /**
  * Компонент поля типа date (дата без времени) для работы с FieldNode.
@@ -14,7 +13,7 @@ export const PathDateFieldNode: React.FC<FieldComponentProps> = ({ node, readonl
   }
 
   const disabled = isFieldDisabled(node, readonly);
-  const placeholder = getFieldPlaceholder(node, t('blueprint.field.select'));
+  const placeholder = getFieldPlaceholder(node, 'Выберите');
 
   return (
     <DatePicker

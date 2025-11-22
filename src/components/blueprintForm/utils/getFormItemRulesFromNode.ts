@@ -1,6 +1,5 @@
 import type { Rule } from 'antd/es/form';
 import type { FieldNode } from '../types/formField';
-import { t } from './i18n';
 
 /**
  * Генерирует правила валидации для Form.Item на основе FieldNode.
@@ -15,7 +14,7 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
   if (node.required) {
     rules.push({
       required: true,
-      message: t('blueprint.field.required', { field: label }),
+      message: `Поле "${label}" обязательно для заполнения`,
     });
   }
 
@@ -28,7 +27,7 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
             if (typeof rule.value === 'number') {
               rules.push({
                 max: rule.value,
-                message: t('blueprint.field.maxLength', { max: String(rule.value) }),
+                message: `Максимум ${rule.value} символов`,
               });
             }
             break;
@@ -36,7 +35,7 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
             if (typeof rule.value === 'number') {
               rules.push({
                 min: rule.value,
-                message: t('blueprint.field.minLength', { min: String(rule.value) }),
+                message: `Минимум ${rule.value} символов`,
               });
             }
             break;
@@ -46,7 +45,7 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
                 const regex = new RegExp(rule.pattern);
                 rules.push({
                   pattern: regex,
-                  message: t('blueprint.field.invalidFormat'),
+                  message: 'Неверный формат',
                 });
               } catch {
                 // Игнорируем невалидные regex
@@ -61,13 +60,13 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
   // Тип-специфичные правила
   switch (node.dataType) {
     case 'string':
-      rules.push({ max: 500, message: t('blueprint.field.maxLength', { max: '500' }) });
+      rules.push({ max: 500, message: 'Максимум 500 символов' });
       break;
     case 'int':
-      rules.push({ type: 'number', message: t('blueprint.field.mustBeInteger') });
+      rules.push({ type: 'number', message: 'Должно быть целым числом' });
       break;
     case 'float':
-      rules.push({ type: 'number', message: t('blueprint.field.mustBeNumber') });
+      rules.push({ type: 'number', message: 'Должно быть числом' });
       break;
     case 'date':
     case 'datetime':
@@ -77,4 +76,3 @@ export const getFormItemRulesFromNode = (node: FieldNode): Rule[] => {
 
   return rules;
 };
-
