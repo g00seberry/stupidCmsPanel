@@ -74,7 +74,7 @@ export class EntryEditorStore {
    * Устанавливает значения формы.
    * @param values Новые значения формы.
    */
-  setFormValues(values: EntryEditorFormValues): void {
+  setInitialFormValues(values: EntryEditorFormValues): void {
     this.initialFormValues = values;
   }
 
@@ -115,16 +115,6 @@ export class EntryEditorStore {
       const templates = await getTemplates();
       this.setTemplates(templates);
 
-      // Инициализируем Blueprint форму
-      if (postType.blueprint_id) {
-        const initialValues: any = this.initialFormValues.content_json;
-        const model = await createFormModelFromBlueprintSchema(
-          postType.blueprint_id,
-          initialValues
-        );
-        this.setBlueprintModel(model);
-      }
-
       if (this.isEditMode) {
         const [entry, entryTerms] = await Promise.all([
           getEntry(this.entryId),
@@ -134,9 +124,17 @@ export class EntryEditorStore {
         const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
           group.terms.map(term => term.id)
         );
-        this.setFormValues(entry2formValues(entry, termIds));
+        this.setInitialFormValues(entry2formValues(entry, termIds));
         this.setTermsManagerStore(new EntryTermsManagerStore(this.entryId, entryTerms));
-        this.blueprintModel?.setAll(entry.content_json ?? {});
+      }
+      // Инициализируем Blueprint форму
+      if (postType.blueprint_id) {
+        const initialValues: any = this.initialFormValues.content_json;
+        const model = await createFormModelFromBlueprintSchema(
+          postType.blueprint_id,
+          initialValues
+        );
+        this.setBlueprintModel(model);
       }
     } catch (error) {
       onError(error);
@@ -162,7 +160,7 @@ export class EntryEditorStore {
         ? await updateEntry(this.entryId, payload)
         : await createEntry(payload);
       const formValues = entry2formValues(nextEntry, values.term_ids);
-      this.setFormValues(formValues);
+      this.setInitialFormValues(formValues);
       this.blueprintModel?.setAll(formValues.content_json ?? {});
       notificationService.showSuccess({
         message: this.isEditMode ? 'Запись обновлена' : 'Запись создана',

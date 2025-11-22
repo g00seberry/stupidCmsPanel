@@ -85,7 +85,6 @@ const Inner = observer(({ store }: PropsInner) => {
   const handleSave = useCallback(() => {
     form.submit();
   }, [form]);
-  console.log(toJS(store.blueprintModel));
   return (
     <div className="min-h-screen bg-background w-full">
       <EntryEditorHeader
