@@ -8,6 +8,7 @@ import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathContextMenu } from '@/components/paths/PathContextMenu';
 import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
+import { EmbedList } from '@/components/embeds/EmbedList';
 import { PathStore } from '@/stores/PathStore';
 import { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
@@ -47,6 +48,7 @@ export const BlueprintSchemaPage = observer(() => {
     if (blueprintId) {
       void pathStore.loadPaths(blueprintId);
       void embedStore.loadEmbeddable(blueprintId);
+      void embedStore.loadEmbeds(blueprintId);
     }
   }, [blueprintId, pathStore, embedStore]);
 
@@ -134,6 +136,28 @@ export const BlueprintSchemaPage = observer(() => {
       },
     });
     handleCloseContextMenu();
+  };
+
+  const handleDeleteEmbed = async (embedId: number) => {
+    if (!blueprintId) return;
+
+    modal.confirm({
+      title: 'Удалить встраивание?',
+      content:
+        'Все встроенные поля будут удалены, и все данные в этих полях будут потеряны. Это действие нельзя отменить.',
+      okText: 'Удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await embedStore.deleteEmbed(embedId);
+          await pathStore.loadPaths(blueprintId);
+          message.success('Встраивание удалено');
+        } catch (error) {
+          handleBlueprintNodeError(error);
+        }
+      },
+    });
   };
 
   const handleAddRootNode = () => {
@@ -237,26 +261,35 @@ export const BlueprintSchemaPage = observer(() => {
       </div>
 
       <div className="p-6">
-        <Card className="mt-4">
-          <GraphControls
-            onCenter={handleCenter}
-            onAutoLayout={handleAutoLayout}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onResetZoom={handleResetZoom}
-          />
-          <div className="h-[600px]">
-            <PathGraphEditor
-              store={pathStore}
-              onNodeSelect={handleNodeSelect}
-              onNodeDoubleClick={handleNodeDoubleClick}
-              onNodeContextMenu={handleNodeContextMenu}
-              onPaneContextMenu={handlePaneContextMenu}
-              highlightedNodes={selectedPathId ? [selectedPathId] : []}
-              reactFlowInstanceRef={reactFlowInstanceRef}
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card className="mt-4">
+              <GraphControls
+                onCenter={handleCenter}
+                onAutoLayout={handleAutoLayout}
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+                onResetZoom={handleResetZoom}
+              />
+              <div className="h-[600px]">
+                <PathGraphEditor
+                  store={pathStore}
+                  onNodeSelect={handleNodeSelect}
+                  onNodeDoubleClick={handleNodeDoubleClick}
+                  onNodeContextMenu={handleNodeContextMenu}
+                  onPaneContextMenu={handlePaneContextMenu}
+                  highlightedNodes={selectedPathId ? [selectedPathId] : []}
+                  reactFlowInstanceRef={reactFlowInstanceRef}
+                />
+              </div>
+            </Card>
           </div>
-        </Card>
+          <div>
+            <Card className="mt-4" title="Встраивания">
+              <EmbedList store={embedStore} onUnembed={handleDeleteEmbed} />
+            </Card>
+          </div>
+        </div>
         <NodeFormModal
           open={nodeFormOpen}
           onCancel={() => {

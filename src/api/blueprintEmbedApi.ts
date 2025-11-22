@@ -3,7 +3,7 @@ import { zBlueprintEmbed } from '@/types/blueprintEmbed';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
 import { z } from 'zod';
 
-const getAdminEmbedsUrl = (path: string): string => `/api/admin/v1/embeds${path}`;
+const getAdminEmbedsUrl = (path: string): string => `/api/v1/admin/embeds${path}`;
 const getAdminBlueprintsEmbedsUrl = (blueprintId: number, path: string): string =>
   `/api/v1/admin/blueprints/${blueprintId}/embeds${path}`;
 
