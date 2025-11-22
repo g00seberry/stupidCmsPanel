@@ -10,6 +10,8 @@ import {
   zEmbeddableBlueprints,
 } from '@/types/blueprint';
 import type { ZBlueprint, ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
+import { zBlueprintSchema } from '@/types/blueprintSchema';
+import type { ZBlueprintSchema } from '@/types/blueprintSchema';
 import { z } from 'zod';
 
 const getAdminBlueprintsUrl = (path: string): string => `/api/v1/admin/blueprints${path}`;
@@ -173,4 +175,19 @@ export const getEmbeddableBlueprints = async (
 ): Promise<z.infer<typeof zEmbeddableBlueprints>> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}/embeddable`));
   return zEmbeddableBlueprints.parse(response.data);
+};
+
+/**
+ * Получить JSON схему Blueprint.
+ * Возвращает готовую JSON схему структуры данных Blueprint из paths.
+ * @param id Идентификатор Blueprint.
+ * @returns JSON схема Blueprint с иерархической структурой полей.
+ * @example
+ * const schema = await getBlueprintSchema(1);
+ * console.log(schema.schema.title.type); // 'string'
+ * console.log(schema.schema.author.children?.name.type); // 'string'
+ */
+export const getBlueprintSchema = async (id: number): Promise<ZBlueprintSchema> => {
+  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/schema`));
+  return zBlueprintSchema.parse(response.data);
 };

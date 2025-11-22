@@ -1,4 +1,4 @@
-import type { ZDataType } from '@/types/path';
+import type { ZDataType, ZValidationRule } from '@/types/path';
 
 /**
  * Узел поля формы.
@@ -24,7 +24,7 @@ export interface FieldNode {
   /** Текст подсказки для поля. */
   helpText?: string;
   /** Правила валидации поля. */
-  validationRules?: Array<{ type: string; [key: string]: unknown }>;
+  validationRules?: ZValidationRule[];
   /** Порядок сортировки поля среди полей одного уровня. */
   sortOrder: number;
   /** Дочерние поля (для полей типа json). Опциональны для всех типов. */

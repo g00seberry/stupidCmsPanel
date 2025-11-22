@@ -231,6 +231,10 @@ export const zEmbeddableBlueprints = z.object({
  */
 export type ZEmbeddableBlueprints = z.infer<typeof zEmbeddableBlueprints>;
 
+// Реэкспорт типов и схем JSON схемы Blueprint для обратной совместимости
+export type { ZBlueprintSchema, ZBlueprintSchemaField } from './blueprintSchema';
+export { zBlueprintSchema } from './blueprintSchema';
+
 /**
  * Схема валидации ошибки API.
  * Используется для обработки ошибок валидации и других ошибок от бэкенда.

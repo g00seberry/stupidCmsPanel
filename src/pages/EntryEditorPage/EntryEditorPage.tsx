@@ -208,11 +208,11 @@ const Inner = observer(({ store }: PropsInner) => {
               </div>
             </div>
 
-            {store.paths.length > 0 && (
+            {store.blueprintId && (
               <Card className="p-6 mt-6">
                 <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
                 <BlueprintForm
-                  paths={store.paths}
+                  blueprintId={store.blueprintId}
                   fieldNamePrefix={['content_json']}
                   readonly={store.pending || store.loading}
                   store={blueprintFormStore}

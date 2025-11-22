@@ -3,8 +3,7 @@ import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import { onError } from '@/utils/onError';
 import type { FieldNode } from './types/formField';
-import { buildZodSchemaFromPaths } from './utils/buildZodSchemaFromPaths';
-import type { z } from 'zod';
+import { buildFormSchema } from './utils/buildFormSchema';
 import type { ReferenceQuery, ReferenceOption } from './SchemaFormStore.types';
 
 /**
@@ -43,11 +42,30 @@ export class SchemaFormStore {
   /** Время жизни кэша в миллисекундах (5 минут). */
   private readonly CACHE_TTL = 5 * 60 * 1000;
 
-  /** Zod-схема валидации формы. */
-  schema: z.ZodObject<Record<string, z.ZodTypeAny>> | null = null;
+  /** Узлы полей формы. */
+  fieldNodes: FieldNode[] = [];
+
+  /** Флаг загрузки схемы. */
+  loading = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  /**
+   * Устанавливает флаг загрузки схемы.
+   * @param value Новое значение флага.
+   */
+  setLoading(value: boolean): void {
+    this.loading = value;
+  }
+
+  /**
+   * Устанавливает узлы полей формы.
+   * @param nodes Массив узлов полей формы.
+   */
+  setFieldNodes(nodes: FieldNode[]): void {
+    this.fieldNodes = nodes;
   }
 
   /**
@@ -215,13 +233,21 @@ export class SchemaFormStore {
   }
 
   /**
-   * Генерирует Zod-схему валидации на основе FieldNode[].
-   * @param fieldNodes Массив узлов полей формы.
+   * Загружает схему Blueprint из API и преобразует в FieldNode[].
+   * @param blueprintId Идентификатор Blueprint.
    */
-  buildSchema(fieldNodes: FieldNode[]): void {
-    runInAction(() => {
-      this.schema = buildZodSchemaFromPaths(fieldNodes);
-    });
+  async loadSchema(blueprintId: number): Promise<void> {
+    this.setLoading(true);
+
+    try {
+      const nodes = await buildFormSchema(blueprintId);
+      this.setFieldNodes(nodes);
+      this.setLoading(false);
+    } catch (error) {
+      this.setFieldNodes([]);
+      this.setLoading(false);
+      onError(error);
+    }
   }
 
   /**
@@ -235,6 +261,9 @@ export class SchemaFormStore {
     }
     this.searchTimeouts.clear();
     this.referenceStates.clear();
+    // Сбрасываем состояние схемы
+    this.setFieldNodes([]);
+    this.setLoading(false);
     // Кэш можно оставить, так как он может быть полезен при повторном использовании
   }
 }
