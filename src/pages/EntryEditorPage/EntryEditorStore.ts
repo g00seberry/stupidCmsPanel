@@ -5,6 +5,7 @@ import { listPaths } from '@/api/pathApi';
 import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
 // import { type BlueprintFormValues } from '@/components/blueprintForm';
 import { notificationService } from '@/services/notificationService';
+import { FormModel } from '@/stores/FormModel';
 import type { ZId } from '@/types/ZId';
 import type { ZEntry, ZEntryPayload } from '@/types/entries';
 import type { ZPath } from '@/types/path';
@@ -12,6 +13,7 @@ import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
 import { serverDate, viewDate } from '@/utils/dateUtils';
 import { onError } from '@/utils/onError';
+import { createFormModelFromBlueprintSchema } from '@/utils/schemaFormAdapter';
 import type { Dayjs } from 'dayjs';
 import { makeAutoObservable } from 'mobx';
 
@@ -79,6 +81,10 @@ export class EntryEditorStore {
   loadingPaths = false;
   /** Blueprint из Entry (если есть). */
   blueprintId: number | null = null;
+  /** Модель формы для Blueprint данных. */
+  blueprintModel: FormModel<any> | null = null;
+  /** Флаг загрузки Blueprint формы. */
+  blueprintLoading = false;
 
   get isEditMode(): boolean {
     return this.entryId !== idNew;
@@ -141,6 +147,47 @@ export class EntryEditorStore {
    */
   setBlueprintId(value: number | null): void {
     this.blueprintId = value;
+    // При изменении blueprintId инициализируем форму
+    void this.initBlueprintForm();
+  }
+
+  /**
+   * Устанавливает модель формы Blueprint.
+   * @param model Модель формы или null.
+   */
+  setBlueprintModel(model: FormModel<any> | null): void {
+    this.blueprintModel = model;
+  }
+
+  /**
+   * Устанавливает флаг загрузки Blueprint формы.
+   * @param value Новое значение флага.
+   */
+  setBlueprintLoading(value: boolean): void {
+    this.blueprintLoading = value;
+  }
+
+  /**
+   * Инициализирует FormModel для Blueprint данных.
+   * Загружает схему Blueprint и создаёт модель формы с начальными значениями из Entry.
+   */
+  async initBlueprintForm(): Promise<void> {
+    if (!this.blueprintId) {
+      this.setBlueprintModel(null);
+      return;
+    }
+
+    this.setBlueprintLoading(true);
+    try {
+      const initialValues: any = this.initialFormValues.content_json;
+      const model = await createFormModelFromBlueprintSchema(this.blueprintId, initialValues);
+      this.setBlueprintModel(model);
+    } catch (error) {
+      onError(error);
+      this.setBlueprintModel(null);
+    } finally {
+      this.setBlueprintLoading(false);
+    }
   }
 
   /**
@@ -199,9 +246,17 @@ export class EntryEditorStore {
         // Создаём стор для управления термами
         this.termsManagerStore = new EntryTermsManagerStore(this.entryId);
         await this.termsManagerStore.initialize(termIds);
+        // Инициализируем Blueprint форму после загрузки Entry
+        if (this.blueprintId) {
+          await this.initBlueprintForm();
+        }
       } else {
         // При создании используем blueprint_id из PostType
         await this.loadPaths();
+        // Инициализируем Blueprint форму при создании
+        if (this.blueprintId) {
+          await this.initBlueprintForm();
+        }
       }
 
       this.setTemplates(await getTemplates());

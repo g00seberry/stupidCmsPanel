@@ -1,18 +1,13 @@
 import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsManager';
 import { SchemaForm } from '@/components/schemaForm/SchemaForm';
 import { SlugInput } from '@/components/SlugInput';
-import { getEntry } from '@/api/apiEntries';
-import { getBlueprintSchema } from '@/api/blueprintApi';
 import { buildUrl, PageUrl } from '@/PageUrl';
+import { handleFormSubmit } from '@/utils/formSubmitHandler';
 import { Card, DatePicker, Form, Input, Select, Spin, Switch } from 'antd';
 import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FormModel } from '@/stores/FormModel';
-import { createFormModelFromBlueprintSchema } from '@/utils/schemaFormAdapter';
-import { initializeFormFromEntry } from '@/utils/formInitialization';
-import { handleFormSubmit } from '@/utils/formSubmitHandler';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore, type FormValues } from './EntryEditorStore';
 
@@ -41,40 +36,6 @@ const Inner = observer(({ store }: PropsInner) => {
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
   const { postTypeSlug, entryId } = store;
-  const [blueprintModel, setBlueprintModel] = useState<FormModel<any> | null>(null);
-  const [blueprintLoading, setBlueprintLoading] = useState(false);
-
-  // Инициализация FormModel для Blueprint данных
-  useEffect(() => {
-    const initBlueprintForm = async () => {
-      if (!store.blueprintId) {
-        setBlueprintModel(null);
-        return;
-      }
-
-      setBlueprintLoading(true);
-      try {
-        let initialValues: any = undefined;
-
-        // Если режим редактирования, загружаем данные из Entry
-        if (isEditMode && entryId) {
-          const entry = await getEntry(entryId);
-          const blueprintSchema = await getBlueprintSchema(store.blueprintId);
-          initialValues = initializeFormFromEntry(entry, blueprintSchema);
-        }
-
-        const model = await createFormModelFromBlueprintSchema(store.blueprintId, initialValues);
-        setBlueprintModel(model);
-      } catch (error) {
-        console.error('Ошибка инициализации Blueprint формы:', error);
-        setBlueprintModel(null);
-      } finally {
-        setBlueprintLoading(false);
-      }
-    };
-
-    void initBlueprintForm();
-  }, [store.blueprintId, isEditMode, entryId]);
 
   useEffect(() => {
     form.setFieldsValue(store.initialFormValues);
@@ -85,8 +46,8 @@ const Inner = observer(({ store }: PropsInner) => {
       // Валидируем и получаем данные Blueprint формы, если она есть
       let blueprintData: Record<string, any> | undefined = undefined;
 
-      if (blueprintModel) {
-        const result = await handleFormSubmit(blueprintModel);
+      if (store.blueprintModel) {
+        const result = await handleFormSubmit(store.blueprintModel);
         if (!result.success) {
           // Ошибки валидации Blueprint формы - не сохраняем
           return;
@@ -94,7 +55,6 @@ const Inner = observer(({ store }: PropsInner) => {
         blueprintData = result.values;
       }
 
-      console.log(blueprintData);
       // Объединяем данные основной формы с данными Blueprint
       const finalValues: FormValues = {
         ...values,
@@ -110,7 +70,7 @@ const Inner = observer(({ store }: PropsInner) => {
         navigate(url, { replace: !isEditMode });
       }
     },
-    [isEditMode, navigate, postTypeSlug, entryId, store, blueprintModel]
+    [isEditMode, navigate, postTypeSlug, entryId, store]
   );
 
   const handleCancel = useCallback(() => {
@@ -265,17 +225,17 @@ const Inner = observer(({ store }: PropsInner) => {
           </Form>
         )}
 
-        {!store.loading && store.blueprintId && blueprintModel && (
+        {!store.loading && store.blueprintId && store.blueprintModel && (
           <Card className="p-6 mt-6">
             <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
-            {blueprintLoading ? (
+            {store.blueprintLoading ? (
               <div className="flex justify-center py-8">
                 <Spin />
               </div>
             ) : (
               <SchemaForm
-                model={blueprintModel}
-                schema={blueprintModel.schema}
+                model={store.blueprintModel}
+                schema={store.blueprintModel.schema}
                 readonly={store.pending || store.loading}
               />
             )}
