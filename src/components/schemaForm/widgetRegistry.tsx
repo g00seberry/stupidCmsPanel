@@ -2,6 +2,8 @@ import { DatePicker, Input, InputNumber, Switch } from 'antd';
 import type React from 'react';
 import type { FieldSchema } from '@/types/schemaForm';
 import type { PathSegment } from '@/utils/pathUtils';
+import { viewDate } from '@/utils/dateUtils';
+import type { Dayjs } from 'dayjs';
 import { PriceWidget } from './widgets/PriceWidget';
 import { RefFieldWidget } from './widgets/RefFieldWidget';
 import { TitleWidget } from './widgets/TitleWidget';
@@ -97,29 +99,39 @@ export const defaultRenderers: Record<string, FieldRenderer> = {
   ),
 
   /** Рендерер для полей даты. */
-  date: ({ schema, value, onChange, disabled, readOnly }) => (
-    <DatePicker
-      value={value}
-      onChange={onChange}
-      style={{ width: '100%' }}
-      placeholder={schema.placeholder}
-      disabled={disabled || readOnly}
-      {...schema.uiProps}
-    />
-  ),
+  date: ({ schema, value, onChange, disabled, readOnly }) => {
+    // Преобразуем строку в dayjs объект, если значение - строка
+    const dayjsValue: Dayjs | null =
+      typeof value === 'string' ? viewDate(value) : value ?? null;
+    return (
+      <DatePicker
+        value={dayjsValue}
+        onChange={onChange}
+        style={{ width: '100%' }}
+        placeholder={schema.placeholder}
+        disabled={disabled || readOnly}
+        {...schema.uiProps}
+      />
+    );
+  },
 
   /** Рендерер для полей даты и времени. */
-  datetime: ({ schema, value, onChange, disabled, readOnly }) => (
-    <DatePicker
-      value={value}
-      onChange={onChange}
-      showTime
-      style={{ width: '100%' }}
-      placeholder={schema.placeholder}
-      disabled={disabled || readOnly}
-      {...schema.uiProps}
-    />
-  ),
+  datetime: ({ schema, value, onChange, disabled, readOnly }) => {
+    // Преобразуем строку в dayjs объект, если значение - строка
+    const dayjsValue: Dayjs | null =
+      typeof value === 'string' ? viewDate(value) : value ?? null;
+    return (
+      <DatePicker
+        value={dayjsValue}
+        onChange={onChange}
+        showTime
+        style={{ width: '100%' }}
+        placeholder={schema.placeholder}
+        disabled={disabled || readOnly}
+        {...schema.uiProps}
+      />
+    );
+  },
 
   /** Рендерер для ссылочных полей (Select с загрузкой данных). */
   ref: props => <RefFieldWidget {...props} />,
