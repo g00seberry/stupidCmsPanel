@@ -8,7 +8,7 @@ import type { FieldRendererProps } from '../widgetRegistry';
 /**
  * Виджет для ссылочных полей (ref).
  * Рендерит Select с загрузкой данных из API.
- * Поддерживает поиск с debounce и кастомизацию через uiProps.
+ * Поддерживает поиск с debounce.
  * @param props Пропсы рендерера поля.
  * @returns Компонент Select для выбора ссылки.
  */
@@ -29,10 +29,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
     const loadData = async () => {
       setLoading(true);
       try {
-        // Базовый запрос - можно расширить через uiProps
-        const params = schema.uiProps?.post_type
-          ? { post_type: schema.uiProps.post_type as string, per_page: 100 }
-          : { per_page: 100 };
+        const params = { per_page: 100 };
 
         const result = await listEntries(params);
         const entries = result.data.map((entry: ZEntry) => ({
@@ -48,7 +45,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
     };
 
     void loadData();
-  }, [schema.uiProps?.post_type]);
+  }, []);
 
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -66,10 +63,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
       const loadDefault = async () => {
         setLoading(true);
         try {
-          const params: any = { per_page: 100 };
-          if (schema.uiProps?.post_type) {
-            params.post_type = schema.uiProps.post_type;
-          }
+          const params = { per_page: 100 };
 
           const result = await listEntries(params);
           const entries = result.data.map((entry: ZEntry) => ({
@@ -91,10 +85,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
     searchTimeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const params: any = { per_page: 100, q: value };
-        if (schema.uiProps?.post_type) {
-          params.post_type = schema.uiProps.post_type;
-        }
+        const params = { per_page: 100, q: value };
 
         const result = await listEntries(params);
         const entries = result.data.map((entry: ZEntry) => ({
@@ -124,14 +115,12 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
       value={value}
       onChange={onChange}
       showSearch
-      placeholder={schema.placeholder}
       loading={loading}
       options={options}
       filterOption={false}
       onSearch={handleSearch}
       style={{ width: '100%' }}
       disabled={disabled || readOnly}
-      {...schema.uiProps}
     />
   );
 };

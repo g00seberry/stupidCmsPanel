@@ -22,7 +22,6 @@ export interface PropsSchemaForm<E extends EntitySchema> {
  * Компонент формы на основе схемы сущности.
  * Рендерит форму напрямую через контролируемые компоненты, синхронизированные с FormModel на MobX.
  * Поддерживает примитивные поля и json поля с cardinality 'one' и 'many'.
- * Поддерживает группировку полей через поле `group` в FieldSchema.
  * Поддерживает режим только для чтения через проп `readonly`.
  * Все изменения сразу обновляют FormModel.values.
  * @template E Схема сущности.
@@ -84,7 +83,7 @@ export const SchemaForm = observer(
         // Json поле с cardinality: 'one'
         if (field.cardinality === 'one') {
           return (
-            <Card key={pathStr} title={field.label ?? key} style={{ marginBottom: 16 }}>
+            <Card key={pathStr} title={key} style={{ marginBottom: 16 }}>
               {field.children &&
                 Object.entries(field.children).map(([childKey, childField]) =>
                   renderField(childKey, childField, namePath, isReadonly)
@@ -98,7 +97,7 @@ export const SchemaForm = observer(
         return (
           <Card
             key={pathStr}
-            title={field.label ?? key}
+            title={key}
             extra={
               !isReadonly ? (
                 <Button onClick={() => handleAddArrayItem(namePath, {})}>Добавить</Button>
@@ -150,9 +149,7 @@ export const SchemaForm = observer(
 
         return (
           <div key={pathStr} style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-              {field.label ?? key}
-            </label>
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>{key}</label>
             {widgetElement}
             {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
           </div>
@@ -164,7 +161,7 @@ export const SchemaForm = observer(
       return (
         <Card
           key={pathStr}
-          title={field.label ?? key}
+          title={key}
           extra={
             !isReadonly ? (
               <Button onClick={() => handleAddArrayItem(namePath, undefined)}>Добавить</Button>
@@ -207,33 +204,8 @@ export const SchemaForm = observer(
       );
     };
 
-    // Группируем поля по group
-    const groupedFields = new Map<string, Array<[string, FieldSchema]>>();
-    const ungroupedFields: Array<[string, FieldSchema]> = [];
-
-    for (const [key, field] of Object.entries(schema.schema)) {
-      if (field.group) {
-        if (!groupedFields.has(field.group)) {
-          groupedFields.set(field.group, []);
-        }
-        groupedFields.get(field.group)!.push([key, field]);
-      } else {
-        ungroupedFields.push([key, field]);
-      }
-    }
-
     return (
-      <div>
-        {/* Поля без группы */}
-        {ungroupedFields.map(([key, field]) => renderField(key, field))}
-
-        {/* Группированные поля */}
-        {Array.from(groupedFields.entries()).map(([groupName, fields]) => (
-          <Card key={groupName} title={groupName} style={{ marginBottom: 16 }}>
-            {fields.map(([key, field]) => renderField(key, field))}
-          </Card>
-        ))}
-      </div>
+      <div>{Object.entries(schema.schema).map(([key, field]) => renderField(key, field))}</div>
     );
   }
 ) as <E extends EntitySchema>(props: PropsSchemaForm<E>) => React.ReactElement;

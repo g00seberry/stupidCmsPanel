@@ -3,26 +3,6 @@ import type { ZValidationRule, ZValidationRuleObject } from '@/types/path';
 import type { EntitySchema, FieldSchema, ValidationSpec } from '@/types/schemaForm';
 
 /**
- * Преобразует имя поля в отображаемую метку.
- * Конвертирует snake_case и camelCase в читаемый формат.
- * @param fieldName Имя поля (например, "author_name" или "authorName").
- * @returns Человекочитаемая метка поля.
- * @example
- * getLabelFromFieldName('author_name')
- * // 'Author Name'
- * getLabelFromFieldName('authorName')
- * // 'Author Name'
- */
-const getLabelFromFieldName = (fieldName: string): string => {
-  return fieldName
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase -> camel Case
-    .replace(/[_-]/g, ' ') // snake_case и kebab-case -> пробелы
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-};
-
-/**
  * Преобразует строковое правило валидации в ValidationSpec.
  * Поддерживает формат "type:value" (старый формат).
  * @param rule Строковое правило валидации.
@@ -157,7 +137,7 @@ const convertValidationRules = (rules: ZValidationRule[]): ValidationSpec[] => {
 /**
  * Преобразует поле схемы Blueprint в FieldSchema.
  * Рекурсивно обрабатывает вложенные поля для типа json.
- * @param fieldName Имя поля.
+ * @param _fieldName Имя поля (не используется, но передается для совместимости).
  * @param field Поле схемы Blueprint из API.
  * @returns FieldSchema для формы.
  * @example
@@ -169,25 +149,17 @@ const convertValidationRules = (rules: ZValidationRule[]): ValidationSpec[] => {
  *   validation: []
  * });
  */
-const convertSchemaField = (
-  fieldName: string,
-  field: ZBlueprintSchemaField
-): FieldSchema => {
+const convertSchemaField = (_fieldName: string, field: ZBlueprintSchemaField): FieldSchema => {
   const fieldSchema: FieldSchema = {
     type: field.type,
     required: field.required,
     indexed: field.indexed,
     cardinality: field.cardinality,
     validation: convertValidationRules(field.validation),
-    label: getLabelFromFieldName(fieldName),
-    // UI-метаданные: если в будущем API будет предоставлять эти поля,
-    // их можно будет добавить здесь. Пока генерируем только label.
-    // placeholder, uiWidget, uiProps, group - опциональные поля,
-    // которые можно установить программно после конвертации или через расширение схемы.
   };
 
   // Для json полей рекурсивно обрабатываем children
-  if (field.type === 'json' && field.children) {
+  if (field.children) {
     const children: Record<string, FieldSchema> = {};
     for (const [childName, childField] of Object.entries(field.children)) {
       children[childName] = convertSchemaField(childName, childField);
@@ -221,4 +193,3 @@ export const convertBlueprintSchemaToEntitySchema = (
     schema,
   };
 };
-

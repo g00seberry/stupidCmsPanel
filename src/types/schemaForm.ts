@@ -39,16 +39,14 @@ export interface ValidationSpec {
 
 /**
  * Схема поля в форме.
- * Описывает структуру, валидацию и UI-метаданные одного поля формы.
+ * Описывает структуру и валидацию одного поля формы.
  * @example
  * const fieldSchema: FieldSchema = {
  *   type: 'string',
  *   required: true,
  *   indexed: true,
  *   cardinality: 'one',
- *   validation: [],
- *   label: 'Название',
- *   placeholder: 'Введите название'
+ *   validation: []
  * };
  */
 export interface FieldSchema {
@@ -64,18 +62,6 @@ export interface FieldSchema {
   validation: ValidationSpec[];
   /** Вложенные поля (только для типа json). */
   children?: Record<string, FieldSchema>;
-
-  // UI-метаданные (необязательные, но полезные):
-  /** Отображаемое название поля. Если не указано, генерируется из имени поля. */
-  label?: string;
-  /** Placeholder для полей ввода. */
-  placeholder?: string;
-  /** Ключ виджета в реестре для кастомного рендеринга поля. */
-  uiWidget?: string;
-  /** Дополнительные пропсы для виджета поля. */
-  uiProps?: Record<string, any>;
-  /** Логическая группа/секция для группировки полей в UI. */
-  group?: string;
 }
 
 /**
@@ -89,8 +75,7 @@ export interface FieldSchema {
  *       required: true,
  *       indexed: true,
  *       cardinality: 'one',
- *       validation: [],
- *       label: 'Название'
+ *       validation: []
  *     },
  *     author: {
  *       type: 'json',
@@ -184,4 +169,3 @@ export type InferFormValues<S extends Record<string, FieldSchema>> = {
  * // { title: string; price: number }
  */
 export type FormValues<E extends EntitySchema> = InferFormValues<E['schema']>;
-

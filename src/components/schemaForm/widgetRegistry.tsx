@@ -4,9 +4,7 @@ import type { FieldSchema } from '@/types/schemaForm';
 import type { PathSegment } from '@/utils/pathUtils';
 import { viewDate } from '@/utils/dateUtils';
 import type { Dayjs } from 'dayjs';
-import { PriceWidget } from './widgets/PriceWidget';
 import { RefFieldWidget } from './widgets/RefFieldWidget';
-import { TitleWidget } from './widgets/TitleWidget';
 
 /**
  * Пропсы для рендерера поля формы.
@@ -38,97 +36,78 @@ export type FieldRenderer = (props: FieldRendererProps) => React.ReactNode;
  */
 export const defaultRenderers: Record<string, FieldRenderer> = {
   /** Рендерер для строковых полей. */
-  string: ({ schema, value, onChange, disabled, readOnly }) => (
+  string: ({ value, onChange, disabled, readOnly }) => (
     <Input
       value={value}
       onChange={e => onChange?.(e.target.value)}
-      placeholder={schema.placeholder}
       disabled={disabled}
       readOnly={readOnly}
-      {...schema.uiProps}
     />
   ),
 
   /** Рендерер для текстовых полей (многострочный текст). */
-  text: ({ schema, value, onChange, disabled, readOnly }) => (
+  text: ({ value, onChange, disabled, readOnly }) => (
     <Input.TextArea
       value={value}
       onChange={e => onChange?.(e.target.value)}
       autoSize
-      placeholder={schema.placeholder}
       disabled={disabled}
       readOnly={readOnly}
-      {...schema.uiProps}
     />
   ),
 
   /** Рендерер для целочисленных полей. */
-  int: ({ schema, value, onChange, disabled, readOnly }) => (
+  int: ({ value, onChange, disabled, readOnly }) => (
     <InputNumber
       value={value}
       onChange={onChange}
       style={{ width: '100%' }}
-      placeholder={schema.placeholder}
       disabled={disabled}
       readOnly={readOnly}
-      {...schema.uiProps}
     />
   ),
 
   /** Рендерер для чисел с плавающей точкой. */
-  float: ({ schema, value, onChange, disabled, readOnly }) => (
+  float: ({ value, onChange, disabled, readOnly }) => (
     <InputNumber
       value={value}
       onChange={onChange}
       style={{ width: '100%' }}
-      placeholder={schema.placeholder}
       disabled={disabled}
       readOnly={readOnly}
-      {...schema.uiProps}
     />
   ),
 
   /** Рендерер для булевых полей. */
-  bool: ({ schema, value, onChange, disabled, readOnly }) => (
-    <Switch
-      checked={value}
-      onChange={onChange}
-      disabled={disabled || readOnly}
-      {...schema.uiProps}
-    />
+  bool: ({ value, onChange, disabled, readOnly }) => (
+    <Switch checked={value} onChange={onChange} disabled={disabled || readOnly} />
   ),
 
   /** Рендерер для полей даты. */
-  date: ({ schema, value, onChange, disabled, readOnly }) => {
+  date: ({ value, onChange, disabled, readOnly }) => {
     // Преобразуем строку в dayjs объект, если значение - строка
-    const dayjsValue: Dayjs | null =
-      typeof value === 'string' ? viewDate(value) : value ?? null;
+    const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
     return (
       <DatePicker
         value={dayjsValue}
         onChange={onChange}
         style={{ width: '100%' }}
-        placeholder={schema.placeholder}
         disabled={disabled || readOnly}
-        {...schema.uiProps}
       />
     );
   },
 
   /** Рендерер для полей даты и времени. */
-  datetime: ({ schema, value, onChange, disabled, readOnly }) => {
+  datetime: ({ value, onChange, disabled, readOnly }) => {
     // Преобразуем строку в dayjs объект, если значение - строка
-    const dayjsValue: Dayjs | null =
-      typeof value === 'string' ? viewDate(value) : value ?? null;
+    const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
     return (
       <DatePicker
         value={dayjsValue}
         onChange={onChange}
         showTime
         style={{ width: '100%' }}
-        placeholder={schema.placeholder}
         disabled={disabled || readOnly}
-        {...schema.uiProps}
       />
     );
   },
@@ -142,17 +121,17 @@ export const defaultRenderers: Record<string, FieldRenderer> = {
 
 /**
  * Реестр кастомных виджетов.
- * Хранит виджеты по ключам для использования через uiWidget в FieldSchema.
+ * Хранит виджеты по ключам для использования в системе виджетов.
  */
 const widgetRegistry: Map<string, FieldRenderer> = new Map();
 
 /**
  * Регистрирует кастомный виджет в реестре.
- * @param key Ключ виджета (должен совпадать с uiWidget в FieldSchema).
+ * @param key Ключ виджета.
  * @param renderer Функция рендерера виджета.
  * @example
  * registerWidget('title', ({ schema }) => (
- *   <Input maxLength={200} placeholder={schema.placeholder} />
+ *   <Input maxLength={200} />
  * ));
  */
 export const registerWidget = (key: string, renderer: FieldRenderer): void => {
@@ -170,7 +149,7 @@ export const getWidget = (key: string): FieldRenderer | undefined => {
 
 /**
  * Получает рендерер для поля на основе его схемы.
- * Приоритет: uiWidget → defaultRenderers[type] → fallback (Input).
+ * Использует виджет по умолчанию для типа поля или fallback (Input).
  * @param schema Схема поля.
  * @returns Функция рендерера для поля.
  * @example
@@ -178,33 +157,19 @@ export const getWidget = (key: string): FieldRenderer | undefined => {
  * const component = renderer({ schema: fieldSchema, namePath: ['title'] });
  */
 export const getFieldRenderer = (schema: FieldSchema): FieldRenderer => {
-  // Если указан кастомный виджет, используем его
-  if (schema.uiWidget) {
-    const customWidget = getWidget(schema.uiWidget);
-    if (customWidget) {
-      return customWidget;
-    }
-  }
-
-  // Иначе используем виджет по умолчанию для типа поля
+  // Используем виджет по умолчанию для типа поля
   const defaultRenderer = defaultRenderers[schema.type];
   if (defaultRenderer) {
     return defaultRenderer;
   }
 
   // Fallback - обычный Input
-  return ({ schema: fallbackSchema, value, onChange, disabled, readOnly }) => (
+  return ({ value, onChange, disabled, readOnly }) => (
     <Input
       value={value}
       onChange={e => onChange?.(e.target.value)}
-      placeholder={fallbackSchema.placeholder}
       disabled={disabled}
       readOnly={readOnly}
-      {...fallbackSchema.uiProps}
     />
   );
 };
-
-// Регистрируем кастомные виджеты по умолчанию
-registerWidget('title', props => <TitleWidget {...props} />);
-registerWidget('price', props => <PriceWidget {...props} />);
