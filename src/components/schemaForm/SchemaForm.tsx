@@ -1,8 +1,7 @@
 import { Button, Card, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import type { EntitySchema } from '@/components/schemaForm/FormValues';
-import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/components/schemaForm/FormModel';
 import { getFieldRenderer } from './widgetRegistry';
 import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
@@ -10,7 +9,7 @@ import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtil
 /**
  * Пропсы компонента SchemaForm.
  */
-export interface PropsSchemaForm<E extends EntitySchema> {
+export interface PropsSchemaForm<E extends ZBlueprintSchema> {
   /** Модель формы на MobX для управления состоянием. */
   model: FormModel<E>;
   /** Схема сущности для формы. */
@@ -31,7 +30,7 @@ export interface PropsSchemaForm<E extends EntitySchema> {
  * <SchemaForm model={model} schema={schema} readonly={false} />
  */
 export const SchemaForm = observer(
-  <E extends EntitySchema>({ model, schema, readonly = false }: PropsSchemaForm<E>) => {
+  <E extends ZBlueprintSchema>({ model, schema, readonly = false }: PropsSchemaForm<E>) => {
     /**
      * Обработчик изменения значения поля.
      * Обновляет значение в FormModel по указанному пути.
@@ -209,4 +208,4 @@ export const SchemaForm = observer(
       <div>{Object.entries(schema.schema).map(([key, field]) => renderField(key, field))}</div>
     );
   }
-) as <E extends EntitySchema>(props: PropsSchemaForm<E>) => React.ReactElement;
+) as <E extends ZBlueprintSchema>(props: PropsSchemaForm<E>) => React.ReactElement;
