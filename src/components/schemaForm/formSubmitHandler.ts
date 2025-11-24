@@ -5,7 +5,7 @@ import type { FormValues } from '@/components/schemaForm/FormValues';
 /**
  * Результат обработки сабмита формы.
  */
-export interface FormSubmitResult<E extends ZBlueprintSchema> {
+export interface FormSubmitResult {
   /** `true`, если валидация прошла успешно. */
   success: boolean;
   /** Значения формы (только если success === true). */
@@ -30,9 +30,9 @@ export interface FormSubmitResult<E extends ZBlueprintSchema> {
  *   }
  * };
  */
-export const handleFormSubmit = async <E extends ZBlueprintSchema>(
-  model: FormModel<E>
-): Promise<FormSubmitResult<E>> => {
+export const handleFormSubmit = async (
+  model: FormModel<ZBlueprintSchema>
+): Promise<FormSubmitResult> => {
   // Выполняем валидацию через FormModel
   const isValid = model.validate();
 
