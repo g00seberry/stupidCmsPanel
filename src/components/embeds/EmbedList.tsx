@@ -1,4 +1,4 @@
-import { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
+import { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
 import { Button, List, Space, Tag } from 'antd';
 import { Eye, Unlink } from 'lucide-react';

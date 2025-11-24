@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { ZPath, ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { onError } from '@/utils/onError';
 import {
   listPaths,

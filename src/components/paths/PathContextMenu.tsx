@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import type { PathStore } from '@/stores/PathStore';
+import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
 import { findPathInTree } from '@/utils/pathUtils';
 
 /**
@@ -126,4 +126,3 @@ export const PathContextMenu: React.FC<PropsPathContextMenu> = ({
     </div>
   );
 };
-

@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Card, message, App } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactFlowInstance } from 'reactflow';
@@ -9,11 +9,12 @@ import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathContextMenu } from '@/components/paths/PathContextMenu';
 import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
 import { EmbedList } from '@/components/embeds/EmbedList';
-import { PathStore } from '@/stores/PathStore';
-import { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
+import { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
+import { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
+import { BlueprintSchemaPageStore } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPageStore';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { findPathInTree } from '@/utils/pathUtils';
 import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
 
 /**
@@ -23,18 +24,6 @@ import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
 export const BlueprintSchemaPage = observer(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [selectedPathId, setSelectedPathId] = useState<number | null>(null);
-  const [nodeFormOpen, setNodeFormOpen] = useState(false);
-  const [nodeFormMode, setNodeFormMode] = useState<'create' | 'edit' | 'embed'>('create');
-  const [nodeFormParentId, setNodeFormParentId] = useState<number | null>(null);
-  const [contextMenuNodeId, setContextMenuNodeId] = useState<number | null>(null);
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(
-    null
-  );
-  const [emptyAreaContextMenuPosition, setEmptyAreaContextMenuPosition] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
 
   const blueprintId = id ? Number(id) : null;
@@ -42,79 +31,56 @@ export const BlueprintSchemaPage = observer(() => {
 
   const pathStore = useMemo(() => new PathStore(), []);
   const embedStore = useMemo(() => new BlueprintEmbedStore(), []);
+  const pageStore = useMemo(
+    () => new BlueprintSchemaPageStore(pathStore, embedStore),
+    [pathStore, embedStore]
+  );
 
-  // Загрузка путей и встраиваний при монтировании
+  // Загрузка blueprint, путей, встраиваний и formConfig при монтировании
   useEffect(() => {
     if (blueprintId) {
       void pathStore.loadPaths(blueprintId);
       void embedStore.loadEmbeddable(blueprintId);
       void embedStore.loadEmbeds(blueprintId);
+      void pageStore.loadBlueprintData(blueprintId);
     }
-  }, [blueprintId, pathStore, embedStore]);
+  }, [blueprintId, pathStore, embedStore, pageStore]);
 
   const handleNodeSelect = (pathId: number) => {
-    setSelectedPathId(pathId);
+    pageStore.selectNode(pathId);
   };
 
   const handleNodeDoubleClick = (pathId: number) => {
-    setSelectedPathId(pathId);
-    setNodeFormMode('edit');
-    setNodeFormOpen(true);
+    pageStore.openEditForm(pathId);
   };
 
   const handleNodeContextMenu = (pathId: number, event: React.MouseEvent) => {
     event.preventDefault();
-    setSelectedPathId(pathId);
-    setContextMenuNodeId(pathId);
-    setContextMenuPosition({ x: event.clientX, y: event.clientY });
-    setEmptyAreaContextMenuPosition(null);
+    pageStore.handleNodeContextMenu(pathId, { x: event.clientX, y: event.clientY });
   };
 
   const handlePaneContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
-    setEmptyAreaContextMenuPosition({ x: event.clientX, y: event.clientY });
-    setContextMenuNodeId(null);
-    setContextMenuPosition(null);
-  };
-
-  const handleCloseContextMenu = () => {
-    setContextMenuNodeId(null);
-    setContextMenuPosition(null);
-  };
-
-  const handleCloseEmptyAreaContextMenu = () => {
-    setEmptyAreaContextMenuPosition(null);
+    pageStore.handlePaneContextMenu({ x: event.clientX, y: event.clientY });
   };
 
   const handleAddChildNode = (parentId: number) => {
-    const parentPath = findPathInTree(pathStore.paths, parentId);
-    if (parentPath && parentPath.data_type === 'json') {
-      setNodeFormMode('create');
-      setNodeFormParentId(parentId);
-      setNodeFormOpen(true);
-      handleCloseContextMenu();
-    } else {
+    if (!pageStore.openAddChildForm(parentId)) {
       message.warning('Дочерние узлы можно добавлять только к полям типа JSON');
     }
   };
 
   const handleEmbedBlueprint = (parentId: number) => {
-    const parentPath = findPathInTree(pathStore.paths, parentId);
-    if (parentPath && parentPath.data_type === 'json') {
-      setNodeFormMode('embed');
-      setNodeFormParentId(parentId);
-      setNodeFormOpen(true);
-      handleCloseContextMenu();
-    } else {
+    if (!pageStore.openEmbedForm(parentId)) {
       message.warning('Встраивание возможно только в поля типа JSON');
     }
   };
 
   const handleDeleteNode = async (pathId: number) => {
-    const path = findPathInTree(pathStore.paths, pathId);
+    const path = pageStore.getPathById(pathId);
     if (!path) return;
 
-    if (path.is_readonly) {
+    if (!pageStore.canDeleteNode(pathId)) {
       message.warning('Нельзя удалить readonly поле. Измените исходный Blueprint.');
       return;
     }
@@ -129,13 +95,13 @@ export const BlueprintSchemaPage = observer(() => {
         try {
           await pathStore.deletePath(pathId);
           message.success('Поле удалено');
-          setSelectedPathId(null);
+          pageStore.setSelectedPathId(null);
         } catch (error) {
           handleBlueprintNodeError(error);
         }
       },
     });
-    handleCloseContextMenu();
+    pageStore.closeContextMenu();
   };
 
   const handleDeleteEmbed = async (embedId: number) => {
@@ -161,48 +127,28 @@ export const BlueprintSchemaPage = observer(() => {
   };
 
   const handleAddRootNode = () => {
-    setNodeFormMode('create');
-    setNodeFormParentId(null);
-    setNodeFormOpen(true);
-    handleCloseEmptyAreaContextMenu();
+    pageStore.openAddRootForm();
   };
 
   const handleEmbedRootNode = () => {
-    setNodeFormMode('embed');
-    setNodeFormParentId(null);
-    setNodeFormOpen(true);
-    handleCloseEmptyAreaContextMenu();
+    pageStore.openEmbedForm(null);
   };
 
   const handleNodeSave = async (
-    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
+    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number },
+    formComponentConfig?: ZEditComponent
   ) => {
     if (!blueprintId) return;
 
     try {
-      if (nodeFormMode === 'embed') {
-        const embedDto = {
-          embedded_blueprint_id: (values as { embedded_blueprint_id: number })
-            .embedded_blueprint_id,
-          host_path_id: nodeFormParentId || undefined,
-        };
-        await embedStore.createEmbed(embedDto);
-        await pathStore.loadPaths(blueprintId);
+      await pageStore.saveNode(blueprintId, values, formComponentConfig);
+      if (pageStore.nodeFormMode === 'embed') {
         message.success('Blueprint встроен');
-      } else if (nodeFormMode === 'edit' && selectedPathId) {
-        await pathStore.updatePath(selectedPathId, values as ZUpdatePathDto);
+      } else if (pageStore.nodeFormMode === 'edit') {
         message.success('Поле обновлено');
       } else {
-        const createDto = {
-          ...(values as ZCreatePathDto),
-          parent_id: nodeFormParentId || null,
-        };
-        await pathStore.createPath(createDto);
         message.success('Поле создано');
       }
-      setNodeFormOpen(false);
-      setSelectedPathId(null);
-      setNodeFormParentId(null);
     } catch (error) {
       handleBlueprintNodeError(error);
     }
@@ -278,7 +224,7 @@ export const BlueprintSchemaPage = observer(() => {
                   onNodeDoubleClick={handleNodeDoubleClick}
                   onNodeContextMenu={handleNodeContextMenu}
                   onPaneContextMenu={handlePaneContextMenu}
-                  highlightedNodes={selectedPathId ? [selectedPathId] : []}
+                  highlightedNodes={pageStore.selectedPathId ? [pageStore.selectedPathId] : []}
                   reactFlowInstanceRef={reactFlowInstanceRef}
                 />
               </div>
@@ -291,51 +237,69 @@ export const BlueprintSchemaPage = observer(() => {
           </div>
         </div>
         <NodeFormModal
-          open={nodeFormOpen}
+          open={pageStore.nodeFormOpen}
           onCancel={() => {
-            setNodeFormOpen(false);
-            setSelectedPathId(null);
-            setNodeFormParentId(null);
+            pageStore.closeNodeForm();
           }}
           onOk={handleNodeSave}
-          mode={nodeFormMode}
-          parentPath={
-            nodeFormParentId ? findPathInTree(pathStore.paths, nodeFormParentId) : undefined
-          }
+          mode={pageStore.nodeFormMode}
+          parentPath={pageStore.getPathById(pageStore.nodeFormParentId)}
           isReadonly={
-            nodeFormMode === 'edit' && selectedPathId
-              ? findPathInTree(pathStore.paths, selectedPathId)?.is_readonly || false
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getPathById(pageStore.selectedPathId)?.is_readonly || false
               : false
           }
           sourceBlueprint={
-            nodeFormMode === 'edit' && selectedPathId
-              ? findPathInTree(pathStore.paths, selectedPathId)?.source_blueprint || undefined
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getPathById(pageStore.selectedPathId)?.source_blueprint || undefined
               : undefined
           }
           embeddableBlueprints={embedStore.embeddableBlueprints}
-          loading={pathStore.pending || embedStore.pending}
+          loading={pathStore.pending || embedStore.pending || pageStore.pending}
+          fullPath={
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getPathById(pageStore.selectedPathId)?.full_path
+              : undefined
+          }
+          formComponentConfig={
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getFormComponentConfig(pageStore.selectedPathId)
+              : undefined
+          }
+          dataType={
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getPathById(pageStore.selectedPathId)?.data_type
+              : undefined
+          }
+          cardinality={
+            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
+              ? pageStore.getPathById(pageStore.selectedPathId)?.cardinality
+              : undefined
+          }
         />
-        {contextMenuNodeId && contextMenuPosition && (
+        {pageStore.contextMenuNodeId && pageStore.contextMenuPosition && (
           <PathContextMenu
-            pathId={contextMenuNodeId}
-            position={contextMenuPosition}
-            onClose={handleCloseContextMenu}
-            onEdit={() => {
-              setSelectedPathId(contextMenuNodeId);
-              setNodeFormMode('edit');
-              setNodeFormOpen(true);
-              handleCloseContextMenu();
+            pathId={pageStore.contextMenuNodeId}
+            position={pageStore.contextMenuPosition}
+            onClose={() => {
+              pageStore.closeContextMenu();
             }}
-            onAddChild={() => handleAddChildNode(contextMenuNodeId)}
-            onEmbed={() => handleEmbedBlueprint(contextMenuNodeId)}
-            onDelete={() => handleDeleteNode(contextMenuNodeId)}
+            onEdit={() => {
+              pageStore.openEditForm(pageStore.contextMenuNodeId!);
+              pageStore.closeContextMenu();
+            }}
+            onAddChild={() => handleAddChildNode(pageStore.contextMenuNodeId!)}
+            onEmbed={() => handleEmbedBlueprint(pageStore.contextMenuNodeId!)}
+            onDelete={() => handleDeleteNode(pageStore.contextMenuNodeId!)}
             pathStore={pathStore}
           />
         )}
-        {emptyAreaContextMenuPosition && (
+        {pageStore.emptyAreaContextMenuPosition && (
           <EmptyAreaContextMenu
-            position={emptyAreaContextMenuPosition}
-            onClose={handleCloseEmptyAreaContextMenu}
+            position={pageStore.emptyAreaContextMenuPosition}
+            onClose={() => {
+              pageStore.closeEmptyAreaContextMenu();
+            }}
             onAddRoot={handleAddRootNode}
             onEmbedRoot={handleEmbedRootNode}
           />

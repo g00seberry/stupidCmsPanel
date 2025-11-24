@@ -30,6 +30,7 @@ export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
  *   slug: 'article',
  *   name: 'Articles',
  *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } },
+ *   blueprint_id: 1,
  *   created_at: '2025-01-10T12:45:00+00:00',
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };

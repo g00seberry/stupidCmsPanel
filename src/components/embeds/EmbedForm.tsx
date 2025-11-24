@@ -1,7 +1,7 @@
 import { Form, Select, TreeSelect, Alert, Card, Space, Tag } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import type { BlueprintEmbedStore } from '@/stores/BlueprintEmbedStore';
-import type { PathStore } from '@/stores/PathStore';
+import type { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
+import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
 import type { ZPath } from '@/types/path';
 import { useMemo, useCallback } from 'react';
 import { canEmbedInPath } from '@/utils/blueprintValidation';

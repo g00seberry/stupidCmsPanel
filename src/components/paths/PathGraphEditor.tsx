@@ -14,7 +14,7 @@ import ReactFlow, {
   applyEdgeChanges,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import type { PathStore } from '@/stores/PathStore';
+import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
 import { pathTreeToGraph, applyDagreLayout } from './utils/pathToGraph';
 import { SimpleFieldNode } from './nodes/SimpleFieldNode';
 import { JsonGroupNode } from './nodes/JsonGroupNode';
