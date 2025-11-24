@@ -79,7 +79,7 @@ export const pathToString = (path: PathSegment[]): string => {
 export const findPathInTree = (paths: ZPath[], pathId: number): ZPath | undefined => {
   for (const path of paths) {
     if (path.id === pathId) return path;
-    if (path.data_type === 'json' && path.children) {
+    if (path.children) {
       const found = findPathInTree(path.children, pathId);
       if (found) return found;
     }

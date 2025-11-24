@@ -1,21 +1,19 @@
-import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef } from 'react';
-import { Card, message, App } from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
-import type { ReactFlowInstance } from 'reactflow';
-import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
+import { EmbedList } from '@/components/embeds/EmbedList';
+import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathContextMenu } from '@/components/paths/PathContextMenu';
-import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
-import { EmbedList } from '@/components/embeds/EmbedList';
-import { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
-import { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
-import { BlueprintSchemaPageStore } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPageStore';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
+import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
+import { App, Card, message } from 'antd';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import type { ReactFlowInstance } from 'reactflow';
 
 /**
  * Страница редактирования схемы Blueprint.
@@ -24,27 +22,19 @@ import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
 export const BlueprintSchemaPage = observer(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
-
   const blueprintId = id ? Number(id) : null;
+  const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const { modal } = App.useApp();
-
-  const pathStore = useMemo(() => new PathStore(), []);
-  const embedStore = useMemo(() => new BlueprintEmbedStore(), []);
-  const pageStore = useMemo(
-    () => new BlueprintSchemaPageStore(pathStore, embedStore),
-    [pathStore, embedStore]
-  );
+  const pageStore = useMemo(() => new BlueprintSchemaViewModel(), []);
+  const { pathStore, embedStore } = pageStore;
+  const selectedPath = pageStore.selectedPath;
 
   // Загрузка blueprint, путей, встраиваний и formConfig при монтировании
   useEffect(() => {
     if (blueprintId) {
-      void pathStore.loadPaths(blueprintId);
-      void embedStore.loadEmbeddable(blueprintId);
-      void embedStore.loadEmbeds(blueprintId);
-      void pageStore.loadBlueprintData(blueprintId);
+      void pageStore.init(blueprintId);
     }
-  }, [blueprintId, pathStore, embedStore, pageStore]);
+  }, [blueprintId, pageStore]);
 
   const handleNodeSelect = (pathId: number) => {
     pageStore.selectNode(pathId);
@@ -138,10 +128,8 @@ export const BlueprintSchemaPage = observer(() => {
     values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number },
     formComponentConfig?: ZEditComponent
   ) => {
-    if (!blueprintId) return;
-
     try {
-      await pageStore.saveNode(blueprintId, values, formComponentConfig);
+      await pageStore.saveNode(values, formComponentConfig);
       if (pageStore.nodeFormMode === 'embed') {
         message.success('Blueprint встроен');
       } else if (pageStore.nodeFormMode === 'edit') {
@@ -173,6 +161,28 @@ export const BlueprintSchemaPage = observer(() => {
   const handleResetZoom = () => {
     reactFlowInstanceRef.current?.setViewport({ x: 0, y: 0, zoom: 1 });
   };
+
+  const nodeFormInitialValues = useMemo(() => {
+    if (pageStore.nodeFormMode === 'edit' && selectedPath) {
+      return {
+        name: selectedPath.name,
+        data_type: selectedPath.data_type,
+        cardinality: selectedPath.cardinality,
+        is_required: selectedPath.is_required,
+        is_indexed: selectedPath.is_indexed,
+      } as Partial<ZCreatePathDto | ZUpdatePathDto>;
+    }
+
+    if (pageStore.nodeFormMode === 'create') {
+      return {
+        cardinality: 'one',
+        is_required: false,
+        is_indexed: false,
+      } as Partial<ZCreatePathDto>;
+    }
+
+    return undefined;
+  }, [pageStore.nodeFormMode, selectedPath]);
 
   if (!blueprintId) {
     return null;
@@ -224,7 +234,7 @@ export const BlueprintSchemaPage = observer(() => {
                   onNodeDoubleClick={handleNodeDoubleClick}
                   onNodeContextMenu={handleNodeContextMenu}
                   onPaneContextMenu={handlePaneContextMenu}
-                  highlightedNodes={pageStore.selectedPathId ? [pageStore.selectedPathId] : []}
+                  highlightedNodes={pageStore.highlightedNodes}
                   reactFlowInstanceRef={reactFlowInstanceRef}
                 />
               </div>
@@ -243,39 +253,26 @@ export const BlueprintSchemaPage = observer(() => {
           }}
           onOk={handleNodeSave}
           mode={pageStore.nodeFormMode}
-          parentPath={pageStore.getPathById(pageStore.nodeFormParentId)}
+          parentPath={pageStore.nodeFormParentPath}
           isReadonly={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getPathById(pageStore.selectedPathId)?.is_readonly || false
-              : false
+            pageStore.nodeFormMode === 'edit' ? selectedPath?.is_readonly || false : false
           }
           sourceBlueprint={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getPathById(pageStore.selectedPathId)?.source_blueprint || undefined
+            pageStore.nodeFormMode === 'edit'
+              ? (selectedPath?.source_blueprint ?? undefined)
               : undefined
           }
           embeddableBlueprints={embedStore.embeddableBlueprints}
-          loading={pathStore.pending || embedStore.pending || pageStore.pending}
-          fullPath={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getPathById(pageStore.selectedPathId)?.full_path
-              : undefined
-          }
+          loading={pageStore.pending}
+          fullPath={pageStore.nodeFormMode === 'edit' ? selectedPath?.full_path : undefined}
           formComponentConfig={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getFormComponentConfig(pageStore.selectedPathId)
-              : undefined
+            pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormComponentConfig : undefined
           }
-          dataType={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getPathById(pageStore.selectedPathId)?.data_type
-              : undefined
-          }
+          dataType={pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormDataType : undefined}
           cardinality={
-            pageStore.nodeFormMode === 'edit' && pageStore.selectedPathId
-              ? pageStore.getPathById(pageStore.selectedPathId)?.cardinality
-              : undefined
+            pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormCardinality : undefined
           }
+          initialValues={nodeFormInitialValues}
         />
         {pageStore.contextMenuNodeId && pageStore.contextMenuPosition && (
           <PathContextMenu

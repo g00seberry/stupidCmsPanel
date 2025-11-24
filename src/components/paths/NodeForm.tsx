@@ -5,39 +5,37 @@ import { zDataType } from '@/types/path';
 import { useMemo, useCallback } from 'react';
 import { validateFieldName } from '@/utils/blueprintValidation';
 
-/**
- * Режим работы формы узла.
- */
 export type NodeFormMode = 'create' | 'edit' | 'embed';
 
-/**
- * Пропсы компонента формы узла графа.
- */
 export type PropsNodeForm = {
-  /** Экземпляр формы Ant Design. */
   form: FormInstance<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>;
-  /** Режим работы формы. */
   mode: NodeFormMode;
-  /** Родительский узел (для вычисления full_path). */
   parentPath?: { id: number; full_path: string };
-  /** Вычисленный full_path для предпросмотра. */
   computedFullPath?: string;
-  /** Флаг readonly узла (для блокировки редактирования). */
   isReadonly?: boolean;
-  /** Информация об исходном Blueprint (для readonly узлов). */
   sourceBlueprint?: { id: number; name: string; code: string };
-  /** Обработчик изменения имени (для пересчёта full_path). */
   onNameChange?: (name: string) => void;
-  /** Список Blueprint, доступных для встраивания (для режима embed). */
   embeddableBlueprints?: Array<{ id: number; code: string; name: string }>;
-  /** Обработчик изменения выбранного Blueprint (для режима embed). */
   onBlueprintChange?: (blueprintId: number) => void;
 };
 
-/**
- * Форма создания и редактирования узла схемы Blueprint.
- * Поддерживает три режима: создание простого поля, создание JSON группы и встраивание Blueprint.
- */
+const DATA_TYPE_LABELS: Record<ZDataType, string> = {
+  string: 'Строка',
+  text: 'Текст',
+  int: 'Целое число',
+  float: 'Число с плавающей точкой',
+  bool: 'Булево',
+  date: 'Дата',
+  datetime: 'Дата и время',
+  json: 'JSON-объект',
+  ref: 'Ссылка',
+};
+
+const CARDINALITY_OPTIONS = [
+  { label: 'Одно значение', value: 'one' },
+  { label: 'Массив значений', value: 'many' },
+];
+
 export const NodeForm: React.FC<PropsNodeForm> = ({
   form,
   mode,
@@ -48,13 +46,14 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
   embeddableBlueprints = [],
   onBlueprintChange,
 }) => {
-  const dataType = Form.useWatch('data_type', form);
-  const selectedBlueprintId = Form.useWatch('embedded_blueprint_id', form);
+  const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
+  const selectedBlueprintId = Form.useWatch<number | undefined>('embedded_blueprint_id', form);
+  const isReadonlyEdit = isReadonly && mode === 'edit';
 
   const dataTypeOptions = useMemo(
     () =>
       zDataType.options.map(type => ({
-        label: getDataTypeLabel(type),
+        label: DATA_TYPE_LABELS[type],
         value: type,
       })),
     []
@@ -65,6 +64,11 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
     [embeddableBlueprints, selectedBlueprintId]
   );
 
+  const blueprintOptions = useMemo(
+    () => embeddableBlueprints.map(bp => ({ label: `${bp.name} (${bp.code})`, value: bp.id })),
+    [embeddableBlueprints]
+  );
+
   const handleBlueprintChange = useCallback(
     (value: number) => {
       onBlueprintChange?.(value);
@@ -72,21 +76,49 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
     [onBlueprintChange]
   );
 
-  if (isReadonly && mode === 'edit') {
+  const renderComputedFullPath = () => {
+    if (!computedFullPath) return null;
+    return (
+      <div className="mb-4 p-2 bg-muted rounded text-sm">
+        <strong>Полный путь:</strong> <code className="font-mono">{computedFullPath}</code>
+      </div>
+    );
+  };
+
+  const renderCardinality = () => (
+    <Form.Item
+      label="Кардинальность"
+      name="cardinality"
+      initialValue="one"
+      tooltip="Определяет, может ли у поля быть одно значение или массив значений."
+    >
+      <Radio.Group disabled={isReadonly}>
+        {CARDINALITY_OPTIONS.map(option => (
+          <Radio key={option.value} value={option.value}>
+            {option.label}
+          </Radio>
+        ))}
+      </Radio.Group>
+    </Form.Item>
+  );
+
+  if (isReadonlyEdit) {
     return (
       <div>
         <Alert
-          message="Редактирование недоступно"
+          message="Поле доступно только для чтения"
           description={
             <div>
               <p>
-                Это поле скопировано из Blueprint &quot;{sourceBlueprint?.name || 'Неизвестный'}
-                &quot;.
+                Изменения нужно вносить в исходном Blueprint &quot;
+                {sourceBlueprint?.name || 'неизвестно'}&quot;.
               </p>
-              <p className="mt-2">Чтобы изменить структуру, перейдите к исходному Blueprint.</p>
+              <p className="mt-2">
+                Здесь поле заблокировано, потому что управляется составным Blueprint.
+              </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Примечание: Вы можете записывать данные в это поле, но не можете изменить его тип
-                или настройки.
+                Обновите структуру в исходном Blueprint и заново встройте его, чтобы увидеть
+                изменения.
               </p>
             </div>
           }
@@ -105,7 +137,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
             label="Blueprint для встраивания"
             name="embedded_blueprint_id"
             rules={[{ required: true, message: 'Выберите Blueprint для встраивания' }]}
-            tooltip="Выберите Blueprint, который будет встроен в текущий Blueprint."
+            tooltip="Выберите Blueprint, который нужно встроить как readonly-структуру."
           >
             <Select
               placeholder="Выберите Blueprint"
@@ -113,10 +145,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-              options={embeddableBlueprints.map(bp => ({
-                label: `${bp.name} (${bp.code})`,
-                value: bp.id,
-              }))}
+              options={blueprintOptions}
               onChange={handleBlueprintChange}
             />
           </Form.Item>
@@ -135,8 +164,8 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
           )}
 
           <Alert
-            message="Внимание"
-            description="При встраивании все поля выбранного Blueprint будут скопированы в текущий Blueprint как readonly. Изменить их структуру можно только в исходном Blueprint."
+            message="Как работает встраивание"
+            description="Поля встроенного Blueprint управляются только в источнике и становятся readonly. Здесь можно выбрать Blueprint и место встраивания, но редактировать его поля нельзя."
             type="info"
             showIcon
             className="mt-4"
@@ -148,18 +177,20 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
             label="Имя поля"
             name="name"
             rules={[
-              { required: true, message: 'Имя поля обязательно' },
+              { required: true, message: 'Укажите имя поля' },
               {
                 validator: (_rule, value) => {
                   if (!value) return Promise.resolve();
                   if (!validateFieldName(value)) {
-                    return Promise.reject(new Error('Только a-z, 0-9 и _ (максимум 255 символов)'));
+                    return Promise.reject(
+                      new Error('Допустимы символы a-z, 0-9 и _ (не длиннее 255)')
+                    );
                   }
                   return Promise.resolve();
                 },
               },
             ]}
-            tooltip="Имя поля должно быть уникальным на уровне родительского узла."
+            tooltip="Имя поля используется в схемах и API, поэтому допускаются только символы a-z, 0-9 и _."
           >
             <Input
               placeholder="field_name"
@@ -171,11 +202,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
             />
           </Form.Item>
 
-          {computedFullPath && (
-            <div className="mb-4 p-2 bg-muted rounded text-sm">
-              <strong>Полный путь:</strong> <code className="font-mono">{computedFullPath}</code>
-            </div>
-          )}
+          {renderComputedFullPath()}
 
           <Form.Item
             label="Тип данных"
@@ -191,71 +218,29 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
         </>
       )}
 
+      {dataType && renderCardinality()}
+
       {dataType && dataType !== 'json' && (
         <>
           <Form.Item
-            label="Мощность"
-            name="cardinality"
-            initialValue="one"
-            tooltip="Определяет, может ли поле содержать одно значение или множество."
-          >
-            <Radio.Group disabled={isReadonly}>
-              <Radio value="one">Одно значение</Radio>
-              <Radio value="many">Множество</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item
-            label="Настройки"
+            label="Обязательное"
             name="is_required"
             valuePropName="checked"
             initialValue={false}
           >
-            <Checkbox disabled={isReadonly}>Обязательное поле</Checkbox>
+            <Checkbox disabled={isReadonly}>Поле обязательно к заполнению</Checkbox>
           </Form.Item>
 
           <Form.Item name="is_indexed" valuePropName="checked" initialValue={false}>
             <Checkbox disabled={isReadonly}>
-              Индексировать для поиска
+              Индексировать поле
               <span className="text-xs text-muted-foreground ml-2">
-                (создаст индекс для быстрого поиска по этому полю)
+                (ускоряет поиск, но требует точного значения поля)
               </span>
             </Checkbox>
           </Form.Item>
         </>
       )}
-
-      {dataType === 'json' && (
-        <Form.Item
-          label="Мощность"
-          name="cardinality"
-          initialValue="one"
-          tooltip="JSON группа может содержать дочерние поля."
-        >
-          <Radio.Group disabled={isReadonly}>
-            <Radio value="one">Одно значение</Radio>
-            <Radio value="many">Множество</Radio>
-          </Radio.Group>
-        </Form.Item>
-      )}
     </Form>
   );
-};
-
-/**
- * Возвращает человекочитаемое название типа данных.
- */
-const getDataTypeLabel = (type: ZDataType): string => {
-  const labels: Record<ZDataType, string> = {
-    string: 'Строка',
-    text: 'Текст',
-    int: 'Целое число',
-    float: 'Число с плавающей точкой',
-    bool: 'Логическое значение',
-    date: 'Дата',
-    datetime: 'Дата и время',
-    json: 'JSON группа',
-    ref: 'Ссылка',
-  };
-  return labels[type];
 };
