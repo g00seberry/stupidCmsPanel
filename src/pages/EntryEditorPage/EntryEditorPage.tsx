@@ -2,7 +2,7 @@ import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsMana
 import { SchemaForm } from '@/components/schemaForm/SchemaForm';
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { handleFormSubmit } from '@/utils/formSubmitHandler';
+import { handleFormSubmit } from '@/components/schemaForm/formSubmitHandler';
 import { Card, DatePicker, Form, Input, Select, Spin, Switch } from 'antd';
 import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';

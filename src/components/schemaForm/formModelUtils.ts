@@ -1,5 +1,5 @@
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import type { FormValues } from '@/types/schemaForm';
+import type { FormValues } from '@/components/schemaForm/FormValues';
 
 /**
  * Создаёт значение по умолчанию для поля на основе его типа.

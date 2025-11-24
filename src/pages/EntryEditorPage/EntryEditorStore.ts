@@ -3,13 +3,13 @@ import { getPostType } from '@/api/apiPostTypes';
 import { getTemplates } from '@/api/apiTemplates';
 import { EntryTermsManagerStore } from '@/components/EntryTermsManager/EntryTermsManagerStore';
 import { notificationService } from '@/services/notificationService';
-import { FormModel } from '@/stores/FormModel';
+import { FormModel } from '@/components/schemaForm/FormModel';
 import type { ZId } from '@/types/ZId';
 import type { ZEntry } from '@/types/entries';
 import type { ZPostType } from '@/types/postTypes';
 import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
-import { createFormModelFromBlueprintSchema } from '@/utils/schemaFormAdapter';
+import { createFormModelFromBlueprintSchema } from '@/components/schemaForm/schemaFormAdapter';
 import { makeAutoObservable } from 'mobx';
 import {
   entry2formValues,

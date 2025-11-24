@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
-import type { FormValues } from '@/types/schemaForm';
+import type { FormValues } from '@/components/schemaForm/FormValues';
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import { createDefaultValues } from '@/utils/formModelUtils';
+import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, pathToString, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import { validateField } from '@/utils/validationUtils';
 

@@ -1,4 +1,4 @@
-import type { ZBlueprintSchema, ZBlueprintSchemaField } from './blueprintSchema';
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '../../types/blueprintSchema';
 
 /**
  * Выводит тип значения поля на основе его схемы.

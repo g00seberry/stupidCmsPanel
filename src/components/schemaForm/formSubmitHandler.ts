@@ -1,14 +1,15 @@
-import type { FormModel } from '@/stores/FormModel';
-import type { EntitySchema, FormValues } from '@/types/schemaForm';
+import type { FormModel } from '@/components/schemaForm/FormModel';
+import type { ZBlueprintSchema } from '@/types/blueprintSchema';
+import type { FormValues } from '@/components/schemaForm/FormValues';
 
 /**
  * Результат обработки сабмита формы.
  */
-export interface FormSubmitResult<E extends EntitySchema> {
+export interface FormSubmitResult<E extends ZBlueprintSchema> {
   /** `true`, если валидация прошла успешно. */
   success: boolean;
   /** Значения формы (только если success === true). */
-  values?: FormValues<E>;
+  values?: FormValues<ZBlueprintSchema>;
   /** Сообщения об ошибках (только если success === false). */
   errors?: Array<{ path: string; messages: string[] }>;
 }
@@ -29,7 +30,7 @@ export interface FormSubmitResult<E extends EntitySchema> {
  *   }
  * };
  */
-export const handleFormSubmit = async <E extends EntitySchema>(
+export const handleFormSubmit = async <E extends ZBlueprintSchema>(
   model: FormModel<E>
 ): Promise<FormSubmitResult<E>> => {
   // Выполняем валидацию через FormModel

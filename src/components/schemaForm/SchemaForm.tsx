@@ -1,9 +1,9 @@
 import { Button, Card, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import type { EntitySchema } from '@/types/schemaForm';
+import type { EntitySchema } from '@/components/schemaForm/FormValues';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import type { FormModel } from '@/stores/FormModel';
+import type { FormModel } from '@/components/schemaForm/FormModel';
 import { getFieldRenderer } from './widgetRegistry';
 import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
 

@@ -1,7 +1,7 @@
 import { getBlueprintSchema } from '@/api/blueprintApi';
-import { FormModel } from '@/stores/FormModel';
+import { FormModel } from '@/components/schemaForm/FormModel';
 import type { ZBlueprintSchema } from '@/types/blueprintSchema';
-import type { FormValues } from '@/types/schemaForm';
+import type { FormValues } from '@/components/schemaForm/FormValues';
 
 /**
  * Создаёт FormModel из Blueprint схемы.
