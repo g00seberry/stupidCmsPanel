@@ -1,4 +1,5 @@
-import type { FieldSchema, ValidationSpec } from '@/types/schemaForm';
+import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { ZValidationRule, ZValidationRuleObject } from '@/types/path';
 import type { PathSegment } from '@/utils/pathUtils';
 import { getValidator } from './validatorRegistry';
 
@@ -21,60 +22,101 @@ const isEmpty = (value: any): boolean => {
 };
 
 /**
+ * Парсит строковое правило валидации в объект.
+ * Поддерживает формат "type:value" (старый формат).
+ * @param rule Строковое правило валидации.
+ * @returns Объект правила или null, если формат не распознан.
+ */
+const parseStringValidationRule = (rule: string): ZValidationRuleObject | null => {
+  const parts = rule.split(':');
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const [type, valueStr] = parts;
+  if (type === 'min' || type === 'max') {
+    const numValue = Number(valueStr);
+    if (!isNaN(numValue)) {
+      return { type, value: numValue };
+    }
+  } else if (type === 'regex') {
+    return { type: 'regex', pattern: valueStr };
+  }
+
+  return null;
+};
+
+/**
  * Валидирует значение по правилу валидации.
+ * Поддерживает как объектный формат (ZValidationRuleObject), так и строковый.
  * @param value Значение для валидации.
- * @param spec Спецификация правила валидации.
+ * @param rule Правило валидации (может быть строкой или объектом).
  * @returns Сообщение об ошибке или `null`, если валидация прошла успешно.
  */
-const validateRule = (value: any, spec: ValidationSpec): string | null => {
-  switch (spec.type) {
+const validateRule = (value: any, rule: ZValidationRule): string | null => {
+  // Если это строка, парсим её
+  let ruleObj: ZValidationRuleObject | null = null;
+  if (typeof rule === 'string') {
+    ruleObj = parseStringValidationRule(rule);
+    if (!ruleObj) {
+      return null;
+    }
+  } else {
+    ruleObj = rule;
+  }
+
+  switch (ruleObj.type) {
     case 'min':
-      if (typeof value === 'number' && value < spec.value) {
-        return spec.message || `Значение должно быть не менее ${spec.value}`;
+      if (typeof value === 'number' && value < ruleObj.value) {
+        return `Значение должно быть не менее ${ruleObj.value}`;
       }
       break;
 
     case 'max':
-      if (typeof value === 'number' && value > spec.value) {
-        return spec.message || `Значение должно быть не более ${spec.value}`;
+      if (typeof value === 'number' && value > ruleObj.value) {
+        return `Значение должно быть не более ${ruleObj.value}`;
       }
       break;
 
     case 'regex':
-      if (typeof value === 'string' && spec.value) {
+      if (typeof value === 'string' && ruleObj.pattern) {
         try {
-          const regex = new RegExp(spec.value);
+          const regex = new RegExp(ruleObj.pattern);
           if (!regex.test(value)) {
-            return spec.message || 'Значение не соответствует формату';
+            return 'Значение не соответствует формату';
           }
         } catch (error) {
           // Некорректное регулярное выражение
-          return spec.message || 'Ошибка в правиле валидации';
+          return 'Ошибка в правиле валидации';
+        }
+      }
+      break;
+
+    case 'length':
+      if (typeof value === 'string') {
+        if (ruleObj.min !== undefined && value.length < ruleObj.min) {
+          return `Минимальная длина: ${ruleObj.min}`;
+        }
+        if (ruleObj.max !== undefined && value.length > ruleObj.max) {
+          return `Максимальная длина: ${ruleObj.max}`;
         }
       }
       break;
 
     case 'enum':
-      if (spec.value && Array.isArray(spec.value)) {
-        if (!spec.value.includes(value)) {
-          return spec.message || 'Недопустимое значение';
-        }
+      if (ruleObj.values && !ruleObj.values.includes(value)) {
+        return 'Недопустимое значение';
       }
       break;
 
     case 'custom':
-      if (spec.validatorKey) {
-        const validator = getValidator(spec.validatorKey);
+      if (ruleObj.validator) {
+        const validator = getValidator(ruleObj.validator);
         if (validator) {
-          return validator(value, spec);
+          return validator(value, ruleObj) ?? null;
         }
-        // Если валидатор не найден, возвращаем сообщение об ошибке
-        return spec.message || `Валидатор '${spec.validatorKey}' не найден`;
+        return ruleObj.message || `Валидатор '${ruleObj.validator}' не найден`;
       }
-      break;
-
-    case 'required':
-      // required обрабатывается отдельно через флаг field.required
       break;
   }
 
@@ -89,20 +131,20 @@ const validateRule = (value: any, spec: ValidationSpec): string | null => {
  * @param path Путь к полю (для контекста ошибок, опционально).
  * @returns Массив сообщений об ошибках. Пустой массив, если валидация прошла успешно.
  * @example
- * const field: FieldSchema = {
+ * const field: ZBlueprintSchemaField = {
  *   type: 'string',
  *   required: true,
  *   indexed: true,
  *   cardinality: 'one',
  *   validation: [
- *     { type: 'min', value: 5, message: 'Минимум 5 символов' }
+ *     { type: 'min', value: 5 }
  *   ]
  * };
  * const errors = validateField(field, 'abc', ['title']);
- * // ['Минимум 5 символов']
+ * // ['Значение должно быть не менее 5']
  */
 export const validateField = (
-  field: FieldSchema,
+  field: ZBlueprintSchemaField,
   value: any,
   path: PathSegment[] = []
 ): string[] => {
@@ -119,8 +161,8 @@ export const validateField = (
   }
 
   // Проверка правил валидации
-  for (const spec of field.validation) {
-    const error = validateRule(value, spec);
+  for (const rule of field.validation) {
+    const error = validateRule(value, rule);
     if (error) {
       errors.push(error);
     }

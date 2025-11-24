@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
-import type { EntitySchema, FieldSchema, FormValues } from '@/types/schemaForm';
+import type { FormValues } from '@/types/schemaForm';
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { createDefaultValues } from '@/utils/formModelUtils';
 import { getValueByPath, pathToString, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import { validateField } from '@/utils/validationUtils';
@@ -19,7 +20,7 @@ import { validateField } from '@/utils/validationUtils';
  * model.setValue(['title'], 'New Title');
  * const isValid = model.validate();
  */
-export class FormModel<E extends EntitySchema> {
+export class FormModel<E extends ZBlueprintSchema> {
   /** Схема сущности, описывающая структуру формы. */
   schema: E;
   /** Значения формы, типизированные на основе схемы. */
@@ -102,7 +103,11 @@ export class FormModel<E extends EntitySchema> {
    * @param value Значение поля.
    * @param path Путь к полю.
    */
-  private validateFieldRecursive(field: FieldSchema, value: any, path: PathSegment[]): void {
+  private validateFieldRecursive(
+    field: ZBlueprintSchemaField,
+    value: any,
+    path: PathSegment[]
+  ): void {
     if (field.type === 'json' && field.children) {
       const children = field.children; // Сохраняем для сужения типа
       // Для json полей проверяем только required, остальная валидация для children

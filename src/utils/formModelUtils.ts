@@ -1,4 +1,5 @@
-import type { EntitySchema, FieldSchema, FormValues } from '@/types/schemaForm';
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { FormValues } from '@/types/schemaForm';
 
 /**
  * Создаёт значение по умолчанию для поля на основе его типа.
@@ -9,7 +10,7 @@ import type { EntitySchema, FieldSchema, FormValues } from '@/types/schemaForm';
  * getDefaultFieldValue({ type: 'float', ... }); // 0
  * getDefaultFieldValue({ type: 'bool', ... }); // false
  */
-const getDefaultFieldValue = (field: FieldSchema): any => {
+const getDefaultFieldValue = (field: ZBlueprintSchemaField): any => {
   switch (field.type) {
     case 'string':
     case 'text':
@@ -55,7 +56,7 @@ const getDefaultFieldValue = (field: FieldSchema): any => {
  * // { title: '', tags: [], author: { name: '' } }
  */
 const createDefaultValuesFromSchema = (
-  schema: Record<string, FieldSchema>
+  schema: Record<string, ZBlueprintSchemaField>
 ): Record<string, any> => {
   const values: Record<string, any> = {};
 
@@ -80,7 +81,7 @@ const createDefaultValuesFromSchema = (
  * @returns Объект со значениями, объединяющий defaults и initial.
  */
 const mergeWithInitial = (
-  schema: Record<string, FieldSchema>,
+  schema: Record<string, ZBlueprintSchemaField>,
   initial?: Record<string, any>
 ): Record<string, any> => {
   const defaults = createDefaultValuesFromSchema(schema);
@@ -96,7 +97,13 @@ const mergeWithInitial = (
       const initialValue = initial[fieldName];
 
       // Если это json поле с children, рекурсивно объединяем
-      if (field.type === 'json' && field.children && typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue)) {
+      if (
+        field.type === 'json' &&
+        field.children &&
+        typeof initialValue === 'object' &&
+        initialValue !== null &&
+        !Array.isArray(initialValue)
+      ) {
         result[fieldName] = mergeWithInitial(field.children, initialValue);
       } else {
         // Для массивов и примитивов просто используем начальное значение
@@ -128,10 +135,9 @@ const mergeWithInitial = (
  * const valuesWithInitial = createDefaultValues(schema, { title: 'Product' });
  * // { title: 'Product', price: 0, tags: [] }
  */
-export const createDefaultValues = <E extends EntitySchema>(
+export const createDefaultValues = <E extends ZBlueprintSchema>(
   schema: E,
   initial?: Partial<FormValues<E>>
 ): FormValues<E> => {
   return mergeWithInitial(schema.schema, initial as Record<string, any>) as FormValues<E>;
 };
-

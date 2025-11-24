@@ -1,7 +1,7 @@
 import { getBlueprintSchema } from '@/api/blueprintApi';
 import { FormModel } from '@/stores/FormModel';
-import type { EntitySchema, FormValues } from '@/types/schemaForm';
-import { convertBlueprintSchemaToEntitySchema } from './schemaConverter';
+import type { ZBlueprintSchema } from '@/types/blueprintSchema';
+import type { FormValues } from '@/types/schemaForm';
 
 /**
  * Создаёт FormModel из Blueprint схемы.
@@ -14,21 +14,11 @@ import { convertBlueprintSchemaToEntitySchema } from './schemaConverter';
  * const model = await createFormModelFromBlueprintSchema(1, { title: 'Initial Title' });
  * <SchemaForm model={model} schema={model.schema} />
  */
-export const createFormModelFromBlueprintSchema = async <
-  E extends EntitySchema = EntitySchema
->(
+export const createFormModelFromBlueprintSchema = async (
   blueprintId: number,
-  initial?: Partial<FormValues<E>>
-): Promise<FormModel<E>> => {
+  initial?: Partial<FormValues<ZBlueprintSchema>>
+): Promise<FormModel<ZBlueprintSchema>> => {
   // Загружаем схему Blueprint из API
   const blueprintSchema = await getBlueprintSchema(blueprintId);
-
-  // Преобразуем в EntitySchema
-  const entitySchema = convertBlueprintSchemaToEntitySchema(blueprintSchema) as E;
-
-  // Создаём FormModel с начальными значениями
-  const model = new FormModel(entitySchema, initial);
-
-  return model;
+  return new FormModel(blueprintSchema, initial);
 };
-

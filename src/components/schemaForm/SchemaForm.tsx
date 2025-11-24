@@ -1,7 +1,8 @@
 import { Button, Card, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import type { EntitySchema, FieldSchema } from '@/types/schemaForm';
+import type { EntitySchema } from '@/types/schemaForm';
+import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/stores/FormModel';
 import { getFieldRenderer } from './widgetRegistry';
 import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
@@ -69,7 +70,7 @@ export const SchemaForm = observer(
      */
     const renderField = (
       key: string,
-      field: FieldSchema,
+      field: ZBlueprintSchemaField,
       parentPath: PathSegment[] = [],
       isReadonly: boolean = readonly
     ): React.ReactNode => {

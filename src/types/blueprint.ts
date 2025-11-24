@@ -231,7 +231,7 @@ export const zEmbeddableBlueprints = z.object({
  */
 export type ZEmbeddableBlueprints = z.infer<typeof zEmbeddableBlueprints>;
 
-// Реэкспорт типов и схем JSON схемы Blueprint для обратной совместимости
+// Реэкспорт типов и схем JSON схемы Blueprint
 export type { ZBlueprintSchema, ZBlueprintSchemaField } from './blueprintSchema';
 export { zBlueprintSchema } from './blueprintSchema';
 

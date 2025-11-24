@@ -1,6 +1,6 @@
 import { DatePicker, Input, InputNumber, Switch } from 'antd';
 import type React from 'react';
-import type { FieldSchema } from '@/types/schemaForm';
+import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { PathSegment } from '@/utils/pathUtils';
 import { viewDate } from '@/utils/dateUtils';
 import type { Dayjs } from 'dayjs';
@@ -11,7 +11,7 @@ import { RefFieldWidget } from './widgets/RefFieldWidget';
  */
 export interface FieldRendererProps {
   /** Схема поля для рендеринга. */
-  schema: FieldSchema;
+  schema: ZBlueprintSchemaField;
   /** Путь к полю в форме (массив сегментов). */
   namePath: PathSegment[];
   /** Текущее значение поля. */
@@ -156,7 +156,7 @@ export const getWidget = (key: string): FieldRenderer | undefined => {
  * const renderer = getFieldRenderer(fieldSchema);
  * const component = renderer({ schema: fieldSchema, namePath: ['title'] });
  */
-export const getFieldRenderer = (schema: FieldSchema): FieldRenderer => {
+export const getFieldRenderer = (schema: ZBlueprintSchemaField): FieldRenderer => {
   // Используем виджет по умолчанию для типа поля
   const defaultRenderer = defaultRenderers[schema.type];
   if (defaultRenderer) {
