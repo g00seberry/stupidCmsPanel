@@ -14,10 +14,6 @@ export interface FieldRendererProps {
   value?: any;
   /** Обработчик изменения значения поля. */
   onChange?: (value: any) => void;
-  /** Флаг отключения поля. */
-  disabled?: boolean;
-  /** Флаг режима только для чтения. */
-  readOnly?: boolean;
   /** Модель формы для доступа к formConfig и ошибкам (опционально, используется для json полей). */
   model?: FormModel;
   /** Обработчик добавления элемента в массив (опционально, используется для json полей). */

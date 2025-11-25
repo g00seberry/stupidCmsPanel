@@ -20,8 +20,6 @@ type PropsInputTextWidget = FieldRendererProps & {
 export const InputTextWidget: React.FC<PropsInputTextWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
 }) => {
   return (
@@ -29,8 +27,6 @@ export const InputTextWidget: React.FC<PropsInputTextWidget> = ({
       value={value}
       onChange={e => onChange?.(e.target.value)}
       placeholder={componentConfig?.props.placeholder}
-      disabled={disabled}
-      readOnly={readOnly}
       style={{ width: '100%' }}
     />
   );

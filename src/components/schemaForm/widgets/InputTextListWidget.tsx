@@ -21,8 +21,6 @@ type PropsInputTextListWidget = FieldRendererProps & {
 export const InputTextListWidget: React.FC<PropsInputTextListWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   namePath,
   model,
@@ -60,28 +58,20 @@ export const InputTextListWidget: React.FC<PropsInputTextListWidget> = ({
                   value={item}
                   onChange={e => handleItemChange(index, e.target.value)}
                   placeholder={componentConfig?.props.placeholder}
-                  disabled={disabled}
-                  readOnly={readOnly}
                   style={{ width: '100%' }}
                 />
                 {itemError && (
                   <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
                 )}
               </div>
-              {!readOnly && (
-                <Button onClick={() => handleRemove(index)} disabled={disabled}>
-                  Удалить
-                </Button>
-              )}
+              <Button onClick={() => handleRemove(index)}>Удалить</Button>
             </Space>
           </div>
         );
       })}
-      {!readOnly && (
-        <Button onClick={handleAdd} disabled={disabled} style={{ marginTop: 8 }}>
-          Добавить
-        </Button>
-      )}
+      <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+        Добавить
+      </Button>
     </div>
   );
 };

@@ -22,8 +22,6 @@ type PropsDateTimePickerWidget = FieldRendererProps & {
 export const DateTimePickerWidget: React.FC<PropsDateTimePickerWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
 }) => {
   // Преобразуем строку в dayjs объект, если значение - строка
@@ -37,7 +35,6 @@ export const DateTimePickerWidget: React.FC<PropsDateTimePickerWidget> = ({
       format={componentConfig?.props.format}
       showTime={componentConfig?.props.showTime ?? true}
       style={{ width: '100%' }}
-      disabled={disabled || readOnly}
     />
   );
 };

@@ -35,8 +35,6 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
   namePath,
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   model,
   onAddItem,
@@ -46,7 +44,6 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
   const pathStr = pathToString(namePath);
   const arrayValue = Array.isArray(value) ? value : [];
   const error = model?.errorFor(pathStr);
-  const isReadonly = readOnly || disabled;
 
   if (!field.children) {
     return null;
@@ -75,7 +72,7 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
   return (
     <Card
       title={labelText}
-      extra={!isReadonly ? <Button onClick={handleAddItem}>Добавить</Button> : null}
+      extra={<Button onClick={handleAddItem}>Добавить</Button>}
       style={{ marginBottom: 16 }}
     >
       {arrayValue.map((item, index) => {
@@ -88,9 +85,7 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
             key={itemPathStr}
             size="small"
             style={{ marginBottom: 8 }}
-            extra={
-              !isReadonly ? <Button onClick={() => handleRemoveItem(index)}>Удалить</Button> : null
-            }
+            extra={<Button onClick={() => handleRemoveItem(index)}>Удалить</Button>}
           >
             {Object.entries(field.children!).map(([childKey, childField]) => {
               const childPath = [...itemPath, childKey];
@@ -113,8 +108,6 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
                       newArray[index] = { ...item, [childKey]: newValue };
                       onChange?.(newArray);
                     },
-                    disabled: isReadonly,
-                    readOnly: isReadonly,
                   });
 
                   const childLabelText = childComponentConfig?.props.label || childKey;
@@ -146,8 +139,6 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
                     newArray[index] = { ...item, [childKey]: newValue };
                     onChange?.(newArray);
                   },
-                  disabled: isReadonly,
-                  readOnly: isReadonly,
                 });
 
                 return (
@@ -177,8 +168,6 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
                     newArray[index] = { ...item, [childKey]: newValue };
                     onChange?.(newArray);
                   }}
-                  disabled={isReadonly}
-                  readOnly={isReadonly}
                   model={model}
                 />
               );

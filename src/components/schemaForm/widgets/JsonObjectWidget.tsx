@@ -30,8 +30,6 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = ({
   namePath,
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   model,
 }) => {
@@ -39,7 +37,6 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = ({
   const pathStr = pathToString(namePath);
   const currentValue = value ?? {};
   const error = model?.errorFor(pathStr);
-  const isReadonly = readOnly || disabled;
 
   if (!field.children) {
     return null;
@@ -70,8 +67,6 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = ({
                 const newObject = { ...currentValue, [childKey]: newValue };
                 onChange?.(newObject);
               },
-              disabled: isReadonly,
-              readOnly: isReadonly,
             });
 
             const childLabelText = childComponentConfig?.props.label || childKey;
@@ -100,8 +95,6 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = ({
               const newObject = { ...currentValue, [childKey]: newValue };
               onChange?.(newObject);
             },
-            disabled: isReadonly,
-            readOnly: isReadonly,
           });
 
           return (
@@ -128,8 +121,6 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = ({
               const newObject = { ...currentValue, [childKey]: newValue };
               onChange?.(newObject);
             }}
-            disabled={isReadonly}
-            readOnly={isReadonly}
             model={model}
           />
         );

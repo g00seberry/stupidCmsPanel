@@ -13,8 +13,6 @@ export interface PropsSchemaForm {
   model: FormModel;
   /** Схема сущности для формы. */
   schema: ZBlueprintSchema;
-  /** Флаг режима только для чтения. */
-  readonly?: boolean;
 }
 
 /**
@@ -28,7 +26,7 @@ export interface PropsSchemaForm {
  * const model = new FormModel(schema, initialValues);
  * <SchemaForm model={model} schema={schema} readonly={false} />
  */
-export const SchemaForm = observer(({ model, schema, readonly = false }: PropsSchemaForm) => {
+export const SchemaForm = observer(({ model, schema }: PropsSchemaForm) => {
   /**
    * Обработчик изменения значения поля.
    * Обновляет значение в FormModel по указанному пути.
@@ -68,14 +66,12 @@ export const SchemaForm = observer(({ model, schema, readonly = false }: PropsSc
   const renderField = (
     key: string,
     field: ZBlueprintSchemaField,
-    parentPath: PathSegment[] = [],
-    isReadonly: boolean = readonly
+    parentPath: PathSegment[] = []
   ): React.ReactNode => {
     const namePath = [...parentPath, key];
     const pathStr = pathToString(namePath);
     const currentValue = getValueByPath(model.values, namePath);
     const error = model.errorFor(pathStr);
-
     // Получаем конфигурацию компонента (кастомную или дефолтную)
     const componentConfig = model.formConfig[pathStr];
 
@@ -86,8 +82,6 @@ export const SchemaForm = observer(({ model, schema, readonly = false }: PropsSc
       namePath,
       value: currentValue,
       onChange: (value: any) => handleFieldChange(namePath, value),
-      disabled: isReadonly,
-      readOnly: isReadonly,
       model,
       onAddArrayItem: handleAddArrayItem,
       onRemoveArrayItem: handleRemoveArrayItem,

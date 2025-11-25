@@ -17,8 +17,6 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
   namePath,
   value,
   onChange,
-  disabled,
-  readOnly,
 }) => {
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
@@ -120,7 +118,6 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
       filterOption={false}
       onSearch={handleSearch}
       style={{ width: '100%' }}
-      disabled={disabled || readOnly}
     />
   );
 };

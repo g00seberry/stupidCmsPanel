@@ -18,13 +18,7 @@ type PropsSelectWidget = FieldRendererProps & {
  * @param props Пропсы рендерера поля и конфигурация компонента.
  * @returns Компонент Select для выбора из списка.
  */
-export const SelectWidget: React.FC<PropsSelectWidget> = ({
-  value,
-  onChange,
-  disabled,
-  readOnly,
-  componentConfig,
-}) => {
+export const SelectWidget: React.FC<PropsSelectWidget> = ({ value, onChange, componentConfig }) => {
   // Для ref полей используется RefFieldWidget из widgetRegistry
   // Этот компонент используется для других случаев, когда нужен Select
   // Опции должны быть предоставлены через другой механизм (например, через schema)
@@ -35,7 +29,6 @@ export const SelectWidget: React.FC<PropsSelectWidget> = ({
       placeholder={componentConfig?.props.placeholder}
       showSearch={componentConfig?.props.showSearch}
       style={{ width: '100%' }}
-      disabled={disabled || readOnly}
       options={[]}
     />
   );

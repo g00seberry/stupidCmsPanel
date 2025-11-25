@@ -20,8 +20,6 @@ type PropsTextareaWidget = FieldRendererProps & {
 export const TextareaWidget: React.FC<PropsTextareaWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
 }) => {
   return (
@@ -31,8 +29,6 @@ export const TextareaWidget: React.FC<PropsTextareaWidget> = ({
       placeholder={componentConfig?.props.placeholder}
       rows={componentConfig?.props.rows}
       autoSize={!componentConfig?.props.rows}
-      disabled={disabled}
-      readOnly={readOnly}
       style={{ width: '100%' }}
     />
   );

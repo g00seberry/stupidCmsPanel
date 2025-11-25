@@ -21,8 +21,6 @@ type PropsCheckboxGroupWidget = FieldRendererProps & {
 export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   namePath,
   model,
@@ -56,31 +54,21 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = ({
           <div key={index} style={{ marginBottom: 8 }}>
             <Space style={{ display: 'flex' }} align="baseline">
               <div style={{ flex: 1 }}>
-                <Checkbox
-                  checked={item}
-                  onChange={e => handleItemChange(index, e.target.checked)}
-                  disabled={disabled || readOnly}
-                >
+                <Checkbox checked={item} onChange={e => handleItemChange(index, e.target.checked)}>
                   {componentConfig?.props.label || `Элемент ${index + 1}`}
                 </Checkbox>
                 {itemError && (
                   <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
                 )}
               </div>
-              {!readOnly && (
-                <Button onClick={() => handleRemove(index)} disabled={disabled}>
-                  Удалить
-                </Button>
-              )}
+              <Button onClick={() => handleRemove(index)}>Удалить</Button>
             </Space>
           </div>
         );
       })}
-      {!readOnly && (
-        <Button onClick={handleAdd} disabled={disabled} style={{ marginTop: 8 }}>
-          Добавить
-        </Button>
-      )}
+      <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+        Добавить
+      </Button>
     </div>
   );
 };

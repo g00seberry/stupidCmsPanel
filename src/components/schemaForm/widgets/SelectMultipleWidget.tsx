@@ -20,8 +20,6 @@ type PropsSelectMultipleWidget = FieldRendererProps & {
 export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   schema,
 }) => {
@@ -36,7 +34,6 @@ export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = ({
       placeholder={componentConfig?.props.placeholder}
       showSearch={componentConfig?.props.showSearch}
       style={{ width: '100%' }}
-      disabled={disabled || readOnly}
       options={[]}
     />
   );

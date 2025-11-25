@@ -20,8 +20,6 @@ type PropsInputNumberWidget = FieldRendererProps & {
 export const InputNumberWidget: React.FC<PropsInputNumberWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
 }) => {
   return (
@@ -32,8 +30,6 @@ export const InputNumberWidget: React.FC<PropsInputNumberWidget> = ({
       min={componentConfig?.props.min}
       max={componentConfig?.props.max}
       step={componentConfig?.props.step}
-      disabled={disabled}
-      readOnly={readOnly}
       style={{ width: '100%' }}
     />
   );

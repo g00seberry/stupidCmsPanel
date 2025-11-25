@@ -22,8 +22,6 @@ type PropsDatePickerWidget = FieldRendererProps & {
 export const DatePickerWidget: React.FC<PropsDatePickerWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
 }) => {
   // Преобразуем строку в dayjs объект, если значение - строка
@@ -36,7 +34,6 @@ export const DatePickerWidget: React.FC<PropsDatePickerWidget> = ({
       placeholder={componentConfig?.props.placeholder}
       format={componentConfig?.props.format}
       style={{ width: '100%' }}
-      disabled={disabled || readOnly}
     />
   );
 };

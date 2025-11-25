@@ -21,8 +21,6 @@ type PropsTextareaListWidget = FieldRendererProps & {
 export const TextareaListWidget: React.FC<PropsTextareaListWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   namePath,
   model,
@@ -61,27 +59,19 @@ export const TextareaListWidget: React.FC<PropsTextareaListWidget> = ({
                 placeholder={componentConfig?.props.placeholder}
                 rows={componentConfig?.props.rows}
                 autoSize={!componentConfig?.props.rows}
-                disabled={disabled}
-                readOnly={readOnly}
                 style={{ width: '100%' }}
               />
               {itemError && (
                 <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
               )}
-              {!readOnly && (
-                <Button onClick={() => handleRemove(index)} disabled={disabled}>
-                  Удалить
-                </Button>
-              )}
+              <Button onClick={() => handleRemove(index)}>Удалить</Button>
             </Space>
           </div>
         );
       })}
-      {!readOnly && (
-        <Button onClick={handleAdd} disabled={disabled} style={{ marginTop: 8 }}>
-          Добавить
-        </Button>
-      )}
+      <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+        Добавить
+      </Button>
     </div>
   );
 };

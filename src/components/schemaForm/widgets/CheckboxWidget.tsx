@@ -21,17 +21,11 @@ type PropsCheckboxWidget = FieldRendererProps & {
 export const CheckboxWidget: React.FC<PropsCheckboxWidget> = ({
   value,
   onChange,
-  disabled,
-  readOnly,
   componentConfig,
   namePath,
 }) => {
   return (
-    <Checkbox
-      checked={value}
-      onChange={e => onChange?.(e.target.checked)}
-      disabled={disabled || readOnly}
-    >
+    <Checkbox checked={value} onChange={e => onChange?.(e.target.checked)}>
       {componentConfig?.props.label || namePath}
     </Checkbox>
   );
