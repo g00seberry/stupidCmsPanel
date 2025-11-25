@@ -4,13 +4,21 @@ import type { FormItemProps } from 'antd/es/form';
 import z from 'zod';
 import {
   zEditCheckbox,
+  zEditCheckboxGroup,
   zEditDatePicker,
+  zEditDatePickerList,
   zEditDateTimePicker,
+  zEditDateTimePickerList,
   zEditInputNumber,
+  zEditInputNumberList,
   zEditInputText,
+  zEditInputTextList,
+  zEditJsonArray,
   zEditJsonObject,
   zEditSelect,
+  zEditSelectMultiple,
   zEditTextarea,
+  zEditTextareaList,
   type ZEditComponent,
 } from './ZComponent';
 
@@ -27,6 +35,14 @@ type ComponentPropsSchemaRegistry = {
   dateTimePicker: typeof zEditDateTimePicker.shape.props;
   select: typeof zEditSelect.shape.props;
   jsonObject: typeof zEditJsonObject.shape.props;
+  inputTextList: typeof zEditInputTextList.shape.props;
+  textareaList: typeof zEditTextareaList.shape.props;
+  inputNumberList: typeof zEditInputNumberList.shape.props;
+  checkboxGroup: typeof zEditCheckboxGroup.shape.props;
+  datePickerList: typeof zEditDatePickerList.shape.props;
+  dateTimePickerList: typeof zEditDateTimePickerList.shape.props;
+  selectMultiple: typeof zEditSelectMultiple.shape.props;
+  jsonArray: typeof zEditJsonArray.shape.props;
 };
 
 /**
@@ -47,6 +63,14 @@ const componentPropsSchemaRegistry = {
   dateTimePicker: zEditDateTimePicker.shape.props,
   select: zEditSelect.shape.props,
   jsonObject: zEditJsonObject.shape.props,
+  inputTextList: zEditInputTextList.shape.props,
+  textareaList: zEditTextareaList.shape.props,
+  inputNumberList: zEditInputNumberList.shape.props,
+  checkboxGroup: zEditCheckboxGroup.shape.props,
+  datePickerList: zEditDatePickerList.shape.props,
+  dateTimePickerList: zEditDateTimePickerList.shape.props,
+  selectMultiple: zEditSelectMultiple.shape.props,
+  jsonArray: zEditJsonArray.shape.props,
 } as const satisfies ComponentPropsSchemaRegistry;
 
 /**
@@ -57,10 +81,13 @@ const componentPropsSchemaRegistry = {
  * const propsSchema = getComponentPropsSchema('inputText');
  * // z.object({ label: z.string(), placeholder: z.string().optional() })
  */
-export const getComponentPropsSchema = <T extends ComponentName>(
-  componentName: T
-): ComponentPropsSchemaRegistry[T] | undefined => {
-  return componentPropsSchemaRegistry[componentName];
+export const getComponentPropsSchema = (
+  componentName: ZEditComponent['name']
+): ComponentPropsSchemaRegistry[keyof ComponentPropsSchemaRegistry] | undefined => {
+  if (componentName in componentPropsSchemaRegistry) {
+    return componentPropsSchemaRegistry[componentName as ComponentName];
+  }
+  return undefined;
 };
 
 /**
@@ -249,6 +276,14 @@ export const componentMetadataRegistry: ComponentMetadataRegistryMap = {
   dateTimePicker: dateTimePickerMetadata,
   select: selectMetadata,
   jsonObject: jsonObjectMetadata,
+  inputTextList: inputTextMetadata,
+  textareaList: textareaMetadata,
+  inputNumberList: inputNumberMetadata,
+  checkboxGroup: checkboxMetadata,
+  datePickerList: datePickerMetadata,
+  dateTimePickerList: dateTimePickerMetadata,
+  selectMultiple: selectMetadata,
+  jsonArray: jsonObjectMetadata,
 };
 
 /**
@@ -338,7 +373,10 @@ export const extractEnhancedFieldMetadata = (
   componentName: ZEditComponent['name']
 ): EnhancedFieldMetadata[] => {
   const propsSchema = getComponentPropsSchema(componentName);
-  const componentMetadata = componentMetadataRegistry[componentName];
+  const componentMetadata =
+    componentName in componentMetadataRegistry
+      ? componentMetadataRegistry[componentName as ComponentName]
+      : undefined;
 
   if (!propsSchema || !componentMetadata) {
     return [];
