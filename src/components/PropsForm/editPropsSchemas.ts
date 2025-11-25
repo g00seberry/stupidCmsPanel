@@ -18,7 +18,7 @@ import {
   zEditTextarea,
   zEditTextareaList,
   type ZEditComponent,
-} from '../schemaForm/componentDefs/ZComponent';
+} from '../schemaForm/ZComponent';
 
 // Имя компонента (дискриминатор)
 export type EditComponentName = ZEditComponent['name'];

@@ -1,8 +1,8 @@
 import { Select } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditSelect } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../types';
+import type { ZEditSelect } from '../ZComponent';
 import { getValueByPath } from '@/utils/pathUtils';
 
 /**

@@ -4,8 +4,8 @@ import { Button, DatePicker, Space } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
-import type { ZEditDateTimePickerList } from '../componentDefs/ZComponent';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
+import type { ZEditDateTimePickerList } from '../ZComponent';
+import type { FieldRendererProps } from '../types';
 
 /**
  * Пропсы компонента DateTimePickerListWidget.

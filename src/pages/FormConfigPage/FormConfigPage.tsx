@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
 import { PropsForm } from '@/components/PropsForm/PropsForm';
-import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
+import type { ZEditComponent } from '@/components/schemaForm/ZComponent';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { DataNode } from 'antd/es/tree';
 import { Tooltip } from 'antd';

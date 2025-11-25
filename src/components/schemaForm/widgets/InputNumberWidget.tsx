@@ -1,8 +1,8 @@
 import { InputNumber } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditInputNumber } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../types';
+import type { ZEditInputNumber } from '../ZComponent';
 import { getValueByPath } from '@/utils/pathUtils';
 
 /**

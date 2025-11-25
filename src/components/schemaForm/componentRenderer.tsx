@@ -1,9 +1,14 @@
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { PathSegment } from '@/utils/pathUtils';
 import type React from 'react';
-import { getAllowedComponents } from './componentDefs/getAllowedComponents';
-import type { ZEditComponent } from './componentDefs/ZComponent';
-import type { FieldRendererProps } from './types/FieldRendererProps';
+import { getAllowedComponents } from './getAllowedComponents';
+import type { ZEditComponent } from './ZComponent';
+import type {
+  ComponentRendererProps,
+  ExtractedComponentConfig,
+  FieldRendererProps,
+  RenderFunctionDef,
+} from './types';
 import { CheckboxGroupWidget } from './widgets/CheckboxGroupWidget';
 import { CheckboxWidget } from './widgets/CheckboxWidget';
 import { DatePickerListWidget } from './widgets/DatePickerListWidget';
@@ -27,45 +32,40 @@ import { TextareaWidget } from './widgets/TextareaWidget';
  * Каждая функция рендеринга получает типизированный config в зависимости от ключа.
  */
 const componentRendererRegistry: {
-  [K in ZEditComponent['name']]: (
-    config: Extract<ZEditComponent, { name: K }>,
-    rendererProps: FieldRendererProps
-  ) => React.ReactNode;
+  [K in ZEditComponent['name']]: RenderFunctionDef<K>;
 } = {
   /** Компонент ввода текста. */
-  inputText: (config, props) => <InputTextWidget {...props} componentConfig={config} />,
+  inputText: InputTextWidget,
   /** Компонент списка текстовых полей. */
-  inputTextList: (config, props) => <InputTextListWidget {...props} componentConfig={config} />,
+  inputTextList: InputTextListWidget,
   /** Компонент ввода многострочного текста. */
-  textarea: (config, props) => <TextareaWidget {...props} componentConfig={config} />,
+  textarea: TextareaWidget,
   /** Компонент списка многострочных текстовых полей. */
-  textareaList: (config, props) => <TextareaListWidget {...props} componentConfig={config} />,
+  textareaList: TextareaListWidget,
   /** Компонент ввода числа. */
-  inputNumber: (config, props) => <InputNumberWidget {...props} componentConfig={config} />,
+  inputNumber: InputNumberWidget,
   /** Компонент списка числовых полей. */
-  inputNumberList: (config, props) => <InputNumberListWidget {...props} componentConfig={config} />,
+  inputNumberList: InputNumberListWidget,
   /** Компонент чекбокса. */
-  checkbox: (config, props) => <CheckboxWidget {...props} componentConfig={config} />,
+  checkbox: CheckboxWidget,
   /** Компонент группы чекбоксов. */
-  checkboxGroup: (config, props) => <CheckboxGroupWidget {...props} componentConfig={config} />,
+  checkboxGroup: CheckboxGroupWidget,
   /** Компонент выбора даты. */
-  datePicker: (config, props) => <DatePickerWidget {...props} componentConfig={config} />,
+  datePicker: DatePickerWidget,
   /** Компонент списка полей выбора даты. */
-  datePickerList: (config, props) => <DatePickerListWidget {...props} componentConfig={config} />,
+  datePickerList: DatePickerListWidget,
   /** Компонент выбора даты и времени. */
-  dateTimePicker: (config, props) => <DateTimePickerWidget {...props} componentConfig={config} />,
+  dateTimePicker: DateTimePickerWidget,
   /** Компонент списка полей выбора даты и времени. */
-  dateTimePickerList: (config, props) => (
-    <DateTimePickerListWidget {...props} componentConfig={config} />
-  ),
+  dateTimePickerList: DateTimePickerListWidget,
   /** Компонент выбора из списка. */
-  select: (config, props) => <SelectWidget {...props} componentConfig={config} />,
+  select: SelectWidget,
   /** Компонент множественного выбора из списка. */
-  selectMultiple: (config, props) => <SelectMultipleWidget {...props} componentConfig={config} />,
+  selectMultiple: SelectMultipleWidget,
   /** Компонент JSON объекта. */
-  jsonObject: (config, props) => <JsonObjectWidget {...props} componentConfig={config} />,
+  jsonObject: JsonObjectWidget,
   /** Компонент массива JSON объектов. */
-  jsonArray: (config, props) => <JsonArrayWidget {...props} componentConfig={config} />,
+  jsonArray: JsonArrayWidget,
 };
 
 /**
@@ -75,56 +75,17 @@ const componentRendererRegistry: {
  * @param namePath Путь к полю для получения имени поля.
  * @returns Дефолтная конфигурация компонента или `null`, если тип не поддерживается.
  */
-const createDefaultComponentConfig = (
+const createDefaultComponentConfig = <K extends ZEditComponent['name']>(
   schema: ZBlueprintSchemaField,
   namePath: PathSegment[]
-): ZEditComponent | null => {
+): ExtractedComponentConfig<K> | null => {
   const { type, cardinality } = schema;
   const allowedComponents = getAllowedComponents(type, cardinality);
-
-  if (allowedComponents.length === 0) {
-    return null;
-  }
-
+  if (allowedComponents.length === 0) return null;
   const componentName = allowedComponents[0];
   const fieldName = (namePath[namePath.length - 1] as string) || '';
-
-  switch (componentName) {
-    case 'inputText':
-      return { name: 'inputText', props: { label: fieldName } };
-    case 'textarea':
-      return { name: 'textarea', props: { label: fieldName } };
-    case 'inputNumber':
-      return { name: 'inputNumber', props: { label: fieldName } };
-    case 'checkbox':
-      return { name: 'checkbox', props: { label: fieldName } };
-    case 'datePicker':
-      return { name: 'datePicker', props: { label: fieldName } };
-    case 'dateTimePicker':
-      return { name: 'dateTimePicker', props: { label: fieldName } };
-    case 'select':
-      return { name: 'select', props: { label: fieldName } };
-    case 'jsonObject':
-      return { name: 'jsonObject', props: { label: fieldName } };
-    case 'inputTextList':
-      return { name: 'inputTextList', props: { label: fieldName } };
-    case 'textareaList':
-      return { name: 'textareaList', props: { label: fieldName } };
-    case 'inputNumberList':
-      return { name: 'inputNumberList', props: { label: fieldName } };
-    case 'checkboxGroup':
-      return { name: 'checkboxGroup', props: { label: fieldName } };
-    case 'datePickerList':
-      return { name: 'datePickerList', props: { label: fieldName } };
-    case 'dateTimePickerList':
-      return { name: 'dateTimePickerList', props: { label: fieldName } };
-    case 'selectMultiple':
-      return { name: 'selectMultiple', props: { label: fieldName } };
-    case 'jsonArray':
-      return { name: 'jsonArray', props: { label: fieldName } };
-    default:
-      return null;
-  }
+  const props = { label: fieldName };
+  return { name: componentName ?? 'inputText', props } as ExtractedComponentConfig<K>;
 };
 
 /**
@@ -134,11 +95,11 @@ const createDefaultComponentConfig = (
  * @returns Результат рендеринга компонента или `null`.
  */
 const renderComponent = <K extends ZEditComponent['name']>(
-  config: Extract<ZEditComponent, { name: K }>,
-  rendererProps: FieldRendererProps
+  Component: React.FC<ComponentRendererProps<K>>,
+  rendererProps: FieldRendererProps,
+  config: ExtractedComponentConfig<K>
 ): React.ReactNode => {
-  const renderer = componentRendererRegistry[config.name];
-  return renderer ? renderer(config, rendererProps) : null;
+  return <Component {...rendererProps} componentConfig={config} />;
 };
 
 /**
@@ -154,20 +115,13 @@ const renderComponent = <K extends ZEditComponent['name']>(
  *   { schema: { type: 'string', cardinality: 'one', ... }, namePath: ['title'], model: formModel }
  * );
  */
-export const renderComponentFromConfig = (
-  componentConfig: ZEditComponent | undefined,
+export const renderComponentFromConfig = <K extends ZEditComponent['name']>(
+  componentConfig: ExtractedComponentConfig<K> | undefined,
   rendererProps: FieldRendererProps
 ): React.ReactNode => {
-  const { schema } = rendererProps;
-
-  // Если конфигурация передана, используем её для определения компонента
-  if (componentConfig) {
-    return renderComponent(componentConfig, rendererProps);
-  }
-
-  // Если конфигурация не передана, используем fallback
-  const config = createDefaultComponentConfig(schema, rendererProps.namePath);
-  if (!config) return null;
-
-  return renderComponent(config, rendererProps);
+  const finalComponentConfig =
+    componentConfig ?? createDefaultComponentConfig(rendererProps.schema, rendererProps.namePath);
+  if (!finalComponentConfig) return null;
+  const Component = componentRendererRegistry[finalComponentConfig.name];
+  return renderComponent(Component, rendererProps, finalComponentConfig);
 };

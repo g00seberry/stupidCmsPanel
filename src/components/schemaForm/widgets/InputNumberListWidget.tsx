@@ -2,8 +2,8 @@ import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Button, InputNumber, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
-import type { ZEditInputNumberList } from '../componentDefs/ZComponent';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
+import type { ZEditInputNumberList } from '../ZComponent';
+import type { FieldRendererProps } from '../types';
 
 /**
  * Пропсы компонента InputNumberListWidget.

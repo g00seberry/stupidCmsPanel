@@ -1,10 +1,10 @@
 import { makeAutoObservable } from 'mobx';
-import type { FormValues } from '@/components/schemaForm/types/FormValues';
+import type { FormValues } from './types';
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, pathToString, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import { validateField } from '@/utils/validationUtils';
-import type { ZEditComponent } from './componentDefs/ZComponent';
+import type { ZEditComponent } from './ZComponent';
 
 /**
  * Модель формы на основе схемы сущности.

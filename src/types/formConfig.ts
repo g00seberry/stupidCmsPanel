@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { zEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
+import { zEditComponent } from '@/components/schemaForm/ZComponent';
 
 /**
  * Схема валидации ответа с конфигурацией формы (GET).

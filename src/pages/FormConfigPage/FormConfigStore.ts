@@ -6,8 +6,8 @@ import { onError } from '@/utils/onError';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType } from '@/types/postTypes';
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
-import { getAllowedComponents } from '@/components/schemaForm/componentDefs/getAllowedComponents';
+import type { ZEditComponent } from '@/components/schemaForm/ZComponent';
+import { getAllowedComponents } from '@/components/schemaForm/getAllowedComponents';
 import { pathToString, type PathSegment } from '@/utils/pathUtils';
 
 /**

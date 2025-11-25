@@ -1,5 +1,5 @@
 import { rest } from '@/api/rest';
-import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
+import type { ZEditComponent } from '@/components/schemaForm/ZComponent';
 import { z } from 'zod';
 import { zFormConfigResponse, zFormConfigSaveResponse } from '@/types/formConfig';
 

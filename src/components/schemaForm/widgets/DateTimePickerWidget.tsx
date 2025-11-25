@@ -2,8 +2,8 @@ import { DatePicker } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Dayjs } from 'dayjs';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditDateTimePicker } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../types';
+import type { ZEditDateTimePicker } from '../ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 import { getValueByPath } from '@/utils/pathUtils';
 

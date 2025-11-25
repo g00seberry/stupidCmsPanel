@@ -1,8 +1,8 @@
 import { getFormConfig } from '@/api/apiFormConfig';
 import { getBlueprintSchema } from '@/api/blueprintApi';
 import { FormModel } from '@/components/schemaForm/FormModel';
-import type { FormValues } from '@/components/schemaForm/types/FormValues';
-import type { ZEditComponent } from './componentDefs/ZComponent';
+import type { FormValues } from './types';
+import type { ZEditComponent } from './ZComponent';
 
 /**
  * Создаёт FormModel из Blueprint схемы.

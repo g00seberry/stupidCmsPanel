@@ -1,11 +1,11 @@
 import { Card } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
+import type { FieldRendererProps } from '../types';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditComponent } from '../ZComponent';
 
 /**
  * Пропсы компонента JsonObjectWidget.
