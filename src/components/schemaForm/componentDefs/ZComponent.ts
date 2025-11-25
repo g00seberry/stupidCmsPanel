@@ -152,6 +152,157 @@ export const zEditJsonObject = z.object({
 export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
 
 /**
+ * Схема валидации компонента списка текстовых полей (Input для массива).
+ * Используется для полей типа 'string' с кардинальностью 'many'.
+ */
+export const zEditInputTextList = z.object({
+  name: z.literal('inputTextList'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+  }),
+});
+
+export type ZEditInputTextList = z.infer<typeof zEditInputTextList>;
+
+/**
+ * Схема валидации компонента списка многострочных текстовых полей (TextArea для массива).
+ * Используется для полей типа 'text' с кардинальностью 'many'.
+ */
+export const zEditTextareaList = z.object({
+  name: z.literal('textareaList'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+    rows: z
+      .number()
+      .min(1, 'Минимум 1')
+      .optional()
+      .describe('Rows|Количество строк|Количество строк'),
+  }),
+});
+
+export type ZEditTextareaList = z.infer<typeof zEditTextareaList>;
+
+/**
+ * Схема валидации компонента списка числовых полей (InputNumber для массива).
+ * Используется для полей типа 'int' и 'float' с кардинальностью 'many'.
+ */
+export const zEditInputNumberList = z.object({
+  name: z.literal('inputNumberList'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+    min: z.number().optional().describe('Min|Минимальное значение|Минимальное значение'),
+    max: z.number().optional().describe('Max|Максимальное значение|Максимальное значение'),
+    step: z.number().optional().describe('Step|Шаг изменения значения|Шаг'),
+  }),
+});
+
+export type ZEditInputNumberList = z.infer<typeof zEditInputNumberList>;
+
+/**
+ * Схема валидации компонента группы чекбоксов (Checkbox для массива).
+ * Используется для полей типа 'bool' с кардинальностью 'many'.
+ */
+export const zEditCheckboxGroup = z.object({
+  name: z.literal('checkboxGroup'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+  }),
+});
+
+export type ZEditCheckboxGroup = z.infer<typeof zEditCheckboxGroup>;
+
+/**
+ * Схема валидации компонента списка полей выбора даты (DatePicker для массива).
+ * Используется для полей типа 'date' с кардинальностью 'many'.
+ */
+export const zEditDatePickerList = z.object({
+  name: z.literal('datePickerList'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+    format: z.string().optional().describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
+  }),
+});
+
+export type ZEditDatePickerList = z.infer<typeof zEditDatePickerList>;
+
+/**
+ * Схема валидации компонента списка полей выбора даты и времени (DatePicker с showTime для массива).
+ * Используется для полей типа 'datetime' с кардинальностью 'many'.
+ */
+export const zEditDateTimePickerList = z.object({
+  name: z.literal('dateTimePickerList'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+    format: z
+      .string()
+      .optional()
+      .describe(
+        'Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'
+      ),
+    showTime: z
+      .boolean()
+      .optional()
+      .describe('Show Time|Показывать время|Показывать выбор времени'),
+  }),
+});
+
+export type ZEditDateTimePickerList = z.infer<typeof zEditDateTimePickerList>;
+
+/**
+ * Схема валидации компонента множественного выбора из списка (Select с mode="multiple").
+ * Используется для полей типа 'ref' с кардинальностью 'many'.
+ */
+export const zEditSelectMultiple = z.object({
+  name: z.literal('selectMultiple'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+    placeholder: z
+      .string()
+      .optional()
+      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+    showSearch: z
+      .boolean()
+      .optional()
+      .describe('Show Search|Включить поиск|Показывать поле поиска'),
+  }),
+});
+
+export type ZEditSelectMultiple = z.infer<typeof zEditSelectMultiple>;
+
+/**
+ * Схема валидации компонента массива JSON объектов.
+ * Используется для полей типа 'json' с кардинальностью 'many'.
+ */
+export const zEditJsonArray = z.object({
+  name: z.literal('jsonArray'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+  }),
+});
+
+export type ZEditJsonArray = z.infer<typeof zEditJsonArray>;
+
+/**
  * Схема валидации конфигурации компонента формы редактирования.
  * Определяет все доступные типы компонентов и их свойства.
  * @example
@@ -169,6 +320,14 @@ export const zEditComponent = z.discriminatedUnion('name', [
   zEditDateTimePicker,
   zEditSelect,
   zEditJsonObject,
+  zEditInputTextList,
+  zEditTextareaList,
+  zEditInputNumberList,
+  zEditCheckboxGroup,
+  zEditDatePickerList,
+  zEditDateTimePickerList,
+  zEditSelectMultiple,
+  zEditJsonArray,
 ]);
 
 /**

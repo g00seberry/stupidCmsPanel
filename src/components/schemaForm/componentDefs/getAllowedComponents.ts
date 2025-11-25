@@ -11,52 +11,52 @@ const componentsOptionsRegistry: Record<
   /** Строковые поля. */
   string: {
     one: ['inputText'],
-    many: ['inputText'],
+    many: ['inputTextList'],
   },
   /** Многострочные текстовые поля. */
   text: {
     one: ['textarea'],
-    many: ['textarea'],
+    many: ['textareaList'],
   },
   /** Целочисленные поля. */
   int: {
     one: ['inputNumber'],
-    many: ['inputNumber'],
+    many: ['inputNumberList'],
   },
   /** Числа с плавающей точкой. */
   float: {
     one: ['inputNumber'],
-    many: ['inputNumber'],
+    many: ['inputNumberList'],
   },
   /** Булевы поля. */
   bool: {
     one: ['checkbox'],
-    many: ['checkbox'],
+    many: ['checkboxGroup'],
   },
   /** Поля даты. */
   date: {
     one: ['datePicker'],
-    many: ['datePicker'],
+    many: ['datePickerList'],
   },
   /** Поля даты и времени. */
   datetime: {
     one: ['dateTimePicker'],
-    many: ['dateTimePicker'],
+    many: ['dateTimePickerList'],
   },
   /** Ссылочные поля (ref). */
   ref: {
     one: ['select'],
-    many: ['select'],
+    many: ['selectMultiple'],
   },
   /** JSON объекты. */
   json: {
     one: ['jsonObject'],
-    many: ['jsonObject'],
+    many: ['jsonArray'],
   },
   /** Числовые поля (устаревший тип, используйте 'int' или 'float'). */
   number: {
     one: ['inputNumber'],
-    many: ['inputNumber'],
+    many: ['inputNumberList'],
   },
 };
 
@@ -68,7 +68,7 @@ const componentsOptionsRegistry: Record<
  * @example
  * getAllowedComponents('string', 'one'); // ['inputText']
  * getAllowedComponents('int', 'one'); // ['inputNumber']
- * getAllowedComponents('date', 'many'); // ['datePicker']
+ * getAllowedComponents('date', 'many'); // ['datePickerList']
  */
 export const getAllowedComponents = (
   dataType: string,
