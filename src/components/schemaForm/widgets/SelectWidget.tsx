@@ -1,14 +1,14 @@
 import { Select } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditSelect } from '../componentDefs/ZComponent';
 
 /**
  * Пропсы компонента SelectWidget.
  */
 type PropsSelectWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'select' }>;
+  componentConfig?: ZEditSelect;
 };
 
 /**

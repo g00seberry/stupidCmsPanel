@@ -1,14 +1,14 @@
 import { Checkbox } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditCheckbox } from '../componentDefs/ZComponent';
 
 /**
  * Пропсы компонента CheckboxWidget.
  */
 type PropsCheckboxWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'checkbox' }>;
+  componentConfig?: ZEditCheckbox;
 };
 
 /**

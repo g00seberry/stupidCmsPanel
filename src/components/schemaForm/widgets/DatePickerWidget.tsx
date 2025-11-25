@@ -2,7 +2,7 @@ import { DatePicker } from 'antd';
 import type React from 'react';
 import type { Dayjs } from 'dayjs';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditDatePicker } from '../componentDefs/ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 
 /**
@@ -10,7 +10,7 @@ import { viewDate } from '@/utils/dateUtils';
  */
 type PropsDatePickerWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'datePicker' }>;
+  componentConfig?: ZEditDatePicker;
 };
 
 /**
@@ -27,8 +27,7 @@ export const DatePickerWidget: React.FC<PropsDatePickerWidget> = ({
   componentConfig,
 }) => {
   // Преобразуем строку в dayjs объект, если значение - строка
-  const dayjsValue: Dayjs | null =
-    typeof value === 'string' ? viewDate(value) : (value ?? null);
+  const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
 
   return (
     <DatePicker
@@ -41,4 +40,3 @@ export const DatePickerWidget: React.FC<PropsDatePickerWidget> = ({
     />
   );
 };
-

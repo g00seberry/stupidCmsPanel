@@ -1,14 +1,14 @@
 import { InputNumber } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditInputNumber } from '../componentDefs/ZComponent';
 
 /**
  * Пропсы компонента InputNumberWidget.
  */
 type PropsInputNumberWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'inputNumber' }>;
+  componentConfig?: ZEditInputNumber;
 };
 
 /**
@@ -38,4 +38,3 @@ export const InputNumberWidget: React.FC<PropsInputNumberWidget> = ({
     />
   );
 };
-

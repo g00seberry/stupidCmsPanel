@@ -1,22 +1,22 @@
-import { Checkbox } from 'antd';
+import { Button, Checkbox, Space } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditCheckbox } from '../componentDefs/ZComponent';
+import { pathToString } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента CheckboxGroupWidget.
  */
 type PropsCheckboxGroupWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'checkbox' }>;
+  componentConfig?: ZEditCheckbox;
 };
 
 /**
- * Виджет для множественного выбора чекбоксов (Checkbox.Group).
- * Рендерит группу чекбоксов для полей с cardinality 'many'.
- * Примечание: для bool полей с many обычно используется массив булевых значений или массив объектов.
+ * Виджет для списка чекбоксов (Checkbox для массива).
+ * Рендерит список чекбоксов для работы с массивом булевых значений.
  * @param props Пропсы рендерера поля и конфигурация компонента.
- * @returns Компонент Checkbox.Group для множественного выбора.
+ * @returns Компонент для работы со списком чекбоксов.
  */
 export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = ({
   value,
@@ -24,22 +24,63 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = ({
   disabled,
   readOnly,
   componentConfig,
+  namePath,
+  model,
 }) => {
-  // Значение должно быть массивом
+  // Значение должно быть массивом булевых значений
   const arrayValue = Array.isArray(value) ? value : [];
 
-  // Для Checkbox.Group нужны опции, но их нет в конфигурации
-  // Используем простой подход: массив булевых значений
-  // В реальном сценарии может потребоваться передача опций через schema
+  const handleItemChange = (index: number, checked: boolean) => {
+    const newArray = [...arrayValue];
+    newArray[index] = checked;
+    onChange?.(newArray);
+  };
+
+  const handleAdd = () => {
+    onChange?.([...arrayValue, false]);
+  };
+
+  const handleRemove = (index: number) => {
+    const newArray = arrayValue.filter((_, i) => i !== index);
+    onChange?.(newArray);
+  };
+
   return (
-    <Checkbox.Group
-      value={arrayValue}
-      onChange={onChange}
-      disabled={disabled || readOnly}
-    >
-      {/* Опции должны быть предоставлены через другой механизм */}
-      {/* Пока что это базовая реализация */}
-    </Checkbox.Group>
+    <div>
+      {arrayValue.map((item, index) => {
+        const itemPath = [...namePath, index];
+        const itemPathStr = pathToString(itemPath);
+        const itemError = model?.errorFor(itemPathStr);
+
+        return (
+          <div key={index} style={{ marginBottom: 8 }}>
+            <Space style={{ display: 'flex' }} align="baseline">
+              <div style={{ flex: 1 }}>
+                <Checkbox
+                  checked={item}
+                  onChange={e => handleItemChange(index, e.target.checked)}
+                  disabled={disabled || readOnly}
+                >
+                  {componentConfig?.props.label || `Элемент ${index + 1}`}
+                </Checkbox>
+                {itemError && (
+                  <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
+                )}
+              </div>
+              {!readOnly && (
+                <Button onClick={() => handleRemove(index)} disabled={disabled}>
+                  Удалить
+                </Button>
+              )}
+            </Space>
+          </div>
+        );
+      })}
+      {!readOnly && (
+        <Button onClick={handleAdd} disabled={disabled} style={{ marginTop: 8 }}>
+          Добавить
+        </Button>
+      )}
+    </div>
   );
 };
-

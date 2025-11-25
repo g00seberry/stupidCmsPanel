@@ -1,15 +1,15 @@
-import { Input, Button, Space } from 'antd';
-import type React from 'react';
-import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
 import { pathToString } from '@/utils/pathUtils';
+import { Button, Input, Space } from 'antd';
+import type React from 'react';
+import type { ZEditTextarea } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../widgetRegistry';
 
 /**
  * Пропсы компонента TextareaListWidget.
  */
 type PropsTextareaListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'textarea' }>;
+  componentConfig?: ZEditTextarea;
 };
 
 /**

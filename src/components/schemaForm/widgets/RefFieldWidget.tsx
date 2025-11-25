@@ -47,7 +47,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
     void loadData();
   }, []);
 
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Поиск с debounce
   const handleSearch = (value: string) => {
@@ -124,4 +124,3 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
     />
   );
 };
-

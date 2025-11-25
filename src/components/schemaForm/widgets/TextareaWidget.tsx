@@ -1,14 +1,14 @@
 import { Input } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditTextarea } from '../componentDefs/ZComponent';
 
 /**
  * Пропсы компонента TextareaWidget.
  */
 type PropsTextareaWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'textarea' }>;
+  componentConfig?: ZEditTextarea;
 };
 
 /**
@@ -37,4 +37,3 @@ export const TextareaWidget: React.FC<PropsTextareaWidget> = ({
     />
   );
 };
-

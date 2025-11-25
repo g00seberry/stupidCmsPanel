@@ -1,7 +1,7 @@
 import { Input, Button, Space } from 'antd';
 import type React from 'react';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditInputText } from '../componentDefs/ZComponent';
 import { pathToString } from '@/utils/pathUtils';
 
 /**
@@ -9,7 +9,7 @@ import { pathToString } from '@/utils/pathUtils';
  */
 type PropsInputTextListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'inputText' }>;
+  componentConfig?: ZEditInputText;
 };
 
 /**

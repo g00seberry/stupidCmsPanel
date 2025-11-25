@@ -2,7 +2,7 @@ import { DatePicker, Button, Space } from 'antd';
 import type React from 'react';
 import type { Dayjs } from 'dayjs';
 import type { FieldRendererProps } from '../widgetRegistry';
-import type { ZEditComponent } from '../componentDefs/ZComponent';
+import type { ZEditDateTimePicker } from '../componentDefs/ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 import { pathToString } from '@/utils/pathUtils';
 
@@ -11,7 +11,7 @@ import { pathToString } from '@/utils/pathUtils';
  */
 type PropsDateTimePickerListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: Extract<ZEditComponent, { name: 'dateTimePicker' }>;
+  componentConfig?: ZEditDateTimePicker;
 };
 
 /**
@@ -51,8 +51,7 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     <div>
       {arrayValue.map((item, index) => {
         // Преобразуем строку в dayjs объект, если значение - строка
-        const dayjsValue: Dayjs | null =
-          typeof item === 'string' ? viewDate(item) : (item ?? null);
+        const dayjsValue: Dayjs | null = typeof item === 'string' ? viewDate(item) : (item ?? null);
         const itemPath = [...namePath, index];
         const itemPathStr = pathToString(itemPath);
         const itemError = model?.errorFor(itemPathStr);
@@ -91,4 +90,3 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     </div>
   );
 };
-
