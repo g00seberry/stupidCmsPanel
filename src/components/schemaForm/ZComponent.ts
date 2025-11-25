@@ -186,17 +186,6 @@ export const zEditSelect = z.object({
 export type ZEditSelect = z.infer<typeof zEditSelect>;
 
 /**
- * Схема валидации компонента JSON объекта.
- * Используется для полей типа 'json'.
- */
-export const zEditJsonObject = z.object({
-  name: z.literal('jsonObject'),
-  props: zBaseProps,
-});
-
-export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
-
-/**
  * Схема валидации компонента списка текстовых полей (Input для массива).
  * Используется для полей типа 'string' с кардинальностью 'many'.
  */
@@ -274,12 +263,22 @@ export const zEditSelectMultiple = z.object({
 export type ZEditSelectMultiple = z.infer<typeof zEditSelectMultiple>;
 
 /**
+ * Схема валидации компонента JSON объекта.
+ * Используется для полей типа 'json'.
+ */
+export const zEditJsonObject = z.object({
+  name: z.literal('jsonObject'),
+  props: zBaseProps,
+});
+
+export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
+
+/**
  * Схема валидации компонента массива JSON объектов.
  * Используется для полей типа 'json' с кардинальностью 'many'.
  */
-export const zEditJsonArray = z.object({
+export const zEditJsonArray = zEditJsonObject.extend({
   name: z.literal('jsonArray'),
-  props: zBaseProps,
 });
 
 export type ZEditJsonArray = z.infer<typeof zEditJsonArray>;

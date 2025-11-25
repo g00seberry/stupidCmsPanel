@@ -2,11 +2,10 @@ import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Button, Card } from 'antd';
 import { observer } from 'mobx-react-lite';
-import type React from 'react';
-import { renderComponentFromConfig } from '../componentRenderer';
+import React from 'react';
 import { FieldError } from '../FieldError';
 import type { FieldRendererProps } from '../types';
-import type { ZEditJsonArray } from '../ZComponent';
+import type { ZEditJsonArray, ZEditJsonObject } from '../ZComponent';
 import { JsonObjectWidget } from './JsonObjectWidget';
 
 /**
@@ -55,72 +54,19 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
         {arrayValue.map((_, index) => {
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);
-          const itemError = model.errorFor(itemPathStr);
-
+          const childComponentConfig = {
+            name: 'jsonObject',
+            ...componentConfig,
+          } as ZEditJsonObject;
           return (
-            <Card
+            <JsonObjectWidget
               key={itemPathStr}
-              size="small"
-              className="mb-2"
+              schema={field}
+              namePath={itemPath}
+              componentConfig={childComponentConfig}
+              model={model}
               extra={<Button onClick={() => handleRemoveItem(index)}>Удалить</Button>}
-            >
-              {Object.entries(field.children!).map(([childKey, childField]) => {
-                const childPath = [...itemPath, childKey];
-                const childPathStr = pathToString(childPath);
-                const childError = model.errorFor(childPathStr);
-
-                // Проверяем, есть ли конфигурация компонента для дочернего поля
-                const childComponentConfig = model.formConfig[childPathStr];
-
-                // Для примитивных полей
-                if (childField.type !== 'json') {
-                  if (childField.cardinality === 'one') {
-                    const widgetElement = renderComponentFromConfig(childComponentConfig, {
-                      schema: childField,
-                      namePath: childPath,
-                      model,
-                    });
-
-                    const childLabelText = childComponentConfig?.props.label || childKey;
-
-                    return (
-                      <div key={childPathStr} className="mb-4">
-                        <label className="block mb-1 font-medium">{childLabelText}</label>
-                        {widgetElement}
-                        <FieldError error={childError} />
-                      </div>
-                    );
-                  }
-
-                  // Для массивов примитивов
-                  const arrayLabelText = childComponentConfig?.props.label || childKey;
-                  const widgetElement = renderComponentFromConfig(childComponentConfig, {
-                    schema: childField,
-                    namePath: childPath,
-                    model,
-                  });
-
-                  return (
-                    <div key={childPathStr} className="mb-4">
-                      <label className="block mb-1 font-medium">{arrayLabelText}</label>
-                      {widgetElement}
-                      <FieldError error={childError} />
-                    </div>
-                  );
-                }
-
-                // Для вложенных json полей рекурсивно используем JsonObjectWidget
-                return (
-                  <JsonObjectWidget
-                    key={childPathStr}
-                    schema={childField}
-                    namePath={childPath}
-                    model={model}
-                  />
-                );
-              })}
-              <FieldError error={itemError} />
-            </Card>
+            />
           );
         })}
         <FieldError error={error} />

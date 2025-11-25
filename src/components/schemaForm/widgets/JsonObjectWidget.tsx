@@ -14,6 +14,7 @@ import { FieldError } from '../FieldError';
 type PropsJsonObjectWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent (опционально, так как json рендерит children). */
   componentConfig?: ZEditJsonObject;
+  extra?: React.ReactNode;
 };
 
 /**
@@ -23,7 +24,7 @@ type PropsJsonObjectWidget = FieldRendererProps & {
  * @returns Компонент Card с вложенными полями.
  */
 export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
-  ({ schema, namePath, componentConfig, model }) => {
+  ({ schema, namePath, componentConfig, model, extra }) => {
     const field = schema as ZBlueprintSchemaField;
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
@@ -36,7 +37,7 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
     const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
 
     return (
-      <Card title={labelText} className="mb-4">
+      <Card title={labelText} className="mb-4" extra={extra}>
         {Object.entries(field.children).map(([childKey, childField]) => {
           const childPath = [...namePath, childKey];
           const childPathStr = pathToString(childPath);
