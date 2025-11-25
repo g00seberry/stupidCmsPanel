@@ -1,16 +1,16 @@
-import { Input, Button, Space } from 'antd';
-import type React from 'react';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { Button, Input, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
+import type React from 'react';
+import type { ZEditInputTextList } from '../componentDefs/ZComponent';
 import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditInputText } from '../componentDefs/ZComponent';
-import { pathToString, getValueByPath } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента InputTextListWidget.
  */
 type PropsInputTextListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: ZEditInputText;
+  componentConfig?: ZEditInputTextList;
 };
 
 /**

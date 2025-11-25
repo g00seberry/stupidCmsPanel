@@ -1,18 +1,18 @@
-import { DatePicker, Button, Space } from 'antd';
-import type React from 'react';
-import { observer } from 'mobx-react-lite';
-import type { Dayjs } from 'dayjs';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditDatePicker } from '../componentDefs/ZComponent';
 import { viewDate } from '@/utils/dateUtils';
-import { pathToString, getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { Button, DatePicker, Space } from 'antd';
+import type { Dayjs } from 'dayjs';
+import { observer } from 'mobx-react-lite';
+import type React from 'react';
+import type { ZEditDatePickerList } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 
 /**
  * Пропсы компонента DatePickerListWidget.
  */
 type PropsDatePickerListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: ZEditDatePicker;
+  componentConfig?: ZEditDatePickerList;
 };
 
 /**

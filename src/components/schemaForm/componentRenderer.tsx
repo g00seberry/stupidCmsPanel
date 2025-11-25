@@ -1,259 +1,71 @@
-import type React from 'react';
-import type { FieldRendererProps } from './types/FieldRendererProps';
-import type {
-  ZEditCheckbox,
-  ZEditCheckboxGroup,
-  ZEditComponent,
-  ZEditDatePicker,
-  ZEditDatePickerList,
-  ZEditDateTimePicker,
-  ZEditDateTimePickerList,
-  ZEditInputNumber,
-  ZEditInputNumberList,
-  ZEditInputText,
-  ZEditInputTextList,
-  ZEditJsonArray,
-  ZEditJsonObject,
-  ZEditSelect,
-  ZEditSelectMultiple,
-  ZEditTextarea,
-  ZEditTextareaList,
-} from './componentDefs/ZComponent';
-import type { ZCardinality, ZDataType } from '@/types/path';
-import { InputTextWidget } from './widgets/InputTextWidget';
-import { TextareaWidget } from './widgets/TextareaWidget';
-import { InputNumberWidget } from './widgets/InputNumberWidget';
-import { CheckboxWidget } from './widgets/CheckboxWidget';
-import { DatePickerWidget } from './widgets/DatePickerWidget';
-import { DateTimePickerWidget } from './widgets/DateTimePickerWidget';
-import { SelectWidget } from './widgets/SelectWidget';
-import { SelectMultipleWidget } from './widgets/SelectMultipleWidget';
-import { CheckboxGroupWidget } from './widgets/CheckboxGroupWidget';
-import { InputTextListWidget } from './widgets/InputTextListWidget';
-import { InputNumberListWidget } from './widgets/InputNumberListWidget';
-import { DatePickerListWidget } from './widgets/DatePickerListWidget';
-import { DateTimePickerListWidget } from './widgets/DateTimePickerListWidget';
-import { TextareaListWidget } from './widgets/TextareaListWidget';
-import { JsonObjectWidget } from './widgets/JsonObjectWidget';
-import { JsonArrayWidget } from './widgets/JsonArrayWidget';
-import { getAllowedComponents } from './componentDefs/getAllowedComponents';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { PathSegment } from '@/utils/pathUtils';
-
-/**
- * Тип функции рендеринга компонента.
- */
-type ComponentRenderer = (
-  componentConfig: ZEditComponent,
-  rendererProps: FieldRendererProps
-) => React.ReactNode;
+import type React from 'react';
+import { getAllowedComponents } from './componentDefs/getAllowedComponents';
+import type { ZEditComponent } from './componentDefs/ZComponent';
+import type { FieldRendererProps } from './types/FieldRendererProps';
+import { CheckboxGroupWidget } from './widgets/CheckboxGroupWidget';
+import { CheckboxWidget } from './widgets/CheckboxWidget';
+import { DatePickerListWidget } from './widgets/DatePickerListWidget';
+import { DatePickerWidget } from './widgets/DatePickerWidget';
+import { DateTimePickerListWidget } from './widgets/DateTimePickerListWidget';
+import { DateTimePickerWidget } from './widgets/DateTimePickerWidget';
+import { InputNumberListWidget } from './widgets/InputNumberListWidget';
+import { InputNumberWidget } from './widgets/InputNumberWidget';
+import { InputTextListWidget } from './widgets/InputTextListWidget';
+import { InputTextWidget } from './widgets/InputTextWidget';
+import { JsonArrayWidget } from './widgets/JsonArrayWidget';
+import { JsonObjectWidget } from './widgets/JsonObjectWidget';
+import { SelectMultipleWidget } from './widgets/SelectMultipleWidget';
+import { SelectWidget } from './widgets/SelectWidget';
+import { TextareaListWidget } from './widgets/TextareaListWidget';
+import { TextareaWidget } from './widgets/TextareaWidget';
 
 /**
  * Регистр компонентов по имени компонента из formConfig.
  * Ключ - имя компонента из ZEditComponent, значение - функция рендеринга.
+ * Каждая функция рендеринга получает типизированный config в зависимости от ключа.
  */
-const componentRendererRegistry: Record<ZEditComponent['name'], ComponentRenderer> = {
+const componentRendererRegistry: {
+  [K in ZEditComponent['name']]: (
+    config: Extract<ZEditComponent, { name: K }>,
+    rendererProps: FieldRendererProps
+  ) => React.ReactNode;
+} = {
   /** Компонент ввода текста. */
-  inputText: (config, props) => (
-    <InputTextWidget {...props} componentConfig={config as ZEditInputText} />
-  ),
+  inputText: (config, props) => <InputTextWidget {...props} componentConfig={config} />,
   /** Компонент списка текстовых полей. */
-  inputTextList: (config, props) => (
-    <InputTextListWidget
-      {...props}
-      componentConfig={config as ZEditInputTextList | ZEditInputText as ZEditInputText}
-    />
-  ),
+  inputTextList: (config, props) => <InputTextListWidget {...props} componentConfig={config} />,
   /** Компонент ввода многострочного текста. */
-  textarea: (config, props) => (
-    <TextareaWidget {...props} componentConfig={config as ZEditTextarea} />
-  ),
+  textarea: (config, props) => <TextareaWidget {...props} componentConfig={config} />,
   /** Компонент списка многострочных текстовых полей. */
-  textareaList: (config, props) => (
-    <TextareaListWidget
-      {...props}
-      componentConfig={config as ZEditTextareaList | ZEditTextarea as ZEditTextarea}
-    />
-  ),
+  textareaList: (config, props) => <TextareaListWidget {...props} componentConfig={config} />,
   /** Компонент ввода числа. */
-  inputNumber: (config, props) => (
-    <InputNumberWidget {...props} componentConfig={config as ZEditInputNumber} />
-  ),
+  inputNumber: (config, props) => <InputNumberWidget {...props} componentConfig={config} />,
   /** Компонент списка числовых полей. */
-  inputNumberList: (config, props) => (
-    <InputNumberListWidget
-      {...props}
-      componentConfig={config as ZEditInputNumberList | ZEditInputNumber as ZEditInputNumber}
-    />
-  ),
+  inputNumberList: (config, props) => <InputNumberListWidget {...props} componentConfig={config} />,
   /** Компонент чекбокса. */
-  checkbox: (config, props) => (
-    <CheckboxWidget {...props} componentConfig={config as ZEditCheckbox} />
-  ),
+  checkbox: (config, props) => <CheckboxWidget {...props} componentConfig={config} />,
   /** Компонент группы чекбоксов. */
-  checkboxGroup: (config, props) => (
-    <CheckboxGroupWidget
-      {...props}
-      componentConfig={config as ZEditCheckboxGroup | ZEditCheckbox as ZEditCheckbox}
-    />
-  ),
+  checkboxGroup: (config, props) => <CheckboxGroupWidget {...props} componentConfig={config} />,
   /** Компонент выбора даты. */
-  datePicker: (config, props) => (
-    <DatePickerWidget {...props} componentConfig={config as ZEditDatePicker} />
-  ),
+  datePicker: (config, props) => <DatePickerWidget {...props} componentConfig={config} />,
   /** Компонент списка полей выбора даты. */
-  datePickerList: (config, props) => (
-    <DatePickerListWidget
-      {...props}
-      componentConfig={config as ZEditDatePickerList | ZEditDatePicker as ZEditDatePicker}
-    />
-  ),
+  datePickerList: (config, props) => <DatePickerListWidget {...props} componentConfig={config} />,
   /** Компонент выбора даты и времени. */
-  dateTimePicker: (config, props) => (
-    <DateTimePickerWidget {...props} componentConfig={config as ZEditDateTimePicker} />
-  ),
+  dateTimePicker: (config, props) => <DateTimePickerWidget {...props} componentConfig={config} />,
   /** Компонент списка полей выбора даты и времени. */
   dateTimePickerList: (config, props) => (
-    <DateTimePickerListWidget
-      {...props}
-      componentConfig={
-        config as ZEditDateTimePickerList | ZEditDateTimePicker as ZEditDateTimePicker
-      }
-    />
+    <DateTimePickerListWidget {...props} componentConfig={config} />
   ),
   /** Компонент выбора из списка. */
-  select: (config, props) => <SelectWidget {...props} componentConfig={config as ZEditSelect} />,
+  select: (config, props) => <SelectWidget {...props} componentConfig={config} />,
   /** Компонент множественного выбора из списка. */
-  selectMultiple: (config, props) => (
-    <SelectMultipleWidget
-      {...props}
-      componentConfig={config as ZEditSelectMultiple | ZEditSelect as ZEditSelect}
-    />
-  ),
+  selectMultiple: (config, props) => <SelectMultipleWidget {...props} componentConfig={config} />,
   /** Компонент JSON объекта. */
-  jsonObject: (config, props) => (
-    <JsonObjectWidget {...props} componentConfig={config as ZEditJsonObject} />
-  ),
+  jsonObject: (config, props) => <JsonObjectWidget {...props} componentConfig={config} />,
   /** Компонент массива JSON объектов. */
-  jsonArray: (config, props) => (
-    <JsonArrayWidget
-      {...props}
-      componentConfig={config as ZEditJsonArray | ZEditJsonObject as ZEditJsonObject}
-    />
-  ),
-};
-
-/**
- * Регистр компонентов по типу данных и кардинальности (fallback).
- * Используется, когда компонент не указан в formConfig.
- */
-const fallbackComponentRendererRegistry: Partial<
-  Record<ZDataType, Record<ZCardinality, ComponentRenderer>>
-> = {
-  /** Строковые поля. */
-  string: {
-    one: (config, props) => (
-      <InputTextWidget {...props} componentConfig={config as ZEditInputText} />
-    ),
-    many: (config, props) => (
-      <InputTextListWidget
-        {...props}
-        componentConfig={config as ZEditInputTextList | ZEditInputText as ZEditInputText}
-      />
-    ),
-  },
-  /** Многострочные текстовые поля. */
-  text: {
-    one: (config, props) => <TextareaWidget {...props} componentConfig={config as ZEditTextarea} />,
-    many: (config, props) => (
-      <TextareaListWidget
-        {...props}
-        componentConfig={config as ZEditTextareaList | ZEditTextarea as ZEditTextarea}
-      />
-    ),
-  },
-  /** Целочисленные поля. */
-  int: {
-    one: (config, props) => (
-      <InputNumberWidget {...props} componentConfig={config as ZEditInputNumber} />
-    ),
-    many: (config, props) => (
-      <InputNumberListWidget
-        {...props}
-        componentConfig={config as ZEditInputNumberList | ZEditInputNumber as ZEditInputNumber}
-      />
-    ),
-  },
-  /** Числа с плавающей точкой. */
-  float: {
-    one: (config, props) => (
-      <InputNumberWidget {...props} componentConfig={config as ZEditInputNumber} />
-    ),
-    many: (config, props) => (
-      <InputNumberListWidget
-        {...props}
-        componentConfig={config as ZEditInputNumberList | ZEditInputNumber as ZEditInputNumber}
-      />
-    ),
-  },
-  /** Булевы поля. */
-  bool: {
-    one: (config, props) => <CheckboxWidget {...props} componentConfig={config as ZEditCheckbox} />,
-    many: (config, props) => (
-      <CheckboxGroupWidget
-        {...props}
-        componentConfig={config as ZEditCheckboxGroup | ZEditCheckbox as ZEditCheckbox}
-      />
-    ),
-  },
-  /** Поля даты. */
-  date: {
-    one: (config, props) => (
-      <DatePickerWidget {...props} componentConfig={config as ZEditDatePicker} />
-    ),
-    many: (config, props) => (
-      <DatePickerListWidget
-        {...props}
-        componentConfig={config as ZEditDatePickerList | ZEditDatePicker as ZEditDatePicker}
-      />
-    ),
-  },
-  /** Поля даты и времени. */
-  datetime: {
-    one: (config, props) => (
-      <DateTimePickerWidget {...props} componentConfig={config as ZEditDateTimePicker} />
-    ),
-    many: (config, props) => (
-      <DateTimePickerListWidget
-        {...props}
-        componentConfig={
-          config as ZEditDateTimePickerList | ZEditDateTimePicker as ZEditDateTimePicker
-        }
-      />
-    ),
-  },
-  /** Ссылочные поля (ref). */
-  ref: {
-    one: (config, props) => <SelectWidget {...props} componentConfig={config as ZEditSelect} />,
-    many: (config, props) => (
-      <SelectMultipleWidget
-        {...props}
-        componentConfig={config as ZEditSelectMultiple | ZEditSelect as ZEditSelect}
-      />
-    ),
-  },
-  /** JSON объекты. */
-  json: {
-    one: (config, props) => (
-      <JsonObjectWidget {...props} componentConfig={config as ZEditJsonObject} />
-    ),
-    many: (config, props) => (
-      <JsonArrayWidget
-        {...props}
-        componentConfig={config as ZEditJsonArray | ZEditJsonObject as ZEditJsonObject}
-      />
-    ),
-  },
+  jsonArray: (config, props) => <JsonArrayWidget {...props} componentConfig={config} />,
 };
 
 /**
@@ -316,6 +128,20 @@ const createDefaultComponentConfig = (
 };
 
 /**
+ * Вызывает рендерер компонента с правильной типизацией.
+ * @param config Конфигурация компонента.
+ * @param rendererProps Пропсы рендерера поля.
+ * @returns Результат рендеринга компонента или `null`.
+ */
+const renderComponent = <K extends ZEditComponent['name']>(
+  config: Extract<ZEditComponent, { name: K }>,
+  rendererProps: FieldRendererProps
+): React.ReactNode => {
+  const renderer = componentRendererRegistry[config.name];
+  return renderer ? renderer(config, rendererProps) : null;
+};
+
+/**
  * Рендерит компонент формы на основе конфигурации ZEditComponent из formConfig.
  * Выбирает соответствующий виджет из регистра по имени компонента из formConfig.
  * Если конфигурация не передана, использует fallback на основе типа данных и кардинальности.
@@ -333,37 +159,15 @@ export const renderComponentFromConfig = (
   rendererProps: FieldRendererProps
 ): React.ReactNode => {
   const { schema } = rendererProps;
-  const dataType = schema.type;
-  const cardinality = schema.cardinality;
 
   // Если конфигурация передана, используем её для определения компонента
   if (componentConfig) {
-    const renderer = componentRendererRegistry[componentConfig.name];
-    if (renderer) {
-      return renderer(componentConfig, rendererProps);
-    }
+    return renderComponent(componentConfig, rendererProps);
   }
 
-  // Если конфигурация не передана или компонент не найден, используем fallback
-  const config = componentConfig || createDefaultComponentConfig(schema, rendererProps.namePath);
+  // Если конфигурация не передана, используем fallback
+  const config = createDefaultComponentConfig(schema, rendererProps.namePath);
+  if (!config) return null;
 
-  if (!config) {
-    return null;
-  }
-
-  // Используем fallback регистр по типу данных и кардинальности
-  const typeConfig = fallbackComponentRendererRegistry[dataType as ZDataType];
-
-  if (!typeConfig) {
-    return null;
-  }
-
-  // Получаем рендерер для нужной кардинальности
-  const renderer = typeConfig[cardinality as ZCardinality];
-
-  if (!renderer) {
-    return null;
-  }
-
-  return renderer(config, rendererProps);
+  return renderComponent(config, rendererProps);
 };

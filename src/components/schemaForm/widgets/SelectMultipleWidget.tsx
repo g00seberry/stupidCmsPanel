@@ -1,16 +1,16 @@
-import { Select } from 'antd';
-import type React from 'react';
-import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditSelect } from '../componentDefs/ZComponent';
 import { getValueByPath } from '@/utils/pathUtils';
+import { Select } from 'antd';
+import { observer } from 'mobx-react-lite';
+import type React from 'react';
+import type { ZEditSelectMultiple } from '../componentDefs/ZComponent';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 
 /**
  * Пропсы компонента SelectMultipleWidget.
  */
 type PropsSelectMultipleWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: ZEditSelect;
+  componentConfig?: ZEditSelectMultiple;
 };
 
 /**

@@ -1,16 +1,16 @@
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Button, Checkbox, Space } from 'antd';
-import type React from 'react';
 import { observer } from 'mobx-react-lite';
+import type React from 'react';
+import type { ZEditCheckboxGroup } from '../componentDefs/ZComponent';
 import type { FieldRendererProps } from '../types/FieldRendererProps';
-import type { ZEditCheckbox } from '../componentDefs/ZComponent';
-import { pathToString, getValueByPath } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента CheckboxGroupWidget.
  */
 type PropsCheckboxGroupWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: ZEditCheckbox;
+  componentConfig?: ZEditCheckboxGroup;
 };
 
 /**

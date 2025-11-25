@@ -36,18 +36,85 @@ const isValidDateTimeFormat = (format: string): boolean => {
 };
 
 /**
+ * Базовые props компонента формы редактирования.
+ * Содержит обязательное поле label.
+ */
+const zBaseProps = z.object({
+  label: z.string().describe('Label|Название поля|Введите label'),
+});
+
+/**
+ * Расширение базовых props с опциональным placeholder.
+ */
+const zWithPlaceholder = zBaseProps.extend({
+  placeholder: z
+    .string()
+    .optional()
+    .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
+});
+
+/**
+ * Расширение props с опциональным количеством строк.
+ */
+const zWithRows = zWithPlaceholder.extend({
+  rows: z
+    .number()
+    .min(1, 'Минимум 1')
+    .optional()
+    .describe('Rows|Количество строк|Количество строк'),
+});
+
+/**
+ * Расширение props с опциональными min, max и step для числовых полей.
+ */
+const zWithMinMaxStep = zWithPlaceholder.extend({
+  min: z.number().optional().describe('Min|Минимальное значение|Минимальное значение'),
+  max: z.number().optional().describe('Max|Максимальное значение|Максимальное значение'),
+  step: z.number().optional().describe('Step|Шаг изменения значения|Шаг'),
+});
+
+/**
+ * Расширение props с опциональным форматом даты.
+ */
+const zWithDateFormat = zWithPlaceholder.extend({
+  format: z
+    .string()
+    .optional()
+    .refine(val => !val || isValidDateFormat(val), {
+      message: 'Формат даты должен содержать YYYY (или YY), MM (или M) и DD (или D)',
+    })
+    .describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
+});
+
+/**
+ * Расширение props с опциональным форматом даты и времени и флагом showTime.
+ */
+const zWithDateTimeFormat = zWithPlaceholder.extend({
+  format: z
+    .string()
+    .optional()
+    .refine(val => !val || isValidDateTimeFormat(val), {
+      message:
+        'Формат даты и времени должен содержать YYYY (или YY), MM (или M), DD (или D), HH (или H), mm (или m) и ss (или s)',
+    })
+    .describe('Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'),
+  showTime: z.boolean().optional().describe('Show Time|Показывать время|Показывать выбор времени'),
+});
+
+/**
+ * Расширение props с опциональным флагом showSearch для компонентов выбора.
+ */
+const zWithShowSearch = zWithPlaceholder.extend({
+  showSearch: z.boolean().optional().describe('Show Search|Включить поиск|Показывать поле поиска'),
+});
+
+/**
  * Схема валидации компонента ввода текста (Input).
  * Используется для полей типа 'string'.
  */
 export const zEditInputText = z.object({
   name: z.literal('inputText'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-  }),
+  props: zWithPlaceholder,
 });
 
 export type ZEditInputText = z.infer<typeof zEditInputText>;
@@ -58,18 +125,7 @@ export type ZEditInputText = z.infer<typeof zEditInputText>;
  */
 export const zEditTextarea = z.object({
   name: z.literal('textarea'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    rows: z
-      .number()
-      .min(1, 'Минимум 1')
-      .optional()
-      .describe('Rows|Количество строк|Количество строк'),
-  }),
+  props: zWithRows,
 });
 
 export type ZEditTextarea = z.infer<typeof zEditTextarea>;
@@ -80,16 +136,7 @@ export type ZEditTextarea = z.infer<typeof zEditTextarea>;
  */
 export const zEditInputNumber = z.object({
   name: z.literal('inputNumber'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    min: z.number().optional().describe('Min|Минимальное значение|Минимальное значение'),
-    max: z.number().optional().describe('Max|Максимальное значение|Максимальное значение'),
-    step: z.number().optional().describe('Step|Шаг изменения значения|Шаг'),
-  }),
+  props: zWithMinMaxStep,
 });
 
 export type ZEditInputNumber = z.infer<typeof zEditInputNumber>;
@@ -100,9 +147,7 @@ export type ZEditInputNumber = z.infer<typeof zEditInputNumber>;
  */
 export const zEditCheckbox = z.object({
   name: z.literal('checkbox'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-  }),
+  props: zBaseProps,
 });
 
 export type ZEditCheckbox = z.infer<typeof zEditCheckbox>;
@@ -113,23 +158,7 @@ export type ZEditCheckbox = z.infer<typeof zEditCheckbox>;
  */
 export const zEditDatePicker = z.object({
   name: z.literal('datePicker'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || isValidDateFormat(val),
-        {
-          message: 'Формат даты должен содержать YYYY (или YY), MM (или M) и DD (или D)',
-        }
-      )
-      .describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
-  }),
+  props: zWithDateFormat,
 });
 
 export type ZEditDatePicker = z.infer<typeof zEditDatePicker>;
@@ -140,30 +169,7 @@ export type ZEditDatePicker = z.infer<typeof zEditDatePicker>;
  */
 export const zEditDateTimePicker = z.object({
   name: z.literal('dateTimePicker'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || isValidDateTimeFormat(val),
-        {
-          message:
-            'Формат даты и времени должен содержать YYYY (или YY), MM (или M), DD (или D), HH (или H), mm (или m) и ss (или s)',
-        }
-      )
-      .describe(
-        'Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'
-      ),
-    showTime: z
-      .boolean()
-      .optional()
-      .describe('Show Time|Показывать время|Показывать выбор времени'),
-  }),
+  props: zWithDateTimeFormat,
 });
 
 export type ZEditDateTimePicker = z.infer<typeof zEditDateTimePicker>;
@@ -174,17 +180,7 @@ export type ZEditDateTimePicker = z.infer<typeof zEditDateTimePicker>;
  */
 export const zEditSelect = z.object({
   name: z.literal('select'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    showSearch: z
-      .boolean()
-      .optional()
-      .describe('Show Search|Включить поиск|Показывать поле поиска'),
-  }),
+  props: zWithShowSearch,
 });
 
 export type ZEditSelect = z.infer<typeof zEditSelect>;
@@ -195,9 +191,7 @@ export type ZEditSelect = z.infer<typeof zEditSelect>;
  */
 export const zEditJsonObject = z.object({
   name: z.literal('jsonObject'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-  }),
+  props: zBaseProps,
 });
 
 export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
@@ -208,13 +202,7 @@ export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
  */
 export const zEditInputTextList = z.object({
   name: z.literal('inputTextList'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-  }),
+  props: zWithPlaceholder,
 });
 
 export type ZEditInputTextList = z.infer<typeof zEditInputTextList>;
@@ -225,18 +213,7 @@ export type ZEditInputTextList = z.infer<typeof zEditInputTextList>;
  */
 export const zEditTextareaList = z.object({
   name: z.literal('textareaList'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    rows: z
-      .number()
-      .min(1, 'Минимум 1')
-      .optional()
-      .describe('Rows|Количество строк|Количество строк'),
-  }),
+  props: zWithRows,
 });
 
 export type ZEditTextareaList = z.infer<typeof zEditTextareaList>;
@@ -247,16 +224,7 @@ export type ZEditTextareaList = z.infer<typeof zEditTextareaList>;
  */
 export const zEditInputNumberList = z.object({
   name: z.literal('inputNumberList'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    min: z.number().optional().describe('Min|Минимальное значение|Минимальное значение'),
-    max: z.number().optional().describe('Max|Максимальное значение|Максимальное значение'),
-    step: z.number().optional().describe('Step|Шаг изменения значения|Шаг'),
-  }),
+  props: zWithMinMaxStep,
 });
 
 export type ZEditInputNumberList = z.infer<typeof zEditInputNumberList>;
@@ -267,9 +235,7 @@ export type ZEditInputNumberList = z.infer<typeof zEditInputNumberList>;
  */
 export const zEditCheckboxGroup = z.object({
   name: z.literal('checkboxGroup'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-  }),
+  props: zBaseProps,
 });
 
 export type ZEditCheckboxGroup = z.infer<typeof zEditCheckboxGroup>;
@@ -280,23 +246,7 @@ export type ZEditCheckboxGroup = z.infer<typeof zEditCheckboxGroup>;
  */
 export const zEditDatePickerList = z.object({
   name: z.literal('datePickerList'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || isValidDateFormat(val),
-        {
-          message: 'Формат даты должен содержать YYYY (или YY), MM (или M) и DD (или D)',
-        }
-      )
-      .describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
-  }),
+  props: zWithDateFormat,
 });
 
 export type ZEditDatePickerList = z.infer<typeof zEditDatePickerList>;
@@ -307,30 +257,7 @@ export type ZEditDatePickerList = z.infer<typeof zEditDatePickerList>;
  */
 export const zEditDateTimePickerList = z.object({
   name: z.literal('dateTimePickerList'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || isValidDateTimeFormat(val),
-        {
-          message:
-            'Формат даты и времени должен содержать YYYY (или YY), MM (или M), DD (или D), HH (или H), mm (или m) и ss (или s)',
-        }
-      )
-      .describe(
-        'Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'
-      ),
-    showTime: z
-      .boolean()
-      .optional()
-      .describe('Show Time|Показывать время|Показывать выбор времени'),
-  }),
+  props: zWithDateTimeFormat,
 });
 
 export type ZEditDateTimePickerList = z.infer<typeof zEditDateTimePickerList>;
@@ -341,17 +268,7 @@ export type ZEditDateTimePickerList = z.infer<typeof zEditDateTimePickerList>;
  */
 export const zEditSelectMultiple = z.object({
   name: z.literal('selectMultiple'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-    placeholder: z
-      .string()
-      .optional()
-      .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    showSearch: z
-      .boolean()
-      .optional()
-      .describe('Show Search|Включить поиск|Показывать поле поиска'),
-  }),
+  props: zWithShowSearch,
 });
 
 export type ZEditSelectMultiple = z.infer<typeof zEditSelectMultiple>;
@@ -362,9 +279,7 @@ export type ZEditSelectMultiple = z.infer<typeof zEditSelectMultiple>;
  */
 export const zEditJsonArray = z.object({
   name: z.literal('jsonArray'),
-  props: z.object({
-    label: z.string().describe('Label|Название поля|Введите label'),
-  }),
+  props: zBaseProps,
 });
 
 export type ZEditJsonArray = z.infer<typeof zEditJsonArray>;

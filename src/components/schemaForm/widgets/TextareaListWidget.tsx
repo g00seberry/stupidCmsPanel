@@ -1,8 +1,8 @@
-import { pathToString, getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Button, Input, Space } from 'antd';
-import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { ZEditTextarea } from '../componentDefs/ZComponent';
+import type React from 'react';
+import type { ZEditTextareaList } from '../componentDefs/ZComponent';
 import type { FieldRendererProps } from '../types/FieldRendererProps';
 
 /**
@@ -10,7 +10,7 @@ import type { FieldRendererProps } from '../types/FieldRendererProps';
  */
 type PropsTextareaListWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent. */
-  componentConfig?: ZEditTextarea;
+  componentConfig?: ZEditTextareaList;
 };
 
 /**
