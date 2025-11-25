@@ -132,7 +132,8 @@ export class EntryEditorStore {
         const initialValues: any = this.initialFormValues.content_json;
         const model = await createFormModelFromBlueprintSchema(
           postType.blueprint_id,
-          initialValues
+          initialValues,
+          this.postTypeSlug
         );
         this.setBlueprintModel(model);
       }

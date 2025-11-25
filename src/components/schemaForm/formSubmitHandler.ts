@@ -30,9 +30,7 @@ export interface FormSubmitResult {
  *   }
  * };
  */
-export const handleFormSubmit = async (
-  model: FormModel<ZBlueprintSchema>
-): Promise<FormSubmitResult> => {
+export const handleFormSubmit = async (model: FormModel): Promise<FormSubmitResult> => {
   // Выполняем валидацию через FormModel
   const isValid = model.validate();
 

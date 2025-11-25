@@ -48,6 +48,11 @@ const componentsOptionsRegistry: Record<
     one: ['select'],
     many: ['select'],
   },
+  /** JSON объекты. */
+  json: {
+    one: ['jsonObject'],
+    many: ['jsonObject'],
+  },
   /** Числовые поля (устаревший тип, используйте 'int' или 'float'). */
   number: {
     one: ['inputNumber'],

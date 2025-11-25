@@ -1,1 +1,17 @@
 export { RefFieldWidget } from './RefFieldWidget';
+export { InputTextWidget } from './InputTextWidget';
+export { TextareaWidget } from './TextareaWidget';
+export { InputNumberWidget } from './InputNumberWidget';
+export { CheckboxWidget } from './CheckboxWidget';
+export { DatePickerWidget } from './DatePickerWidget';
+export { DateTimePickerWidget } from './DateTimePickerWidget';
+export { SelectWidget } from './SelectWidget';
+export { SelectMultipleWidget } from './SelectMultipleWidget';
+export { CheckboxGroupWidget } from './CheckboxGroupWidget';
+export { InputTextListWidget } from './InputTextListWidget';
+export { InputNumberListWidget } from './InputNumberListWidget';
+export { DatePickerListWidget } from './DatePickerListWidget';
+export { DateTimePickerListWidget } from './DateTimePickerListWidget';
+export { TextareaListWidget } from './TextareaListWidget';
+export { JsonObjectWidget } from './JsonObjectWidget';
+export { JsonArrayWidget } from './JsonArrayWidget';

@@ -4,6 +4,7 @@ import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintS
 import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, pathToString, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import { validateField } from '@/utils/validationUtils';
+import type { ZEditComponent } from './componentDefs/ZComponent';
 
 /**
  * Модель формы на основе схемы сущности.
@@ -20,24 +21,32 @@ import { validateField } from '@/utils/validationUtils';
  * model.setValue(['title'], 'New Title');
  * const isValid = model.validate();
  */
-export class FormModel<E extends ZBlueprintSchema> {
+export class FormModel {
   /** Схема сущности, описывающая структуру формы. */
-  schema: E;
+  schema: ZBlueprintSchema;
   /** Значения формы, типизированные на основе схемы. */
-  values: FormValues<E>;
+  values: FormValues<ZBlueprintSchema>;
   /** Карта ошибок валидации по путям полей (ключ - строка пути, значение - массив сообщений об ошибках). */
   errors: Map<string, string[]>;
+  /** Конфигурация компонентов формы по путям полей. */
+  formConfig: Record<string, ZEditComponent>;
 
   /**
    * Создаёт экземпляр модели формы.
    * @param schema Схема сущности для формы.
    * @param initial Опциональные начальные значения (частичные).
+   * @param formConfig Опциональная конфигурация компонентов формы по путям полей.
    */
-  constructor(schema: E, initial?: Partial<FormValues<E>>) {
+  constructor(
+    schema: ZBlueprintSchema,
+    initial?: Partial<FormValues<ZBlueprintSchema>>,
+    formConfig?: Record<string, ZEditComponent>
+  ) {
     makeAutoObservable(this, {}, { autoBind: true });
     this.schema = schema;
     this.values = createDefaultValues(schema, initial);
     this.errors = new Map();
+    this.formConfig = formConfig ?? {};
   }
 
   /**
@@ -60,8 +69,8 @@ export class FormModel<E extends ZBlueprintSchema> {
    * @example
    * model.setAll({ title: 'New Title', price: 100 });
    */
-  setAll(values: Partial<FormValues<E>>): void {
-    this.values = { ...this.values, ...values } as FormValues<E>;
+  setAll(values: Partial<FormValues<ZBlueprintSchema>>): void {
+    this.values = { ...this.values, ...values } as FormValues<ZBlueprintSchema>;
   }
 
   /**
@@ -233,7 +242,7 @@ export class FormModel<E extends ZBlueprintSchema> {
    * Возвращает значения формы в виде JSON объекта.
    * @returns Значения формы, типизированные на основе схемы.
    */
-  get json(): FormValues<E> {
+  get json(): FormValues<ZBlueprintSchema> {
     return this.values;
   }
 }

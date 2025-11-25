@@ -15,6 +15,8 @@ export const zEditInputText = z.object({
   }),
 });
 
+export type ZEditInputText = z.infer<typeof zEditInputText>;
+
 /**
  * Схема валидации компонента ввода многострочного текста (TextArea).
  * Используется для полей типа 'text'.
@@ -35,6 +37,8 @@ export const zEditTextarea = z.object({
   }),
 });
 
+export type ZEditTextarea = z.infer<typeof zEditTextarea>;
+
 /**
  * Схема валидации компонента ввода числа (InputNumber).
  * Используется для полей типа 'int' и 'float'.
@@ -53,6 +57,8 @@ export const zEditInputNumber = z.object({
   }),
 });
 
+export type ZEditInputNumber = z.infer<typeof zEditInputNumber>;
+
 /**
  * Схема валидации компонента чекбокса (Checkbox).
  * Используется для полей типа 'bool'.
@@ -63,6 +69,8 @@ export const zEditCheckbox = z.object({
     label: z.string().describe('Label|Название поля|Введите label'),
   }),
 });
+
+export type ZEditCheckbox = z.infer<typeof zEditCheckbox>;
 
 /**
  * Схема валидации компонента выбора даты (DatePicker).
@@ -79,6 +87,8 @@ export const zEditDatePicker = z.object({
     format: z.string().optional().describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
   }),
 });
+
+export type ZEditDatePicker = z.infer<typeof zEditDatePicker>;
 
 /**
  * Схема валидации компонента выбора даты и времени (DatePicker с showTime).
@@ -105,6 +115,8 @@ export const zEditDateTimePicker = z.object({
   }),
 });
 
+export type ZEditDateTimePicker = z.infer<typeof zEditDateTimePicker>;
+
 /**
  * Схема валидации компонента выбора из списка (Select).
  * Используется для полей типа 'ref'.
@@ -124,6 +136,21 @@ export const zEditSelect = z.object({
   }),
 });
 
+export type ZEditSelect = z.infer<typeof zEditSelect>;
+
+/**
+ * Схема валидации компонента JSON объекта.
+ * Используется для полей типа 'json'.
+ */
+export const zEditJsonObject = z.object({
+  name: z.literal('jsonObject'),
+  props: z.object({
+    label: z.string().describe('Label|Название поля|Введите label'),
+  }),
+});
+
+export type ZEditJsonObject = z.infer<typeof zEditJsonObject>;
+
 /**
  * Схема валидации конфигурации компонента формы редактирования.
  * Определяет все доступные типы компонентов и их свойства.
@@ -141,6 +168,7 @@ export const zEditComponent = z.discriminatedUnion('name', [
   zEditDatePicker,
   zEditDateTimePicker,
   zEditSelect,
+  zEditJsonObject,
 ]);
 
 /**

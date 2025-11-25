@@ -8,6 +8,7 @@ import {
   zEditDateTimePicker,
   zEditInputNumber,
   zEditInputText,
+  zEditJsonObject,
   zEditSelect,
   zEditTextarea,
   type ZEditComponent,
@@ -25,6 +26,7 @@ type ComponentPropsSchemaRegistry = {
   datePicker: typeof zEditDatePicker.shape.props;
   dateTimePicker: typeof zEditDateTimePicker.shape.props;
   select: typeof zEditSelect.shape.props;
+  jsonObject: typeof zEditJsonObject.shape.props;
 };
 
 /**
@@ -44,6 +46,7 @@ const componentPropsSchemaRegistry = {
   datePicker: zEditDatePicker.shape.props,
   dateTimePicker: zEditDateTimePicker.shape.props,
   select: zEditSelect.shape.props,
+  jsonObject: zEditJsonObject.shape.props,
 } as const satisfies ComponentPropsSchemaRegistry;
 
 /**
@@ -219,6 +222,13 @@ export const selectMetadata: ComponentMetadataRegistry = {
 };
 
 /**
+ * Метаданные компонента jsonObject.
+ */
+export const jsonObjectMetadata: ComponentMetadataRegistry = {
+  label: requiredLabelField,
+};
+
+/**
  * Типизированный реестр метаданных для всех компонентов.
  * Гарантирует соответствие ключей именам компонентов.
  */
@@ -238,6 +248,7 @@ export const componentMetadataRegistry: ComponentMetadataRegistryMap = {
   datePicker: datePickerMetadata,
   dateTimePicker: dateTimePickerMetadata,
   select: selectMetadata,
+  jsonObject: jsonObjectMetadata,
 };
 
 /**

@@ -135,9 +135,12 @@ const mergeWithInitial = (
  * const valuesWithInitial = createDefaultValues(schema, { title: 'Product' });
  * // { title: 'Product', price: 0, tags: [] }
  */
-export const createDefaultValues = <E extends ZBlueprintSchema>(
-  schema: E,
-  initial?: Partial<FormValues<E>>
-): FormValues<E> => {
-  return mergeWithInitial(schema.schema, initial as Record<string, any>) as FormValues<E>;
+export const createDefaultValues = (
+  schema: ZBlueprintSchema,
+  initial?: Partial<FormValues<ZBlueprintSchema>>
+): FormValues<ZBlueprintSchema> => {
+  return mergeWithInitial(
+    schema.schema,
+    initial as Record<string, any>
+  ) as FormValues<ZBlueprintSchema>;
 };
