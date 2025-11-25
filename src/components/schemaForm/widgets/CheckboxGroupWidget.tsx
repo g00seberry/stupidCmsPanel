@@ -1,7 +1,7 @@
 import { Button, Checkbox, Space } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../FieldRendererProps';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 import type { ZEditCheckbox } from '../componentDefs/ZComponent';
 import { pathToString, getValueByPath } from '@/utils/pathUtils';
 

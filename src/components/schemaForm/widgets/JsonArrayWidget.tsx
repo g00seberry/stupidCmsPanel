@@ -1,7 +1,7 @@
 import { Card, Button } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../FieldRendererProps';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';

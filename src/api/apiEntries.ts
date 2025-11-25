@@ -9,7 +9,6 @@ import type {
 import {
   zEntriesResponse,
   zEntriesStatusesResponse,
-  zEntryPayload,
   zEntryResponse,
   zEntryTermsPayload,
   zEntryTermsResponse,

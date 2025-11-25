@@ -146,7 +146,7 @@ const validateRule = (value: any, rule: ZValidationRule): string | null => {
 export const validateField = (
   field: ZBlueprintSchemaField,
   value: any,
-  path: PathSegment[] = []
+  _path: PathSegment[] = []
 ): string[] => {
   const errors: string[] = [];
 

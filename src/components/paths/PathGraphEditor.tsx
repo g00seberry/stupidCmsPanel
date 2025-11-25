@@ -65,7 +65,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
   }) => {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
-    const [autoLayoutApplied, setAutoLayoutApplied] = useState(false);
+    const [, setAutoLayoutApplied] = useState(false);
     const internalInstanceRef = useRef<ReactFlowInstance | null>(null);
 
     // Преобразование Path дерева в граф React Flow

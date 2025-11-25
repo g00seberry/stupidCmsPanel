@@ -40,7 +40,7 @@ export class EntryEditorStore {
   postTypeSlug: string;
   entryId: ZId | typeof idNew;
   termsManagerStore: EntryTermsManagerStore | null = null;
-  blueprintModel: FormModel<any> | null = null;
+  blueprintModel: FormModel | null = null;
 
   /**
    * Создаёт экземпляр стора редактора записи.
@@ -90,7 +90,7 @@ export class EntryEditorStore {
    * Устанавливает модель формы Blueprint.
    * @param model Модель формы или null.
    */
-  setBlueprintModel(model: FormModel<any> | null): void {
+  setBlueprintModel(model: FormModel | null): void {
     this.blueprintModel = model;
   }
 

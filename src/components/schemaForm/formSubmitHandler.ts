@@ -1,5 +1,5 @@
 import type { FormModel } from '@/components/schemaForm/FormModel';
-import type { FormValues } from '@/components/schemaForm/FormValues';
+import type { FormValues } from '@/components/schemaForm/types/FormValues';
 
 /**
  * Результат обработки сабмита формы.

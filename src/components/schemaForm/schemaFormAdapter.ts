@@ -1,7 +1,7 @@
 import { getFormConfig } from '@/api/apiFormConfig';
 import { getBlueprintSchema } from '@/api/blueprintApi';
 import { FormModel } from '@/components/schemaForm/FormModel';
-import type { FormValues } from '@/components/schemaForm/FormValues';
+import type { FormValues } from '@/components/schemaForm/types/FormValues';
 import type { ZEditComponent } from './componentDefs/ZComponent';
 
 /**

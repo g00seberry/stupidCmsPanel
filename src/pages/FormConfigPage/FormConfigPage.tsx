@@ -6,7 +6,7 @@ import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
-import { ComponentSettingsForm } from '@/components/formConfig/ComponentSettingsForm';
+import { PropsForm } from '@/components/PropsForm/PropsForm';
 import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { DataNode } from 'antd/es/tree';
@@ -200,10 +200,15 @@ export const FormConfigPage = observer(() => {
         {currentConfig && (
           <div>
             <label className="block text-sm font-medium mb-2">Настройки компонента</label>
-            <ComponentSettingsForm
-              componentType={currentConfig.name}
-              value={currentConfig}
-              onChange={component => handleComponentSettingsChange(path, component)}
+            <PropsForm
+              name={currentConfig.name}
+              value={currentConfig.props}
+              onChange={props =>
+                handleComponentSettingsChange(path, {
+                  ...currentConfig,
+                  props: props as ZEditComponent['props'],
+                })
+              }
             />
           </div>
         )}

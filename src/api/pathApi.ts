@@ -1,6 +1,6 @@
 import { rest } from '@/api/rest';
 import { zCreatePathDto, zUpdatePathDto, zPathsResponse, zPathResponse } from '@/types/path';
-import type { ZPath, ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;
 const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =>

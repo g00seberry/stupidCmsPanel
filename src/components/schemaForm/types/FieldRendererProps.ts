@@ -1,6 +1,6 @@
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { PathSegment } from '@/utils/pathUtils';
-import type { FormModel } from './FormModel';
+import type { FormModel } from '../FormModel';
 
 /**
  * Пропсы для рендерера поля формы.

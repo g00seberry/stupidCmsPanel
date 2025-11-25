@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
-import type { FieldRendererProps } from '../FieldRendererProps';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 import { getValueByPath } from '@/utils/pathUtils';
 
 /**

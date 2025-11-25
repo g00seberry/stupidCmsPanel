@@ -1,9 +1,7 @@
-import { getEntryTerms } from '@/api/apiEntries';
 import type { ZEntryTermsData } from '@/types/entries';
 import type { ZTaxonomy } from '@/types/taxonomies';
 import type { ZTerm } from '@/types/terms';
 import type { ZId } from '@/types/ZId';
-import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
 /**

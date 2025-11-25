@@ -11,7 +11,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore } from './EntryEditorStore';
 import type { EntryEditorFormValues } from './transforms';
-import { toJS } from 'mobx';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -39,7 +38,7 @@ const Inner = observer(({ store }: PropsInner) => {
   const navigate = useNavigate();
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
-  const { postTypeSlug, entryId } = store;
+  const { postTypeSlug } = store;
 
   useEffect(() => {
     form.setFieldsValue(store.initialFormValues);

@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { FieldRendererProps } from './FieldRendererProps';
+import type { FieldRendererProps } from './types/FieldRendererProps';
 import type {
   ZEditCheckbox,
   ZEditCheckboxGroup,

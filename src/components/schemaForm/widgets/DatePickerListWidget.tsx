@@ -2,7 +2,7 @@ import { DatePicker, Button, Space } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Dayjs } from 'dayjs';
-import type { FieldRendererProps } from '../FieldRendererProps';
+import type { FieldRendererProps } from '../types/FieldRendererProps';
 import type { ZEditDatePicker } from '../componentDefs/ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 import { pathToString, getValueByPath } from '@/utils/pathUtils';
