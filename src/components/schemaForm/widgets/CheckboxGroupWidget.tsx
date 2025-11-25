@@ -1,6 +1,6 @@
 import { Button, Checkbox, Space } from 'antd';
 import type React from 'react';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZEditCheckbox } from '../componentDefs/ZComponent';
 import { pathToString } from '@/utils/pathUtils';
 

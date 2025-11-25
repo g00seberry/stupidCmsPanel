@@ -2,7 +2,7 @@ import { pathToString } from '@/utils/pathUtils';
 import { Button, Input, Space } from 'antd';
 import type React from 'react';
 import type { ZEditTextarea } from '../componentDefs/ZComponent';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 
 /**
  * Пропсы компонента TextareaListWidget.

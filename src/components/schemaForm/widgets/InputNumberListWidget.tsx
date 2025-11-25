@@ -1,6 +1,6 @@
 import { InputNumber, Button, Space } from 'antd';
 import type React from 'react';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZEditInputNumber } from '../componentDefs/ZComponent';
 import { pathToString } from '@/utils/pathUtils';
 

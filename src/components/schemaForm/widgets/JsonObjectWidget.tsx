@@ -1,6 +1,6 @@
 import { Card } from 'antd';
 import type React from 'react';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';

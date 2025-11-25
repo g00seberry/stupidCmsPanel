@@ -1,7 +1,7 @@
 import { DatePicker, Button, Space } from 'antd';
 import type React from 'react';
 import type { Dayjs } from 'dayjs';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZEditDatePicker } from '../componentDefs/ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 import { pathToString } from '@/utils/pathUtils';

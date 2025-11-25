@@ -3,7 +3,7 @@ import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
-import type { FieldRendererProps } from '../widgetRegistry';
+import type { FieldRendererProps } from '../FieldRendererProps';
 
 /**
  * Виджет для ссылочных полей (ref).
