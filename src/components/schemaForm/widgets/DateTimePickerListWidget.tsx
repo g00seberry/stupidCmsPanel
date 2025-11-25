@@ -7,6 +7,7 @@ import type React from 'react';
 import type { ZEditDateTimePickerList } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
 import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента DateTimePickerListWidget.
@@ -27,6 +28,7 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -45,7 +47,7 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     };
 
     return (
-      <div>
+      <FormField label={labelText} error={error}>
         {arrayValue.map((item, index) => {
           // Преобразуем строку в dayjs объект, если значение - строка
           const dayjsValue: Dayjs | null =
@@ -76,8 +78,7 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
         <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
-        <FieldError error={error} />
-      </div>
+      </FormField>
     );
   }
 );

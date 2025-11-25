@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditInputNumber } from '../ZComponent';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента InputNumberWidget.
@@ -25,9 +25,10 @@ export const InputNumberWidget: React.FC<PropsInputNumberWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
 
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <InputNumber
           value={value}
           onChange={val => model.setValue(namePath, val)}
@@ -37,8 +38,7 @@ export const InputNumberWidget: React.FC<PropsInputNumberWidget> = observer(
           step={componentConfig?.props.step}
           className="w-full"
         />
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

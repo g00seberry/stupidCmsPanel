@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditSelect } from '../ZComponent';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента SelectWidget.
@@ -27,13 +27,14 @@ export const SelectWidget: React.FC<PropsSelectWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
 
     // Опции должны быть предоставлены через другой механизм (например, через schema или расширенную конфигурацию)
     // Пока оставляем пустой массив - виджет используется для ref полей через RefFieldWidget
     const options: Array<{ label: string; value: string | number }> = [];
 
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <Select
           value={value}
           onChange={val => model.setValue(namePath, val)}
@@ -43,8 +44,7 @@ export const SelectWidget: React.FC<PropsSelectWidget> = observer(
           options={options}
           notFoundContent={options.length === 0 ? 'Опции не загружены' : undefined}
         />
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

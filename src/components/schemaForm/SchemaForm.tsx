@@ -4,7 +4,6 @@ import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/components/schemaForm/FormModel';
 import { pathToString, type PathSegment } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from './componentRenderer';
-import { FieldError } from './FieldError';
 
 /**
  * Пропсы компонента SchemaForm.
@@ -38,7 +37,6 @@ export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
   ): React.ReactNode => {
     const namePath = [...parentPath, key];
     const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
     // Получаем конфигурацию компонента (кастомную или дефолтную)
     const componentConfig = model.formConfig[pathStr];
 
@@ -50,19 +48,14 @@ export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
       model,
     });
 
-    // Для примитивных полей добавляем label и ошибки
-    const labelText = componentConfig?.props.label || key;
-
-    return (
-      <div key={pathStr} className="mb-4">
-        <label className="block mb-1 font-medium">{labelText}</label>
-        {widgetElement ?? <div>No widget found</div>}
-        <FieldError error={error} />
-      </div>
-    );
+    return widgetElement ?? <div>No widget found</div>;
   };
 
   return (
-    <div>{Object.entries(model.schema.schema).map(([key, field]) => renderField(key, field))}</div>
+    <div>
+      {Object.entries(model.schema.schema).map(([key, field]) => (
+        <React.Fragment key={key}>{renderField(key, field)}</React.Fragment>
+      ))}
+    </div>
   );
 });

@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditTextarea } from '../ZComponent';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента TextareaWidget.
@@ -25,9 +25,10 @@ export const TextareaWidget: React.FC<PropsTextareaWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
 
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <Input.TextArea
           value={value}
           onChange={e => model.setValue(namePath, e.target.value)}
@@ -36,8 +37,7 @@ export const TextareaWidget: React.FC<PropsTextareaWidget> = observer(
           autoSize={!componentConfig?.props.rows}
           className="w-full"
         />
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

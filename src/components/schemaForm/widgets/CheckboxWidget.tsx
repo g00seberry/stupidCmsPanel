@@ -1,10 +1,10 @@
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Checkbox } from 'antd';
-import type React from 'react';
 import { observer } from 'mobx-react-lite';
+import type React from 'react';
 import type { FieldRendererProps } from '../types';
 import type { ZEditCheckbox } from '../ZComponent';
-import { getValueByPath, pathToString } from '@/utils/pathUtils';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента CheckboxWidget.
@@ -26,14 +26,13 @@ export const CheckboxWidget: React.FC<PropsCheckboxWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
-
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <Checkbox checked={value} onChange={e => model.setValue(namePath, e.target.checked)}>
-          {componentConfig?.props.label || namePath[namePath.length - 1]}
+          {labelText}
         </Checkbox>
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

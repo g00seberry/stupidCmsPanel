@@ -5,6 +5,7 @@ import type React from 'react';
 import type { ZEditInputNumberList } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
 import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента InputNumberListWidget.
@@ -25,6 +26,7 @@ export const InputNumberListWidget: React.FC<PropsInputNumberListWidget> = obser
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -43,7 +45,7 @@ export const InputNumberListWidget: React.FC<PropsInputNumberListWidget> = obser
     };
 
     return (
-      <div>
+      <FormField label={labelText} error={error}>
         {arrayValue.map((item, index) => {
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);
@@ -72,8 +74,7 @@ export const InputNumberListWidget: React.FC<PropsInputNumberListWidget> = obser
         <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
-        <FieldError error={error} />
-      </div>
+      </FormField>
     );
   }
 );

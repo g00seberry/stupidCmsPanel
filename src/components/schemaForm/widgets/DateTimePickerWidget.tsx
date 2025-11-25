@@ -6,7 +6,7 @@ import type { FieldRendererProps } from '../types';
 import type { ZEditDateTimePicker } from '../ZComponent';
 import { viewDate } from '@/utils/dateUtils';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента DateTimePickerWidget.
@@ -27,11 +27,12 @@ export const DateTimePickerWidget: React.FC<PropsDateTimePickerWidget> = observe
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Преобразуем строку в dayjs объект, если значение - строка
     const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
 
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <DatePicker
           value={dayjsValue}
           onChange={val => model.setValue(namePath, val)}
@@ -40,8 +41,7 @@ export const DateTimePickerWidget: React.FC<PropsDateTimePickerWidget> = observe
           showTime={componentConfig?.props.showTime ?? true}
           className="w-full"
         />
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

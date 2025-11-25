@@ -1,5 +1,5 @@
 import { Card } from 'antd';
-import type React from 'react';
+import React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
@@ -40,56 +40,15 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
         {Object.entries(field.children).map(([childKey, childField]) => {
           const childPath = [...namePath, childKey];
           const childPathStr = pathToString(childPath);
-          const childError = model.errorFor(childPathStr);
-
-          // Проверяем, есть ли конфигурация компонента для дочернего поля
           const childComponentConfig = model.formConfig[childPathStr];
-
-          // Для примитивных полей
-          if (childField.type !== 'json') {
-            if (childField.cardinality === 'one') {
-              const widgetElement = renderComponentFromConfig(childComponentConfig, {
+          return (
+            <React.Fragment key={childPathStr}>
+              {renderComponentFromConfig(childComponentConfig, {
                 schema: childField,
                 namePath: childPath,
                 model,
-              });
-
-              const childLabelText = childComponentConfig?.props.label || childKey;
-
-              return (
-                <div key={childPathStr} className="mb-4">
-                  <label className="block mb-1 font-medium">{childLabelText}</label>
-                  {widgetElement}
-                  <FieldError error={childError} />
-                </div>
-              );
-            }
-
-            // Для массивов примитивов
-            const arrayLabelText = childComponentConfig?.props.label || childKey;
-            const widgetElement = renderComponentFromConfig(childComponentConfig, {
-              schema: childField,
-              namePath: childPath,
-              model,
-            });
-
-            return (
-              <div key={childPathStr} className="mb-4">
-                <label className="block mb-1 font-medium">{arrayLabelText}</label>
-                {widgetElement}
-                <FieldError error={childError} />
-              </div>
-            );
-          }
-
-          // Для вложенных json полей рекурсивно используем JsonObjectWidget
-          return (
-            <JsonObjectWidget
-              key={childPathStr}
-              schema={childField}
-              namePath={childPath}
-              model={model}
-            />
+              })}
+            </React.Fragment>
           );
         })}
         <FieldError error={error} />

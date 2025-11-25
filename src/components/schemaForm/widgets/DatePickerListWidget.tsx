@@ -7,6 +7,7 @@ import type React from 'react';
 import type { ZEditDatePickerList } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
 import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента DatePickerListWidget.
@@ -27,6 +28,7 @@ export const DatePickerListWidget: React.FC<PropsDatePickerListWidget> = observe
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -45,7 +47,7 @@ export const DatePickerListWidget: React.FC<PropsDatePickerListWidget> = observe
     };
 
     return (
-      <div>
+      <FormField label={labelText} error={error}>
         {arrayValue.map((item, index) => {
           // Преобразуем строку в dayjs объект, если значение - строка
           const dayjsValue: Dayjs | null =
@@ -75,8 +77,7 @@ export const DatePickerListWidget: React.FC<PropsDatePickerListWidget> = observe
         <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
-        <FieldError error={error} />
-      </div>
+      </FormField>
     );
   }
 );

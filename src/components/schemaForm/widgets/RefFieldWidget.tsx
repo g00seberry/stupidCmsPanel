@@ -8,6 +8,7 @@ import type { FieldRendererProps } from '../types';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { notificationService } from '@/services/notificationService';
 import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Виджет для ссылочных полей (ref).
@@ -20,6 +21,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
   const value = getValueByPath(model.values, namePath);
   const pathStr = pathToString(namePath);
   const error = model.errorFor(pathStr);
+  const labelText = String(namePath[namePath.length - 1]);
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
 
@@ -120,7 +122,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
   }, []);
 
   return (
-    <>
+    <FormField label={labelText} error={error}>
       <Select
         value={value}
         onChange={val => model.setValue(namePath, val)}
@@ -131,7 +133,6 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
         onSearch={handleSearch}
         className="w-full"
       />
-      <FieldError error={error} />
-    </>
+    </FormField>
   );
 });

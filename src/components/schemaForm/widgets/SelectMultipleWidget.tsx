@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import type { ZEditSelectMultiple } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
-import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента SelectMultipleWidget.
@@ -26,6 +26,7 @@ export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = observe
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -33,7 +34,7 @@ export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = observe
     const options: Array<{ label: string; value: string | number }> = [];
 
     return (
-      <>
+      <FormField label={labelText} error={error}>
         <Select
           mode="multiple"
           value={arrayValue}
@@ -44,8 +45,7 @@ export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = observe
           options={options}
           notFoundContent={options.length === 0 ? 'Опции не загружены' : undefined}
         />
-        <FieldError error={error} />
-      </>
+      </FormField>
     );
   }
 );

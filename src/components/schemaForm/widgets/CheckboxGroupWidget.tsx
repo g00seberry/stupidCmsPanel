@@ -5,6 +5,7 @@ import type React from 'react';
 import type { ZEditCheckboxGroup } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
 import { FieldError } from '../FieldError';
+import { FormField } from './common/FormField';
 
 /**
  * Пропсы компонента CheckboxGroupWidget.
@@ -25,7 +26,7 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
-    // Значение должно быть массивом булевых значений
+    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     const arrayValue = Array.isArray(value) ? value : [];
 
     const handleItemChange = (index: number, checked: boolean) => {
@@ -43,7 +44,7 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = observer(
     };
 
     return (
-      <div>
+      <FormField label={labelText} error={error}>
         {arrayValue.map((item, index) => {
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);
@@ -69,8 +70,7 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = observer(
         <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
-        <FieldError error={error} />
-      </div>
+      </FormField>
     );
   }
 );
