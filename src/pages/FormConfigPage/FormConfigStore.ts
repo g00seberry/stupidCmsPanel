@@ -17,6 +17,8 @@ type SchemaTreeNode = {
   key: string;
   title: string;
   children?: SchemaTreeNode[];
+  /** Флаг несоответствия выбранного компонента доступным для поля. */
+  hasInvalidComponent?: boolean;
 };
 
 /**
@@ -190,6 +192,22 @@ export class FormConfigStore {
   }
 
   /**
+   * Проверяет, соответствует ли выбранный компонент доступным компонентам для поля.
+   * @param path Путь к полю.
+   * @param field Поле схемы.
+   * @returns `true`, если компонент не выбран или выбран допустимый компонент.
+   */
+  isComponentValidForField(path: string, field: ZBlueprintSchemaField): boolean {
+    const currentConfig = this.formConfig[path];
+    if (!currentConfig) {
+      return true; // Если компонент не выбран, это валидно
+    }
+
+    const availableComponents = this.getAvailableComponents(field);
+    return availableComponents.includes(currentConfig.name);
+  }
+
+  /**
    * Преобразует имя поля в читаемый формат для label.
    * @param fieldName Имя поля.
    * @returns Отформатированный label.
@@ -267,9 +285,12 @@ export class FormConfigStore {
       const pathStr = pathToString(currentPath);
       const hasConfig = !!this.formConfig[pathStr];
 
+      const isValidComponent = this.isComponentValidForField(pathStr, field);
+
       const node: SchemaTreeNode = {
         key: pathStr,
         title: this.formatTreeNodeTitle(key, field, hasConfig),
+        hasInvalidComponent: hasConfig && !isValidComponent,
       };
 
       if (field.children) {

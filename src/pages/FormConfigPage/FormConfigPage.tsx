@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Select, Spin, Tree, Empty } from 'antd';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
@@ -10,6 +10,7 @@ import { ComponentSettingsForm } from '@/components/formConfig/ComponentSettings
 import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { DataNode } from 'antd/es/tree';
+import { Tooltip } from 'antd';
 
 /**
  * Страница настройки конфигурации формы для типа контента и blueprint.
@@ -141,6 +142,36 @@ export const FormConfigPage = observer(() => {
   );
 
   /**
+   * Рендерит заголовок узла дерева с предупреждением, если компонент не соответствует доступным.
+   * @param nodeData Данные узла.
+   * @returns Элемент заголовка узла.
+   */
+  const renderTreeNodeTitle = useCallback(
+    (nodeData: DataNode & { hasInvalidComponent?: boolean }) => {
+      const hasWarning = nodeData.hasInvalidComponent;
+      const titleNode =
+        typeof nodeData.title === 'function' ? nodeData.title(nodeData) : nodeData.title;
+
+      if (!hasWarning) {
+        return <span>{titleNode}</span>;
+      }
+
+      return (
+        <div className="flex items-center gap-2">
+          <span>{titleNode}</span>
+          <Tooltip
+            title="Выбранный компонент не соответствует доступным компонентам для этого типа поля"
+            placement="right"
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+          </Tooltip>
+        </div>
+      );
+    },
+    []
+  );
+
+  /**
    * Рендерит форму настройки для выбранного поля.
    */
   const renderFieldConfig = () => {
@@ -253,6 +284,7 @@ export const FormConfigPage = observer(() => {
                   defaultExpandAll
                   showLine={{ showLeafIcon: false }}
                   className="bg-transparent"
+                  titleRender={renderTreeNodeTitle}
                 />
               ) : (
                 <Empty description="Нет полей в схеме" />
