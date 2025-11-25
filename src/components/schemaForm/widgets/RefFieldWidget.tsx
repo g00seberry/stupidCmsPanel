@@ -1,9 +1,11 @@
 import { Select } from 'antd';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import type { FieldRendererProps } from '../FieldRendererProps';
+import { getValueByPath } from '@/utils/pathUtils';
 
 /**
  * Виджет для ссылочных полей (ref).
@@ -12,15 +14,10 @@ import type { FieldRendererProps } from '../FieldRendererProps';
  * @param props Пропсы рендерера поля.
  * @returns Компонент Select для выбора ссылки.
  */
-export const RefFieldWidget: React.FC<FieldRendererProps> = ({
-  schema,
-  namePath,
-  value,
-  onChange,
-}) => {
+export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, namePath }) => {
+  const value = getValueByPath(model.values, namePath);
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Загружаем данные при монтировании
   useEffect(() => {
@@ -49,8 +46,6 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
 
   // Поиск с debounce
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
-
     // Очищаем предыдущий timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -111,7 +106,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
   return (
     <Select
       value={value}
-      onChange={onChange}
+      onChange={val => model.setValue(namePath, val)}
       showSearch
       loading={loading}
       options={options}
@@ -120,4 +115,4 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = ({
       style={{ width: '100%' }}
     />
   );
-};
+});

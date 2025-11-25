@@ -10,14 +10,6 @@ export interface FieldRendererProps {
   schema: ZBlueprintSchemaField;
   /** Путь к полю в форме (массив сегментов). */
   namePath: PathSegment[];
-  /** Текущее значение поля. */
-  value?: any;
-  /** Обработчик изменения значения поля. */
-  onChange?: (value: any) => void;
-  /** Модель формы для доступа к formConfig и ошибкам (опционально, используется для json полей). */
-  model?: FormModel;
-  /** Обработчик добавления элемента в массив (опционально, используется для json полей). */
-  onAddArrayItem?: (path: PathSegment[], defaultValue: any) => void;
-  /** Обработчик удаления элемента из массива (опционально, используется для json полей). */
-  onRemoveArrayItem?: (path: PathSegment[], index: number) => void;
+  /** Модель формы для доступа к значениям, ошибкам и операциям. */
+  model: FormModel;
 }

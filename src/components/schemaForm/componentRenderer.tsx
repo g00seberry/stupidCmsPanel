@@ -116,20 +116,10 @@ const componentRendererRegistry: Partial<
   /** JSON объекты. */
   json: {
     one: (config, props) => (
-      <JsonObjectWidget
-        {...props}
-        componentConfig={config as ZEditJsonObject}
-        model={props.model}
-      />
+      <JsonObjectWidget {...props} componentConfig={config as ZEditJsonObject} />
     ),
     many: (config, props) => (
-      <JsonArrayWidget
-        {...props}
-        componentConfig={config as ZEditJsonObject}
-        model={props.model}
-        onAddItem={props.onAddArrayItem}
-        onRemoveItem={props.onRemoveArrayItem}
-      />
+      <JsonArrayWidget {...props} componentConfig={config as ZEditJsonObject} />
     ),
   },
 };

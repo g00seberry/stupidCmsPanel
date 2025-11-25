@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/components/schemaForm/FormModel';
-import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
+import { pathToString, type PathSegment } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from './componentRenderer';
 
 /**
@@ -11,56 +11,23 @@ import { renderComponentFromConfig } from './componentRenderer';
 export interface PropsSchemaForm {
   /** Модель формы на MobX для управления состоянием. */
   model: FormModel;
-  /** Схема сущности для формы. */
-  schema: ZBlueprintSchema;
 }
 
 /**
  * Компонент формы на основе схемы сущности.
  * Рендерит форму напрямую через контролируемые компоненты, синхронизированные с FormModel на MobX.
  * Поддерживает примитивные поля и json поля с cardinality 'one' и 'many'.
- * Поддерживает режим только для чтения через проп `readonly`.
  * Все изменения сразу обновляют FormModel.values.
- * @template E Схема сущности.
  * @example
  * const model = new FormModel(schema, initialValues);
- * <SchemaForm model={model} schema={schema} readonly={false} />
+ * <SchemaForm model={model} />
  */
-export const SchemaForm = observer(({ model, schema }: PropsSchemaForm) => {
-  /**
-   * Обработчик изменения значения поля.
-   * Обновляет значение в FormModel по указанному пути.
-   * @param path Путь к полю.
-   * @param value Новое значение.
-   */
-  const handleFieldChange = (path: PathSegment[], value: any): void => {
-    model.setValue(path, value);
-  };
-
-  /**
-   * Обработчик добавления элемента в массив.
-   * @param path Путь к массиву.
-   * @param defaultValue Значение по умолчанию для нового элемента.
-   */
-  const handleAddArrayItem = (path: PathSegment[], defaultValue: any): void => {
-    model.addArrayItem(path, defaultValue);
-  };
-
-  /**
-   * Обработчик удаления элемента из массива.
-   * @param path Путь к массиву.
-   * @param index Индекс элемента для удаления.
-   */
-  const handleRemoveArrayItem = (path: PathSegment[], index: number): void => {
-    model.removeArrayItem(path, index);
-  };
-
+export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
   /**
    * Рекурсивно рендерит поле формы на основе его схемы.
    * @param key Имя поля.
    * @param field Схема поля.
    * @param parentPath Путь к родительскому полю (для вложенных полей).
-   * @param isReadonly Флаг режима только для чтения.
    * @returns React-компонент поля формы.
    */
   const renderField = (
@@ -70,7 +37,6 @@ export const SchemaForm = observer(({ model, schema }: PropsSchemaForm) => {
   ): React.ReactNode => {
     const namePath = [...parentPath, key];
     const pathStr = pathToString(namePath);
-    const currentValue = getValueByPath(model.values, namePath);
     const error = model.errorFor(pathStr);
     // Получаем конфигурацию компонента (кастомную или дефолтную)
     const componentConfig = model.formConfig[pathStr];
@@ -80,11 +46,7 @@ export const SchemaForm = observer(({ model, schema }: PropsSchemaForm) => {
     const widgetElement = renderComponentFromConfig(componentConfig, {
       schema: field,
       namePath,
-      value: currentValue,
-      onChange: (value: any) => handleFieldChange(namePath, value),
       model,
-      onAddArrayItem: handleAddArrayItem,
-      onRemoveArrayItem: handleRemoveArrayItem,
     });
 
     // Для примитивных полей добавляем label и ошибки
@@ -99,5 +61,7 @@ export const SchemaForm = observer(({ model, schema }: PropsSchemaForm) => {
     );
   };
 
-  return <div>{Object.entries(schema.schema).map(([key, field]) => renderField(key, field))}</div>;
+  return (
+    <div>{Object.entries(model.schema.schema).map(([key, field]) => renderField(key, field))}</div>
+  );
 });

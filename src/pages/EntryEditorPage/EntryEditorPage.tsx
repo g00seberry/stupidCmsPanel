@@ -219,11 +219,7 @@ const Inner = observer(({ store }: PropsInner) => {
         {!store.loading && store.postType?.blueprint_id && store.blueprintModel && (
           <Card className="p-6 mt-6">
             <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
-            <SchemaForm
-              model={store.blueprintModel}
-              schema={store.blueprintModel.schema}
-              readonly={store.loading}
-            />
+            <SchemaForm model={store.blueprintModel} />
           </Card>
         )}
       </div>

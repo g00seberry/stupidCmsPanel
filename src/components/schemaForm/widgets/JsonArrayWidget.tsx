@@ -1,11 +1,11 @@
 import { Card, Button } from 'antd';
 import type React from 'react';
+import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import { getValueByPath, pathToString, type PathSegment } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';
 import type { ZEditComponent } from '../componentDefs/ZComponent';
-import type { FormModel } from '../FormModel';
 import { JsonObjectWidget } from './JsonObjectWidget';
 
 /**
@@ -14,14 +14,6 @@ import { JsonObjectWidget } from './JsonObjectWidget';
 type PropsJsonArrayWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent (опционально, так как json рендерит children). */
   componentConfig?: ZEditComponent;
-  /** Модель формы для доступа к formConfig и ошибкам. */
-  model?: FormModel;
-  /** Флаг режима только для чтения. */
-  readonly?: boolean;
-  /** Обработчик добавления элемента в массив. */
-  onAddItem?: (path: PathSegment[], defaultValue: any) => void;
-  /** Обработчик удаления элемента из массива. */
-  onRemoveItem?: (path: PathSegment[], index: number) => void;
 };
 
 /**
@@ -30,92 +22,93 @@ type PropsJsonArrayWidget = FieldRendererProps & {
  * @param props Пропсы рендерера поля и конфигурация компонента.
  * @returns Компонент Card с массивом вложенных объектов.
  */
-export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
-  schema,
-  namePath,
-  value,
-  onChange,
-  componentConfig,
-  model,
-  onAddItem,
-  onRemoveItem,
-}) => {
-  const field = schema as ZBlueprintSchemaField;
-  const pathStr = pathToString(namePath);
-  const arrayValue = Array.isArray(value) ? value : [];
-  const error = model?.errorFor(pathStr);
+export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
+  ({ schema, namePath, componentConfig, model }) => {
+    const field = schema as ZBlueprintSchemaField;
+    const pathStr = pathToString(namePath);
+    const value = getValueByPath(model.values, namePath);
+    const arrayValue = Array.isArray(value) ? value : [];
+    const error = model.errorFor(pathStr);
 
-  if (!field.children) {
-    return null;
-  }
-
-  // Используем label из конфигурации компонента, если есть
-  const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
-
-  const handleAddItem = () => {
-    if (onAddItem) {
-      onAddItem(namePath, {});
-    } else {
-      onChange?.([...arrayValue, {}]);
+    if (!field.children) {
+      return null;
     }
-  };
 
-  const handleRemoveItem = (index: number) => {
-    if (onRemoveItem) {
-      onRemoveItem(namePath, index);
-    } else {
-      const newArray = arrayValue.filter((_, i) => i !== index);
-      onChange?.(newArray);
-    }
-  };
+    // Используем label из конфигурации компонента, если есть
+    const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
 
-  return (
-    <Card
-      title={labelText}
-      extra={<Button onClick={handleAddItem}>Добавить</Button>}
-      style={{ marginBottom: 16 }}
-    >
-      {arrayValue.map((item, index) => {
-        const itemPath = [...namePath, index];
-        const itemPathStr = pathToString(itemPath);
-        const itemError = model?.errorFor(itemPathStr);
+    const handleAddItem = () => {
+      model.addArrayItem(namePath, {});
+    };
 
-        return (
-          <Card
-            key={itemPathStr}
-            size="small"
-            style={{ marginBottom: 8 }}
-            extra={<Button onClick={() => handleRemoveItem(index)}>Удалить</Button>}
-          >
-            {Object.entries(field.children!).map(([childKey, childField]) => {
-              const childPath = [...itemPath, childKey];
-              const childPathStr = pathToString(childPath);
-              const childValue = getValueByPath(item, [childKey]);
-              const childError = model?.errorFor(childPathStr);
+    const handleRemoveItem = (index: number) => {
+      model.removeArrayItem(namePath, index);
+    };
 
-              // Проверяем, есть ли конфигурация компонента для дочернего поля
-              const childComponentConfig = model?.formConfig?.[childPathStr];
+    return (
+      <Card
+        title={labelText}
+        extra={<Button onClick={handleAddItem}>Добавить</Button>}
+        style={{ marginBottom: 16 }}
+      >
+        {arrayValue.map((_, index) => {
+          const itemPath = [...namePath, index];
+          const itemPathStr = pathToString(itemPath);
+          const itemError = model.errorFor(itemPathStr);
 
-              // Для примитивных полей
-              if (childField.type !== 'json') {
-                if (childField.cardinality === 'one') {
+          return (
+            <Card
+              key={itemPathStr}
+              size="small"
+              style={{ marginBottom: 8 }}
+              extra={<Button onClick={() => handleRemoveItem(index)}>Удалить</Button>}
+            >
+              {Object.entries(field.children!).map(([childKey, childField]) => {
+                const childPath = [...itemPath, childKey];
+                const childPathStr = pathToString(childPath);
+                const childError = model.errorFor(childPathStr);
+
+                // Проверяем, есть ли конфигурация компонента для дочернего поля
+                const childComponentConfig = model.formConfig[childPathStr];
+
+                // Для примитивных полей
+                if (childField.type !== 'json') {
+                  if (childField.cardinality === 'one') {
+                    const widgetElement = renderComponentFromConfig(childComponentConfig, {
+                      schema: childField,
+                      namePath: childPath,
+                      model,
+                    });
+
+                    const childLabelText = childComponentConfig?.props.label || childKey;
+
+                    return (
+                      <div key={childPathStr} style={{ marginBottom: 16 }}>
+                        <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
+                          {childLabelText}
+                        </label>
+                        {widgetElement}
+                        {childError && (
+                          <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>
+                            {childError}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Для массивов примитивов
+                  const arrayLabelText = childComponentConfig?.props.label || childKey;
                   const widgetElement = renderComponentFromConfig(childComponentConfig, {
                     schema: childField,
                     namePath: childPath,
-                    value: childValue,
-                    onChange: (newValue: any) => {
-                      const newArray = [...arrayValue];
-                      newArray[index] = { ...item, [childKey]: newValue };
-                      onChange?.(newArray);
-                    },
+                    model,
                   });
-
-                  const childLabelText = childComponentConfig?.props.label || childKey;
 
                   return (
                     <div key={childPathStr} style={{ marginBottom: 16 }}>
                       <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                        {childLabelText}
+                        {arrayLabelText}
                       </label>
                       {widgetElement}
                       {childError && (
@@ -127,58 +120,24 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = ({
                   );
                 }
 
-                // Для массивов примитивов
-                const arrayValue = Array.isArray(childValue) ? childValue : [];
-                const arrayLabelText = childComponentConfig?.props.label || childKey;
-                const widgetElement = renderComponentFromConfig(childComponentConfig, {
-                  schema: childField,
-                  namePath: childPath,
-                  value: arrayValue,
-                  onChange: (newValue: any) => {
-                    const newArray = [...arrayValue];
-                    newArray[index] = { ...item, [childKey]: newValue };
-                    onChange?.(newArray);
-                  },
-                });
-
+                // Для вложенных json полей рекурсивно используем JsonObjectWidget
                 return (
-                  <div key={childPathStr} style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                      {arrayLabelText}
-                    </label>
-                    {widgetElement}
-                    {childError && (
-                      <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>
-                        {childError}
-                      </div>
-                    )}
-                  </div>
+                  <JsonObjectWidget
+                    key={childPathStr}
+                    schema={childField}
+                    namePath={childPath}
+                    model={model}
+                  />
                 );
-              }
-
-              // Для вложенных json полей рекурсивно используем JsonObjectWidget
-              return (
-                <JsonObjectWidget
-                  key={childPathStr}
-                  schema={childField}
-                  namePath={childPath}
-                  value={childValue}
-                  onChange={(newValue: any) => {
-                    const newArray = [...arrayValue];
-                    newArray[index] = { ...item, [childKey]: newValue };
-                    onChange?.(newArray);
-                  }}
-                  model={model}
-                />
-              );
-            })}
-            {itemError && (
-              <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
-            )}
-          </Card>
-        );
-      })}
-      {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
-    </Card>
-  );
-};
+              })}
+              {itemError && (
+                <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
+              )}
+            </Card>
+          );
+        })}
+        {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
+      </Card>
+    );
+  }
+);

@@ -1,6 +1,7 @@
-import { pathToString } from '@/utils/pathUtils';
+import { pathToString, getValueByPath } from '@/utils/pathUtils';
 import { Button, Input, Space } from 'antd';
 import type React from 'react';
+import { observer } from 'mobx-react-lite';
 import type { ZEditTextarea } from '../componentDefs/ZComponent';
 import type { FieldRendererProps } from '../FieldRendererProps';
 
@@ -18,60 +19,56 @@ type PropsTextareaListWidget = FieldRendererProps & {
  * @param props Пропсы рендерера поля и конфигурация компонента.
  * @returns Компонент для работы со списком многострочных текстовых полей.
  */
-export const TextareaListWidget: React.FC<PropsTextareaListWidget> = ({
-  value,
-  onChange,
-  componentConfig,
-  namePath,
-  model,
-}) => {
-  // Значение должно быть массивом
-  const arrayValue = Array.isArray(value) ? value : [];
+export const TextareaListWidget: React.FC<PropsTextareaListWidget> = observer(
+  ({ model, namePath, componentConfig }) => {
+    const value = getValueByPath(model.values, namePath);
+    // Значение должно быть массивом
+    const arrayValue = Array.isArray(value) ? value : [];
 
-  const handleItemChange = (index: number, newValue: string) => {
-    const newArray = [...arrayValue];
-    newArray[index] = newValue;
-    onChange?.(newArray);
-  };
+    const handleItemChange = (index: number, newValue: string) => {
+      const newArray = [...arrayValue];
+      newArray[index] = newValue;
+      model.setValue(namePath, newArray);
+    };
 
-  const handleAdd = () => {
-    onChange?.([...arrayValue, '']);
-  };
+    const handleAdd = () => {
+      model.addArrayItem(namePath, '');
+    };
 
-  const handleRemove = (index: number) => {
-    const newArray = arrayValue.filter((_, i) => i !== index);
-    onChange?.(newArray);
-  };
+    const handleRemove = (index: number) => {
+      model.removeArrayItem(namePath, index);
+    };
 
-  return (
-    <div>
-      {arrayValue.map((item, index) => {
-        const itemPath = [...namePath, index];
-        const itemPathStr = pathToString(itemPath);
-        const itemError = model?.errorFor(itemPathStr);
+    return (
+      <div>
+        {arrayValue.map((item, index) => {
+          const itemPath = [...namePath, index];
+          const itemPathStr = pathToString(itemPath);
+          const itemError = model?.errorFor(itemPathStr);
 
-        return (
-          <div key={index} style={{ marginBottom: 8 }}>
-            <Space direction="vertical" style={{ display: 'flex', width: '100%' }}>
-              <Input.TextArea
-                value={item}
-                onChange={e => handleItemChange(index, e.target.value)}
-                placeholder={componentConfig?.props.placeholder}
-                rows={componentConfig?.props.rows}
-                autoSize={!componentConfig?.props.rows}
-                style={{ width: '100%' }}
-              />
-              {itemError && (
-                <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
-              )}
-              <Button onClick={() => handleRemove(index)}>Удалить</Button>
-            </Space>
-          </div>
-        );
-      })}
-      <Button onClick={handleAdd} style={{ marginTop: 8 }}>
-        Добавить
-      </Button>
-    </div>
-  );
-};
+          return (
+            <div key={index} style={{ marginBottom: 8 }}>
+              <Space direction="vertical" style={{ display: 'flex', width: '100%' }}>
+                <Input.TextArea
+                  value={item}
+                  onChange={e => handleItemChange(index, e.target.value)}
+                  placeholder={componentConfig?.props.placeholder}
+                  rows={componentConfig?.props.rows}
+                  autoSize={!componentConfig?.props.rows}
+                  style={{ width: '100%' }}
+                />
+                {itemError && (
+                  <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
+                )}
+                <Button onClick={() => handleRemove(index)}>Удалить</Button>
+              </Space>
+            </div>
+          );
+        })}
+        <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+          Добавить
+        </Button>
+      </div>
+    );
+  }
+);

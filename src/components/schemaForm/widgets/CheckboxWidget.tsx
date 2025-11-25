@@ -1,7 +1,9 @@
 import { Checkbox } from 'antd';
 import type React from 'react';
+import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../FieldRendererProps';
 import type { ZEditCheckbox } from '../componentDefs/ZComponent';
+import { getValueByPath } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента CheckboxWidget.
@@ -18,15 +20,14 @@ type PropsCheckboxWidget = FieldRendererProps & {
  * @param props Пропсы рендерера поля и конфигурация компонента.
  * @returns Компонент Checkbox для булевых значений.
  */
-export const CheckboxWidget: React.FC<PropsCheckboxWidget> = ({
-  value,
-  onChange,
-  componentConfig,
-  namePath,
-}) => {
-  return (
-    <Checkbox checked={value} onChange={e => onChange?.(e.target.checked)}>
-      {componentConfig?.props.label || namePath}
-    </Checkbox>
-  );
-};
+export const CheckboxWidget: React.FC<PropsCheckboxWidget> = observer(
+  ({ model, namePath, componentConfig }) => {
+    const value = getValueByPath(model.values, namePath);
+
+    return (
+      <Checkbox checked={value} onChange={e => model.setValue(namePath, e.target.checked)}>
+        {componentConfig?.props.label || namePath[namePath.length - 1]}
+      </Checkbox>
+    );
+  }
+);
