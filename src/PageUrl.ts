@@ -13,6 +13,7 @@ export const PageUrl = {
   ContentTypes: '/content-types',
   ContentTypesEdit: '/content-types/:slug',
   ContentTypesBlueprints: '/content-types/:slug/blueprints',
+  ContentTypesFormConfig: '/content-types/:slug/form-config/:blueprintId',
   Seo: '/seo',
   Settings: '/settings',
   Login: '/login',

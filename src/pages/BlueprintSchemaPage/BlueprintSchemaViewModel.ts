@@ -1,12 +1,9 @@
 import { makeAutoObservable } from 'mobx';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
 import { findPathInTree } from '@/utils/pathUtils';
-import { getBlueprint } from '@/api/blueprintApi';
-import { getFormConfig, saveFormConfig } from '@/api/apiFormConfig';
-import { onError } from '@/utils/onError';
 import { PathStore } from './PathStore';
 import { BlueprintEmbedStore } from './BlueprintEmbedStore';
+import { onError } from '@/utils/onError';
 
 export type NodeFormMode = 'create' | 'edit' | 'embed';
 
@@ -28,9 +25,6 @@ export class BlueprintSchemaViewModel {
   contextMenuNodeId: number | null = null;
   contextMenuPosition: ContextMenuPosition | null = null;
   emptyAreaContextMenuPosition: ContextMenuPosition | null = null;
-
-  postTypeSlug: string | null = null;
-  formConfig: Record<string, ZEditComponent> = {};
 
   loading: LoadingState = { init: false, action: false };
 
@@ -64,23 +58,6 @@ export class BlueprintSchemaViewModel {
     return this.selectedPathId ? [this.selectedPathId] : [];
   }
 
-  get nodeFormComponentConfig(): ZEditComponent | undefined {
-    if (this.nodeFormMode !== 'edit' || !this.selectedPathId) return undefined;
-    const fullPath = this.selectedPath?.full_path;
-    if (!fullPath) return undefined;
-    return this.formConfig[fullPath];
-  }
-
-  get nodeFormDataType() {
-    if (this.nodeFormMode !== 'edit' || !this.selectedPathId) return undefined;
-    return this.selectedPath?.data_type;
-  }
-
-  get nodeFormCardinality() {
-    if (this.nodeFormMode !== 'edit' || !this.selectedPathId) return undefined;
-    return this.selectedPath?.cardinality;
-  }
-
   get nodeFormParentPath() {
     if (this.nodeFormParentId == null) return undefined;
     const parent = findPathInTree(this.paths, this.nodeFormParentId);
@@ -97,28 +74,9 @@ export class BlueprintSchemaViewModel {
         this.pathStore.loadPaths(blueprintId),
         this.embedStore.loadEmbeddable(blueprintId),
         this.embedStore.loadEmbeds(blueprintId),
-        this.loadBlueprintMeta(blueprintId),
       ]);
     } finally {
       this.setLoadingInit(false);
-    }
-  }
-
-  async loadBlueprintMeta(blueprintId: number) {
-    try {
-      const blueprint = await getBlueprint(blueprintId);
-      if (blueprint.post_types && blueprint.post_types.length > 0) {
-        const slug = blueprint.post_types[0].slug;
-        this.setPostTypeSlug(slug);
-        try {
-          const config = await getFormConfig(slug, blueprintId);
-          this.setFormConfig(config);
-        } catch {
-          this.setFormConfig({});
-        }
-      }
-    } catch (error) {
-      onError(error);
     }
   }
 
@@ -136,14 +94,6 @@ export class BlueprintSchemaViewModel {
 
   setLoadingAction(value: boolean) {
     this.loading.action = value;
-  }
-
-  setPostTypeSlug(slug: string | null) {
-    this.postTypeSlug = slug;
-  }
-
-  setFormConfig(config: Record<string, ZEditComponent>) {
-    this.formConfig = config;
   }
 
   setNodeForm(open: boolean, mode: NodeFormMode, parentId: number | null) {
@@ -226,10 +176,7 @@ export class BlueprintSchemaViewModel {
     return findPathInTree(this.paths, pathId);
   }
 
-  async saveNode(
-    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number },
-    formComponentConfig?: ZEditComponent
-  ) {
+  async saveNode(values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }) {
     if (!this.blueprintId) return;
     this.setLoadingAction(true);
     try {
@@ -244,7 +191,6 @@ export class BlueprintSchemaViewModel {
       } else if (this.nodeFormMode === 'edit' && this.selectedPathId) {
         await this.pathStore.updatePath(this.selectedPathId, values as ZUpdatePathDto);
         await this.pathStore.loadPaths(this.blueprintId);
-        await this.persistFormConfig(formComponentConfig);
       } else {
         const createDto = {
           ...(values as ZCreatePathDto),
@@ -258,24 +204,6 @@ export class BlueprintSchemaViewModel {
       throw error;
     } finally {
       this.setLoadingAction(false);
-    }
-  }
-
-  private async persistFormConfig(formComponentConfig?: ZEditComponent) {
-    if (!this.postTypeSlug || !this.blueprintId || !this.selectedPath) return;
-    const updatedConfig = { ...this.formConfig };
-    const fullPath = this.selectedPath.full_path;
-    if (formComponentConfig) {
-      updatedConfig[fullPath] = formComponentConfig;
-    } else {
-      delete updatedConfig[fullPath];
-    }
-
-    try {
-      await saveFormConfig(this.postTypeSlug, this.blueprintId, updatedConfig);
-      this.setFormConfig(updatedConfig);
-    } catch (error) {
-      onError(error);
     }
   }
 }

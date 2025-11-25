@@ -14,6 +14,7 @@ import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
 import { BlueprintListPage } from '@/pages/BlueprintsPage/BlueprintListPage';
 import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
 import { BlueprintSchemaPage } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPage';
+import { FormConfigPage } from '@/pages/FormConfigPage/FormConfigPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -28,6 +29,7 @@ export const routes = [
   { path: PageUrl.ContentTypes, element: <PostTypesPage /> },
   { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },
   { path: PageUrl.ContentTypesBlueprints, element: <PostTypeBlueprintsPage /> },
+  { path: PageUrl.ContentTypesFormConfig, element: <FormConfigPage /> },
   { path: PageUrl.Taxonomies, element: <TaxonomiesPage /> },
   { path: PageUrl.TaxonomiesEdit, element: <TaxonomiesEditorPage /> },
   { path: PageUrl.TermsByTaxonomy, element: <TermsPage /> },

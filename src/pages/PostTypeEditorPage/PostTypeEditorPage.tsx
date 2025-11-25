@@ -129,6 +129,16 @@ export const PostTypeEditorPage = observer(() => {
                   <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { slug: slug! })}>
                     <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
                   </Link>
+                  {store.currentPostType?.blueprint_id && (
+                    <Link
+                      to={buildUrl(PageUrl.ContentTypesFormConfig, {
+                        slug: slug!,
+                        blueprintId: String(store.currentPostType.blueprint_id),
+                      })}
+                    >
+                      <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
+                    </Link>
+                  )}
                   <Button
                     danger
                     onClick={handleDelete}

@@ -4,7 +4,6 @@ import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathContextMenu } from '@/components/paths/PathContextMenu';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
-import type { ZEditComponent } from '@/components/schemaForm/componentDefs/ZComponent';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
@@ -29,7 +28,7 @@ export const BlueprintSchemaPage = observer(() => {
   const { pathStore, embedStore } = pageStore;
   const selectedPath = pageStore.selectedPath;
 
-  // Загрузка blueprint, путей, встраиваний и formConfig при монтировании
+  // Загрузка blueprint, путей и встраиваний при монтировании
   useEffect(() => {
     if (blueprintId) {
       void pageStore.init(blueprintId);
@@ -125,11 +124,10 @@ export const BlueprintSchemaPage = observer(() => {
   };
 
   const handleNodeSave = async (
-    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number },
-    formComponentConfig?: ZEditComponent
+    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
   ) => {
     try {
-      await pageStore.saveNode(values, formComponentConfig);
+      await pageStore.saveNode(values);
       if (pageStore.nodeFormMode === 'embed') {
         message.success('Blueprint встроен');
       } else if (pageStore.nodeFormMode === 'edit') {
@@ -265,13 +263,6 @@ export const BlueprintSchemaPage = observer(() => {
           embeddableBlueprints={embedStore.embeddableBlueprints}
           loading={pageStore.pending}
           fullPath={pageStore.nodeFormMode === 'edit' ? selectedPath?.full_path : undefined}
-          formComponentConfig={
-            pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormComponentConfig : undefined
-          }
-          dataType={pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormDataType : undefined}
-          cardinality={
-            pageStore.nodeFormMode === 'edit' ? pageStore.nodeFormCardinality : undefined
-          }
           initialValues={nodeFormInitialValues}
         />
         {pageStore.contextMenuNodeId && pageStore.contextMenuPosition && (
