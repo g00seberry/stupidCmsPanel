@@ -67,4 +67,4 @@ type InferFormValues<S extends Record<string, ZBlueprintSchemaField>> = {
  * type ProductFormValues = FormValues<typeof productSchema>;
  * // { title: string; price: number }
  */
-export type FormValues<E extends ZBlueprintSchema> = InferFormValues<E['schema']>;
+export type FormValues = InferFormValues<ZBlueprintSchema['schema']>;

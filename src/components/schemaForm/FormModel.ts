@@ -25,7 +25,7 @@ export class FormModel {
   /** Схема сущности, описывающая структуру формы. */
   schema: ZBlueprintSchema;
   /** Значения формы, типизированные на основе схемы. */
-  values: FormValues<ZBlueprintSchema>;
+  values: FormValues;
   /** Карта ошибок валидации по путям полей (ключ - строка пути, значение - массив сообщений об ошибках). */
   errors: Map<string, string[]>;
   /** Конфигурация компонентов формы по путям полей. */
@@ -39,7 +39,7 @@ export class FormModel {
    */
   constructor(
     schema: ZBlueprintSchema,
-    initial?: Partial<FormValues<ZBlueprintSchema>>,
+    initial?: Partial<FormValues>,
     formConfig?: Record<string, ZEditComponent>
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -69,8 +69,8 @@ export class FormModel {
    * @example
    * model.setAll({ title: 'New Title', price: 100 });
    */
-  setAll(values: Partial<FormValues<ZBlueprintSchema>>): void {
-    this.values = { ...this.values, ...values } as FormValues<ZBlueprintSchema>;
+  setAll(values: Partial<FormValues>): void {
+    this.values = { ...this.values, ...values } as FormValues;
   }
 
   /**
@@ -242,7 +242,7 @@ export class FormModel {
    * Возвращает значения формы в виде JSON объекта.
    * @returns Значения формы, типизированные на основе схемы.
    */
-  get json(): FormValues<ZBlueprintSchema> {
+  get json(): FormValues {
     return this.values;
   }
 }

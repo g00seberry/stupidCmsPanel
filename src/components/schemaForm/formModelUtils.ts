@@ -137,10 +137,7 @@ const mergeWithInitial = (
  */
 export const createDefaultValues = (
   schema: ZBlueprintSchema,
-  initial?: Partial<FormValues<ZBlueprintSchema>>
-): FormValues<ZBlueprintSchema> => {
-  return mergeWithInitial(
-    schema.schema,
-    initial as Record<string, any>
-  ) as FormValues<ZBlueprintSchema>;
+  initial?: Partial<FormValues>
+): FormValues => {
+  return mergeWithInitial(schema.schema, initial as Record<string, any>) as FormValues;
 };

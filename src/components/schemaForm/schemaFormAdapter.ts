@@ -1,7 +1,6 @@
-import { getBlueprintSchema } from '@/api/blueprintApi';
 import { getFormConfig } from '@/api/apiFormConfig';
+import { getBlueprintSchema } from '@/api/blueprintApi';
 import { FormModel } from '@/components/schemaForm/FormModel';
-import type { ZBlueprintSchema } from '@/types/blueprintSchema';
 import type { FormValues } from '@/components/schemaForm/FormValues';
 import type { ZEditComponent } from './componentDefs/ZComponent';
 
@@ -19,7 +18,7 @@ import type { ZEditComponent } from './componentDefs/ZComponent';
  */
 export const createFormModelFromBlueprintSchema = async (
   blueprintId: number,
-  initial?: Partial<FormValues<ZBlueprintSchema>>,
+  initial?: Partial<FormValues>,
   postTypeSlug?: string
 ): Promise<FormModel> => {
   // Загружаем схему Blueprint из API

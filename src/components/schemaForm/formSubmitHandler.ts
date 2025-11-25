@@ -1,5 +1,4 @@
 import type { FormModel } from '@/components/schemaForm/FormModel';
-import type { ZBlueprintSchema } from '@/types/blueprintSchema';
 import type { FormValues } from '@/components/schemaForm/FormValues';
 
 /**
@@ -9,7 +8,7 @@ export interface FormSubmitResult {
   /** `true`, если валидация прошла успешно. */
   success: boolean;
   /** Значения формы (только если success === true). */
-  values?: FormValues<ZBlueprintSchema>;
+  values?: FormValues;
   /** Сообщения об ошибках (только если success === false). */
   errors?: Array<{ path: string; messages: string[] }>;
 }
