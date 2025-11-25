@@ -1,6 +1,6 @@
-import type React from 'react';
-import type { InputProps, InputNumberProps, SwitchProps } from 'antd';
+import type { InputNumberProps, InputProps, SwitchProps } from 'antd';
 import type { FormItemProps } from 'antd/es/form';
+import type React from 'react';
 import z from 'zod';
 import {
   zEditCheckbox,
@@ -144,6 +144,8 @@ const placeholderField: FieldMetadataConfig = {
 
 /**
  * Метаданные компонента inputText.
+ * Определяет конфигурацию полей формы для настройки компонента ввода текста.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное).
  */
 export const inputTextMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -152,6 +154,8 @@ export const inputTextMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента textarea.
+ * Определяет конфигурацию полей формы для настройки компонента ввода многострочного текста.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное), rows (опциональное).
  */
 export const textareaMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -169,6 +173,9 @@ export const textareaMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента inputNumber.
+ * Определяет конфигурацию полей формы для настройки компонента ввода числа.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное),
+ * min, max, step (все опциональные).
  */
 export const inputNumberMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -201,6 +208,8 @@ export const inputNumberMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента checkbox.
+ * Определяет конфигурацию полей формы для настройки компонента чекбокса.
+ * Содержит метаданные для поля: label (обязательное).
  */
 export const checkboxMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -208,6 +217,9 @@ export const checkboxMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента datePicker.
+ * Определяет конфигурацию полей формы для настройки компонента выбора даты.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное),
+ * format (опциональное, формат даты).
  */
 export const datePickerMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -221,6 +233,9 @@ export const datePickerMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента dateTimePicker.
+ * Определяет конфигурацию полей формы для настройки компонента выбора даты и времени.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное),
+ * format (опциональное, формат даты и времени), showTime (опциональное, показывать ли время).
  */
 export const dateTimePickerMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -238,6 +253,9 @@ export const dateTimePickerMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента select.
+ * Определяет конфигурацию полей формы для настройки компонента выбора из списка.
+ * Содержит метаданные для полей: label (обязательное), placeholder (опциональное),
+ * showSearch (опциональное, включить ли поиск).
  */
 export const selectMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -250,6 +268,8 @@ export const selectMetadata: ComponentMetadataRegistry = {
 
 /**
  * Метаданные компонента jsonObject.
+ * Определяет конфигурацию полей формы для настройки компонента JSON объекта.
+ * Содержит метаданные для поля: label (обязательное).
  */
 export const jsonObjectMetadata: ComponentMetadataRegistry = {
   label: requiredLabelField,
@@ -363,6 +383,7 @@ const createEnhancedFieldMetadata = (
 /**
  * Извлекает расширенные метаданные полей для компонента.
  * Комбинирует информацию из реестра метаданных и Zod схемы.
+ * В режиме разработки проверяет полноту метаданных и выдаёт предупреждения.
  * @param componentName Имя типа компонента.
  * @returns Массив расширенных метаданных полей.
  * @example

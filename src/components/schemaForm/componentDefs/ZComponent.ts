@@ -1,6 +1,41 @@
 import z from 'zod';
 
 /**
+ * Проверяет, что формат даты содержит необходимые токены (YYYY, MM, DD).
+ * Используется для валидации формата даты в компонентах datePicker.
+ * @param format Формат даты для проверки (например, 'YYYY-MM-DD').
+ * @returns `true`, если формат содержит необходимые токены для года, месяца и дня.
+ * @example
+ * isValidDateFormat('YYYY-MM-DD'); // true
+ * isValidDateFormat('DD/MM/YYYY'); // true
+ * isValidDateFormat('MM-DD'); // false (нет года)
+ */
+const isValidDateFormat = (format: string): boolean => {
+  const hasYear = /YYYY|YY/.test(format);
+  const hasMonth = /MM|M/.test(format);
+  const hasDay = /DD|D/.test(format);
+  return hasYear && hasMonth && hasDay;
+};
+
+/**
+ * Проверяет, что формат даты и времени содержит необходимые токены (YYYY, MM, DD, HH, mm, ss).
+ * Используется для валидации формата даты и времени в компонентах dateTimePicker.
+ * @param format Формат даты и времени для проверки (например, 'YYYY-MM-DD HH:mm:ss').
+ * @returns `true`, если формат содержит необходимые токены для даты и времени.
+ * @example
+ * isValidDateTimeFormat('YYYY-MM-DD HH:mm:ss'); // true
+ * isValidDateTimeFormat('DD/MM/YYYY HH:mm'); // true
+ * isValidDateTimeFormat('YYYY-MM-DD'); // false (нет времени)
+ */
+const isValidDateTimeFormat = (format: string): boolean => {
+  const hasDate = isValidDateFormat(format);
+  const hasHour = /HH|H|hh|h/.test(format);
+  const hasMinute = /mm|m/.test(format);
+  const hasSecond = /ss|s/.test(format);
+  return hasDate && hasHour && hasMinute && hasSecond;
+};
+
+/**
  * Схема валидации компонента ввода текста (Input).
  * Используется для полей типа 'string'.
  */
@@ -84,7 +119,16 @@ export const zEditDatePicker = z.object({
       .string()
       .optional()
       .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z.string().optional().describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
+    format: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || isValidDateFormat(val),
+        {
+          message: 'Формат даты должен содержать YYYY (или YY), MM (или M) и DD (или D)',
+        }
+      )
+      .describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
   }),
 });
 
@@ -105,6 +149,13 @@ export const zEditDateTimePicker = z.object({
     format: z
       .string()
       .optional()
+      .refine(
+        (val) => !val || isValidDateTimeFormat(val),
+        {
+          message:
+            'Формат даты и времени должен содержать YYYY (или YY), MM (или M), DD (или D), HH (или H), mm (или m) и ss (или s)',
+        }
+      )
       .describe(
         'Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'
       ),
@@ -235,7 +286,16 @@ export const zEditDatePickerList = z.object({
       .string()
       .optional()
       .describe('Placeholder|Подсказка в поле ввода|Введите placeholder'),
-    format: z.string().optional().describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
+    format: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || isValidDateFormat(val),
+        {
+          message: 'Формат даты должен содержать YYYY (или YY), MM (или M) и DD (или D)',
+        }
+      )
+      .describe('Format|Формат даты|Формат даты (например, YYYY-MM-DD)'),
   }),
 });
 
@@ -256,6 +316,13 @@ export const zEditDateTimePickerList = z.object({
     format: z
       .string()
       .optional()
+      .refine(
+        (val) => !val || isValidDateTimeFormat(val),
+        {
+          message:
+            'Формат даты и времени должен содержать YYYY (или YY), MM (или M), DD (или D), HH (или H), mm (или m) и ss (или s)',
+        }
+      )
       .describe(
         'Format|Формат даты и времени|Формат даты и времени (например, YYYY-MM-DD HH:mm:ss)'
       ),
