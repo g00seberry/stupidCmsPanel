@@ -4,6 +4,7 @@ import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/components/schemaForm/FormModel';
 import { pathToString, type PathSegment } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from './componentRenderer';
+import { FieldError } from './FieldError';
 
 /**
  * Пропсы компонента SchemaForm.
@@ -53,10 +54,10 @@ export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
     const labelText = componentConfig?.props.label || key;
 
     return (
-      <div key={pathStr} style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>{labelText}</label>
+      <div key={pathStr} className="mb-4">
+        <label className="block mb-1 font-medium">{labelText}</label>
         {widgetElement ?? <div>No widget found</div>}
-        {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
+        <FieldError error={error} />
       </div>
     );
   };

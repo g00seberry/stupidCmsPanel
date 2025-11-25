@@ -1,11 +1,12 @@
-import { Card, Button } from 'antd';
-import type React from 'react';
-import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { Button, Card } from 'antd';
+import { observer } from 'mobx-react-lite';
+import type React from 'react';
 import { renderComponentFromConfig } from '../componentRenderer';
-import type { ZEditComponent } from '../ZComponent';
+import { FieldError } from '../FieldError';
+import type { FieldRendererProps } from '../types';
+import type { ZEditJsonArray } from '../ZComponent';
 import { JsonObjectWidget } from './JsonObjectWidget';
 
 /**
@@ -13,7 +14,7 @@ import { JsonObjectWidget } from './JsonObjectWidget';
  */
 type PropsJsonArrayWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent (опционально, так как json рендерит children). */
-  componentConfig?: ZEditComponent;
+  componentConfig?: ZEditJsonArray;
 };
 
 /**
@@ -49,7 +50,7 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
       <Card
         title={labelText}
         extra={<Button onClick={handleAddItem}>Добавить</Button>}
-        style={{ marginBottom: 16 }}
+        className="mb-4"
       >
         {arrayValue.map((_, index) => {
           const itemPath = [...namePath, index];
@@ -60,7 +61,7 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
             <Card
               key={itemPathStr}
               size="small"
-              style={{ marginBottom: 8 }}
+              className="mb-2"
               extra={<Button onClick={() => handleRemoveItem(index)}>Удалить</Button>}
             >
               {Object.entries(field.children!).map(([childKey, childField]) => {
@@ -83,16 +84,10 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
                     const childLabelText = childComponentConfig?.props.label || childKey;
 
                     return (
-                      <div key={childPathStr} style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                          {childLabelText}
-                        </label>
+                      <div key={childPathStr} className="mb-4">
+                        <label className="block mb-1 font-medium">{childLabelText}</label>
                         {widgetElement}
-                        {childError && (
-                          <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>
-                            {childError}
-                          </div>
-                        )}
+                        <FieldError error={childError} />
                       </div>
                     );
                   }
@@ -106,16 +101,10 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
                   });
 
                   return (
-                    <div key={childPathStr} style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                        {arrayLabelText}
-                      </label>
+                    <div key={childPathStr} className="mb-4">
+                      <label className="block mb-1 font-medium">{arrayLabelText}</label>
                       {widgetElement}
-                      {childError && (
-                        <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>
-                          {childError}
-                        </div>
-                      )}
+                      <FieldError error={childError} />
                     </div>
                   );
                 }
@@ -130,13 +119,11 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
                   />
                 );
               })}
-              {itemError && (
-                <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
-              )}
+              <FieldError error={itemError} />
             </Card>
           );
         })}
-        {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
+        <FieldError error={error} />
       </Card>
     );
   }

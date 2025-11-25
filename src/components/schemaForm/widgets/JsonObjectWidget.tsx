@@ -5,14 +5,15 @@ import type { FieldRendererProps } from '../types';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';
-import type { ZEditComponent } from '../ZComponent';
+import type { ZEditJsonObject } from '../ZComponent';
+import { FieldError } from '../FieldError';
 
 /**
  * Пропсы компонента JsonObjectWidget.
  */
 type PropsJsonObjectWidget = FieldRendererProps & {
   /** Конфигурация компонента из ZEditComponent (опционально, так как json рендерит children). */
-  componentConfig?: ZEditComponent;
+  componentConfig?: ZEditJsonObject;
 };
 
 /**
@@ -35,7 +36,7 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
     const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
 
     return (
-      <Card title={labelText} style={{ marginBottom: 16 }}>
+      <Card title={labelText} className="mb-4">
         {Object.entries(field.children).map(([childKey, childField]) => {
           const childPath = [...namePath, childKey];
           const childPathStr = pathToString(childPath);
@@ -56,14 +57,10 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
               const childLabelText = childComponentConfig?.props.label || childKey;
 
               return (
-                <div key={childPathStr} style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                    {childLabelText}
-                  </label>
+                <div key={childPathStr} className="mb-4">
+                  <label className="block mb-1 font-medium">{childLabelText}</label>
                   {widgetElement}
-                  {childError && (
-                    <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{childError}</div>
-                  )}
+                  <FieldError error={childError} />
                 </div>
               );
             }
@@ -77,14 +74,10 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
             });
 
             return (
-              <div key={childPathStr} style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 4, fontWeight: 500 }}>
-                  {arrayLabelText}
-                </label>
+              <div key={childPathStr} className="mb-4">
+                <label className="block mb-1 font-medium">{arrayLabelText}</label>
                 {widgetElement}
-                {childError && (
-                  <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{childError}</div>
-                )}
+                <FieldError error={childError} />
               </div>
             );
           }
@@ -99,7 +92,7 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
             />
           );
         })}
-        {error && <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{error}</div>}
+        <FieldError error={error} />
       </Card>
     );
   }

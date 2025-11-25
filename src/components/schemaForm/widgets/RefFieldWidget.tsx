@@ -5,7 +5,9 @@ import { observer } from 'mobx-react-lite';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import type { FieldRendererProps } from '../types';
-import { getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { notificationService } from '@/services/notificationService';
+import { FieldError } from '../FieldError';
 
 /**
  * Виджет для ссылочных полей (ref).
@@ -16,6 +18,8 @@ import { getValueByPath } from '@/utils/pathUtils';
  */
 export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, namePath }) => {
   const value = getValueByPath(model.values, namePath);
+  const pathStr = pathToString(namePath);
+  const error = model.errorFor(pathStr);
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +38,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
         setOptions(entries);
       } catch (error) {
         console.error('Ошибка загрузки данных для ref поля:', error);
+        notificationService.showError({
+          message: 'Ошибка загрузки данных',
+          description: 'Не удалось загрузить список записей. Попробуйте обновить страницу.',
+        });
       } finally {
         setLoading(false);
       }
@@ -66,6 +74,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
           setOptions(entries);
         } catch (error) {
           console.error('Ошибка загрузки данных для ref поля:', error);
+          notificationService.showError({
+            message: 'Ошибка загрузки данных',
+            description: 'Не удалось загрузить список записей. Попробуйте обновить страницу.',
+          });
         } finally {
           setLoading(false);
         }
@@ -88,6 +100,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
         setOptions(entries);
       } catch (error) {
         console.error('Ошибка поиска для ref поля:', error);
+        notificationService.showError({
+          message: 'Ошибка поиска',
+          description: 'Не удалось выполнить поиск записей. Попробуйте еще раз.',
+        });
       } finally {
         setLoading(false);
       }
@@ -104,15 +120,18 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
   }, []);
 
   return (
-    <Select
-      value={value}
-      onChange={val => model.setValue(namePath, val)}
-      showSearch
-      loading={loading}
-      options={options}
-      filterOption={false}
-      onSearch={handleSearch}
-      style={{ width: '100%' }}
-    />
+    <>
+      <Select
+        value={value}
+        onChange={val => model.setValue(namePath, val)}
+        showSearch
+        loading={loading}
+        options={options}
+        filterOption={false}
+        onSearch={handleSearch}
+        className="w-full"
+      />
+      <FieldError error={error} />
+    </>
   );
 });

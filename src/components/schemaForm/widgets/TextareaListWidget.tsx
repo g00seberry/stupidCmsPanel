@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import type { ZEditTextareaList } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
+import { FieldError } from '../FieldError';
 
 /**
  * Пропсы компонента TextareaListWidget.
@@ -22,6 +23,8 @@ type PropsTextareaListWidget = FieldRendererProps & {
 export const TextareaListWidget: React.FC<PropsTextareaListWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
+    const pathStr = pathToString(namePath);
+    const error = model.errorFor(pathStr);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -47,27 +50,26 @@ export const TextareaListWidget: React.FC<PropsTextareaListWidget> = observer(
           const itemError = model?.errorFor(itemPathStr);
 
           return (
-            <div key={index} style={{ marginBottom: 8 }}>
-              <Space direction="vertical" style={{ display: 'flex', width: '100%' }}>
+            <div key={itemPathStr} className="mb-2">
+              <Space direction="vertical" className="flex w-full">
                 <Input.TextArea
                   value={item}
                   onChange={e => handleItemChange(index, e.target.value)}
                   placeholder={componentConfig?.props.placeholder}
                   rows={componentConfig?.props.rows}
                   autoSize={!componentConfig?.props.rows}
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
-                {itemError && (
-                  <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
-                )}
+                <FieldError error={itemError} />
                 <Button onClick={() => handleRemove(index)}>Удалить</Button>
               </Space>
             </div>
           );
         })}
-        <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+        <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
+        <FieldError error={error} />
       </div>
     );
   }

@@ -3,7 +3,8 @@ import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditInputText } from '../ZComponent';
-import { getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { FieldError } from '../FieldError';
 
 /**
  * Пропсы компонента InputTextWidget.
@@ -22,14 +23,19 @@ type PropsInputTextWidget = FieldRendererProps & {
 export const InputTextWidget: React.FC<PropsInputTextWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
+    const pathStr = pathToString(namePath);
+    const error = model.errorFor(pathStr);
 
     return (
-      <Input
-        value={value}
-        onChange={e => model.setValue(namePath, e.target.value)}
-        placeholder={componentConfig?.props.placeholder}
-        style={{ width: '100%' }}
-      />
+      <>
+        <Input
+          value={value}
+          onChange={e => model.setValue(namePath, e.target.value)}
+          placeholder={componentConfig?.props.placeholder}
+          className="w-full"
+        />
+        <FieldError error={error} />
+      </>
     );
   }
 );

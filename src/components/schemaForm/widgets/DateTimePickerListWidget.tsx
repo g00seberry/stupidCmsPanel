@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import type { ZEditDateTimePickerList } from '../ZComponent';
 import type { FieldRendererProps } from '../types';
+import { FieldError } from '../FieldError';
 
 /**
  * Пропсы компонента DateTimePickerListWidget.
@@ -24,6 +25,8 @@ type PropsDateTimePickerListWidget = FieldRendererProps & {
 export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
+    const pathStr = pathToString(namePath);
+    const error = model.errorFor(pathStr);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -52,29 +55,28 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
           const itemError = model?.errorFor(itemPathStr);
 
           return (
-            <div key={index} style={{ marginBottom: 8 }}>
-              <Space style={{ display: 'flex' }} align="baseline">
-                <div style={{ flex: 1 }}>
+            <div key={itemPathStr} className="mb-2">
+              <Space className="flex" align="baseline">
+                <div className="flex-1">
                   <DatePicker
                     value={dayjsValue}
                     onChange={value => handleItemChange(index, value)}
                     placeholder={componentConfig?.props.placeholder}
                     format={componentConfig?.props.format}
                     showTime={componentConfig?.props.showTime ?? true}
-                    style={{ width: '100%' }}
+                    className="w-full"
                   />
-                  {itemError && (
-                    <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 4 }}>{itemError}</div>
-                  )}
+                  <FieldError error={itemError} />
                 </div>
                 <Button onClick={() => handleRemove(index)}>Удалить</Button>
               </Space>
             </div>
           );
         })}
-        <Button onClick={handleAdd} style={{ marginTop: 8 }}>
+        <Button onClick={handleAdd} className="mt-2">
           Добавить
         </Button>
+        <FieldError error={error} />
       </div>
     );
   }

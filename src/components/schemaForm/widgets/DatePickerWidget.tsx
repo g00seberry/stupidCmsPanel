@@ -5,7 +5,8 @@ import type { Dayjs } from 'dayjs';
 import type { FieldRendererProps } from '../types';
 import type { ZEditDatePicker } from '../ZComponent';
 import { viewDate } from '@/utils/dateUtils';
-import { getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { FieldError } from '../FieldError';
 
 /**
  * Пропсы компонента DatePickerWidget.
@@ -24,17 +25,22 @@ type PropsDatePickerWidget = FieldRendererProps & {
 export const DatePickerWidget: React.FC<PropsDatePickerWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
+    const pathStr = pathToString(namePath);
+    const error = model.errorFor(pathStr);
     // Преобразуем строку в dayjs объект, если значение - строка
     const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
 
     return (
-      <DatePicker
-        value={dayjsValue}
-        onChange={val => model.setValue(namePath, val)}
-        placeholder={componentConfig?.props.placeholder}
-        format={componentConfig?.props.format}
-        style={{ width: '100%' }}
-      />
+      <>
+        <DatePicker
+          value={dayjsValue}
+          onChange={val => model.setValue(namePath, val)}
+          placeholder={componentConfig?.props.placeholder}
+          format={componentConfig?.props.format}
+          className="w-full"
+        />
+        <FieldError error={error} />
+      </>
     );
   }
 );
