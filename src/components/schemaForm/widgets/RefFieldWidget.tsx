@@ -7,7 +7,6 @@ import type { ZEntry } from '@/types/entries';
 import type { FieldRendererProps } from '../types';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { notificationService } from '@/services/notificationService';
-import { FieldError } from '../FieldError';
 import { FormField } from './common/FormField';
 
 /**

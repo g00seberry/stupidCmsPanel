@@ -1,7 +1,6 @@
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import type { ZValidationRule, ZValidationRuleObject } from '@/types/path';
+import type { ZValidationRules } from '@/types/path';
 import type { PathSegment } from '@/utils/pathUtils';
-import { getValidator } from './validatorRegistry';
 
 /**
  * Проверяет, является ли значение пустым для валидации.
@@ -22,105 +21,77 @@ const isEmpty = (value: any): boolean => {
 };
 
 /**
- * Парсит строковое правило валидации в объект.
- * Поддерживает формат "type:value" (старый формат).
- * @param rule Строковое правило валидации.
- * @returns Объект правила или null, если формат не распознан.
- */
-const parseStringValidationRule = (rule: string): ZValidationRuleObject | null => {
-  const parts = rule.split(':');
-  if (parts.length !== 2) {
-    return null;
-  }
-
-  const [type, valueStr] = parts;
-  if (type === 'min' || type === 'max') {
-    const numValue = Number(valueStr);
-    if (!isNaN(numValue)) {
-      return { type, value: numValue };
-    }
-  } else if (type === 'regex') {
-    return { type: 'regex', pattern: valueStr };
-  }
-
-  return null;
-};
-
-/**
- * Валидирует значение по правилу валидации.
- * Поддерживает как объектный формат (ZValidationRuleObject), так и строковый.
+ * Валидирует значение по правилам валидации в новом формате (объект validation_rules).
  * @param value Значение для валидации.
- * @param rule Правило валидации (может быть строкой или объектом).
- * @returns Сообщение об ошибке или `null`, если валидация прошла успешно.
+ * @param rules Объект правил валидации.
+ * @returns Массив сообщений об ошибках.
  */
-const validateRule = (value: any, rule: ZValidationRule): string | null => {
-  // Если это строка, парсим её
-  let ruleObj: ZValidationRuleObject | null = null;
-  if (typeof rule === 'string') {
-    ruleObj = parseStringValidationRule(rule);
-    if (!ruleObj) {
-      return null;
+const validateRules = (value: any, rules: ZValidationRules | null): string[] => {
+  const errors: string[] = [];
+
+  if (!rules) {
+    return errors;
+  }
+
+  // Проверка min
+  if (rules.min !== undefined && rules.min !== null) {
+    if (typeof value === 'number' && value < rules.min) {
+      errors.push(`Значение должно быть не менее ${rules.min}`);
+    } else if (typeof value === 'string' && value.length < rules.min) {
+      errors.push(`Минимальная длина: ${rules.min}`);
     }
-  } else {
-    ruleObj = rule;
   }
 
-  switch (ruleObj.type) {
-    case 'min':
-      if (typeof value === 'number' && value < ruleObj.value) {
-        return `Значение должно быть не менее ${ruleObj.value}`;
-      }
-      break;
-
-    case 'max':
-      if (typeof value === 'number' && value > ruleObj.value) {
-        return `Значение должно быть не более ${ruleObj.value}`;
-      }
-      break;
-
-    case 'regex':
-      if (typeof value === 'string' && ruleObj.pattern) {
-        try {
-          const regex = new RegExp(ruleObj.pattern);
-          if (!regex.test(value)) {
-            return 'Значение не соответствует формату';
-          }
-        } catch (error) {
-          // Некорректное регулярное выражение
-          return 'Ошибка в правиле валидации';
-        }
-      }
-      break;
-
-    case 'length':
-      if (typeof value === 'string') {
-        if (ruleObj.min !== undefined && value.length < ruleObj.min) {
-          return `Минимальная длина: ${ruleObj.min}`;
-        }
-        if (ruleObj.max !== undefined && value.length > ruleObj.max) {
-          return `Максимальная длина: ${ruleObj.max}`;
-        }
-      }
-      break;
-
-    case 'enum':
-      if (ruleObj.values && !ruleObj.values.includes(value)) {
-        return 'Недопустимое значение';
-      }
-      break;
-
-    case 'custom':
-      if (ruleObj.validator) {
-        const validator = getValidator(ruleObj.validator);
-        if (validator) {
-          return validator(value, ruleObj) ?? null;
-        }
-        return ruleObj.message || `Валидатор '${ruleObj.validator}' не найден`;
-      }
-      break;
+  // Проверка max
+  if (rules.max !== undefined && rules.max !== null) {
+    if (typeof value === 'number' && value > rules.max) {
+      errors.push(`Значение должно быть не более ${rules.max}`);
+    } else if (typeof value === 'string' && value.length > rules.max) {
+      errors.push(`Максимальная длина: ${rules.max}`);
+    }
   }
 
-  return null;
+  // Проверка pattern
+  if (rules.pattern !== undefined && rules.pattern !== null && typeof value === 'string') {
+    try {
+      const regex = new RegExp(rules.pattern);
+      if (!regex.test(value)) {
+        errors.push('Значение не соответствует формату');
+      }
+    } catch (error) {
+      // Некорректное регулярное выражение
+      errors.push('Ошибка в правиле валидации');
+    }
+  }
+
+  // Проверка array_min_items
+  if (rules.array_min_items !== undefined && rules.array_min_items !== null && Array.isArray(value)) {
+    if (value.length < rules.array_min_items) {
+      errors.push(`Минимальное количество элементов: ${rules.array_min_items}`);
+    }
+  }
+
+  // Проверка array_max_items
+  if (rules.array_max_items !== undefined && rules.array_max_items !== null && Array.isArray(value)) {
+    if (value.length > rules.array_max_items) {
+      errors.push(`Максимальное количество элементов: ${rules.array_max_items}`);
+    }
+  }
+
+  // Проверка array_unique
+  if (rules.array_unique === true && Array.isArray(value)) {
+    const uniqueValues = new Set(value);
+    if (uniqueValues.size !== value.length) {
+      errors.push('Элементы массива должны быть уникальными');
+    }
+  }
+
+  // Условные правила, unique, exists, field_comparison - это более сложные правила,
+  // которые требуют контекста формы и других полей, поэтому их валидация
+  // должна выполняться на уровне формы, а не отдельного поля.
+  // Здесь мы валидируем только простые правила.
+
+  return errors;
 };
 
 /**
@@ -160,14 +131,11 @@ export const validateField = (
     return errors;
   }
 
-  // Проверка правил валидации
-  for (const rule of field.validation) {
-    const error = validateRule(value, rule);
-    if (error) {
-      errors.push(error);
-    }
+  // Проверка правил валидации (новый формат - объект)
+  if (field.validation) {
+    const validationErrors = validateRules(value, field.validation);
+    errors.push(...validationErrors);
   }
 
   return errors;
 };
-

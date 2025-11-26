@@ -1,4 +1,4 @@
-import type { ZValidationRuleObject } from '@/types/path';
+import type { ZValidationRuleObject } from '@/types/blueprintSchema';
 
 /**
  * Тип функции кастомного валидатора.
@@ -61,4 +61,3 @@ export const unregisterValidator = (key: string): void => {
 export const clearValidators = (): void => {
   validatorRegistry.clear();
 };
-

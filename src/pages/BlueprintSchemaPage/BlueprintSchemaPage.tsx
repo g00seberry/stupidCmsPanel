@@ -168,6 +168,7 @@ export const BlueprintSchemaPage = observer(() => {
         cardinality: selectedPath.cardinality,
         is_required: selectedPath.is_required,
         is_indexed: selectedPath.is_indexed,
+        validation_rules: selectedPath.validation_rules,
       } as Partial<ZCreatePathDto | ZUpdatePathDto>;
     }
 

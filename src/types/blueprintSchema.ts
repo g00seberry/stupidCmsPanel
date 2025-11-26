@@ -1,12 +1,55 @@
 import { z } from 'zod';
-import {
-  zCardinality,
-  zDataType,
-  zValidationRule,
-  type ZCardinality,
-  type ZDataType,
-  type ZValidationRule,
-} from './path';
+import { zCardinality, zDataType, type ZCardinality, type ZDataType, zValidationRules } from './path';
+
+// Локальные типы для старого формата правил валидации (используются только в blueprintSchema)
+const zValidationRuleMinMax = z.object({
+  type: z.literal('min').or(z.literal('max')),
+  value: z.number(),
+});
+
+const zValidationRuleRegex = z.object({
+  type: z.literal('regex'),
+  pattern: z.string(),
+});
+
+const zValidationRuleLength = z.object({
+  type: z.literal('length'),
+  min: z.number().optional(),
+  max: z.number().optional(),
+});
+
+const zValidationRuleEnum = z.object({
+  type: z.literal('enum'),
+  values: z.array(z.union([z.string(), z.number()])),
+});
+
+const zValidationRuleCustom = z.object({
+  type: z.literal('custom'),
+  validator: z.string(),
+  message: z.string().optional(),
+});
+
+const zValidationRuleObject = z.discriminatedUnion('type', [
+  zValidationRuleMinMax,
+  zValidationRuleRegex,
+  zValidationRuleLength,
+  zValidationRuleEnum,
+  zValidationRuleCustom,
+]);
+
+const zValidationRule = z.union([zValidationRuleObject, z.string()]);
+
+/**
+ * Тип правила валидации для blueprintSchema (старый формат - массив правил).
+ * Используется только в blueprintSchema, не в Path.
+ */
+export type ZValidationRule = z.infer<typeof zValidationRule>;
+
+/**
+ * Тип объекта правила валидации для blueprintSchema.
+ * Используется только в blueprintSchema, не в Path.
+ */
+export type ZValidationRuleObject = z.infer<typeof zValidationRuleObject>;
 
 /**
  * Тип данных поля в JSON схеме Blueprint.
@@ -16,7 +59,7 @@ export type ZBlueprintSchemaField = {
   required: boolean;
   indexed: boolean;
   cardinality: ZCardinality;
-  validation: ZValidationRule[];
+  validation: z.infer<typeof zValidationRules> | null;
   children?: Record<string, ZBlueprintSchemaField>;
 };
 
@@ -30,7 +73,7 @@ export type ZBlueprintSchemaField = {
  *   required: true,
  *   indexed: true,
  *   cardinality: 'one',
- *   validation: []
+ *   validation: { min: 5, max: 100, pattern: '^[A-Z]' }
  * };
  */
 const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
@@ -44,7 +87,7 @@ const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
     /** Мощность поля: одно значение или множество. */
     cardinality: zCardinality,
     /** Правила валидации поля (JSON объект). */
-    validation: z.array(zValidationRule),
+    validation: zValidationRules.nullable(),
     /** Вложенные поля (только для типа json). */
     children: z.record(z.string(), zBlueprintSchemaField).optional(),
   })
@@ -61,16 +104,16 @@ const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
  *       required: true,
  *       indexed: true,
  *       cardinality: 'one',
- *       validation: []
+ *       validation: { min: 5, max: 100 }
  *     },
  *     author: {
  *       type: 'json',
  *       required: false,
  *       indexed: false,
  *       cardinality: 'one',
- *       validation: [],
+ *       validation: null,
  *       children: {
- *         name: { type: 'string', required: true, indexed: false, cardinality: 'one', validation: [] }
+ *         name: { type: 'string', required: true, indexed: false, cardinality: 'one', validation: null }
  *       }
  *     }
  *   }

@@ -1,8 +1,15 @@
-import { Modal, Button, Form } from 'antd';
+import { Modal, Button, Form, Tabs } from 'antd';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { NodeForm, type PropsNodeForm } from './NodeForm';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import { ValidationRulesForm } from './ValidationRulesForm';
+import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
 import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
+import {
+  normalizeValidationRulesForApi,
+  normalizeValidationRulesForForm,
+} from '@/utils/validationRules';
+import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
+import type { AxiosError } from 'axios';
 
 export type PropsNodeFormModal = Omit<PropsNodeForm, 'form'> & {
   open: boolean;
@@ -46,6 +53,15 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     computedFullPath ?? fullPath
   );
 
+  const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
+  const cardinality = Form.useWatch<'one' | 'many' | undefined>('cardinality', form);
+
+  const showValidationTab = useMemo(() => {
+    if (mode === 'embed') return false;
+    if (dataType === 'json') return false;
+    return true;
+  }, [mode, dataType]);
+
   const buildFullPath = useCallback(
     (name?: string) => {
       const trimmed = name?.trim();
@@ -59,10 +75,30 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     const baseDefaults = mode === 'create' ? DEFAULT_CREATE_VALUES : {};
     const initial = initialValues || {};
 
-    return {
+    // Нормализуем validation_rules для формы
+    let normalizedValidationRules: any = undefined;
+    if (
+      'validation_rules' in initial &&
+      initial.validation_rules !== null &&
+      initial.validation_rules !== undefined
+    ) {
+      normalizedValidationRules = normalizeValidationRulesForForm(initial.validation_rules as any);
+    }
+
+    const result: any = {
       ...baseDefaults,
       ...initial,
     };
+
+    // Устанавливаем validation_rules только если оно есть или было явно передано
+    if (normalizedValidationRules !== undefined) {
+      result.validation_rules = normalizedValidationRules;
+    } else if ('validation_rules' in initial) {
+      // Если validation_rules было явно передано как null/undefined, устанавливаем его
+      result.validation_rules = initial.validation_rules;
+    }
+
+    return result as Partial<FormValues>;
   }, [initialValues, mode]);
 
   useEffect(() => {
@@ -91,14 +127,42 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
       if (mode === 'embed') {
         await onOk(values as { embedded_blueprint_id: number });
       } else {
+        // Нормализуем validation_rules перед отправкой
+        const pathValues = values as ZCreatePathDto | ZUpdatePathDto;
+        const normalizedValidationRules = normalizeValidationRulesForApi(
+          pathValues.validation_rules
+        );
+
+        // Создаем объект с нормализованными validation_rules
+        const valuesWithNormalizedRules = {
+          ...pathValues,
+          validation_rules: normalizedValidationRules,
+        };
+
         const validatedValues =
-          mode === 'edit' ? zUpdatePathDto.parse(values) : zCreatePathDto.parse(values);
+          mode === 'edit'
+            ? zUpdatePathDto.parse(valuesWithNormalizedRules)
+            : zCreatePathDto.parse(valuesWithNormalizedRules);
         await onOk(validatedValues);
       }
       form.resetFields();
       setDisplayedFullPath(mode === 'edit' ? fullPath : undefined);
     } catch (error: any) {
-      if (error?.errorFields) return;
+      // Обработка ошибок валидации формы (от Ant Design)
+      if (error?.errorFields) {
+        return;
+      }
+
+      // Обработка ошибок валидации от API (422)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as AxiosError;
+        if (setFormValidationErrors(axiosError, form)) {
+          // Ошибки валидации установлены в форму, не нужно показывать общую ошибку
+          return;
+        }
+      }
+
+      // Для остальных ошибок просто логируем
       console.error(error);
     }
   };
@@ -145,17 +209,53 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
       ]}
       width={600}
     >
-      <NodeForm
-        form={form}
-        mode={mode}
-        parentPath={parentPath}
-        computedFullPath={displayedFullPath}
-        isReadonly={isReadonly}
-        sourceBlueprint={sourceBlueprint}
-        onNameChange={handleNameChange}
-        embeddableBlueprints={embeddableBlueprints}
-        onBlueprintChange={onBlueprintChange}
-      />
+      {showValidationTab ? (
+        <Tabs
+          items={[
+            {
+              key: 'basic',
+              label: 'Основное',
+              children: (
+                <NodeForm
+                  form={form}
+                  mode={mode}
+                  parentPath={parentPath}
+                  computedFullPath={displayedFullPath}
+                  isReadonly={isReadonly}
+                  sourceBlueprint={sourceBlueprint}
+                  onNameChange={handleNameChange}
+                  embeddableBlueprints={embeddableBlueprints}
+                  onBlueprintChange={onBlueprintChange}
+                />
+              ),
+            },
+            {
+              key: 'validation',
+              label: 'Валидация',
+              children: (
+                <ValidationRulesForm
+                  form={form}
+                  dataType={dataType}
+                  cardinality={cardinality}
+                  isReadonly={isReadonly}
+                />
+              ),
+            },
+          ]}
+        />
+      ) : (
+        <NodeForm
+          form={form}
+          mode={mode}
+          parentPath={parentPath}
+          computedFullPath={displayedFullPath}
+          isReadonly={isReadonly}
+          sourceBlueprint={sourceBlueprint}
+          onNameChange={handleNameChange}
+          embeddableBlueprints={embeddableBlueprints}
+          onBlueprintChange={onBlueprintChange}
+        />
+      )}
     </Modal>
   );
 };

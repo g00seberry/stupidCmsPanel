@@ -50,96 +50,188 @@ export type ZCardinality = z.infer<typeof zCardinality>;
 // ============================================================================
 
 /**
- * Схема валидации правила минимального/максимального значения.
- */
-const zValidationRuleMinMax = z.object({
-  /** Тип правила. */
-  type: z.literal('min').or(z.literal('max')),
-  /** Значение правила. */
-  value: z.number(),
-});
-
-/**
- * Схема валидации правила регулярного выражения.
- */
-const zValidationRuleRegex = z.object({
-  /** Тип правила. */
-  type: z.literal('regex'),
-  /** Паттерн регулярного выражения. */
-  pattern: z.string(),
-});
-
-/**
- * Схема валидации правила длины.
- */
-const zValidationRuleLength = z.object({
-  /** Тип правила. */
-  type: z.literal('length'),
-  /** Минимальная длина. */
-  min: z.number().optional(),
-  /** Максимальная длина. */
-  max: z.number().optional(),
-});
-
-/**
- * Схема валидации правила перечисления значений.
- */
-const zValidationRuleEnum = z.object({
-  /** Тип правила. */
-  type: z.literal('enum'),
-  /** Допустимые значения. */
-  values: z.array(z.union([z.string(), z.number()])),
-});
-
-/**
- * Схема валидации кастомного правила валидации.
- */
-const zValidationRuleCustom = z.object({
-  /** Тип правила. */
-  type: z.literal('custom'),
-  /** Имя валидатора. */
-  validator: z.string(),
-  /** Сообщение об ошибке. */
-  message: z.string().optional(),
-});
-
-/**
- * Схема валидации правила валидации поля Path в новом формате (объект).
- * Определяет различные типы правил валидации через discriminatedUnion.
+ * Схема валидации условного правила.
+ * Используется для правил required_if, prohibited_unless, required_unless, prohibited_if.
  * @example
- * const rule: ZValidationRuleObject = { type: 'min', value: 5 };
- * const rule2: ZValidationRuleObject = { type: 'max', value: 100 };
- * const rule3: ZValidationRuleObject = { type: 'regex', pattern: '^[a-z]+$' };
+ * const rule: ZConditionalRule = { field: 'is_published', value: true, operator: '==' };
+ * const simpleRule: ZConditionalRule = 'is_published'; // Простой формат
  */
-export const zValidationRuleObject = z.discriminatedUnion('type', [
-  zValidationRuleMinMax,
-  zValidationRuleRegex,
-  zValidationRuleLength,
-  zValidationRuleEnum,
-  zValidationRuleCustom,
+export const zConditionalRule = z.union([
+  z.string(),
+  z.object({
+    /** Путь к полю для проверки условия (например, 'is_published'). */
+    field: z.string(),
+    /** Значение для сравнения. */
+    value: z.any().optional(),
+    /** Оператор сравнения. По умолчанию '=='. */
+    operator: z.enum(['==', '!=', '>', '<', '>=', '<=']).optional(),
+  }),
 ]);
 
 /**
- * Тип правила валидации поля Path в новом формате (объект).
+ * Тип условного правила валидации.
  */
-export type ZValidationRuleObject = z.infer<typeof zValidationRuleObject>;
+export type ZConditionalRule = z.infer<typeof zConditionalRule>;
 
 /**
- * Схема валидации правила валидации поля Path.
- * Поддерживает как новый формат (объект), так и старый формат (строка "type:value").
- * Это обеспечивает обратную совместимость с существующими данными.
+ * Схема валидации правила уникальности.
  * @example
- * const rule: ZValidationRule = { type: 'min', value: 5 };
- * const rule2: ZValidationRule = 'max:100';
- * const rule3: ZValidationRule = { type: 'regex', pattern: '^[a-z]+$' };
+ * const rule: ZUniqueRule = 'entries'; // Простой формат
+ * const extendedRule: ZUniqueRule = {
+ *   table: 'entries',
+ *   column: 'slug',
+ *   except: { column: 'id', value: 1 },
+ *   where: { column: 'status', value: 'published' }
+ * };
  */
-export const zValidationRule = z.union([zValidationRuleObject, z.string()]);
+export const zUniqueRule = z.union([
+  z.string(),
+  z.object({
+    /** Таблица для проверки уникальности. */
+    table: z.string(),
+    /** Колонка для проверки. По умолчанию 'id'. */
+    column: z.string().optional(),
+    /** Исключение записи из проверки (например, текущая запись при обновлении). */
+    except: z
+      .object({
+        /** Колонка для исключения. */
+        column: z.string(),
+        /** Значение для исключения. */
+        value: z.any(),
+      })
+      .optional(),
+    /** Дополнительное условие WHERE для проверки. */
+    where: z
+      .object({
+        /** Колонка для условия. */
+        column: z.string(),
+        /** Значение для условия. */
+        value: z.any(),
+      })
+      .optional(),
+  }),
+]);
 
 /**
- * Тип правила валидации поля Path.
- * Может быть объектом (новый формат) или строкой (старый формат "type:value").
+ * Тип правила уникальности.
  */
-export type ZValidationRule = z.infer<typeof zValidationRule>;
+export type ZUniqueRule = z.infer<typeof zUniqueRule>;
+
+/**
+ * Схема валидации правила существования.
+ * @example
+ * const rule: ZExistsRule = 'categories'; // Простой формат
+ * const extendedRule: ZExistsRule = {
+ *   table: 'categories',
+ *   column: 'id',
+ *   where: { column: 'status', value: 'active' }
+ * };
+ */
+export const zExistsRule = z.union([
+  z.string(),
+  z.object({
+    /** Таблица для проверки существования. */
+    table: z.string(),
+    /** Колонка для проверки. По умолчанию 'id'. */
+    column: z.string().optional(),
+    /** Дополнительное условие WHERE для проверки. */
+    where: z
+      .object({
+        /** Колонка для условия. */
+        column: z.string(),
+        /** Значение для условия. */
+        value: z.any(),
+      })
+      .optional(),
+  }),
+]);
+
+/**
+ * Тип правила существования.
+ */
+export type ZExistsRule = z.infer<typeof zExistsRule>;
+
+/**
+ * Схема валидации правила сравнения полей.
+ * @example
+ * const rule: ZFieldComparisonRule = {
+ *   operator: '>=',
+ *   field: 'content_json.start_date'
+ * };
+ * const rule2: ZFieldComparisonRule = {
+ *   operator: '>=',
+ *   value: '2024-01-01'
+ * };
+ */
+export const zFieldComparisonRule = z.object({
+  /** Оператор сравнения. */
+  operator: z.enum(['>=', '<=', '>', '<', '==', '!=']),
+  /** Путь к другому полю для сравнения (например, 'content_json.start_date'). */
+  field: z.string().optional(),
+  /** Константное значение для сравнения. */
+  value: z.any().optional(),
+});
+
+/**
+ * Тип правила сравнения полей.
+ */
+export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
+
+/**
+ * Схема валидации правил валидации поля Path (новый формат).
+ * Согласно документации blueprint-validation-frontend.md, validation_rules - это объект JSON
+ * с различными правилами валидации.
+ * @example
+ * const rules: ZValidationRules = {
+ *   min: 5,
+ *   max: 500,
+ *   pattern: '/^[A-Z]/'
+ * };
+ * const arrayRules: ZValidationRules = {
+ *   array_min_items: 2,
+ *   array_max_items: 10,
+ *   min: 3,
+ *   max: 50,
+ *   array_unique: true
+ * };
+ * const conditionalRules: ZValidationRules = {
+ *   required_if: { field: 'is_published', value: true }
+ * };
+ */
+export const zValidationRules = z.object({
+  /** Минимальное значение или длина. */
+  min: z.number().optional(),
+  /** Максимальное значение или длина. */
+  max: z.number().optional(),
+  /** Регулярное выражение для валидации строки. */
+  pattern: z.string().optional(),
+  /** Минимальное количество элементов в массиве (только для cardinality: 'many'). */
+  array_min_items: z.number().optional(),
+  /** Максимальное количество элементов в массиве (только для cardinality: 'many'). */
+  array_max_items: z.number().optional(),
+  /** Требование уникальности элементов массива (только для cardinality: 'many'). */
+  array_unique: z.boolean().optional(),
+  /** Поле обязательно, если условие выполнено. */
+  required_if: zConditionalRule.optional(),
+  /** Поле запрещено, если условие не выполнено. */
+  prohibited_unless: zConditionalRule.optional(),
+  /** Поле обязательно, если условие не выполнено. */
+  required_unless: zConditionalRule.optional(),
+  /** Поле запрещено, если условие выполнено. */
+  prohibited_if: zConditionalRule.optional(),
+  /** Правило уникальности значения. */
+  unique: zUniqueRule.optional(),
+  /** Правило существования значения. */
+  exists: zExistsRule.optional(),
+  /** Правило сравнения полей. */
+  field_comparison: zFieldComparisonRule.optional(),
+});
+
+/**
+ * Тип правил валидации поля Path (новый формат).
+ * Используется для настройки валидации полей в Blueprint.
+ */
+export type ZValidationRules = z.infer<typeof zValidationRules>;
 
 // ============================================================================
 // Связанные типы
@@ -179,7 +271,7 @@ const zSourceBlueprint = z.object({
  *   is_indexed: true,
  *   is_readonly: false,
  *   sort_order: 0,
- *   validation_rules: null,
+ *   validation_rules: { min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
@@ -211,7 +303,7 @@ export const zPathBase = z.object({
   /** Порядок сортировки поля среди полей одного уровня. */
   sort_order: z.number(),
   /** Правила валидации поля. Может быть `null`. */
-  validation_rules: z.array(zValidationRule).nullable(),
+  validation_rules: zValidationRules.nullable(),
   /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
   source_blueprint_id: z.number().nullable(),
   /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
@@ -245,7 +337,7 @@ export type ZPathBase = z.infer<typeof zPathBase>;
  *   is_indexed: true,
  *   is_readonly: false,
  *   sort_order: 0,
- *   validation_rules: null,
+ *   validation_rules: { min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
@@ -279,7 +371,8 @@ export type ZPath = z.infer<typeof zPath>;
  *   cardinality: 'one',
  *   is_required: true,
  *   is_indexed: true,
- *   sort_order: 0
+ *   sort_order: 0,
+ *   validation_rules: { min: 5, max: 500 }
  * };
  */
 export const zCreatePathDto = z.object({
@@ -301,8 +394,8 @@ export const zCreatePathDto = z.object({
   is_indexed: z.boolean().default(false),
   /** Порядок сортировки поля среди полей одного уровня. Минимум 0. По умолчанию 0. */
   sort_order: z.number().int().min(0, 'Минимум 0').default(0),
-  /** Правила валидации поля. */
-  validation_rules: z.array(zValidationRule).optional(),
+  /** Правила валидации поля (новый формат - объект JSON). */
+  validation_rules: zValidationRules.optional(),
 });
 
 /**

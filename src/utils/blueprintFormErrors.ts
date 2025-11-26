@@ -31,7 +31,21 @@ export const setFormValidationErrors = (error: AxiosError, form: FormInstance): 
         .filter((item): item is { name: string; errors: string[] } => item !== null);
 
       if (formErrors.length > 0) {
-        form.setFields(formErrors);
+        // Преобразуем имена полей в формат Ant Design (массив для вложенных полей)
+        const formattedErrors = formErrors.map(err => {
+          // Если поле содержит точку, преобразуем в массив для вложенных полей
+          // Например: "validation_rules.min" -> ["validation_rules", "min"]
+          // "validation_rules.required_if.field" -> ["validation_rules", "required_if", "field"]
+          if (err.name.includes('.')) {
+            return {
+              name: err.name.split('.'),
+              errors: err.errors,
+            };
+          }
+          return err;
+        });
+
+        form.setFields(formattedErrors);
         return true;
       }
     }
