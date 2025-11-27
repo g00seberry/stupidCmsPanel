@@ -1,6 +1,8 @@
 import { Modal, Button, Form, Tabs } from 'antd';
+import type { FormInstance } from 'antd/es/form';
 import { useState, useEffect } from 'react';
 import { NodeForm, type PropsNodeForm } from './NodeForm';
+import { EmbedForm } from './EmbedForm';
 import { ValidationRulesForm } from './ValidationRulesForm';
 import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
 import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
@@ -9,9 +11,10 @@ import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
 import { normalizeFormInitialValues, buildFullPath } from '@/components/paths/utils/nodeFormUtils';
 import type { AxiosError } from 'axios';
 
-export type PropsNodeFormModal = Omit<PropsNodeForm, 'form'> & {
+export type PropsNodeFormModal = Omit<PropsNodeForm, 'form' | 'mode'> & {
   open: boolean;
   title?: string;
+  mode: 'create' | 'edit' | 'embed';
   onCancel: () => void;
   onOk: (
     values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
@@ -19,6 +22,8 @@ export type PropsNodeFormModal = Omit<PropsNodeForm, 'form'> & {
   initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>;
   loading?: boolean;
   fullPath?: string;
+  embeddableBlueprints?: Array<{ id: number; code: string; name: string }>;
+  onBlueprintChange?: (blueprintId: number) => void;
 };
 
 type FormValues = ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number };
@@ -119,19 +124,24 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     {
       key: 'basic',
       label: 'Основное',
-      children: (
-        <NodeForm
-          form={form}
-          mode={mode}
-          parentPath={parentPath}
-          computedFullPath={displayedFullPath}
-          isReadonly={isReadonly}
-          sourceBlueprint={sourceBlueprint}
-          onNameChange={handleNameChange}
-          embeddableBlueprints={embeddableBlueprints}
-          onBlueprintChange={onBlueprintChange}
-        />
-      ),
+      children:
+        mode === 'embed' ? (
+          <EmbedForm
+            form={form as FormInstance<{ embedded_blueprint_id: number }>}
+            embeddableBlueprints={embeddableBlueprints}
+            onBlueprintChange={onBlueprintChange}
+          />
+        ) : (
+          <NodeForm
+            form={form as FormInstance<ZCreatePathDto | ZUpdatePathDto>}
+            mode={mode}
+            parentPath={parentPath}
+            computedFullPath={displayedFullPath}
+            isReadonly={isReadonly}
+            sourceBlueprint={sourceBlueprint}
+            onNameChange={handleNameChange}
+          />
+        ),
     },
     ...(showValidationTab
       ? [
