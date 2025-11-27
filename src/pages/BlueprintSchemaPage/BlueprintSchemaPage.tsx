@@ -25,7 +25,6 @@ export const BlueprintSchemaPage = observer(() => {
   const { modal, message } = App.useApp();
   const pageStore = useMemo(() => new BlueprintSchemaViewModel(), []);
   const { pathStore, embedStore } = pageStore;
-  const selectedPath = pageStore.selectedPath;
 
   // Загрузка blueprint, путей и встраиваний при монтировании
   useEffect(() => {
@@ -33,14 +32,6 @@ export const BlueprintSchemaPage = observer(() => {
       void pageStore.init(blueprintId);
     }
   }, [blueprintId, pageStore]);
-
-  const handleNodeSelect = (pathId: number) => {
-    pageStore.selectNode(pathId);
-  };
-
-  const handleNodeDoubleClick = (pathId: number) => {
-    pageStore.openEditForm(pathId);
-  };
 
   const handleNodeContextMenu = (pathId: number, event: React.MouseEvent) => {
     event.preventDefault();
@@ -79,23 +70,13 @@ export const BlueprintSchemaPage = observer(() => {
   ) => {
     try {
       await pageStore.saveNode(values);
-      if (pageStore.nodeFormMode === 'embed') {
-        message.success('Blueprint встроен');
-      } else if (pageStore.nodeFormMode === 'edit') {
-        message.success('Поле обновлено');
-      } else {
-        message.success('Поле создано');
-      }
+      message.success(pageStore.getSuccessMessage());
     } catch (error) {
       handleBlueprintNodeError(error);
     }
   };
 
-  const handleCenter = () => {
-    reactFlowInstanceRef.current?.fitView();
-  };
-
-  const handleAutoLayout = () => {
+  const handleFitView = () => {
     reactFlowInstanceRef.current?.fitView();
   };
 
@@ -110,27 +91,6 @@ export const BlueprintSchemaPage = observer(() => {
   const handleResetZoom = () => {
     reactFlowInstanceRef.current?.setViewport({ x: 0, y: 0, zoom: 1 });
   };
-
-  const nodeFormInitialValues = useMemo(() => {
-    if (pageStore.nodeFormMode === 'edit' && selectedPath) {
-      return {
-        name: selectedPath.name,
-        data_type: selectedPath.data_type,
-        cardinality: selectedPath.cardinality,
-        is_indexed: selectedPath.is_indexed,
-        validation_rules: selectedPath.validation_rules,
-      } as Partial<ZCreatePathDto | ZUpdatePathDto>;
-    }
-
-    if (pageStore.nodeFormMode === 'create') {
-      return {
-        cardinality: 'one',
-        is_indexed: false,
-      } as Partial<ZCreatePathDto>;
-    }
-
-    return undefined;
-  }, [pageStore.nodeFormMode, selectedPath]);
 
   if (!blueprintId) {
     return null;
@@ -169,8 +129,8 @@ export const BlueprintSchemaPage = observer(() => {
           <div className="lg:col-span-2">
             <Card className="mt-4">
               <GraphControls
-                onCenter={handleCenter}
-                onAutoLayout={handleAutoLayout}
+                onCenter={handleFitView}
+                onAutoLayout={handleFitView}
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
                 onResetZoom={handleResetZoom}
@@ -178,8 +138,8 @@ export const BlueprintSchemaPage = observer(() => {
               <div className="h-[600px]">
                 <PathGraphEditor
                   store={pathStore}
-                  onNodeSelect={handleNodeSelect}
-                  onNodeDoubleClick={handleNodeDoubleClick}
+                  onNodeSelect={pageStore.selectNode}
+                  onNodeDoubleClick={pageStore.openEditForm}
                   onNodeContextMenu={handleNodeContextMenu}
                   onPaneContextMenu={handlePaneContextMenu}
                   highlightedNodes={pageStore.highlightedNodes}
@@ -196,24 +156,24 @@ export const BlueprintSchemaPage = observer(() => {
         </div>
         <NodeFormModal
           open={pageStore.nodeFormOpen}
-          onCancel={() => {
-            pageStore.closeNodeForm();
-          }}
+          onCancel={pageStore.closeNodeForm}
           onOk={handleNodeSave}
           mode={pageStore.nodeFormMode}
           parentPath={pageStore.nodeFormParentPath}
           isReadonly={
-            pageStore.nodeFormMode === 'edit' ? selectedPath?.is_readonly || false : false
+            pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.is_readonly || false : false
           }
           sourceBlueprint={
             pageStore.nodeFormMode === 'edit'
-              ? (selectedPath?.source_blueprint ?? undefined)
+              ? (pageStore.selectedPath?.source_blueprint ?? undefined)
               : undefined
           }
           embeddableBlueprints={embedStore.embeddableBlueprints}
           loading={pageStore.pending}
-          fullPath={pageStore.nodeFormMode === 'edit' ? selectedPath?.full_path : undefined}
-          initialValues={nodeFormInitialValues}
+          fullPath={
+            pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.full_path : undefined
+          }
+          initialValues={pageStore.getNodeFormInitialValues()}
         />
         {pageStore.ctx.position ? <ContextMenu pageStore={pageStore} /> : null}
       </div>

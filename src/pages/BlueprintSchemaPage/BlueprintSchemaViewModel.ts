@@ -3,22 +3,12 @@ import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { findPathInTree } from '@/utils/pathUtils';
 import { PathStore } from './PathStore';
 import { BlueprintEmbedStore } from './BlueprintEmbedStore';
+import { NodeFormState } from './NodeFormState';
+import { ContextMenuState } from './ContextMenuState';
+import { SelectionState } from './SelectionState';
 import { onError } from '@/utils/onError';
 
 export type NodeFormMode = 'create' | 'edit' | 'embed';
-
-export type ContextMenuPosition = { x: number; y: number };
-
-/**
- * Контекст контекстного меню узла.
- * Содержит информацию о выбранном узле и позиции меню.
- */
-export type NodeMenuCtx = {
-  /** ID узла, для которого открыто контекстное меню. `null` если меню закрыто. */
-  nodeId: number | null;
-  /** Позиция контекстного меню узла. `null` если меню закрыто. */
-  position: ContextMenuPosition | null;
-};
 
 type LoadingState = {
   init: boolean;
@@ -27,21 +17,13 @@ type LoadingState = {
 
 export class BlueprintSchemaViewModel {
   blueprintId: number | null = null;
-
-  selectedPathId: number | null = null;
-  nodeFormOpen = false;
-  nodeFormMode: NodeFormMode = 'create';
-  nodeFormParentId: number | null = null;
-
-  ctx: NodeMenuCtx = {
-    nodeId: null,
-    position: null,
-  };
-
   loading: LoadingState = { init: false, action: false };
 
   readonly pathStore: PathStore = new PathStore();
   readonly embedStore: BlueprintEmbedStore = new BlueprintEmbedStore();
+  readonly nodeFormState: NodeFormState = new NodeFormState();
+  readonly contextMenuState: ContextMenuState = new ContextMenuState();
+  readonly selectionState: SelectionState = new SelectionState();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -62,25 +44,37 @@ export class BlueprintSchemaViewModel {
   }
 
   get selectedPath() {
-    if (!this.selectedPathId) return undefined;
-    return findPathInTree(this.paths, this.selectedPathId);
+    if (!this.selectionState.selectedPathId) return undefined;
+    return findPathInTree(this.paths, this.selectionState.selectedPathId);
   }
 
   get highlightedNodes() {
-    return this.selectedPathId ? [this.selectedPathId] : [];
+    return this.selectionState.selectedPathId ? [this.selectionState.selectedPathId] : [];
+  }
+
+  get nodeFormOpen() {
+    return this.nodeFormState.open;
+  }
+
+  get nodeFormMode() {
+    return this.nodeFormState.mode;
   }
 
   get nodeFormParentPath() {
-    if (this.nodeFormParentId == null) return undefined;
-    const parent = findPathInTree(this.paths, this.nodeFormParentId);
+    if (this.nodeFormState.parentId == null) return undefined;
+    const parent = findPathInTree(this.paths, this.nodeFormState.parentId);
     if (!parent) return undefined;
     return { id: parent.id, full_path: parent.full_path };
   }
 
+  get ctx() {
+    return this.contextMenuState.ctx;
+  }
+
   async init(blueprintId: number) {
     if (this.blueprintId === blueprintId && this.paths.length) return;
-    this.setBlueprintId(blueprintId);
-    this.setLoadingInit(true);
+    this.blueprintId = blueprintId;
+    this.loading.init = true;
     try {
       await Promise.all([
         this.pathStore.loadPaths(blueprintId),
@@ -88,72 +82,47 @@ export class BlueprintSchemaViewModel {
         this.embedStore.loadEmbeds(blueprintId),
       ]);
     } finally {
-      this.setLoadingInit(false);
+      this.loading.init = false;
     }
   }
 
-  setSelectedPathId(pathId: number | null) {
-    this.selectedPathId = pathId;
-  }
-
-  setBlueprintId(blueprintId: number | null) {
-    this.blueprintId = blueprintId;
-  }
-
-  setLoadingInit(value: boolean) {
-    this.loading.init = value;
-  }
-
-  setLoadingAction(value: boolean) {
-    this.loading.action = value;
-  }
-
-  setNodeForm(open: boolean, mode: NodeFormMode, parentId: number | null) {
-    this.nodeFormOpen = open;
-    this.nodeFormMode = mode;
-    this.nodeFormParentId = parentId;
-  }
-
   closeNodeForm() {
-    this.setNodeForm(false, 'create', null);
-    this.setSelectedPathId(null);
+    this.nodeFormState.close();
+    this.selectionState.clear();
   }
 
-  handleNodeContextMenu(pathId: number, position: ContextMenuPosition) {
-    this.setSelectedPathId(pathId);
-    this.ctx.nodeId = pathId;
-    this.ctx.position = position;
+  handleNodeContextMenu(pathId: number, position: { x: number; y: number }) {
+    this.selectionState.select(pathId);
+    this.contextMenuState.openForNode(pathId, position);
   }
 
   closeContextMenu() {
-    this.ctx.nodeId = null;
-    this.ctx.position = null;
+    this.contextMenuState.close();
   }
 
-  handlePaneContextMenu(position: ContextMenuPosition) {
-    this.ctx.nodeId = null;
-    this.ctx.position = position;
+  handlePaneContextMenu(position: { x: number; y: number }) {
+    this.contextMenuState.openForPane(position);
   }
 
   selectNode(pathId: number) {
-    this.setSelectedPathId(pathId);
+    this.selectionState.select(pathId);
   }
 
   openEditForm(pathId: number) {
-    this.setSelectedPathId(pathId);
-    this.setNodeForm(true, 'edit', null);
+    this.selectionState.select(pathId);
+    this.nodeFormState.openForm('edit', null);
   }
 
   openAddRootForm() {
-    this.setNodeForm(true, 'create', null);
-    this.closeContextMenu();
+    this.nodeFormState.openForm('create', null);
+    this.contextMenuState.close();
   }
 
   openAddChildForm(parentId: number): boolean {
     const parentPath = findPathInTree(this.paths, parentId);
     if (parentPath && parentPath.data_type === 'json') {
-      this.setNodeForm(true, 'create', parentId);
-      this.closeContextMenu();
+      this.nodeFormState.openForm('create', parentId);
+      this.contextMenuState.close();
       return true;
     }
     return false;
@@ -164,8 +133,8 @@ export class BlueprintSchemaViewModel {
       const parentPath = findPathInTree(this.paths, parentId);
       if (!parentPath || parentPath.data_type !== 'json') return false;
     }
-    this.setNodeForm(true, 'embed', parentId);
-    this.closeContextMenu();
+    this.nodeFormState.openForm('embed', parentId);
+    this.contextMenuState.close();
     return true;
   }
 
@@ -179,34 +148,73 @@ export class BlueprintSchemaViewModel {
     return findPathInTree(this.paths, pathId);
   }
 
+  getNodeFormInitialValues(): Partial<ZCreatePathDto | ZUpdatePathDto> | undefined {
+    if (this.nodeFormState.mode === 'edit' && this.selectedPath) {
+      return {
+        name: this.selectedPath.name,
+        data_type: this.selectedPath.data_type,
+        cardinality: this.selectedPath.cardinality,
+        is_indexed: this.selectedPath.is_indexed,
+        validation_rules: this.selectedPath.validation_rules,
+      };
+    }
+
+    if (this.nodeFormState.mode === 'create') {
+      return {
+        cardinality: 'one',
+        is_indexed: false,
+      };
+    }
+
+    return undefined;
+  }
+
+  getSuccessMessage(): string {
+    if (this.nodeFormState.mode === 'embed') return 'Blueprint встроен';
+    if (this.nodeFormState.mode === 'edit') return 'Поле обновлено';
+    return 'Поле создано';
+  }
+
   async saveNode(values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }) {
     if (!this.blueprintId) return;
-    this.setLoadingAction(true);
+    this.loading.action = true;
     try {
-      if (this.nodeFormMode === 'embed') {
-        const embedDto = {
-          embedded_blueprint_id: (values as { embedded_blueprint_id: number })
-            .embedded_blueprint_id,
-          host_path_id: this.nodeFormParentId || undefined,
-        };
-        await this.embedStore.createEmbed(embedDto);
-        await this.pathStore.loadPaths(this.blueprintId);
-      } else if (this.nodeFormMode === 'edit' && this.selectedPathId) {
-        await this.pathStore.updatePath(this.selectedPathId, values as ZUpdatePathDto);
-        await this.pathStore.loadPaths(this.blueprintId);
+      if (this.nodeFormState.mode === 'embed') {
+        await this.saveEmbedNode(values as { embedded_blueprint_id: number });
+      } else if (this.nodeFormState.mode === 'edit') {
+        await this.saveEditNode(values as ZUpdatePathDto);
       } else {
-        const createDto = {
-          ...(values as ZCreatePathDto),
-          parent_id: this.nodeFormParentId || null,
-        };
-        await this.pathStore.createPath(createDto);
+        await this.saveCreateNode(values as ZCreatePathDto);
       }
       this.closeNodeForm();
     } catch (error) {
       onError(error);
       throw error;
     } finally {
-      this.setLoadingAction(false);
+      this.loading.action = false;
     }
+  }
+
+  private async saveEmbedNode(values: { embedded_blueprint_id: number }) {
+    const embedDto = {
+      embedded_blueprint_id: values.embedded_blueprint_id,
+      host_path_id: this.nodeFormState.parentId || undefined,
+    };
+    await this.embedStore.createEmbed(embedDto);
+    await this.pathStore.loadPaths(this.blueprintId!);
+  }
+
+  private async saveEditNode(values: ZUpdatePathDto) {
+    if (!this.selectionState.selectedPathId) return;
+    await this.pathStore.updatePath(this.selectionState.selectedPathId, values);
+    await this.pathStore.loadPaths(this.blueprintId!);
+  }
+
+  private async saveCreateNode(values: ZCreatePathDto) {
+    const createDto = {
+      ...values,
+      parent_id: this.nodeFormState.parentId || null,
+    };
+    await this.pathStore.createPath(createDto);
   }
 }

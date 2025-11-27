@@ -1,9 +1,9 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { onError } from '@/utils/onError';
+import { findPathInTree } from '@/utils/pathUtils';
 import {
   listPaths,
-  getPath as getPathApi,
   createPath as createPathApi,
   updatePath as updatePathApi,
   deletePath as deletePathApi,
@@ -17,15 +17,25 @@ import {
 export class PathStore {
   /** Дерево полей Blueprint. */
   paths: ZPath[] = [];
-  /** Текущее выбранное поле. */
-  currentPath: ZPath | null = null;
   /** Флаг выполнения запроса. */
   pending = false;
   /** Идентификатор текущего Blueprint. */
   blueprintId: number | null = null;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  setPaths(paths: ZPath[]) {
+    this.paths = paths;
+  }
+
+  setPending(value: boolean) {
+    this.pending = value;
+  }
+
+  setBlueprintId(blueprintId: number | null) {
+    this.blueprintId = blueprintId;
   }
 
   /**
@@ -33,47 +43,16 @@ export class PathStore {
    * @param blueprintId Идентификатор Blueprint.
    */
   async loadPaths(blueprintId: number): Promise<void> {
-    runInAction(() => {
-      this.blueprintId = blueprintId;
-      this.pending = true;
-    });
+    this.setBlueprintId(blueprintId);
+    this.setPending(true);
     try {
       const paths = await listPaths(blueprintId);
-      runInAction(() => {
-        this.paths = paths;
-      });
+      this.setPaths(paths);
     } catch (error) {
       onError(error);
-      runInAction(() => {
-        this.paths = [];
-      });
+      this.setPaths([]);
     } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
-    }
-  }
-
-  /**
-   * Загрузить поле по ID.
-   * @param id Идентификатор поля.
-   */
-  async loadPath(id: number): Promise<void> {
-    this.pending = true;
-    try {
-      const path = await getPathApi(id);
-      runInAction(() => {
-        this.currentPath = path;
-      });
-    } catch (error) {
-      onError(error);
-      runInAction(() => {
-        this.currentPath = null;
-      });
-    } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
+      this.setPending(false);
     }
   }
 
@@ -86,7 +65,7 @@ export class PathStore {
     if (!this.blueprintId) {
       throw new Error('Blueprint ID не установлен');
     }
-    this.pending = true;
+    this.setPending(true);
     try {
       const path = await createPathApi(this.blueprintId, dto);
       await this.loadPaths(this.blueprintId);
@@ -95,9 +74,7 @@ export class PathStore {
       onError(error);
       throw error;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
+      this.setPending(false);
     }
   }
 
@@ -107,12 +84,9 @@ export class PathStore {
    * @param dto Данные для обновления.
    */
   async updatePath(id: number, dto: ZUpdatePathDto): Promise<void> {
-    this.pending = true;
+    this.setPending(true);
     try {
-      const updated = await updatePathApi(id, dto);
-      runInAction(() => {
-        this.currentPath = updated;
-      });
+      await updatePathApi(id, dto);
       if (this.blueprintId) {
         await this.loadPaths(this.blueprintId);
       }
@@ -120,9 +94,7 @@ export class PathStore {
       onError(error);
       throw error;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
+      this.setPending(false);
     }
   }
 
@@ -131,16 +103,9 @@ export class PathStore {
    * @param id Идентификатор поля для удаления.
    */
   async deletePath(id: number): Promise<void> {
-    runInAction(() => {
-      this.pending = true;
-    });
+    this.setPending(true);
     try {
       await deletePathApi(id);
-      runInAction(() => {
-        if (this.currentPath?.id === id) {
-          this.currentPath = null;
-        }
-      });
       if (this.blueprintId) {
         await this.loadPaths(this.blueprintId);
       }
@@ -148,9 +113,7 @@ export class PathStore {
       onError(error);
       throw error;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
+      this.setPending(false);
     }
   }
 
@@ -165,22 +128,7 @@ export class PathStore {
       return name;
     }
 
-    const findPath = (paths: ZPath[], id: number): ZPath | null => {
-      for (const path of paths) {
-        if (path.id === id) {
-          return path;
-        }
-        if (path.children) {
-          const found = findPath(path.children, id);
-          if (found) {
-            return found;
-          }
-        }
-      }
-      return null;
-    };
-
-    const parent = findPath(this.paths, parentId);
+    const parent = findPathInTree(this.paths, parentId);
     if (!parent) {
       return name;
     }
