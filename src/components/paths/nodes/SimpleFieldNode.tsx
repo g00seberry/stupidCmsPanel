@@ -51,7 +51,8 @@ const getDataTypeColor = (dataType: string): string => {
  * Отображает простое поле (string, int, bool и т.д.) с иконками и индикаторами.
  */
 export const SimpleFieldNode: React.FC<NodeProps<FlowNode['data']>> = ({ data, selected }) => {
-  const { path, label, dataType, isRequired, isIndexed } = data;
+  const { path, label, dataType, isIndexed } = data;
+  const isRequired = path.validation_rules?.required ?? false;
 
   return (
     <Tooltip title={`Полный путь: ${path.full_path}`}>

@@ -60,6 +60,11 @@ export const normalizeValidationRulesForApi = (
   // Создаем новый объект без undefined полей
   const cleaned: Partial<ZValidationRules> = {};
 
+  // Обрабатываем required
+  if (rules.required !== undefined && rules.required !== null) {
+    cleaned.required = rules.required;
+  }
+
   // Обрабатываем простые поля
   if (rules.min !== undefined && rules.min !== null) {
     cleaned.min = rules.min;

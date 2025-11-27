@@ -27,7 +27,6 @@ type FormValues = ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: num
 
 const DEFAULT_CREATE_VALUES: Partial<ZCreatePathDto> = {
   cardinality: 'one',
-  is_required: false,
   is_indexed: false,
 };
 

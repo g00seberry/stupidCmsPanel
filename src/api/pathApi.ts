@@ -48,8 +48,8 @@ export const getPath = async (id: number): Promise<ZPath> => {
  * const path = await createPath(1, {
  *   name: 'title',
  *   data_type: 'string',
- *   is_required: true,
- *   is_indexed: true
+ *   is_indexed: true,
+ *   validation_rules: { required: true }
  * });
  * // Для вложенного поля:
  * const nestedPath = await createPath(1, {
@@ -74,7 +74,7 @@ export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Prom
  * @example
  * const updated = await updatePath(1, {
  *   name: 'updated_title',
- *   is_required: false
+ *   validation_rules: { required: false }
  * });
  * // При изменении name или parent_id автоматически пересчитывается full_path для всех дочерних полей
  */

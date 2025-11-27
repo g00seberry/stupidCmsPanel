@@ -183,6 +183,7 @@ export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
  * с различными правилами валидации.
  * @example
  * const rules: ZValidationRules = {
+ *   required: true,
  *   min: 5,
  *   max: 500,
  *   pattern: '/^[A-Z]/'
@@ -199,6 +200,8 @@ export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
  * };
  */
 export const zValidationRules = z.object({
+  /** Флаг обязательности поля. */
+  required: z.boolean().optional(),
   /** Минимальное значение или длина. */
   min: z.number().optional(),
   /** Максимальное значение или длина. */
@@ -267,11 +270,10 @@ const zSourceBlueprint = z.object({
  *   full_path: 'title',
  *   data_type: 'string',
  *   cardinality: 'one',
- *   is_required: true,
  *   is_indexed: true,
  *   is_readonly: false,
  *   sort_order: 0,
- *   validation_rules: { min: 5, max: 500 },
+ *   validation_rules: { required: true, min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
@@ -294,8 +296,6 @@ export const zPathBase = z.object({
   data_type: zDataType,
   /** Мощность поля: одно значение или множество. */
   cardinality: zCardinality,
-  /** Флаг обязательности поля. */
-  is_required: z.boolean(),
   /** Флаг индексации поля для поиска. */
   is_indexed: z.boolean(),
   /** Флаг только для чтения. `true` для полей, скопированных из встроенных Blueprint. */
@@ -333,11 +333,10 @@ export type ZPathBase = z.infer<typeof zPathBase>;
  *   full_path: 'title',
  *   data_type: 'string',
  *   cardinality: 'one',
- *   is_required: true,
  *   is_indexed: true,
  *   is_readonly: false,
  *   sort_order: 0,
- *   validation_rules: { min: 5, max: 500 },
+ *   validation_rules: { required: true, min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
@@ -369,10 +368,9 @@ export type ZPath = z.infer<typeof zPath>;
  *   parent_id: null,
  *   data_type: 'string',
  *   cardinality: 'one',
- *   is_required: true,
  *   is_indexed: true,
  *   sort_order: 0,
- *   validation_rules: { min: 5, max: 500 }
+ *   validation_rules: { required: true, min: 5, max: 500 }
  * };
  */
 export const zCreatePathDto = z.object({
@@ -388,8 +386,6 @@ export const zCreatePathDto = z.object({
   data_type: zDataType,
   /** Мощность поля: одно значение или множество. По умолчанию 'one'. */
   cardinality: zCardinality.default('one'),
-  /** Флаг обязательности поля. По умолчанию `false`. */
-  is_required: z.boolean().default(false),
   /** Флаг индексации поля для поиска. По умолчанию `false`. */
   is_indexed: z.boolean().default(false),
   /** Порядок сортировки поля среди полей одного уровня. Минимум 0. По умолчанию 0. */
@@ -410,7 +406,7 @@ export type ZCreatePathDto = z.infer<typeof zCreatePathDto>;
  * @example
  * const updateDto: ZUpdatePathDto = {
  *   name: 'updated_title',
- *   is_required: true
+ *   validation_rules: { required: true }
  * };
  */
 export const zUpdatePathDto = zCreatePathDto.partial();

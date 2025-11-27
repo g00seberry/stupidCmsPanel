@@ -166,7 +166,6 @@ export const BlueprintSchemaPage = observer(() => {
         name: selectedPath.name,
         data_type: selectedPath.data_type,
         cardinality: selectedPath.cardinality,
-        is_required: selectedPath.is_required,
         is_indexed: selectedPath.is_indexed,
         validation_rules: selectedPath.validation_rules,
       } as Partial<ZCreatePathDto | ZUpdatePathDto>;
@@ -175,7 +174,6 @@ export const BlueprintSchemaPage = observer(() => {
     if (pageStore.nodeFormMode === 'create') {
       return {
         cardinality: 'one',
-        is_required: false,
         is_indexed: false,
       } as Partial<ZCreatePathDto>;
     }

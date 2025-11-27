@@ -438,6 +438,15 @@ export const ValidationRulesForm: React.FC<PropsValidationRulesForm> = ({
     label: 'Базовые правила',
     children: (
       <Space direction="vertical" className="w-full" size="middle">
+        <Form.Item
+          label="Обязательное поле"
+          name={['validation_rules', 'required']}
+          valuePropName="checked"
+          tooltip="Поле обязательно к заполнению."
+        >
+          <Switch disabled={isReadonly} />
+        </Form.Item>
+
         {(isStringType || isNumericType) && (
           <>
             <Form.Item

@@ -221,25 +221,14 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
       {dataType && renderCardinality()}
 
       {dataType && dataType !== 'json' && (
-        <>
-          <Form.Item
-            label="Обязательное"
-            name="is_required"
-            valuePropName="checked"
-            initialValue={false}
-          >
-            <Checkbox disabled={isReadonly}>Поле обязательно к заполнению</Checkbox>
-          </Form.Item>
-
-          <Form.Item name="is_indexed" valuePropName="checked" initialValue={false}>
-            <Checkbox disabled={isReadonly}>
-              Индексировать поле
-              <span className="text-xs text-muted-foreground ml-2">
-                (ускоряет поиск, но требует точного значения поля)
-              </span>
-            </Checkbox>
-          </Form.Item>
-        </>
+        <Form.Item name="is_indexed" valuePropName="checked" initialValue={false}>
+          <Checkbox disabled={isReadonly}>
+            Индексировать поле
+            <span className="text-xs text-muted-foreground ml-2">
+              (ускоряет поиск, но требует точного значения поля)
+            </span>
+          </Checkbox>
+        </Form.Item>
       )}
     </Form>
   );

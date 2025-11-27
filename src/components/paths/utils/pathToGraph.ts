@@ -11,7 +11,6 @@ export type FlowNode = {
     path: ZPath;
     label: string;
     dataType: string;
-    isRequired: boolean;
     isIndexed: boolean;
     isReadonly: boolean;
     sourceBlueprintName?: string;
@@ -57,7 +56,6 @@ export const pathTreeToGraph = (paths: ZPath[]): { nodes: FlowNode[]; edges: Flo
         path,
         label: path.name,
         dataType: path.data_type,
-        isRequired: path.is_required,
         isIndexed: path.is_indexed,
         isReadonly: path.is_readonly,
         sourceBlueprintName: path.source_blueprint?.name,
