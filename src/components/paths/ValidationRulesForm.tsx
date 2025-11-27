@@ -668,15 +668,8 @@ export const ValidationRulesForm: React.FC<PropsValidationRulesForm> = ({
     ),
   });
 
-  if (!dataType) {
-    return (
-      <div className="text-muted-foreground text-sm">
-        Выберите тип данных для настройки правил валидации.
-      </div>
-    );
-  }
-
   const collapseItems = useMemo(() => {
+    if (!dataType) return [];
     const items: CollapseItem[] = [
       renderBasicRules(),
       renderArrayRules(),
@@ -687,7 +680,15 @@ export const ValidationRulesForm: React.FC<PropsValidationRulesForm> = ({
     ].filter((item): item is CollapseItem => item !== null);
 
     return items;
-  }, [isArray, isStringType, isNumericType, isReadonly, form, operatorOptions]);
+  }, [isArray, isStringType, isNumericType, isReadonly, form, operatorOptions, dataType]);
+
+  if (!dataType) {
+    return (
+      <div className="text-muted-foreground text-sm">
+        Выберите тип данных для настройки правил валидации.
+      </div>
+    );
+  }
 
   return (
     <Form form={form} layout="vertical">
