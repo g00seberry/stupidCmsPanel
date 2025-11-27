@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { zCardinality, zDataType, type ZCardinality, type ZDataType, zValidationRules } from './path';
+import {
+  zCardinality,
+  zDataType,
+  type ZCardinality,
+  type ZDataType,
+  zValidationRules,
+} from './path';
 
 // Локальные типы для старого формата правил валидации (используются только в blueprintSchema)
 const zValidationRuleMinMax = z.object({
@@ -56,7 +62,6 @@ export type ZValidationRuleObject = z.infer<typeof zValidationRuleObject>;
  */
 export type ZBlueprintSchemaField = {
   type: ZDataType;
-  required: boolean;
   indexed: boolean;
   cardinality: ZCardinality;
   validation: z.infer<typeof zValidationRules> | null;
@@ -70,23 +75,20 @@ export type ZBlueprintSchemaField = {
  * @example
  * const schemaField: ZBlueprintSchemaField = {
  *   type: 'string',
- *   required: true,
  *   indexed: true,
  *   cardinality: 'one',
- *   validation: { min: 5, max: 100, pattern: '^[A-Z]' }
+ *   validation: { required: true, min: 5, max: 100, pattern: '^[A-Z]' }
  * };
  */
 const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
   z.object({
     /** Тип данных поля. */
     type: zDataType,
-    /** Флаг обязательности поля. */
-    required: z.boolean(),
     /** Флаг индексирования поля. */
     indexed: z.boolean(),
     /** Мощность поля: одно значение или множество. */
     cardinality: zCardinality,
-    /** Правила валидации поля (JSON объект). */
+    /** Правила валидации поля (JSON объект). Включает required, min, max и другие правила. */
     validation: zValidationRules.nullable(),
     /** Вложенные поля (только для типа json). */
     children: z.record(z.string(), zBlueprintSchemaField).optional(),
@@ -101,19 +103,17 @@ const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
  *   schema: {
  *     title: {
  *       type: 'string',
- *       required: true,
  *       indexed: true,
  *       cardinality: 'one',
- *       validation: { min: 5, max: 100 }
+ *       validation: { required: true, min: 5, max: 100 }
  *     },
  *     author: {
  *       type: 'json',
- *       required: false,
  *       indexed: false,
  *       cardinality: 'one',
  *       validation: null,
  *       children: {
- *         name: { type: 'string', required: true, indexed: false, cardinality: 'one', validation: null }
+ *         name: { type: 'string', indexed: false, cardinality: 'one', validation: { required: true } }
  *       }
  *     }
  *   }

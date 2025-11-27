@@ -107,7 +107,9 @@ export const FormConfigPage = observer(() => {
         <div>
           Кардинальность: <span className="font-medium">{field.cardinality}</span>
         </div>
-        {field.required && <div className="text-destructive">Обязательное поле</div>}
+        {(field.validation?.required ?? false) && (
+          <div className="text-destructive">Обязательное поле</div>
+        )}
       </div>
     </div>
   );

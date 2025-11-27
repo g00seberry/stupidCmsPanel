@@ -15,6 +15,134 @@ export type PropsContextMenu = {
 };
 
 /**
+ * Создаёт пункты меню для узла графа.
+ * @param nodeId ID узла.
+ * @param pageStore Store страницы.
+ * @param canEdit Флаг возможности редактирования.
+ * @param canAddChild Флаг возможности добавления дочернего узла.
+ * @param canDelete Флаг возможности удаления.
+ * @param message API для отображения сообщений.
+ * @param modal API для отображения модальных окон.
+ * @returns Массив пунктов меню.
+ */
+const createNodeMenuItems = (
+  nodeId: number,
+  pageStore: BlueprintSchemaViewModel,
+  canEdit: boolean,
+  canAddChild: boolean,
+  canDelete: boolean,
+  message: ReturnType<typeof App.useApp>['message'],
+  modal: ReturnType<typeof App.useApp>['modal']
+): MenuProps['items'] => {
+  const handleEdit = () => {
+    pageStore.openEditForm(nodeId);
+    pageStore.closeContextMenu();
+  };
+
+  const handleAddChild = () => {
+    if (!pageStore.openAddChildForm(nodeId)) {
+      message.warning('Дочерние узлы можно добавлять только к полям типа JSON');
+    }
+  };
+
+  const handleEmbed = () => {
+    if (!pageStore.openEmbedForm(nodeId)) {
+      message.warning('Встраивание возможно только в поля типа JSON');
+    }
+  };
+
+  const handleDelete = () => {
+    const pathToDelete = pageStore.getPathById(nodeId);
+    if (!pathToDelete) return;
+
+    if (!pageStore.canDeleteNode(nodeId)) {
+      message.warning('Нельзя удалить readonly поле. Измените исходный Blueprint.');
+      pageStore.closeContextMenu();
+      return;
+    }
+
+    modal.confirm({
+      title: 'Удалить поле?',
+      content: `Вы уверены, что хотите удалить поле "${pathToDelete.name}"? Это действие нельзя отменить.`,
+      okText: 'Удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: async () => {
+        try {
+          await pageStore.pathStore.deletePath(nodeId);
+          message.success('Поле удалено');
+          pageStore.setSelectedPathId(null);
+        } catch (error) {
+          handleBlueprintNodeError(error);
+        }
+      },
+    });
+    pageStore.closeContextMenu();
+  };
+
+  return [
+    {
+      key: 'edit',
+      label: 'Редактировать',
+      icon: <Edit className="w-4 h-4" />,
+      onClick: handleEdit,
+      disabled: !canEdit,
+    },
+    {
+      key: 'addChild',
+      label: 'Добавить дочерний узел',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: handleAddChild,
+      disabled: !canAddChild,
+    },
+    {
+      key: 'embed',
+      label: 'Встроить Blueprint',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: handleEmbed,
+      disabled: !canAddChild,
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'delete',
+      label: 'Удалить',
+      icon: <Trash2 className="w-4 h-4" />,
+      danger: true,
+      onClick: handleDelete,
+      disabled: !canDelete,
+    },
+  ];
+};
+
+/**
+ * Создаёт пункты меню для пустой области графа.
+ * @param pageStore Store страницы.
+ * @returns Массив пунктов меню.
+ */
+const createEmptyAreaMenuItems = (pageStore: BlueprintSchemaViewModel): MenuProps['items'] => {
+  return [
+    {
+      key: 'addRoot',
+      label: 'Добавить корневой узел',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: () => {
+        pageStore.openAddRootForm();
+      },
+    },
+    {
+      key: 'embedRoot',
+      label: 'Встроить Blueprint',
+      icon: <Plus className="w-4 h-4" />,
+      onClick: () => {
+        pageStore.openEmbedForm(null);
+      },
+    },
+  ];
+};
+
+/**
  * Компонент контекстного меню для узлов графа и пустой области.
  * Автоматически определяет тип меню на основе контекста и формирует соответствующие пункты.
  */
@@ -22,7 +150,7 @@ export const ContextMenu: React.FC<PropsContextMenu> = ({ pageStore }) => {
   const ctx = pageStore.ctx;
   const isNodeMenu = ctx.nodeId !== null && ctx.position !== null;
   const { modal, message } = App.useApp();
-  const position = isNodeMenu ? ctx.position! : ctx.emptyAreaPosition!;
+  const position = ctx.position!;
   const menuId = isNodeMenu ? `context-menu-${ctx.nodeId}` : 'empty-area-context-menu';
 
   const path = useMemo(() => {
@@ -35,102 +163,21 @@ export const ContextMenu: React.FC<PropsContextMenu> = ({ pageStore }) => {
   const canDelete = !path?.is_readonly;
 
   const menuItems: MenuProps['items'] = useMemo(() => {
-    if (isNodeMenu) {
-      return [
-        {
-          key: 'edit',
-          label: 'Редактировать',
-          icon: <Edit className="w-4 h-4" />,
-          onClick: () => {
-            pageStore.openEditForm(ctx.nodeId!);
-            pageStore.closeContextMenu();
-          },
-          disabled: !canEdit,
-        },
-        {
-          key: 'addChild',
-          label: 'Добавить дочерний узел',
-          icon: <Plus className="w-4 h-4" />,
-          onClick: () => {
-            if (!pageStore.openAddChildForm(ctx.nodeId!)) {
-              message.warning('Дочерние узлы можно добавлять только к полям типа JSON');
-            }
-          },
-          disabled: !canAddChild,
-        },
-        {
-          key: 'embed',
-          label: 'Встроить Blueprint',
-          icon: <Plus className="w-4 h-4" />,
-          onClick: () => {
-            if (!pageStore.openEmbedForm(ctx.nodeId!)) {
-              message.warning('Встраивание возможно только в поля типа JSON');
-            }
-          },
-          disabled: !canAddChild,
-        },
-        {
-          type: 'divider',
-        },
-        {
-          key: 'delete',
-          label: 'Удалить',
-          icon: <Trash2 className="w-4 h-4" />,
-          danger: true,
-          onClick: () => {
-            const pathToDelete = pageStore.getPathById(ctx.nodeId!);
-            if (!pathToDelete) return;
-
-            if (!pageStore.canDeleteNode(ctx.nodeId!)) {
-              message.warning('Нельзя удалить readonly поле. Измените исходный Blueprint.');
-              pageStore.closeContextMenu();
-              return;
-            }
-
-            modal.confirm({
-              title: 'Удалить поле?',
-              content: `Вы уверены, что хотите удалить поле "${pathToDelete.name}"? Это действие нельзя отменить.`,
-              okText: 'Удалить',
-              okType: 'danger',
-              cancelText: 'Отмена',
-              onOk: async () => {
-                try {
-                  await pageStore.pathStore.deletePath(ctx.nodeId!);
-                  message.success('Поле удалено');
-                  pageStore.setSelectedPathId(null);
-                } catch (error) {
-                  handleBlueprintNodeError(error);
-                }
-              },
-            });
-            pageStore.closeContextMenu();
-          },
-          disabled: !canDelete,
-        },
-      ];
+    if (isNodeMenu && ctx.nodeId) {
+      return createNodeMenuItems(
+        ctx.nodeId,
+        pageStore,
+        canEdit,
+        canAddChild,
+        canDelete,
+        message,
+        modal
+      );
     }
-
-    return [
-      {
-        key: 'addRoot',
-        label: 'Добавить корневой узел',
-        icon: <Plus className="w-4 h-4" />,
-        onClick: () => {
-          pageStore.openAddRootForm();
-        },
-      },
-      {
-        key: 'embedRoot',
-        label: 'Встроить Blueprint',
-        icon: <Plus className="w-4 h-4" />,
-        onClick: () => {
-          pageStore.openEmbedForm(null);
-        },
-      },
-    ];
+    return createEmptyAreaMenuItems(pageStore);
   }, [isNodeMenu, ctx.nodeId, pageStore, canAddChild, canEdit, canDelete, modal, message]);
 
-  const onClose = isNodeMenu ? pageStore.closeContextMenu : pageStore.closeEmptyAreaContextMenu;
+  const onClose = () => pageStore.closeContextMenu();
 
   useEffect(() => {
     const menuElement = document.getElementById(menuId);

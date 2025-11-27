@@ -125,9 +125,9 @@ const mergeWithInitial = (
  * @example
  * const schema: EntitySchema = {
  *   schema: {
- *     title: { type: 'string', cardinality: 'one', required: true, indexed: true, validation: [] },
- *     price: { type: 'float', cardinality: 'one', required: true, indexed: true, validation: [] },
- *     tags: { type: 'string', cardinality: 'many', required: false, indexed: true, validation: [] }
+ *     title: { type: 'string', cardinality: 'one', indexed: true, validation: { required: true } },
+ *     price: { type: 'float', cardinality: 'one', indexed: true, validation: { required: true } },
+ *     tags: { type: 'string', cardinality: 'many', indexed: true, validation: null }
  *   }
  * };
  * const values = createDefaultValues(schema);

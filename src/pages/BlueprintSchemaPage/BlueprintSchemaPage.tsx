@@ -215,9 +215,7 @@ export const BlueprintSchemaPage = observer(() => {
           fullPath={pageStore.nodeFormMode === 'edit' ? selectedPath?.full_path : undefined}
           initialValues={nodeFormInitialValues}
         />
-        {(pageStore.ctx.nodeId && pageStore.ctx.position) || pageStore.ctx.emptyAreaPosition ? (
-          <ContextMenu pageStore={pageStore} />
-        ) : null}
+        {pageStore.ctx.position ? <ContextMenu pageStore={pageStore} /> : null}
       </div>
     </div>
   );

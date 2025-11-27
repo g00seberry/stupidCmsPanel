@@ -65,14 +65,22 @@ const validateRules = (value: any, rules: ZValidationRules | null): string[] => 
   }
 
   // Проверка array_min_items
-  if (rules.array_min_items !== undefined && rules.array_min_items !== null && Array.isArray(value)) {
+  if (
+    rules.array_min_items !== undefined &&
+    rules.array_min_items !== null &&
+    Array.isArray(value)
+  ) {
     if (value.length < rules.array_min_items) {
       errors.push(`Минимальное количество элементов: ${rules.array_min_items}`);
     }
   }
 
   // Проверка array_max_items
-  if (rules.array_max_items !== undefined && rules.array_max_items !== null && Array.isArray(value)) {
+  if (
+    rules.array_max_items !== undefined &&
+    rules.array_max_items !== null &&
+    Array.isArray(value)
+  ) {
     if (value.length > rules.array_max_items) {
       errors.push(`Максимальное количество элементов: ${rules.array_max_items}`);
     }
@@ -96,7 +104,7 @@ const validateRules = (value: any, rules: ZValidationRules | null): string[] => 
 
 /**
  * Валидирует поле формы на основе его схемы.
- * Проверяет флаг required и все правила валидации из validation.
+ * Проверяет флаг required из validation и все правила валидации.
  * @param field Схема поля для валидации.
  * @param value Значение поля для проверки.
  * @param path Путь к полю (для контекста ошибок, опционально).
@@ -104,12 +112,9 @@ const validateRules = (value: any, rules: ZValidationRules | null): string[] => 
  * @example
  * const field: ZBlueprintSchemaField = {
  *   type: 'string',
- *   required: true,
  *   indexed: true,
  *   cardinality: 'one',
- *   validation: [
- *     { type: 'min', value: 5 }
- *   ]
+ *   validation: { required: true, min: 5 }
  * };
  * const errors = validateField(field, 'abc', ['title']);
  * // ['Значение должно быть не менее 5']
@@ -121,13 +126,14 @@ export const validateField = (
 ): string[] => {
   const errors: string[] = [];
 
-  // Проверка required
-  if (field.required && isEmpty(value)) {
+  // Проверка required из validation
+  const isRequired = field.validation?.required ?? false;
+  if (isRequired && isEmpty(value)) {
     errors.push('Обязательное поле');
   }
 
   // Если поле пустое и не required, не проверяем остальные правила
-  if (isEmpty(value) && !field.required) {
+  if (isEmpty(value) && !isRequired) {
     return errors;
   }
 

@@ -18,8 +18,6 @@ export type NodeMenuCtx = {
   nodeId: number | null;
   /** Позиция контекстного меню узла. `null` если меню закрыто. */
   position: ContextMenuPosition | null;
-  /** Позиция контекстного меню пустой области. `null` если меню закрыто. */
-  emptyAreaPosition: ContextMenuPosition | null;
 };
 
 type LoadingState = {
@@ -38,7 +36,6 @@ export class BlueprintSchemaViewModel {
   ctx: NodeMenuCtx = {
     nodeId: null,
     position: null,
-    emptyAreaPosition: null,
   };
 
   loading: LoadingState = { init: false, action: false };
@@ -126,7 +123,6 @@ export class BlueprintSchemaViewModel {
     this.setSelectedPathId(pathId);
     this.ctx.nodeId = pathId;
     this.ctx.position = position;
-    this.ctx.emptyAreaPosition = null;
   }
 
   closeContextMenu() {
@@ -135,12 +131,8 @@ export class BlueprintSchemaViewModel {
   }
 
   handlePaneContextMenu(position: ContextMenuPosition) {
-    this.ctx.emptyAreaPosition = position;
-    this.closeContextMenu();
-  }
-
-  closeEmptyAreaContextMenu() {
-    this.ctx.emptyAreaPosition = null;
+    this.ctx.nodeId = null;
+    this.ctx.position = position;
   }
 
   selectNode(pathId: number) {
@@ -154,7 +146,7 @@ export class BlueprintSchemaViewModel {
 
   openAddRootForm() {
     this.setNodeForm(true, 'create', null);
-    this.closeEmptyAreaContextMenu();
+    this.closeContextMenu();
   }
 
   openAddChildForm(parentId: number): boolean {
@@ -173,11 +165,7 @@ export class BlueprintSchemaViewModel {
       if (!parentPath || parentPath.data_type !== 'json') return false;
     }
     this.setNodeForm(true, 'embed', parentId);
-    if (parentId === null) {
-      this.closeEmptyAreaContextMenu();
-    } else {
-      this.closeContextMenu();
-    }
+    this.closeContextMenu();
     return true;
   }
 

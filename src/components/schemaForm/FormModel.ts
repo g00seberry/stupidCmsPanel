@@ -14,7 +14,7 @@ import type { ZEditComponent } from './ZComponent';
  * @example
  * const schema: EntitySchema = {
  *   schema: {
- *     title: { type: 'string', cardinality: 'one', required: true, indexed: true, validation: [] }
+ *     title: { type: 'string', cardinality: 'one', indexed: true, validation: { required: true } }
  *   }
  * };
  * const model = new FormModel(schema, { title: 'Initial Title' });
@@ -119,8 +119,9 @@ export class FormModel {
   ): void {
     if (field.type === 'json' && field.children) {
       const children = field.children; // Сохраняем для сужения типа
-      // Для json полей проверяем только required, остальная валидация для children
-      if (field.required) {
+      // Для json полей проверяем только required из validation, остальная валидация для children
+      const isRequired = field.validation?.required ?? false;
+      if (isRequired) {
         const isEmpty =
           value === null ||
           value === undefined ||
