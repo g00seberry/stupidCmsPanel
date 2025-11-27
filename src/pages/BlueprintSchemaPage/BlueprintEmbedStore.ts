@@ -1,13 +1,13 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { getEmbeddableBlueprints } from '@/api/blueprintApi';
+import {
+  createEmbed as createEmbedApi,
+  deleteEmbed as deleteEmbedApi,
+  listEmbeds,
+} from '@/api/blueprintEmbedApi';
 import type { ZEmbeddableBlueprints } from '@/types/blueprint';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
 import { onError } from '@/utils/onError';
-import {
-  listEmbeds,
-  createEmbed as createEmbedApi,
-  deleteEmbed as deleteEmbedApi,
-} from '@/api/blueprintEmbedApi';
-import { getEmbeddableBlueprints } from '@/api/blueprintApi';
+import { makeAutoObservable } from 'mobx';
 
 /**
  * Store для управления встраиваниями Blueprint.
@@ -94,9 +94,7 @@ export class BlueprintEmbedStore {
     }
     this.setPending(true);
     try {
-      const embed = await createEmbedApi(this.blueprintId, dto);
-      await this.loadEmbeds(this.blueprintId);
-      return embed;
+      return await createEmbedApi(this.blueprintId, dto);
     } catch (error) {
       onError(error);
       throw error;

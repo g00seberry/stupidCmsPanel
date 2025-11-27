@@ -1,13 +1,13 @@
 import { EmbedList } from '@/components/embeds/EmbedList';
 import { ContextMenu } from '@/components/paths/ContextMenu';
-import { EmbedForm } from '@/components/paths/EmbedForm';
+import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import { App, Card, Form, Modal } from 'antd';
+import { App, Card, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -75,13 +75,8 @@ export const BlueprintSchemaPage = observer(() => {
     }
   };
 
-  const handleEmbedSave = async (values: { embedded_blueprint_id: number }) => {
-    try {
-      await pageStore.saveNode(values);
-      message.success(pageStore.getSuccessMessage());
-    } catch (error) {
-      onError(error);
-    }
+  const handleEmbedSave = (values: { embedded_blueprint_id: number }) => {
+    void pageStore.saveEmbed(values);
   };
 
   const handleFitView = () => {
@@ -192,7 +187,7 @@ export const BlueprintSchemaPage = observer(() => {
           <EmbedForm
             embeddableBlueprints={embedStore.embeddableBlueprints}
             onOk={handleEmbedSave}
-            onCancel={pageStore.closeNodeForm}
+            onCancel={() => pageStore.closeNodeForm()}
             loading={pageStore.pending}
           />
         </Modal>

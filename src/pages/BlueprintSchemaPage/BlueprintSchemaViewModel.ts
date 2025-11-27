@@ -7,6 +7,7 @@ import { NodeFormState } from './NodeFormState';
 import { ContextMenuState } from './ContextMenuState';
 import { SelectionState } from './SelectionState';
 import { onError } from '@/utils/onError';
+import { notificationService } from '@/services/notificationService';
 
 export type NodeFormMode = 'create' | 'edit' | 'embed';
 
@@ -31,10 +32,6 @@ export class BlueprintSchemaViewModel {
 
   get paths() {
     return this.pathStore.paths;
-  }
-
-  get embeds() {
-    return this.embedStore.embeds;
   }
 
   get pending() {
@@ -175,13 +172,11 @@ export class BlueprintSchemaViewModel {
     return 'Поле создано';
   }
 
-  async saveNode(values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }) {
+  async saveNode(values: ZCreatePathDto | ZUpdatePathDto) {
     if (!this.blueprintId) return;
     this.loading.action = true;
     try {
-      if (this.nodeFormState.mode === 'embed') {
-        await this.saveEmbedNode(values as { embedded_blueprint_id: number });
-      } else if (this.nodeFormState.mode === 'edit') {
+      if (this.nodeFormState.mode === 'edit') {
         await this.saveEditNode(values as ZUpdatePathDto);
       } else {
         await this.saveCreateNode(values as ZCreatePathDto);
@@ -195,13 +190,26 @@ export class BlueprintSchemaViewModel {
     }
   }
 
-  private async saveEmbedNode(values: { embedded_blueprint_id: number }) {
-    const embedDto = {
-      embedded_blueprint_id: values.embedded_blueprint_id,
-      host_path_id: this.nodeFormState.parentId || undefined,
-    };
-    await this.embedStore.createEmbed(embedDto);
-    await this.pathStore.loadPaths(this.blueprintId!);
+  async saveEmbed(values: { embedded_blueprint_id: number }) {
+    if (!this.blueprintId) return;
+    this.loading.action = true;
+    try {
+      const embedDto = {
+        embedded_blueprint_id: values.embedded_blueprint_id,
+        host_path_id: this.nodeFormState.parentId || undefined,
+      };
+      await this.embedStore.createEmbed(embedDto);
+      await this.embedStore.loadEmbeddable(this.blueprintId!);
+      await this.pathStore.loadPaths(this.blueprintId!);
+      this.closeNodeForm();
+      notificationService.showSuccess({
+        message: 'Blueprint встроен',
+      });
+    } catch (error) {
+      onError(error);
+    } finally {
+      this.loading.action = false;
+    }
   }
 
   private async saveEditNode(values: ZUpdatePathDto) {

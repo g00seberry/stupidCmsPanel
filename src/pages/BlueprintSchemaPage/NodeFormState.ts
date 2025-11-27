@@ -3,15 +3,16 @@ import type { NodeFormMode } from './BlueprintSchemaViewModel';
 
 /**
  * Режим открытого модального окна.
+ * `null` означает, что все модальные окна закрыты.
  */
-export type ModalMode = 'embed' | 'node';
+export type ModalMode = 'embed' | 'node' | null;
 
 /**
  * Состояние формы создания/редактирования узла.
  * Управляет открытием/закрытием формы и её режимом.
  */
 export class NodeFormState {
-  modeOpen: ModalMode | null = null;
+  modeOpen: ModalMode = null;
   mode: NodeFormMode = 'create';
   parentId: number | null = null;
 
@@ -19,7 +20,7 @@ export class NodeFormState {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  setModeOpen(modeOpen: ModalMode | null) {
+  setModeOpen(modeOpen: ModalMode) {
     this.modeOpen = modeOpen;
   }
 
