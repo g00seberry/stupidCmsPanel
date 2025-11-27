@@ -1,17 +1,18 @@
 import { EmbedList } from '@/components/embeds/EmbedList';
 import { ContextMenu } from '@/components/paths/ContextMenu';
+import { EmbedForm } from '@/components/paths/EmbedForm';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
-import { App, Card } from 'antd';
+import { App, Card, Form, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactFlowInstance } from 'reactflow';
+import { onError } from '@/utils/onError';
 
 /**
  * Страница редактирования схемы Blueprint.
@@ -59,20 +60,27 @@ export const BlueprintSchemaPage = observer(() => {
           await pathStore.loadPaths(blueprintId);
           message.success('Встраивание удалено');
         } catch (error) {
-          handleBlueprintNodeError(error);
+          onError(error);
         }
       },
     });
   };
 
-  const handleNodeSave = async (
-    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
-  ) => {
+  const handleNodeSave = async (values: ZCreatePathDto | ZUpdatePathDto) => {
     try {
       await pageStore.saveNode(values);
       message.success(pageStore.getSuccessMessage());
     } catch (error) {
-      handleBlueprintNodeError(error);
+      onError(error);
+    }
+  };
+
+  const handleEmbedSave = async (values: { embedded_blueprint_id: number }) => {
+    try {
+      await pageStore.saveNode(values);
+      message.success(pageStore.getSuccessMessage());
+    } catch (error) {
+      onError(error);
     }
   };
 
@@ -155,10 +163,10 @@ export const BlueprintSchemaPage = observer(() => {
           </div>
         </div>
         <NodeFormModal
-          open={pageStore.nodeFormOpen}
+          open={pageStore.modeOpen === 'node'}
           onCancel={pageStore.closeNodeForm}
           onOk={handleNodeSave}
-          mode={pageStore.nodeFormMode}
+          mode={pageStore.nodeFormMode === 'edit' ? 'edit' : 'create'}
           parentPath={pageStore.nodeFormParentPath}
           isReadonly={
             pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.is_readonly || false : false
@@ -168,13 +176,27 @@ export const BlueprintSchemaPage = observer(() => {
               ? (pageStore.selectedPath?.source_blueprint ?? undefined)
               : undefined
           }
-          embeddableBlueprints={embedStore.embeddableBlueprints}
           loading={pageStore.pending}
           fullPath={
             pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.full_path : undefined
           }
           initialValues={pageStore.getNodeFormInitialValues()}
         />
+
+        <Modal
+          open={pageStore.modeOpen === 'embed'}
+          onCancel={pageStore.closeNodeForm}
+          footer={null}
+          width={600}
+        >
+          <EmbedForm
+            embeddableBlueprints={embedStore.embeddableBlueprints}
+            onOk={handleEmbedSave}
+            onCancel={pageStore.closeNodeForm}
+            loading={pageStore.pending}
+          />
+        </Modal>
+
         {pageStore.ctx.position ? <ContextMenu pageStore={pageStore} /> : null}
       </div>
     </div>

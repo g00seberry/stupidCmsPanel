@@ -52,8 +52,8 @@ export class BlueprintSchemaViewModel {
     return this.selectionState.selectedPathId ? [this.selectionState.selectedPathId] : [];
   }
 
-  get nodeFormOpen() {
-    return this.nodeFormState.open;
+  get modeOpen() {
+    return this.nodeFormState.modeOpen;
   }
 
   get nodeFormMode() {
@@ -155,7 +155,7 @@ export class BlueprintSchemaViewModel {
         data_type: this.selectedPath.data_type,
         cardinality: this.selectedPath.cardinality,
         is_indexed: this.selectedPath.is_indexed,
-        validation_rules: this.selectedPath.validation_rules,
+        validation_rules: this.selectedPath.validation_rules ?? undefined,
       };
     }
 

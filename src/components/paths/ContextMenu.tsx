@@ -1,5 +1,5 @@
 import type { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
-import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
+import { onError } from '@/utils/onError';
 import { findPathInTree } from '@/utils/pathUtils';
 import type { MenuProps } from 'antd';
 import { App, Menu } from 'antd';
@@ -71,9 +71,9 @@ const createNodeMenuItems = (
         try {
           await pageStore.pathStore.deletePath(nodeId);
           message.success('Поле удалено');
-          pageStore.setSelectedPathId(null);
+          pageStore.selectionState.clear();
         } catch (error) {
-          handleBlueprintNodeError(error);
+          onError(error);
         }
       },
     });

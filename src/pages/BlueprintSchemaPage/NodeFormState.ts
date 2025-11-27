@@ -2,11 +2,16 @@ import { makeAutoObservable } from 'mobx';
 import type { NodeFormMode } from './BlueprintSchemaViewModel';
 
 /**
+ * Режим открытого модального окна.
+ */
+export type ModalMode = 'embed' | 'node';
+
+/**
  * Состояние формы создания/редактирования узла.
  * Управляет открытием/закрытием формы и её режимом.
  */
 export class NodeFormState {
-  open = false;
+  modeOpen: ModalMode | null = null;
   mode: NodeFormMode = 'create';
   parentId: number | null = null;
 
@@ -14,8 +19,8 @@ export class NodeFormState {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  setOpen(open: boolean) {
-    this.open = open;
+  setModeOpen(modeOpen: ModalMode | null) {
+    this.modeOpen = modeOpen;
   }
 
   setMode(mode: NodeFormMode) {
@@ -27,15 +32,14 @@ export class NodeFormState {
   }
 
   openForm(mode: NodeFormMode, parentId: number | null) {
-    this.open = true;
     this.mode = mode;
     this.parentId = parentId;
+    this.modeOpen = mode === 'embed' ? 'embed' : 'node';
   }
 
   close() {
-    this.open = false;
+    this.modeOpen = null;
     this.mode = 'create';
     this.parentId = null;
   }
 }
-

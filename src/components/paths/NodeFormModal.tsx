@@ -2,7 +2,6 @@ import { Modal, Button, Form, Tabs } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { useState, useEffect } from 'react';
 import { NodeForm, type PropsNodeForm } from './NodeForm';
-import { EmbedForm } from './EmbedForm';
 import { ValidationRulesForm } from './ValidationRulesForm';
 import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
 import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
@@ -14,22 +13,18 @@ import type { AxiosError } from 'axios';
 export type PropsNodeFormModal = Omit<PropsNodeForm, 'form' | 'mode'> & {
   open: boolean;
   title?: string;
-  mode: 'create' | 'edit' | 'embed';
+  mode: 'create' | 'edit';
   onCancel: () => void;
-  onOk: (
-    values: ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }
-  ) => Promise<void> | void;
-  initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number }>;
+  onOk: (values: ZCreatePathDto | ZUpdatePathDto) => Promise<void> | void;
+  initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto>;
   loading?: boolean;
   fullPath?: string;
-  embeddableBlueprints?: Array<{ id: number; code: string; name: string }>;
-  onBlueprintChange?: (blueprintId: number) => void;
 };
 
-type FormValues = ZCreatePathDto | ZUpdatePathDto | { embedded_blueprint_id: number };
+type FormValues = ZCreatePathDto | ZUpdatePathDto;
 
 /**
- * Модальное окно для создания, редактирования или встраивания поля Path в Blueprint.
+ * Модальное окно для создания или редактирования поля Path в Blueprint.
  * Содержит вкладки с основной информацией и правилами валидации.
  */
 export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
@@ -45,8 +40,6 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
   onNameChange,
   fullPath,
   parentPath,
-  embeddableBlueprints,
-  onBlueprintChange,
   initialValues,
 }) => {
   const [form] = Form.useForm<FormValues>();
@@ -57,7 +50,7 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
   const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
   const cardinality = Form.useWatch<'one' | 'many' | undefined>('cardinality', form);
 
-  const showValidationTab = mode !== 'embed' && dataType !== 'json';
+  const showValidationTab = dataType !== 'json';
 
   const normalizedInitialValues = normalizeFormInitialValues(initialValues, mode);
 
@@ -80,20 +73,16 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      if (mode === 'embed') {
-        await onOk(values as { embedded_blueprint_id: number });
-      } else {
-        const pathValues = values as ZCreatePathDto | ZUpdatePathDto;
-        const normalizedValues = {
-          ...pathValues,
-          validation_rules: normalizeValidationRulesForApi(pathValues.validation_rules),
-        };
-        const validatedValues =
-          mode === 'edit'
-            ? zUpdatePathDto.parse(normalizedValues)
-            : zCreatePathDto.parse(normalizedValues);
-        await onOk(validatedValues);
-      }
+      const pathValues = values as ZCreatePathDto | ZUpdatePathDto;
+      const normalizedValues = {
+        ...pathValues,
+        validation_rules: normalizeValidationRulesForApi(pathValues.validation_rules),
+      };
+      const validatedValues =
+        mode === 'edit'
+          ? zUpdatePathDto.parse(normalizedValues)
+          : zCreatePathDto.parse(normalizedValues);
+      await onOk(validatedValues);
       form.resetFields();
       setDisplayedFullPath(mode === 'edit' ? fullPath : undefined);
     } catch (error: any) {
@@ -111,37 +100,24 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     onCancel();
   };
 
-  const modalTitle =
-    title ||
-    (mode === 'edit'
-      ? 'Редактирование поля'
-      : mode === 'embed'
-        ? 'Встраивание Blueprint'
-        : 'Создание поля');
-  const buttonText = mode === 'edit' ? 'Сохранить' : mode === 'embed' ? 'Встроить' : 'Создать';
+  const modalTitle = title || (mode === 'edit' ? 'Редактирование поля' : 'Создание поля');
+  const buttonText = mode === 'edit' ? 'Сохранить' : 'Создать';
 
   const tabs = [
     {
       key: 'basic',
       label: 'Основное',
-      children:
-        mode === 'embed' ? (
-          <EmbedForm
-            form={form as FormInstance<{ embedded_blueprint_id: number }>}
-            embeddableBlueprints={embeddableBlueprints}
-            onBlueprintChange={onBlueprintChange}
-          />
-        ) : (
-          <NodeForm
-            form={form as FormInstance<ZCreatePathDto | ZUpdatePathDto>}
-            mode={mode}
-            parentPath={parentPath}
-            computedFullPath={displayedFullPath}
-            isReadonly={isReadonly}
-            sourceBlueprint={sourceBlueprint}
-            onNameChange={handleNameChange}
-          />
-        ),
+      children: (
+        <NodeForm
+          form={form as FormInstance<ZCreatePathDto | ZUpdatePathDto>}
+          mode={mode}
+          parentPath={parentPath}
+          computedFullPath={displayedFullPath}
+          isReadonly={isReadonly}
+          sourceBlueprint={sourceBlueprint}
+          onNameChange={handleNameChange}
+        />
+      ),
     },
     ...(showValidationTab
       ? [
