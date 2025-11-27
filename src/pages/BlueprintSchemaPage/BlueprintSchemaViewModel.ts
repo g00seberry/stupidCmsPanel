@@ -9,6 +9,19 @@ export type NodeFormMode = 'create' | 'edit' | 'embed';
 
 export type ContextMenuPosition = { x: number; y: number };
 
+/**
+ * Контекст контекстного меню узла.
+ * Содержит информацию о выбранном узле и позиции меню.
+ */
+export type NodeMenuCtx = {
+  /** ID узла, для которого открыто контекстное меню. `null` если меню закрыто. */
+  nodeId: number | null;
+  /** Позиция контекстного меню узла. `null` если меню закрыто. */
+  position: ContextMenuPosition | null;
+  /** Позиция контекстного меню пустой области. `null` если меню закрыто. */
+  emptyAreaPosition: ContextMenuPosition | null;
+};
+
 type LoadingState = {
   init: boolean;
   action: boolean;
@@ -22,9 +35,11 @@ export class BlueprintSchemaViewModel {
   nodeFormMode: NodeFormMode = 'create';
   nodeFormParentId: number | null = null;
 
-  contextMenuNodeId: number | null = null;
-  contextMenuPosition: ContextMenuPosition | null = null;
-  emptyAreaContextMenuPosition: ContextMenuPosition | null = null;
+  ctx: NodeMenuCtx = {
+    nodeId: null,
+    position: null,
+    emptyAreaPosition: null,
+  };
 
   loading: LoadingState = { init: false, action: false };
 
@@ -109,23 +124,23 @@ export class BlueprintSchemaViewModel {
 
   handleNodeContextMenu(pathId: number, position: ContextMenuPosition) {
     this.setSelectedPathId(pathId);
-    this.contextMenuNodeId = pathId;
-    this.contextMenuPosition = position;
-    this.emptyAreaContextMenuPosition = null;
+    this.ctx.nodeId = pathId;
+    this.ctx.position = position;
+    this.ctx.emptyAreaPosition = null;
   }
 
   closeContextMenu() {
-    this.contextMenuNodeId = null;
-    this.contextMenuPosition = null;
+    this.ctx.nodeId = null;
+    this.ctx.position = null;
   }
 
   handlePaneContextMenu(position: ContextMenuPosition) {
-    this.emptyAreaContextMenuPosition = position;
+    this.ctx.emptyAreaPosition = position;
     this.closeContextMenu();
   }
 
   closeEmptyAreaContextMenu() {
-    this.emptyAreaContextMenuPosition = null;
+    this.ctx.emptyAreaPosition = null;
   }
 
   selectNode(pathId: number) {

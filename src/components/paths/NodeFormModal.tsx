@@ -185,6 +185,43 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
     return 'Создать';
   };
 
+  const tabs = useMemo(() => {
+    const tabs = [
+      {
+        key: 'basic',
+        label: 'Основное',
+        children: (
+          <NodeForm
+            form={form}
+            mode={mode}
+            parentPath={parentPath}
+            computedFullPath={displayedFullPath}
+            isReadonly={isReadonly}
+            sourceBlueprint={sourceBlueprint}
+            onNameChange={handleNameChange}
+            embeddableBlueprints={embeddableBlueprints}
+            onBlueprintChange={onBlueprintChange}
+          />
+        ),
+      },
+    ];
+    if (showValidationTab) {
+      tabs.push({
+        key: 'validation',
+        label: 'Валидация',
+        children: (
+          <ValidationRulesForm
+            form={form}
+            dataType={dataType}
+            cardinality={cardinality}
+            isReadonly={isReadonly}
+          />
+        ),
+      });
+    }
+    return tabs;
+  }, [showValidationTab]);
+
   return (
     <Modal
       open={open}
@@ -208,53 +245,7 @@ export const NodeFormModal: React.FC<PropsNodeFormModal> = ({
       ]}
       width={600}
     >
-      {showValidationTab ? (
-        <Tabs
-          items={[
-            {
-              key: 'basic',
-              label: 'Основное',
-              children: (
-                <NodeForm
-                  form={form}
-                  mode={mode}
-                  parentPath={parentPath}
-                  computedFullPath={displayedFullPath}
-                  isReadonly={isReadonly}
-                  sourceBlueprint={sourceBlueprint}
-                  onNameChange={handleNameChange}
-                  embeddableBlueprints={embeddableBlueprints}
-                  onBlueprintChange={onBlueprintChange}
-                />
-              ),
-            },
-            {
-              key: 'validation',
-              label: 'Валидация',
-              children: (
-                <ValidationRulesForm
-                  form={form}
-                  dataType={dataType}
-                  cardinality={cardinality}
-                  isReadonly={isReadonly}
-                />
-              ),
-            },
-          ]}
-        />
-      ) : (
-        <NodeForm
-          form={form}
-          mode={mode}
-          parentPath={parentPath}
-          computedFullPath={displayedFullPath}
-          isReadonly={isReadonly}
-          sourceBlueprint={sourceBlueprint}
-          onNameChange={handleNameChange}
-          embeddableBlueprints={embeddableBlueprints}
-          onBlueprintChange={onBlueprintChange}
-        />
-      )}
+      <Tabs items={tabs} />
     </Modal>
   );
 };

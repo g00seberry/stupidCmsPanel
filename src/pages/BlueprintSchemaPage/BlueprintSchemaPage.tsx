@@ -1,14 +1,13 @@
 import { EmbedList } from '@/components/embeds/EmbedList';
-import { EmptyAreaContextMenu } from '@/components/paths/EmptyAreaContextMenu';
+import { ContextMenu } from '@/components/paths/ContextMenu';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormModal } from '@/components/paths/NodeFormModal';
-import { PathContextMenu } from '@/components/paths/PathContextMenu';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { handleBlueprintNodeError } from '@/utils/blueprintErrorHandler';
-import { App, Card, message } from 'antd';
+import { App, Card } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -23,7 +22,7 @@ export const BlueprintSchemaPage = observer(() => {
   const navigate = useNavigate();
   const blueprintId = id ? Number(id) : null;
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const pageStore = useMemo(() => new BlueprintSchemaViewModel(), []);
   const { pathStore, embedStore } = pageStore;
   const selectedPath = pageStore.selectedPath;
@@ -53,46 +52,6 @@ export const BlueprintSchemaPage = observer(() => {
     pageStore.handlePaneContextMenu({ x: event.clientX, y: event.clientY });
   };
 
-  const handleAddChildNode = (parentId: number) => {
-    if (!pageStore.openAddChildForm(parentId)) {
-      message.warning('Дочерние узлы можно добавлять только к полям типа JSON');
-    }
-  };
-
-  const handleEmbedBlueprint = (parentId: number) => {
-    if (!pageStore.openEmbedForm(parentId)) {
-      message.warning('Встраивание возможно только в поля типа JSON');
-    }
-  };
-
-  const handleDeleteNode = async (pathId: number) => {
-    const path = pageStore.getPathById(pathId);
-    if (!path) return;
-
-    if (!pageStore.canDeleteNode(pathId)) {
-      message.warning('Нельзя удалить readonly поле. Измените исходный Blueprint.');
-      return;
-    }
-
-    modal.confirm({
-      title: 'Удалить поле?',
-      content: `Вы уверены, что хотите удалить поле "${path.name}"? Это действие нельзя отменить.`,
-      okText: 'Удалить',
-      okType: 'danger',
-      cancelText: 'Отмена',
-      onOk: async () => {
-        try {
-          await pathStore.deletePath(pathId);
-          message.success('Поле удалено');
-          pageStore.setSelectedPathId(null);
-        } catch (error) {
-          handleBlueprintNodeError(error);
-        }
-      },
-    });
-    pageStore.closeContextMenu();
-  };
-
   const handleDeleteEmbed = async (embedId: number) => {
     if (!blueprintId) return;
 
@@ -113,14 +72,6 @@ export const BlueprintSchemaPage = observer(() => {
         }
       },
     });
-  };
-
-  const handleAddRootNode = () => {
-    pageStore.openAddRootForm();
-  };
-
-  const handleEmbedRootNode = () => {
-    pageStore.openEmbedForm(null);
   };
 
   const handleNodeSave = async (
@@ -264,33 +215,9 @@ export const BlueprintSchemaPage = observer(() => {
           fullPath={pageStore.nodeFormMode === 'edit' ? selectedPath?.full_path : undefined}
           initialValues={nodeFormInitialValues}
         />
-        {pageStore.contextMenuNodeId && pageStore.contextMenuPosition && (
-          <PathContextMenu
-            pathId={pageStore.contextMenuNodeId}
-            position={pageStore.contextMenuPosition}
-            onClose={() => {
-              pageStore.closeContextMenu();
-            }}
-            onEdit={() => {
-              pageStore.openEditForm(pageStore.contextMenuNodeId!);
-              pageStore.closeContextMenu();
-            }}
-            onAddChild={() => handleAddChildNode(pageStore.contextMenuNodeId!)}
-            onEmbed={() => handleEmbedBlueprint(pageStore.contextMenuNodeId!)}
-            onDelete={() => handleDeleteNode(pageStore.contextMenuNodeId!)}
-            pathStore={pathStore}
-          />
-        )}
-        {pageStore.emptyAreaContextMenuPosition && (
-          <EmptyAreaContextMenu
-            position={pageStore.emptyAreaContextMenuPosition}
-            onClose={() => {
-              pageStore.closeEmptyAreaContextMenu();
-            }}
-            onAddRoot={handleAddRootNode}
-            onEmbedRoot={handleEmbedRootNode}
-          />
-        )}
+        {(pageStore.ctx.nodeId && pageStore.ctx.position) || pageStore.ctx.emptyAreaPosition ? (
+          <ContextMenu pageStore={pageStore} />
+        ) : null}
       </div>
     </div>
   );

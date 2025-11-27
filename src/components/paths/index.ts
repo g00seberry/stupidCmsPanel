@@ -9,4 +9,3 @@ export type { PropsPathGraphEditor } from './PathGraphEditor';
 export { SimpleFieldNode } from './nodes/SimpleFieldNode';
 export { JsonGroupNode } from './nodes/JsonGroupNode';
 export { EmbeddedBlueprintNode } from './nodes/EmbeddedBlueprintNode';
-
