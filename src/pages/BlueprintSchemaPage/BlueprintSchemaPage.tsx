@@ -177,21 +177,16 @@ export const BlueprintSchemaPage = observer(() => {
           }
           initialValues={pageStore.getNodeFormInitialValues()}
         />
-
-        <Modal
-          open={pageStore.modeOpen === 'embed'}
-          onCancel={pageStore.closeNodeForm}
-          footer={null}
-          width={600}
-        >
-          <EmbedForm
-            embeddableBlueprints={embedStore.embeddableBlueprints}
-            onOk={handleEmbedSave}
-            onCancel={() => pageStore.closeNodeForm()}
-            loading={pageStore.pending}
-          />
-        </Modal>
-
+        {pageStore.modeOpen === 'embed' && (
+          <Modal open onCancel={pageStore.closeNodeForm} footer={null} width={600} forceRender>
+            <EmbedForm
+              embeddableBlueprints={embedStore.embeddableBlueprints}
+              onOk={handleEmbedSave}
+              onCancel={() => pageStore.closeNodeForm()}
+              loading={pageStore.pending}
+            />
+          </Modal>
+        )}
         {pageStore.ctx.position ? <ContextMenu pageStore={pageStore} /> : null}
       </div>
     </div>

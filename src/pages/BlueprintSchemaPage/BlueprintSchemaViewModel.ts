@@ -69,7 +69,6 @@ export class BlueprintSchemaViewModel {
   }
 
   async init(blueprintId: number) {
-    if (this.blueprintId === blueprintId && this.paths.length) return;
     this.blueprintId = blueprintId;
     this.loading.init = true;
     try {
@@ -199,8 +198,7 @@ export class BlueprintSchemaViewModel {
         host_path_id: this.nodeFormState.parentId || undefined,
       };
       await this.embedStore.createEmbed(embedDto);
-      await this.embedStore.loadEmbeddable(this.blueprintId!);
-      await this.pathStore.loadPaths(this.blueprintId!);
+      await this.init(this.blueprintId);
       this.closeNodeForm();
       notificationService.showSuccess({
         message: 'Blueprint встроен',

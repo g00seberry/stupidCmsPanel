@@ -1,6 +1,6 @@
 import { Alert, Button, Form, Select, Space } from 'antd';
 import { useForm, useWatch } from 'antd/es/form/Form';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const filterOption = (input: string, option?: { label?: string; value?: number }) =>
   (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -40,8 +40,9 @@ export const EmbedForm: React.FC<PropsEmbedForm> = ({
   loading = false,
 }) => {
   const [form] = useForm<EmbedFormValues>();
-  const embeddedBlueprintId = useWatch('embedded_blueprint_id', form);
-
+  useEffect(() => {
+    form.resetFields();
+  }, []);
   const blueprintOptions = useMemo(
     () =>
       embeddableBlueprints.map(bp => ({
@@ -52,12 +53,7 @@ export const EmbedForm: React.FC<PropsEmbedForm> = ({
   );
 
   return (
-    <Form
-      form={form}
-      initialValues={{ embedded_blueprint_id: embeddedBlueprintId }}
-      layout="vertical"
-      onFinish={onOk}
-    >
+    <Form form={form} layout="vertical" onFinish={onOk}>
       <Form.Item
         label="Blueprint для встраивания"
         name="embedded_blueprint_id"
