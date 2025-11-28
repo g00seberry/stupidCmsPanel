@@ -39,12 +39,12 @@ const createNodeMenuItems = (
   };
 
   const handleAddChild = () => {
-    pageStore.setCtx({ nodeId: nodeId, position: null });
+    pageStore.setCtx({ parentId: nodeId, nodeId: null, position: null });
     pageStore.setModalMode('node');
   };
 
   const handleEmbed = () => {
-    pageStore.setCtx({ nodeId: nodeId, position: null });
+    pageStore.setCtx({ parentId: nodeId, nodeId: null, position: null });
     pageStore.setModalMode('embed');
   };
 

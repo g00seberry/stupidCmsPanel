@@ -9,6 +9,7 @@ import { notificationService } from '@/services/notificationService';
 
 export type ContextMenuPosition = { x: number; y: number };
 export type NodeMenuCtx = {
+  parentId: number | null;
   nodeId: number | null;
   position: ContextMenuPosition | null;
 };
@@ -18,6 +19,7 @@ export class BlueprintSchemaViewModel {
   blueprintId: number | null = null;
   loading = false;
   ctx: NodeMenuCtx = {
+    parentId: null,
     nodeId: null,
     position: null,
   };
@@ -75,7 +77,7 @@ export class BlueprintSchemaViewModel {
 
   closeModal() {
     this.setModalMode(null);
-    this.setCtx({ nodeId: null, position: null });
+    this.setCtx({ parentId: null, nodeId: null, position: null });
   }
 
   openAddChildForm(parentId: number): boolean {
