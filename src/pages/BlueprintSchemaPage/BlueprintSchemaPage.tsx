@@ -38,22 +38,12 @@ export const BlueprintSchemaPage = observer(() => {
 
   const handleNodeContextMenu = (pathId: number, event: React.MouseEvent) => {
     event.preventDefault();
-    pageStore.setCtx({
-      parentId: pathId,
-      nodeId: null,
-      position: { x: event.clientX, y: event.clientY },
-    });
-    pageStore.setModalMode('ctx');
+    pageStore.openNodeContextMenu(pathId, { x: event.clientX, y: event.clientY });
   };
 
   const handlePaneContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
-    pageStore.setCtx({
-      parentId: null,
-      nodeId: null,
-      position: { x: event.clientX, y: event.clientY },
-    });
-    pageStore.setModalMode('ctx');
+    pageStore.openPaneContextMenu({ x: event.clientX, y: event.clientY });
   };
 
   const handleDeleteEmbed = async (embedId: number) => {

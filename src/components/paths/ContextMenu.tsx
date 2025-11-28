@@ -35,17 +35,15 @@ const createNodeMenuItems = (
   modal: ReturnType<typeof App.useApp>['modal']
 ): MenuProps['items'] => {
   const handleEdit = () => {
-    pageStore.setModalMode('node');
+    pageStore.openEditNodeForm(nodeId);
   };
 
   const handleAddChild = () => {
-    pageStore.setCtx({ parentId: nodeId, nodeId: null, position: null });
-    pageStore.setModalMode('node');
+    pageStore.prepareAddChild(nodeId);
   };
 
   const handleEmbed = () => {
-    pageStore.setCtx({ parentId: nodeId, nodeId: null, position: null });
-    pageStore.setModalMode('embed');
+    pageStore.prepareEmbed(nodeId);
   };
 
   const handleDelete = () => {
@@ -122,7 +120,7 @@ const createEmptyAreaMenuItems = (pageStore: BlueprintSchemaViewModel): MenuProp
       label: 'Добавить корневой узел',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => {
-        pageStore.setModalMode('node');
+        pageStore.prepareCreateRootNode();
       },
     },
     {
@@ -130,7 +128,7 @@ const createEmptyAreaMenuItems = (pageStore: BlueprintSchemaViewModel): MenuProp
       label: 'Встроить Blueprint',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => {
-        pageStore.setModalMode('embed');
+        pageStore.prepareEmbed(null);
       },
     },
   ];

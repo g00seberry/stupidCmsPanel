@@ -49,8 +49,16 @@ export class BlueprintSchemaViewModel {
   }
 
   get nodeFormParentPath() {
-    if (this.ctx.nodeId == null) return [];
-    return buildPathWayToRoot(this.paths, this.ctx.nodeId);
+    // Если редактируем узел, показываем путь до него
+    if (this.ctx.nodeId != null) {
+      return buildPathWayToRoot(this.paths, this.ctx.nodeId);
+    }
+    // Если создаем дочерний узел, показываем путь до родителя
+    if (this.ctx.parentId != null) {
+      return buildPathWayToRoot(this.paths, this.ctx.parentId);
+    }
+    // Если создаем корневой узел, путь пустой
+    return [];
   }
 
   async init(blueprintId: number) {
@@ -75,9 +83,94 @@ export class BlueprintSchemaViewModel {
     this.modalMode = mode;
   }
 
+  /**
+   * Очищает контекст, сбрасывая все значения в null.
+   */
+  clearContext() {
+    this.setCtx({ parentId: null, nodeId: null, position: null });
+  }
+
+  /**
+   * Открывает контекстное меню на узле графа.
+   * @param nodeId ID узла, на котором открывается меню.
+   * @param position Позиция курсора для отображения меню.
+   */
+  openNodeContextMenu(nodeId: number, position: ContextMenuPosition) {
+    this.setCtx({
+      parentId: null,
+      nodeId,
+      position,
+    });
+    this.setModalMode('ctx');
+  }
+
+  /**
+   * Открывает контекстное меню на пустой области графа.
+   * @param position Позиция курсора для отображения меню.
+   */
+  openPaneContextMenu(position: ContextMenuPosition) {
+    this.setCtx({
+      parentId: null,
+      nodeId: null,
+      position,
+    });
+    this.setModalMode('ctx');
+  }
+
+  /**
+   * Подготавливает контекст для создания дочернего узла.
+   * @param parentId ID родительского узла, под которым будет создан дочерний узел.
+   */
+  prepareAddChild(parentId: number) {
+    this.setCtx({
+      parentId,
+      nodeId: null,
+      position: null,
+    });
+    this.setModalMode('node');
+  }
+
+  /**
+   * Подготавливает контекст для встраивания Blueprint.
+   * @param parentId ID родительского узла, под которым будет встроен Blueprint. Если null, то встраивается в корень.
+   */
+  prepareEmbed(parentId: number | null) {
+    this.setCtx({
+      parentId,
+      nodeId: null,
+      position: null,
+    });
+    this.setModalMode('embed');
+  }
+
+  /**
+   * Открывает форму редактирования узла.
+   * @param nodeId ID узла для редактирования.
+   */
+  openEditNodeForm(nodeId: number) {
+    this.setCtx({
+      parentId: null,
+      nodeId,
+      position: null,
+    });
+    this.setModalMode('node');
+  }
+
+  /**
+   * Подготавливает контекст для создания корневого узла.
+   */
+  prepareCreateRootNode() {
+    this.setCtx({
+      parentId: null,
+      nodeId: null,
+      position: null,
+    });
+    this.setModalMode('node');
+  }
+
   closeModal() {
     this.setModalMode(null);
-    this.setCtx({ parentId: null, nodeId: null, position: null });
+    this.clearContext();
   }
 
   openAddChildForm(parentId: number): boolean {
@@ -152,7 +245,7 @@ export class BlueprintSchemaViewModel {
     try {
       const embedDto = {
         embedded_blueprint_id: values.embedded_blueprint_id,
-        host_path_id: this.ctx.nodeId || undefined,
+        host_path_id: this.ctx.parentId || undefined,
       };
       await this.embedStore.createEmbed(embedDto);
       await this.init(this.blueprintId);
@@ -176,7 +269,7 @@ export class BlueprintSchemaViewModel {
   private async saveCreateNode(values: ZCreatePathDto) {
     const createDto = {
       ...values,
-      parent_id: this.ctx.nodeId || null,
+      parent_id: this.ctx.parentId || null,
     };
     await this.pathStore.createPath(createDto);
   }
