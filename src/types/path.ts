@@ -396,7 +396,7 @@ export const zCreatePathDto = z.object({
   /** Порядок сортировки поля среди полей одного уровня. Минимум 0. По умолчанию 0. */
   sort_order: z.number().int().min(0, 'Минимум 0').default(0),
   /** Правила валидации поля (новый формат - объект JSON). */
-  validation_rules: zValidationRules.optional(),
+  validation_rules: zValidationRules.optional().nullable(),
 });
 
 /**

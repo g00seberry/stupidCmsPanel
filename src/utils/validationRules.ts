@@ -327,7 +327,11 @@ const normalizeFieldComparison = (
     return null;
   }
 
-  const normalized: { operator: '==' | '!=' | '>' | '<' | '>=' | '<='; field?: string; value?: any } = {
+  const normalized: {
+    operator: '==' | '!=' | '>' | '<' | '>=' | '<=';
+    field?: string;
+    value?: any;
+  } = {
     operator: rule.operator as '==' | '!=' | '>' | '<' | '>=' | '<=',
   };
 
@@ -346,4 +350,3 @@ const normalizeFieldComparison = (
 
   return normalized;
 };
-
