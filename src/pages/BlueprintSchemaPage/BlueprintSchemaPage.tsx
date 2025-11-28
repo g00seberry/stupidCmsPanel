@@ -2,17 +2,24 @@ import { EmbedList } from '@/components/embeds/EmbedList';
 import { ContextMenu } from '@/components/paths/ContextMenu';
 import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { GraphControls } from '@/components/paths/GraphControls';
-import { NodeFormModal } from '@/components/paths/NodeFormModal';
+import { NodeForm } from '@/components/paths/NodeForm';
+import { ValidationRulesForm } from '@/components/paths/ValidationRulesForm';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import { App, Card, Modal } from 'antd';
+import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
+import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
+import { App, Card, Modal, Form, Tabs, Button, Space } from 'antd';
+import type { FormInstance } from 'antd/es/form';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactFlowInstance } from 'reactflow';
 import { onError } from '@/utils/onError';
+import { normalizeValidationRulesForApi } from '@/utils/validationRules';
+import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
+import { normalizeFormInitialValues, buildFullPath } from '@/components/paths/utils/nodeFormUtils';
+import type { AxiosError } from 'axios';
 
 /**
  * Страница редактирования схемы Blueprint.
@@ -66,13 +73,70 @@ export const BlueprintSchemaPage = observer(() => {
     });
   };
 
-  const handleNodeSave = async (values: ZCreatePathDto | ZUpdatePathDto) => {
+  const [nodeForm] = Form.useForm<ZCreatePathDto | ZUpdatePathDto>();
+  const [displayedFullPath, setDisplayedFullPath] = useState<string | undefined>();
+
+  const dataType = Form.useWatch<ZDataType | undefined>('data_type', nodeForm);
+  const cardinality = Form.useWatch<'one' | 'many' | undefined>('cardinality', nodeForm);
+  const showValidationTab = dataType !== 'json';
+
+  const mode = pageStore.nodeFormMode === 'edit' ? 'edit' : 'create';
+  const isReadonly =
+    pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.is_readonly || false : false;
+  const sourceBlueprint =
+    pageStore.nodeFormMode === 'edit'
+      ? (pageStore.selectedPath?.source_blueprint ?? undefined)
+      : undefined;
+  const fullPath =
+    pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.full_path : undefined;
+  const parentPath = pageStore.nodeFormParentPath;
+  const initialValues = pageStore.getNodeFormInitialValues();
+  const normalizedInitialValues = normalizeFormInitialValues(initialValues, mode);
+
+  useEffect(() => {
+    if (pageStore.modeOpen !== 'node') return;
+    nodeForm.resetFields();
+    nodeForm.setFieldsValue(normalizedInitialValues);
+    const pathToDisplay =
+      mode === 'edit'
+        ? fullPath
+        : buildFullPath((normalizedInitialValues as Partial<ZCreatePathDto>).name, parentPath);
+    setDisplayedFullPath(pathToDisplay);
+  }, [fullPath, mode, nodeForm, normalizedInitialValues, parentPath, pageStore.modeOpen]);
+
+  const handleNameChange = (name: string) => {
+    setDisplayedFullPath(buildFullPath(name, parentPath));
+  };
+
+  const handleNodeSave = async () => {
     try {
-      await pageStore.saveNode(values);
+      const values = await nodeForm.validateFields();
+      const pathValues = values as ZCreatePathDto | ZUpdatePathDto;
+      const normalizedValues = {
+        ...pathValues,
+        validation_rules: normalizeValidationRulesForApi(pathValues.validation_rules),
+      };
+      const validatedValues =
+        mode === 'edit'
+          ? zUpdatePathDto.parse(normalizedValues)
+          : zCreatePathDto.parse(normalizedValues);
+      await pageStore.saveNode(validatedValues);
       message.success(pageStore.getSuccessMessage());
-    } catch (error) {
+      nodeForm.resetFields();
+      setDisplayedFullPath(mode === 'edit' ? fullPath : undefined);
+    } catch (error: any) {
+      if (error?.errorFields) return;
+      if (error && typeof error === 'object' && 'response' in error) {
+        if (setFormValidationErrors(error as AxiosError, nodeForm)) return;
+      }
       onError(error);
     }
+  };
+
+  const handleNodeCancel = () => {
+    nodeForm.resetFields();
+    setDisplayedFullPath(mode === 'edit' ? fullPath : undefined);
+    pageStore.closeNodeForm();
   };
 
   const handleEmbedSave = (values: { embedded_blueprint_id: number }) => {
@@ -157,26 +221,67 @@ export const BlueprintSchemaPage = observer(() => {
             </Card>
           </div>
         </div>
-        <NodeFormModal
-          open={pageStore.modeOpen === 'node'}
-          onCancel={pageStore.closeNodeForm}
-          onOk={handleNodeSave}
-          mode={pageStore.nodeFormMode === 'edit' ? 'edit' : 'create'}
-          parentPath={pageStore.nodeFormParentPath}
-          isReadonly={
-            pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.is_readonly || false : false
-          }
-          sourceBlueprint={
-            pageStore.nodeFormMode === 'edit'
-              ? (pageStore.selectedPath?.source_blueprint ?? undefined)
-              : undefined
-          }
-          loading={pageStore.pending}
-          fullPath={
-            pageStore.nodeFormMode === 'edit' ? pageStore.selectedPath?.full_path : undefined
-          }
-          initialValues={pageStore.getNodeFormInitialValues()}
-        />
+        {pageStore.modeOpen === 'node' && (
+          <Modal
+            open
+            onCancel={handleNodeCancel}
+            footer={null}
+            width={600}
+            forceRender
+            title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
+          >
+            <Tabs
+              items={[
+                {
+                  key: 'basic',
+                  label: 'Основное',
+                  children: (
+                    <NodeForm
+                      form={nodeForm as FormInstance<ZCreatePathDto | ZUpdatePathDto>}
+                      mode={mode}
+                      parentPath={parentPath}
+                      computedFullPath={displayedFullPath}
+                      isReadonly={isReadonly}
+                      sourceBlueprint={sourceBlueprint}
+                      onNameChange={handleNameChange}
+                    />
+                  ),
+                },
+                ...(showValidationTab
+                  ? [
+                      {
+                        key: 'validation',
+                        label: 'Валидация',
+                        children: (
+                          <ValidationRulesForm
+                            form={nodeForm}
+                            dataType={dataType}
+                            cardinality={cardinality}
+                            isReadonly={isReadonly}
+                          />
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            <div className="mt-6 flex justify-end">
+              <Space>
+                <Button onClick={handleNodeCancel}>Отмена</Button>
+                <Button
+                  type="primary"
+                  loading={pageStore.pending}
+                  onClick={() => {
+                    void handleNodeSave();
+                  }}
+                  disabled={isReadonly && mode === 'edit'}
+                >
+                  {mode === 'edit' ? 'Сохранить' : 'Создать'}
+                </Button>
+              </Space>
+            </div>
+          </Modal>
+        )}
         {pageStore.modeOpen === 'embed' && (
           <Modal open onCancel={pageStore.closeNodeForm} footer={null} width={600} forceRender>
             <EmbedForm

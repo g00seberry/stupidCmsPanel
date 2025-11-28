@@ -1,7 +1,5 @@
 export { NodeForm } from './NodeForm';
 export type { PropsNodeForm } from './NodeForm';
-export { NodeFormModal } from './NodeFormModal';
-export type { PropsNodeFormModal } from './NodeFormModal';
 
 export { GraphControls } from './GraphControls';
 export type { PropsGraphControls } from './GraphControls';
