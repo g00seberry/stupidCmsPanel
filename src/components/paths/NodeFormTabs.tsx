@@ -1,6 +1,6 @@
 import { NodeForm } from '@/components/paths/NodeForm';
 import { ReadonlyAlert } from '@/components/paths/ReadonlyAlert';
-import { ValidationRulesForm } from '@/components/paths/ValidationRulesForm';
+import { ValidationRulesFormV2 } from '@/components/paths/ValidationRulesFormV2';
 import type {
   ZCardinality,
   ZCreatePathDto,
@@ -80,7 +80,14 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
       {
         key: 'validation',
         label: 'Валидация',
-        children: <ValidationRulesForm form={form} dataType={dataType} cardinality={cardinality} />,
+        children: (
+          <ValidationRulesFormV2
+            form={form}
+            dataType={dataType}
+            cardinality={cardinality}
+            isReadonly={!!isReadonly}
+          />
+        ),
       },
     ],
     [form, mode, fullPath, sourceBlueprint, dataType, cardinality]
