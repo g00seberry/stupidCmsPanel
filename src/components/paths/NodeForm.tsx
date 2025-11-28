@@ -1,7 +1,7 @@
 import type { ZDataType } from '@/types/path';
 import { zDataType } from '@/types/path';
 import { validateFieldName } from '@/utils/blueprintValidation';
-import { Alert, Checkbox, Form, Input, Radio, Select } from 'antd';
+import { Checkbox, Form, Input, Radio, Select } from 'antd';
 import { useMemo } from 'react';
 
 export type PropsNodeForm = {
@@ -9,7 +9,6 @@ export type PropsNodeForm = {
   dataType?: ZDataType;
   fullPath?: string;
   isReadonly?: boolean;
-  sourceBlueprint?: { id: number; name: string; code: string };
 };
 
 const DATA_TYPE_LABELS: Record<ZDataType, string> = {
@@ -34,10 +33,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
   mode,
   fullPath,
   isReadonly = false,
-  sourceBlueprint,
 }) => {
-  const isReadonlyEdit = isReadonly && mode === 'edit';
-
   const dataTypeOptions = useMemo(
     () =>
       zDataType.options.map(type => ({
@@ -72,33 +68,6 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
       </Radio.Group>
     </Form.Item>
   );
-
-  if (isReadonlyEdit) {
-    return (
-      <div>
-        <Alert
-          message="Поле доступно только для чтения"
-          description={
-            <div>
-              <p>
-                Изменения нужно вносить в исходном Blueprint &quot;
-                {sourceBlueprint?.name || 'неизвестно'}&quot;.
-              </p>
-              <p className="mt-2">
-                Здесь поле заблокировано, потому что управляется составным Blueprint.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Обновите структуру в исходном Blueprint и заново встройте его, чтобы увидеть
-                изменения.
-              </p>
-            </div>
-          }
-          type="warning"
-          showIcon
-        />
-      </div>
-    );
-  }
 
   return (
     <>

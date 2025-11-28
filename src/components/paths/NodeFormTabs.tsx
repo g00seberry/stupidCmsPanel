@@ -1,6 +1,14 @@
 import { NodeForm } from '@/components/paths/NodeForm';
+import { ReadonlyAlert } from '@/components/paths/ReadonlyAlert';
 import { ValidationRulesForm } from '@/components/paths/ValidationRulesForm';
-import type { ZCardinality, ZCreatePathDto, ZDataType, ZPath, ZUpdatePathDto } from '@/types/path';
+import type {
+  ZCardinality,
+  ZCreatePathDto,
+  ZDataType,
+  ZPath,
+  ZSourceBlueprint,
+  ZUpdatePathDto,
+} from '@/types/path';
 import { Button, Form, Space, Tabs } from 'antd';
 import { useMemo } from 'react';
 
@@ -9,10 +17,10 @@ export type PropsNodeFormTabs = {
   mode: 'create' | 'edit';
   /** Родительский путь (для создания дочернего элемента). */
   wayToRoot?: ZPath[];
-
+  /** Флаг блокировки формы. */
   disabled?: boolean;
   /** Исходный Blueprint (для встроенных полей). */
-  sourceBlueprint?: { id: number; name: string; code: string };
+  sourceBlueprint?: ZSourceBlueprint;
   /** Начальные значения формы. */
   initialValues?: Partial<ZCreatePathDto | ZUpdatePathDto>;
   /** Обработчик сохранения формы. */
@@ -41,6 +49,7 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
   const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
   const cardinality = Form.useWatch<ZCardinality | undefined>('cardinality', form);
   const name = Form.useWatch<string | undefined>('name', form);
+  const isReadonly = mode === 'edit' && sourceBlueprint;
 
   const fullPath = useMemo(() => {
     const fullWay = wayToRoot?.reverse().map(path => path.name) ?? [];
@@ -50,8 +59,6 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
     }
     return fullWay.join('.');
   }, [wayToRoot, mode, name]);
-
-  const showValidationTab = dataType !== 'json';
 
   const handleCancel = () => {
     form.resetFields();
@@ -64,27 +71,19 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
         key: 'basic',
         label: 'Основное',
         children: (
-          <NodeForm
-            dataType={dataType}
-            mode={mode}
-            fullPath={fullPath}
-            sourceBlueprint={sourceBlueprint}
-          />
+          <>
+            {isReadonly && <ReadonlyAlert sourceBlueprint={sourceBlueprint} />}
+            <NodeForm dataType={dataType} mode={mode} fullPath={fullPath} />
+          </>
         ),
       },
-      ...(showValidationTab
-        ? [
-            {
-              key: 'validation',
-              label: 'Валидация',
-              children: (
-                <ValidationRulesForm form={form} dataType={dataType} cardinality={cardinality} />
-              ),
-            },
-          ]
-        : []),
+      {
+        key: 'validation',
+        label: 'Валидация',
+        children: <ValidationRulesForm form={form} dataType={dataType} cardinality={cardinality} />,
+      },
     ],
-    [form, mode, fullPath, sourceBlueprint, showValidationTab, dataType, cardinality]
+    [form, mode, fullPath, sourceBlueprint, dataType, cardinality]
   );
 
   return (

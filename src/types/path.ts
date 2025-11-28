@@ -254,6 +254,11 @@ const zSourceBlueprint = z.object({
   name: z.string(),
 });
 
+/**
+ * Тип вложенного объекта source_blueprint.
+ */
+export type ZSourceBlueprint = z.infer<typeof zSourceBlueprint>;
+
 // ============================================================================
 // Базовые схемы Path
 // ============================================================================
