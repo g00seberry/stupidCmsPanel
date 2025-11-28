@@ -690,9 +690,5 @@ export const ValidationRulesForm: React.FC<PropsValidationRulesForm> = ({
     );
   }
 
-  return (
-    <Form form={form} layout="vertical">
-      <Collapse defaultActiveKey={['basic']} ghost items={collapseItems} />
-    </Form>
-  );
+  return <Collapse defaultActiveKey={['basic']} ghost items={collapseItems} />;
 };

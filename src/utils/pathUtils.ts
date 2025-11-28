@@ -86,3 +86,25 @@ export const findPathInTree = (paths: ZPath[], pathId: number): ZPath | undefine
   }
   return undefined;
 };
+
+const flatTree = (paths: ZPath[]): ZPath[] => {
+  return paths.flatMap(path => [path, ...flatTree(path.children || [])]);
+};
+
+export const buildPathWayToRoot = (paths: ZPath[], pathId: number): ZPath[] => {
+  const flatPaths = flatTree(paths);
+  const flatMap = new Map<number, ZPath>(flatPaths.map(path => [path.id, path]));
+
+  let curr = flatMap.get(pathId);
+  if (!curr) return [];
+  const way: ZPath[] = [curr];
+  while (curr.parent_id) {
+    curr = flatMap.get(curr.parent_id);
+    if (curr) {
+      way.push(curr);
+    } else {
+      break;
+    }
+  }
+  return way;
+};

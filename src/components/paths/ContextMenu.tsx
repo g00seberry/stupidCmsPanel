@@ -35,20 +35,17 @@ const createNodeMenuItems = (
   modal: ReturnType<typeof App.useApp>['modal']
 ): MenuProps['items'] => {
   const handleEdit = () => {
-    pageStore.openEditForm(nodeId);
-    pageStore.closeContextMenu();
+    pageStore.setModalMode('node');
   };
 
   const handleAddChild = () => {
-    if (!pageStore.openAddChildForm(nodeId)) {
-      message.warning('Дочерние узлы можно добавлять только к полям типа JSON');
-    }
+    pageStore.setCtx({ nodeId: nodeId, position: null });
+    pageStore.setModalMode('node');
   };
 
   const handleEmbed = () => {
-    if (!pageStore.openEmbedForm(nodeId)) {
-      message.warning('Встраивание возможно только в поля типа JSON');
-    }
+    pageStore.setCtx({ nodeId: nodeId, position: null });
+    pageStore.setModalMode('embed');
   };
 
   const handleDelete = () => {
@@ -57,7 +54,6 @@ const createNodeMenuItems = (
 
     if (!pageStore.canDeleteNode(nodeId)) {
       message.warning('Нельзя удалить readonly поле. Измените исходный Blueprint.');
-      pageStore.closeContextMenu();
       return;
     }
 
@@ -71,13 +67,11 @@ const createNodeMenuItems = (
         try {
           await pageStore.pathStore.deletePath(nodeId);
           message.success('Поле удалено');
-          pageStore.selectionState.clear();
         } catch (error) {
           onError(error);
         }
       },
     });
-    pageStore.closeContextMenu();
   };
 
   return [
@@ -128,7 +122,7 @@ const createEmptyAreaMenuItems = (pageStore: BlueprintSchemaViewModel): MenuProp
       label: 'Добавить корневой узел',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => {
-        pageStore.openAddRootForm();
+        pageStore.setModalMode('node');
       },
     },
     {
@@ -136,7 +130,7 @@ const createEmptyAreaMenuItems = (pageStore: BlueprintSchemaViewModel): MenuProp
       label: 'Встроить Blueprint',
       icon: <Plus className="w-4 h-4" />,
       onClick: () => {
-        pageStore.openEmbedForm(null);
+        pageStore.setModalMode('embed');
       },
     },
   ];
@@ -177,7 +171,7 @@ export const ContextMenu: React.FC<PropsContextMenu> = ({ pageStore }) => {
     return createEmptyAreaMenuItems(pageStore);
   }, [isNodeMenu, ctx.nodeId, pageStore, canAddChild, canEdit, canDelete, modal, message]);
 
-  const onClose = () => pageStore.closeContextMenu();
+  const onClose = () => pageStore.setModalMode(null);
 
   useEffect(() => {
     const menuElement = document.getElementById(menuId);

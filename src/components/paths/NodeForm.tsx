@@ -1,18 +1,15 @@
-import { Form, Input, Select, Radio, Checkbox, Alert } from 'antd';
-import type { FormInstance } from 'antd/es/form';
-import type { ZCreatePathDto, ZUpdatePathDto, ZDataType } from '@/types/path';
+import type { ZDataType } from '@/types/path';
 import { zDataType } from '@/types/path';
-import { useMemo } from 'react';
 import { validateFieldName } from '@/utils/blueprintValidation';
+import { Alert, Checkbox, Form, Input, Radio, Select } from 'antd';
+import { useMemo } from 'react';
 
 export type PropsNodeForm = {
-  form: FormInstance<ZCreatePathDto | ZUpdatePathDto>;
   mode: 'create' | 'edit';
-  parentPath?: { id: number; full_path: string };
-  computedFullPath?: string;
+  dataType?: ZDataType;
+  fullPath?: string;
   isReadonly?: boolean;
   sourceBlueprint?: { id: number; name: string; code: string };
-  onNameChange?: (name: string) => void;
 };
 
 const DATA_TYPE_LABELS: Record<ZDataType, string> = {
@@ -33,14 +30,12 @@ const CARDINALITY_OPTIONS = [
 ];
 
 export const NodeForm: React.FC<PropsNodeForm> = ({
-  form,
+  dataType,
   mode,
-  computedFullPath,
+  fullPath,
   isReadonly = false,
   sourceBlueprint,
-  onNameChange,
 }) => {
-  const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
   const isReadonlyEdit = isReadonly && mode === 'edit';
 
   const dataTypeOptions = useMemo(
@@ -53,10 +48,10 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
   );
 
   const renderComputedFullPath = () => {
-    if (!computedFullPath) return null;
+    if (!fullPath) return null;
     return (
       <div className="mb-4 p-2 bg-muted rounded text-sm">
-        <strong>Полный путь:</strong> <code className="font-mono">{computedFullPath}</code>
+        <strong>Полный путь:</strong> <code className="font-mono">{fullPath}</code>
       </div>
     );
   };
@@ -106,7 +101,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
   }
 
   return (
-    <Form form={form} layout="vertical">
+    <>
       <Form.Item
         label="Имя поля"
         name="name"
@@ -124,14 +119,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
         ]}
         tooltip="Имя поля используется в схемах и API, поэтому допускаются только символы a-z, 0-9 и _."
       >
-        <Input
-          placeholder="field_name"
-          disabled={isReadonly}
-          onChange={e => {
-            onNameChange?.(e.target.value);
-          }}
-          style={{ fontFamily: 'monospace' }}
-        />
+        <Input placeholder="field_name" disabled={isReadonly} style={{ fontFamily: 'monospace' }} />
       </Form.Item>
 
       {renderComputedFullPath()}
@@ -160,6 +148,6 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
           </Checkbox>
         </Form.Item>
       )}
-    </Form>
+    </>
   );
 };
