@@ -56,7 +56,6 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
     <Form.Item
       label="Кардинальность"
       name="cardinality"
-      initialValue="one"
       tooltip="Определяет, может ли у поля быть одно значение или массив значений."
     >
       <Radio.Group disabled={isReadonly}>
@@ -108,7 +107,7 @@ export const NodeForm: React.FC<PropsNodeForm> = ({
       {dataType && renderCardinality()}
 
       {dataType && dataType !== 'json' && (
-        <Form.Item name="is_indexed" valuePropName="checked" initialValue={false}>
+        <Form.Item name="is_indexed" valuePropName="checked">
           <Checkbox disabled={isReadonly}>
             Индексировать поле
             <span className="text-xs text-muted-foreground ml-2">

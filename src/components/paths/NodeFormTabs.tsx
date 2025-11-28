@@ -90,7 +90,7 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
         ),
       },
     ],
-    [form, mode, fullPath, sourceBlueprint, dataType, cardinality]
+    [form, mode, fullPath, sourceBlueprint, dataType, cardinality, isReadonly]
   );
 
   return (

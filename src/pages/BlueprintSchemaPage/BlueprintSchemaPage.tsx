@@ -8,7 +8,7 @@ import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintS
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
-import { App, Card, Modal } from 'antd';
+import { App, Card, Drawer } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -180,13 +180,12 @@ export const BlueprintSchemaPage = observer(() => {
           </div>
         </div>
         {pageStore.modalMode === 'node' && (
-          <Modal
+          <Drawer
             open
-            onCancel={handleNodeCancel}
-            footer={null}
-            width={600}
-            forceRender
+            onClose={handleNodeCancel}
+            width="80%"
             title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
+            destroyOnClose
           >
             <NodeFormTabs
               disabled={isReadonly}
@@ -198,7 +197,7 @@ export const BlueprintSchemaPage = observer(() => {
               onCancel={handleNodeCancel}
               loading={pageStore.pending}
             />
-          </Modal>
+          </Drawer>
         )}
         {pageStore.modalMode === 'embed' && (
           <Modal open onCancel={pageStore.closeModal} footer={null} width={600} forceRender>
