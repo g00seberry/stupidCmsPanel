@@ -5,26 +5,20 @@ import { PathStore } from './PathStore';
 import { BlueprintEmbedStore } from './BlueprintEmbedStore';
 import { NodeFormState } from './NodeFormState';
 import { ContextMenuState } from './ContextMenuState';
-import { SelectionState } from './SelectionState';
 import { onError } from '@/utils/onError';
 import { notificationService } from '@/services/notificationService';
 
 export type NodeFormMode = 'create' | 'edit' | 'embed';
 
-type LoadingState = {
-  init: boolean;
-  action: boolean;
-};
-
 export class BlueprintSchemaViewModel {
   blueprintId: number | null = null;
-  loading: LoadingState = { init: false, action: false };
+  selectedPathId: number | null = null;
+  loading = false;
 
   readonly pathStore: PathStore = new PathStore();
   readonly embedStore: BlueprintEmbedStore = new BlueprintEmbedStore();
   readonly nodeFormState: NodeFormState = new NodeFormState();
   readonly contextMenuState: ContextMenuState = new ContextMenuState();
-  readonly selectionState: SelectionState = new SelectionState();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -35,18 +29,16 @@ export class BlueprintSchemaViewModel {
   }
 
   get pending() {
-    return (
-      this.loading.init || this.loading.action || this.pathStore.pending || this.embedStore.pending
-    );
+    return this.loading || this.pathStore.pending || this.embedStore.pending;
   }
 
   get selectedPath() {
-    if (!this.selectionState.selectedPathId) return undefined;
-    return findPathInTree(this.paths, this.selectionState.selectedPathId);
+    if (!this.selectedPathId) return undefined;
+    return findPathInTree(this.paths, this.selectedPathId);
   }
 
   get highlightedNodes() {
-    return this.selectionState.selectedPathId ? [this.selectionState.selectedPathId] : [];
+    return this.selectedPathId ? [this.selectedPathId] : [];
   }
 
   get modeOpen() {
@@ -70,7 +62,7 @@ export class BlueprintSchemaViewModel {
 
   async init(blueprintId: number) {
     this.blueprintId = blueprintId;
-    this.loading.init = true;
+    this.loading = true;
     try {
       await Promise.all([
         this.pathStore.loadPaths(blueprintId),
@@ -78,17 +70,21 @@ export class BlueprintSchemaViewModel {
         this.embedStore.loadEmbeds(blueprintId),
       ]);
     } finally {
-      this.loading.init = false;
+      this.loading = false;
     }
+  }
+
+  setSelectedPathId(pathId: number | null) {
+    this.selectedPathId = pathId;
   }
 
   closeNodeForm() {
     this.nodeFormState.close();
-    this.selectionState.clear();
+    this.setSelectedPathId(null);
   }
 
   handleNodeContextMenu(pathId: number, position: { x: number; y: number }) {
-    this.selectionState.select(pathId);
+    this.setSelectedPathId(pathId);
     this.contextMenuState.openForNode(pathId, position);
   }
 
@@ -101,11 +97,11 @@ export class BlueprintSchemaViewModel {
   }
 
   selectNode(pathId: number) {
-    this.selectionState.select(pathId);
+    this.setSelectedPathId(pathId);
   }
 
   openEditForm(pathId: number) {
-    this.selectionState.select(pathId);
+    this.setSelectedPathId(pathId);
     this.nodeFormState.openForm('edit', null);
   }
 
@@ -166,14 +162,13 @@ export class BlueprintSchemaViewModel {
   }
 
   getSuccessMessage(): string {
-    if (this.nodeFormState.mode === 'embed') return 'Blueprint встроен';
     if (this.nodeFormState.mode === 'edit') return 'Поле обновлено';
     return 'Поле создано';
   }
 
   async saveNode(values: ZCreatePathDto | ZUpdatePathDto) {
     if (!this.blueprintId) return;
-    this.loading.action = true;
+    this.loading = true;
     try {
       if (this.nodeFormState.mode === 'edit') {
         await this.saveEditNode(values as ZUpdatePathDto);
@@ -185,13 +180,13 @@ export class BlueprintSchemaViewModel {
       onError(error);
       throw error;
     } finally {
-      this.loading.action = false;
+      this.loading = false;
     }
   }
 
   async saveEmbed(values: { embedded_blueprint_id: number }) {
     if (!this.blueprintId) return;
-    this.loading.action = true;
+    this.loading = true;
     try {
       const embedDto = {
         embedded_blueprint_id: values.embedded_blueprint_id,
@@ -206,13 +201,13 @@ export class BlueprintSchemaViewModel {
     } catch (error) {
       onError(error);
     } finally {
-      this.loading.action = false;
+      this.loading = false;
     }
   }
 
   private async saveEditNode(values: ZUpdatePathDto) {
-    if (!this.selectionState.selectedPathId) return;
-    await this.pathStore.updatePath(this.selectionState.selectedPathId, values);
+    if (!this.selectedPathId) return;
+    await this.pathStore.updatePath(this.selectedPathId, values);
     await this.pathStore.loadPaths(this.blueprintId!);
   }
 
