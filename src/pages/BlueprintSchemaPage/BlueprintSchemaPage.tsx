@@ -48,11 +48,6 @@ export const BlueprintSchemaPage = observer(() => {
     pageStore.setModalMode('ctx');
   };
 
-  const handleNodeDoubleClick = (pathId: number) => {
-    pageStore.setCtx({ nodeId: pathId, position: null });
-    pageStore.setModalMode('node');
-  };
-
   const handleDeleteEmbed = async (embedId: number) => {
     if (!blueprintId) return;
 
@@ -172,7 +167,6 @@ export const BlueprintSchemaPage = observer(() => {
               <div className="h-[600px]">
                 <PathGraphEditor
                   store={pathStore}
-                  onNodeDoubleClick={handleNodeDoubleClick}
                   onNodeContextMenu={handleNodeContextMenu}
                   onPaneContextMenu={handlePaneContextMenu}
                   highlightedNodes={pageStore.highlightedNodes}
@@ -197,9 +191,9 @@ export const BlueprintSchemaPage = observer(() => {
             title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
           >
             <NodeFormTabs
+              disabled={isReadonly}
               mode={mode}
               wayToRoot={wayToRoot}
-              isReadonly={isReadonly}
               sourceBlueprint={sourceBlueprint}
               initialValues={initialValues}
               onOk={handleNodeOk}

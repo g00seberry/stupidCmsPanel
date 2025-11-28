@@ -1,9 +1,7 @@
 import { NodeForm } from '@/components/paths/NodeForm';
 import { ValidationRulesForm } from '@/components/paths/ValidationRulesForm';
-import type { ZCreatePathDto, ZDataType, ZPath, ZUpdatePathDto } from '@/types/path';
-import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
+import type { ZCardinality, ZCreatePathDto, ZDataType, ZPath, ZUpdatePathDto } from '@/types/path';
 import { Button, Form, Space, Tabs } from 'antd';
-import type { AxiosError } from 'axios';
 import { useMemo } from 'react';
 
 export type PropsNodeFormTabs = {
@@ -11,8 +9,8 @@ export type PropsNodeFormTabs = {
   mode: 'create' | 'edit';
   /** Родительский путь (для создания дочернего элемента). */
   wayToRoot?: ZPath[];
-  /** Флаг только для чтения (для встроенных полей). */
-  isReadonly?: boolean;
+
+  disabled?: boolean;
   /** Исходный Blueprint (для встроенных полей). */
   sourceBlueprint?: { id: number; name: string; code: string };
   /** Начальные значения формы. */
@@ -32,16 +30,16 @@ export type PropsNodeFormTabs = {
 export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
   mode,
   wayToRoot,
-  isReadonly = false,
   sourceBlueprint,
   initialValues,
   onOk,
   onCancel,
   loading = false,
+  disabled = false,
 }) => {
   const [form] = Form.useForm<ZCreatePathDto | ZUpdatePathDto>();
   const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
-  const cardinality = Form.useWatch<'one' | 'many' | undefined>('cardinality', form);
+  const cardinality = Form.useWatch<ZCardinality | undefined>('cardinality', form);
   const name = Form.useWatch<string | undefined>('name', form);
 
   const fullPath = useMemo(() => {
@@ -54,17 +52,6 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
   }, [wayToRoot, mode, name]);
 
   const showValidationTab = dataType !== 'json';
-  console.log(wayToRoot);
-  const handleFinish = async (values: ZCreatePathDto | ZUpdatePathDto) => {
-    try {
-      await onOk(values);
-    } catch (error: any) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        setFormValidationErrors(error as AxiosError, form);
-      }
-      throw error;
-    }
-  };
 
   const handleCancel = () => {
     form.resetFields();
@@ -81,7 +68,6 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
             dataType={dataType}
             mode={mode}
             fullPath={fullPath}
-            isReadonly={isReadonly}
             sourceBlueprint={sourceBlueprint}
           />
         ),
@@ -92,32 +78,28 @@ export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
               key: 'validation',
               label: 'Валидация',
               children: (
-                <ValidationRulesForm
-                  form={form}
-                  dataType={dataType}
-                  cardinality={cardinality}
-                  isReadonly={isReadonly}
-                />
+                <ValidationRulesForm form={form} dataType={dataType} cardinality={cardinality} />
               ),
             },
           ]
         : []),
     ],
-    [form, mode, fullPath, isReadonly, sourceBlueprint, showValidationTab, dataType, cardinality]
+    [form, mode, fullPath, sourceBlueprint, showValidationTab, dataType, cardinality]
   );
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={initialValues}>
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onOk}
+      initialValues={initialValues}
+      disabled={disabled}
+    >
       <Tabs items={tabItems} />
       <div className="mt-6 flex justify-end">
         <Space>
           <Button onClick={handleCancel}>Отмена</Button>
-          <Button
-            type="primary"
-            loading={loading}
-            htmlType="submit"
-            disabled={isReadonly && mode === 'edit'}
-          >
+          <Button type="primary" loading={loading} htmlType="submit">
             {mode === 'edit' ? 'Сохранить' : 'Создать'}
           </Button>
         </Space>

@@ -1,15 +1,12 @@
 import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
   type Node,
   type Edge,
-  type OnNodesChange,
-  type OnEdgesChange,
   type ReactFlowInstance,
-  type NodeMouseHandler,
   applyNodeChanges,
   applyEdgeChanges,
 } from 'reactflow';
@@ -26,10 +23,6 @@ import { EmbeddedBlueprintNode } from './nodes/EmbeddedBlueprintNode';
 export type PropsPathGraphEditor = {
   /** Store для управления полями Blueprint. */
   store: PathStore;
-  /** Обработчик выбора узла. */
-  onNodeSelect?: (pathId: number) => void;
-  /** Обработчик двойного клика на узел (для редактирования). */
-  onNodeDoubleClick?: (pathId: number) => void;
   /** Обработчик контекстного меню на узле. */
   onNodeContextMenu?: (pathId: number, event: React.MouseEvent) => void;
   /** Обработчик контекстного меню на пустой области графа. */
@@ -56,104 +49,46 @@ const nodeTypes = {
 export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
   ({
     store,
-    onNodeSelect,
-    onNodeDoubleClick,
     onNodeContextMenu,
     onPaneContextMenu,
     highlightedNodes = [],
     reactFlowInstanceRef,
   }) => {
+    const instanceRef = useRef<ReactFlowInstance | null>(null);
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
-    const [, setAutoLayoutApplied] = useState(false);
-    const internalInstanceRef = useRef<ReactFlowInstance | null>(null);
 
-    // Преобразование Path дерева в граф React Flow
+    // Вычисление графа с выделением узлов
     const graphData = useMemo(() => {
       if (store.paths.length === 0) {
         return { nodes: [], edges: [] };
       }
-      return pathTreeToGraph(store.paths);
-    }, [store.paths]);
+      const rawGraph = pathTreeToGraph(store.paths);
+      const highlightedSet = new Set(highlightedNodes);
+      const layoutedNodes = applyDagreLayout(rawGraph.nodes, rawGraph.edges);
+      const nodesWithSelection = layoutedNodes.map(node => ({
+        ...node,
+        selected: highlightedSet.has(Number(node.id)),
+      }));
+      return { nodes: nodesWithSelection, edges: rawGraph.edges };
+    }, [store.paths, highlightedNodes]);
 
-    // Применение автоматической компоновки при изменении данных графа
+    // Применение компоновки и центрирование
     useEffect(() => {
       if (graphData.nodes.length > 0) {
-        const layoutedNodes = applyDagreLayout(graphData.nodes, graphData.edges);
-        setNodes(layoutedNodes as Node[]);
+        setNodes(graphData.nodes as Node[]);
         setEdges(graphData.edges as Edge[]);
-        setAutoLayoutApplied(true);
-        // Центрирование после применения компоновки
-        setTimeout(() => {
-          internalInstanceRef.current?.fitView();
-        }, 100);
+        setTimeout(() => instanceRef.current?.fitView(), 100);
       } else {
         setNodes([]);
         setEdges([]);
-        setAutoLayoutApplied(false);
       }
     }, [graphData]);
 
-    // Обновление выделенных узлов
-    useEffect(() => {
-      const highlightedSet = new Set(highlightedNodes);
-      setNodes(prevNodes => {
-        if (prevNodes.length === 0) return prevNodes;
-        return prevNodes.map(node => {
-          const isSelected = highlightedSet.has(Number(node.id));
-          if (node.selected === isSelected) return node;
-          return { ...node, selected: isSelected };
-        });
-      });
-    }, [highlightedNodes]);
-
-    const onNodesChange: OnNodesChange = useCallback(changes => {
-      setNodes(prevNodes => applyNodeChanges(changes, prevNodes));
-    }, []);
-
-    const onEdgesChange: OnEdgesChange = useCallback(changes => {
-      setEdges(prevEdges => applyEdgeChanges(changes, prevEdges));
-    }, []);
-
-    const handleNodeClick: NodeMouseHandler = useCallback(
-      (_event: React.MouseEvent, node: Node) => {
-        onNodeSelect?.(Number(node.id));
-      },
-      [onNodeSelect]
-    );
-
-    const handleNodeDoubleClick: NodeMouseHandler = useCallback(
-      (_event: React.MouseEvent, node: Node) => {
-        onNodeDoubleClick?.(Number(node.id));
-      },
-      [onNodeDoubleClick]
-    );
-
-    const handleNodeContextMenu: NodeMouseHandler = useCallback(
-      (event: React.MouseEvent, node: Node) => {
-        event.preventDefault();
-        onNodeContextMenu?.(Number(node.id), event);
-      },
-      [onNodeContextMenu]
-    );
-
-    const handlePaneContextMenu = useCallback(
-      (event: React.MouseEvent) => {
-        event.preventDefault();
-        onPaneContextMenu?.(event);
-      },
-      [onPaneContextMenu]
-    );
-
-    const onInit = useCallback(
-      (instance: ReactFlowInstance) => {
-        internalInstanceRef.current = instance;
-        if (reactFlowInstanceRef) {
-          reactFlowInstanceRef.current = instance;
-        }
-      },
-      [reactFlowInstanceRef]
-    );
+    const handleInit = (instance: ReactFlowInstance) => {
+      instanceRef.current = instance;
+      reactFlowInstanceRef && (reactFlowInstanceRef.current = instance);
+    };
 
     if (store.pending) {
       return (
@@ -167,7 +102,10 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
       return (
         <div
           className="w-full h-full min-h-[400px] border rounded bg-background flex items-center justify-center"
-          onContextMenu={handlePaneContextMenu}
+          onContextMenu={e => {
+            e.preventDefault();
+            onPaneContextMenu?.(e);
+          }}
         >
           <div className="text-gray-500">
             Нет полей. Кликните правой кнопкой мыши на пустом месте для добавления первого поля.
@@ -181,17 +119,21 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={handleNodeClick}
-          onNodeDoubleClick={handleNodeDoubleClick}
-          onNodeContextMenu={handleNodeContextMenu}
-          onPaneContextMenu={handlePaneContextMenu}
-          onInit={onInit}
+          onNodesChange={changes => setNodes(prev => applyNodeChanges(changes, prev))}
+          onEdgesChange={changes => setEdges(prev => applyEdgeChanges(changes, prev))}
+          onNodeContextMenu={(e, node) => {
+            e.preventDefault();
+            onNodeContextMenu?.(Number(node.id), e);
+          }}
+          onPaneContextMenu={e => {
+            e.preventDefault();
+            onPaneContextMenu?.(e);
+          }}
+          onInit={handleInit}
           nodeTypes={nodeTypes}
-          nodesDraggable={true}
+          nodesDraggable
           nodesConnectable={false}
-          elementsSelectable={true}
+          elementsSelectable
           fitView
         >
           <Background />
