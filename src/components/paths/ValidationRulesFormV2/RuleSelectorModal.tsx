@@ -1,7 +1,7 @@
 import { Modal, Checkbox, Space, Divider } from 'antd';
 import { useState, useMemo } from 'react';
 import type { RuleKey, RuleCategory } from './types';
-import { getRulesByCategory, getRuleMeta, isRuleAvailable } from './registry';
+import { getRulesByCategory, getRuleMeta } from './registry';
 import type { ZDataType, ZCardinality } from '@/types/path';
 
 /**

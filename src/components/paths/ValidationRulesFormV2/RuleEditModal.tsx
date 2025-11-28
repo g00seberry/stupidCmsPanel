@@ -1,4 +1,4 @@
-import { Modal, Form, Button, Space } from 'antd';
+import { Modal, Button, Space } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { RuleKey } from './types';
 import { getRuleConfig } from './registry';
@@ -39,7 +39,7 @@ export const RuleEditModal: React.FC<PropsRuleEditModal> = ({
   const config = getRuleConfig(ruleKey);
   if (!config) return null;
 
-  const Renderer = config.renderer.component;
+  const Renderer = config.renderer;
   const meta = config.meta;
 
   const handleOk = async () => {

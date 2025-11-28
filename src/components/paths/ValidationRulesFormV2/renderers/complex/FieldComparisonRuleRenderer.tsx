@@ -1,5 +1,5 @@
 import { Form, Input, Select, Space } from 'antd';
-import type { RuleRendererProps } from '../types';
+import type { RuleRendererProps } from '../../types';
 
 /**
  * Компонент рендеринга правила field_comparison.
@@ -74,3 +74,4 @@ export const FieldComparisonRuleRenderer: React.FC<RuleRendererProps> = ({
     </Space>
   );
 };
+

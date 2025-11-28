@@ -1,49 +1,21 @@
 import { Form, Input, Space, Radio } from 'antd';
-import { useEffect, useState, useCallback } from 'react';
-import type { RuleRendererProps } from '../types';
+import type { RuleRendererProps } from '../../types';
+import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
 /**
  * Компонент рендеринга правила unique.
  * Поддерживает простой (строка) и расширенный (объект) форматы.
  */
 export const UniqueRuleRenderer: React.FC<RuleRendererProps> = ({ form, ruleKey, isReadonly }) => {
-  const uniqueValue = Form.useWatch(['validation_rules', ruleKey], form);
-  const isSimple =
-    typeof uniqueValue === 'string' || uniqueValue === undefined || uniqueValue === null;
-  const [mode, setMode] = useState<'simple' | 'extended'>(isSimple ? 'simple' : 'extended');
-
-  useEffect(() => {
-    const currentIsSimple =
-      typeof uniqueValue === 'string' || uniqueValue === undefined || uniqueValue === null;
-    const newMode = currentIsSimple ? 'simple' : 'extended';
-    if (mode !== newMode) {
-      setMode(newMode);
-    }
-  }, [uniqueValue, mode]);
-
-  const handleModeChange = useCallback(
-    (newMode: 'simple' | 'extended') => {
-      setMode(newMode);
-      if (newMode === 'simple') {
-        if (uniqueValue && typeof uniqueValue === 'object' && uniqueValue.table) {
-          form.setFieldValue(['validation_rules', ruleKey], uniqueValue.table);
-        } else {
-          form.setFieldValue(['validation_rules', ruleKey], '');
-        }
-      } else {
-        if (typeof uniqueValue === 'string' && uniqueValue.trim()) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            table: uniqueValue.trim(),
-          });
-        } else if (!uniqueValue || (typeof uniqueValue === 'object' && !uniqueValue.table)) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            table: '',
-          });
-        }
-      }
-    },
-    [form, ruleKey, uniqueValue]
-  );
+  const { mode, handleModeChange } = useSimpleExtendedMode({
+    form,
+    ruleKey,
+    extractSimpleValue: (value: any) => value?.table || '',
+    createExtendedValue: (simpleValue: string) => ({
+      table: simpleValue.trim(),
+    }),
+    getObjectKey: () => 'table',
+  });
 
   return (
     <>
@@ -142,3 +114,4 @@ export const UniqueRuleRenderer: React.FC<RuleRendererProps> = ({ form, ruleKey,
     </>
   );
 };
+

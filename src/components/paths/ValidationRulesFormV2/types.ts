@@ -24,26 +24,10 @@ export type RuleMeta = {
   category: RuleCategory;
   /** Иконка правила (опционально). */
   icon?: ReactNode;
-};
-
-/**
- * Зависимости правила от типа данных и кардинальности.
- */
-export type RuleDependencies = {
   /** Типы данных, для которых правило доступно. Если не указано, доступно для всех. */
   dataTypes?: ZDataType[];
   /** Кардинальность, для которой правило доступно. Если не указано, доступно для всех. */
   cardinality?: ZCardinality[];
-};
-
-/**
- * Конфигурация компонента рендеринга правила.
- */
-export type RuleRendererConfig = {
-  /** Компонент для рендеринга формы правила. */
-  component: React.FC<RuleRendererProps>;
-  /** Зависимости правила. */
-  dependencies?: RuleDependencies;
 };
 
 /**
@@ -56,10 +40,6 @@ export type RuleRendererProps = {
   ruleKey: RuleKey;
   /** Флаг только для чтения. */
   isReadonly?: boolean;
-  /** Значение правила из формы. */
-  value?: any;
-  /** Обработчик изменения значения. */
-  onChange?: (value: any) => void;
 };
 
 /**
@@ -70,6 +50,6 @@ export type RuleConfig = {
   key: RuleKey;
   /** Метаданные правила. */
   meta: RuleMeta;
-  /** Конфигурация рендеринга. */
-  renderer: RuleRendererConfig;
+  /** Компонент для рендеринга формы правила. */
+  renderer: React.FC<RuleRendererProps>;
 };

@@ -7,6 +7,7 @@ import { RuleTagsList } from './RuleTagsList';
 import { RuleSelectorModal } from './RuleSelectorModal';
 import { RuleEditModal } from './RuleEditModal';
 import { getActiveRules } from './utils';
+import { defaultRuleValues } from './constants/defaultRuleValues';
 import type { RuleKey } from './types';
 
 /**
@@ -45,25 +46,7 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
     const newRules = { ...currentRules };
 
     ruleKeys.forEach(ruleKey => {
-      // Устанавливаем значение по умолчанию в зависимости от типа правила
-      if (ruleKey === 'required' || ruleKey === 'array_unique') {
-        newRules[ruleKey] = false;
-      } else if (
-        ruleKey === 'min' ||
-        ruleKey === 'max' ||
-        ruleKey === 'array_min_items' ||
-        ruleKey === 'array_max_items'
-      ) {
-        newRules[ruleKey] = undefined;
-      } else if (ruleKey.startsWith('required_') || ruleKey.startsWith('prohibited_')) {
-        newRules[ruleKey] = '';
-      } else if (ruleKey === 'unique' || ruleKey === 'exists') {
-        newRules[ruleKey] = '';
-      } else if (ruleKey === 'field_comparison') {
-        newRules[ruleKey] = { operator: '==' };
-      } else {
-        newRules[ruleKey] = undefined;
-      }
+      newRules[ruleKey] = defaultRuleValues[ruleKey];
     });
 
     form.setFieldValue('validation_rules', newRules);

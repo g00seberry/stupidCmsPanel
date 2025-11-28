@@ -1,49 +1,21 @@
 import { Form, Input, Space, Radio } from 'antd';
-import { useEffect, useState, useCallback } from 'react';
-import type { RuleRendererProps } from '../types';
+import type { RuleRendererProps } from '../../types';
+import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
 /**
  * Компонент рендеринга правила exists.
  * Поддерживает простой (строка) и расширенный (объект) форматы.
  */
 export const ExistsRuleRenderer: React.FC<RuleRendererProps> = ({ form, ruleKey, isReadonly }) => {
-  const existsValue = Form.useWatch(['validation_rules', ruleKey], form);
-  const isSimple =
-    typeof existsValue === 'string' || existsValue === undefined || existsValue === null;
-  const [mode, setMode] = useState<'simple' | 'extended'>(isSimple ? 'simple' : 'extended');
-
-  useEffect(() => {
-    const currentIsSimple =
-      typeof existsValue === 'string' || existsValue === undefined || existsValue === null;
-    const newMode = currentIsSimple ? 'simple' : 'extended';
-    if (mode !== newMode) {
-      setMode(newMode);
-    }
-  }, [existsValue, mode]);
-
-  const handleModeChange = useCallback(
-    (newMode: 'simple' | 'extended') => {
-      setMode(newMode);
-      if (newMode === 'simple') {
-        if (existsValue && typeof existsValue === 'object' && existsValue.table) {
-          form.setFieldValue(['validation_rules', ruleKey], existsValue.table);
-        } else {
-          form.setFieldValue(['validation_rules', ruleKey], '');
-        }
-      } else {
-        if (typeof existsValue === 'string' && existsValue.trim()) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            table: existsValue.trim(),
-          });
-        } else if (!existsValue || (typeof existsValue === 'object' && !existsValue.table)) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            table: '',
-          });
-        }
-      }
-    },
-    [form, ruleKey, existsValue]
-  );
+  const { mode, handleModeChange } = useSimpleExtendedMode({
+    form,
+    ruleKey,
+    extractSimpleValue: (value: any) => value?.table || '',
+    createExtendedValue: (simpleValue: string) => ({
+      table: simpleValue.trim(),
+    }),
+    getObjectKey: () => 'table',
+  });
 
   return (
     <>

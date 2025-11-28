@@ -1,12 +1,11 @@
 import { Form, InputNumber } from 'antd';
-import type { RuleRendererProps } from '../types';
+import type { RuleRendererProps } from '../../types';
 
 /**
  * Компонент рендеринга правил array_min_items и array_max_items.
  * Отображает поле ввода числа для минимального/максимального количества элементов массива.
  */
 export const ArrayItemsRuleRenderer: React.FC<RuleRendererProps> = ({
-  form,
   ruleKey,
   isReadonly,
 }) => {
@@ -25,3 +24,4 @@ export const ArrayItemsRuleRenderer: React.FC<RuleRendererProps> = ({
     </Form.Item>
   );
 };
+

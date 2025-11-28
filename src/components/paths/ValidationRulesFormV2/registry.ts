@@ -1,14 +1,14 @@
 import type { ZDataType, ZCardinality } from '@/types/path';
 import type { RuleKey, RuleConfig, RuleCategory } from './types';
-import { RequiredRuleRenderer } from './renderers/RequiredRuleRenderer';
-import { MinMaxRuleRenderer } from './renderers/MinMaxRuleRenderer';
-import { PatternRuleRenderer } from './renderers/PatternRuleRenderer';
-import { ArrayItemsRuleRenderer } from './renderers/ArrayItemsRuleRenderer';
-import { ArrayUniqueRuleRenderer } from './renderers/ArrayUniqueRuleRenderer';
-import { ConditionalRuleRenderer } from './renderers/ConditionalRuleRenderer';
-import { UniqueRuleRenderer } from './renderers/UniqueRuleRenderer';
-import { ExistsRuleRenderer } from './renderers/ExistsRuleRenderer';
-import { FieldComparisonRuleRenderer } from './renderers/FieldComparisonRuleRenderer';
+import { RequiredRuleRenderer } from './renderers/basic/RequiredRuleRenderer';
+import { MinMaxRuleRenderer } from './renderers/basic/MinMaxRuleRenderer';
+import { PatternRuleRenderer } from './renderers/basic/PatternRuleRenderer';
+import { ArrayItemsRuleRenderer } from './renderers/array/ArrayItemsRuleRenderer';
+import { ArrayUniqueRuleRenderer } from './renderers/array/ArrayUniqueRuleRenderer';
+import { ConditionalRuleRenderer } from './renderers/conditional/ConditionalRuleRenderer';
+import { UniqueRuleRenderer } from './renderers/complex/UniqueRuleRenderer';
+import { ExistsRuleRenderer } from './renderers/complex/ExistsRuleRenderer';
+import { FieldComparisonRuleRenderer } from './renderers/complex/FieldComparisonRuleRenderer';
 
 /**
  * Регистр всех правил валидации.
@@ -22,9 +22,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Поле обязательно к заполнению',
       category: 'basic',
     },
-    renderer: {
-      component: RequiredRuleRenderer,
-    },
+    renderer: RequiredRuleRenderer,
   },
   min: {
     key: 'min',
@@ -32,13 +30,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Минимальное значение/длина',
       description: 'Минимальное значение для чисел или минимальная длина для строк',
       category: 'basic',
+      dataTypes: ['string', 'text', 'int', 'float'],
     },
-    renderer: {
-      component: MinMaxRuleRenderer,
-      dependencies: {
-        dataTypes: ['string', 'text', 'int', 'float'],
-      },
-    },
+    renderer: MinMaxRuleRenderer,
   },
   max: {
     key: 'max',
@@ -46,13 +40,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Максимальное значение/длина',
       description: 'Максимальное значение для чисел или максимальная длина для строк',
       category: 'basic',
+      dataTypes: ['string', 'text', 'int', 'float'],
     },
-    renderer: {
-      component: MinMaxRuleRenderer,
-      dependencies: {
-        dataTypes: ['string', 'text', 'int', 'float'],
-      },
-    },
+    renderer: MinMaxRuleRenderer,
   },
   pattern: {
     key: 'pattern',
@@ -60,13 +50,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Регулярное выражение',
       description: 'Регулярное выражение для валидации строки',
       category: 'basic',
+      dataTypes: ['string', 'text'],
     },
-    renderer: {
-      component: PatternRuleRenderer,
-      dependencies: {
-        dataTypes: ['string', 'text'],
-      },
-    },
+    renderer: PatternRuleRenderer,
   },
   array_min_items: {
     key: 'array_min_items',
@@ -74,13 +60,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Минимальное количество элементов',
       description: 'Минимальное количество элементов в массиве',
       category: 'array',
+      cardinality: ['many'],
     },
-    renderer: {
-      component: ArrayItemsRuleRenderer,
-      dependencies: {
-        cardinality: ['many'],
-      },
-    },
+    renderer: ArrayItemsRuleRenderer,
   },
   array_max_items: {
     key: 'array_max_items',
@@ -88,13 +70,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Максимальное количество элементов',
       description: 'Максимальное количество элементов в массиве',
       category: 'array',
+      cardinality: ['many'],
     },
-    renderer: {
-      component: ArrayItemsRuleRenderer,
-      dependencies: {
-        cardinality: ['many'],
-      },
-    },
+    renderer: ArrayItemsRuleRenderer,
   },
   array_unique: {
     key: 'array_unique',
@@ -102,13 +80,9 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Уникальность элементов',
       description: 'Требовать уникальность всех элементов в массиве',
       category: 'array',
+      cardinality: ['many'],
     },
-    renderer: {
-      component: ArrayUniqueRuleRenderer,
-      dependencies: {
-        cardinality: ['many'],
-      },
-    },
+    renderer: ArrayUniqueRuleRenderer,
   },
   required_if: {
     key: 'required_if',
@@ -117,9 +91,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Поле становится обязательным, если указанное условие выполнено',
       category: 'conditional',
     },
-    renderer: {
-      component: ConditionalRuleRenderer,
-    },
+    renderer: ConditionalRuleRenderer,
   },
   prohibited_unless: {
     key: 'prohibited_unless',
@@ -128,9 +100,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Поле запрещено, если указанное условие не выполнено',
       category: 'conditional',
     },
-    renderer: {
-      component: ConditionalRuleRenderer,
-    },
+    renderer: ConditionalRuleRenderer,
   },
   required_unless: {
     key: 'required_unless',
@@ -139,9 +109,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Поле становится обязательным, если указанное условие не выполнено',
       category: 'conditional',
     },
-    renderer: {
-      component: ConditionalRuleRenderer,
-    },
+    renderer: ConditionalRuleRenderer,
   },
   prohibited_if: {
     key: 'prohibited_if',
@@ -150,9 +118,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Поле запрещено, если указанное условие выполнено',
       category: 'conditional',
     },
-    renderer: {
-      component: ConditionalRuleRenderer,
-    },
+    renderer: ConditionalRuleRenderer,
   },
   unique: {
     key: 'unique',
@@ -161,9 +127,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Проверка уникальности значения в таблице',
       category: 'unique',
     },
-    renderer: {
-      component: UniqueRuleRenderer,
-    },
+    renderer: UniqueRuleRenderer,
   },
   exists: {
     key: 'exists',
@@ -172,9 +136,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Проверка существования значения в таблице',
       category: 'exists',
     },
-    renderer: {
-      component: ExistsRuleRenderer,
-    },
+    renderer: ExistsRuleRenderer,
   },
   field_comparison: {
     key: 'field_comparison',
@@ -183,9 +145,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       description: 'Сравнение значения поля с другим полем или константой',
       category: 'comparison',
     },
-    renderer: {
-      component: FieldComparisonRuleRenderer,
-    },
+    renderer: FieldComparisonRuleRenderer,
   },
 };
 
@@ -222,14 +182,13 @@ export const isRuleAvailable = (
   const config = validationRuleRegistry[ruleKey];
   if (!config) return false;
 
-  const deps = config.renderer.dependencies;
-  if (!deps) return true;
+  const meta = config.meta;
 
-  if (deps.dataTypes && dataType && !deps.dataTypes.includes(dataType)) {
+  if (meta.dataTypes && dataType && !meta.dataTypes.includes(dataType)) {
     return false;
   }
 
-  if (deps.cardinality && cardinality && !deps.cardinality.includes(cardinality)) {
+  if (meta.cardinality && cardinality && !meta.cardinality.includes(cardinality)) {
     return false;
   }
 

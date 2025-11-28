@@ -1,7 +1,6 @@
 import { Form, Input, Select, Space, Radio } from 'antd';
-import { useEffect, useState, useCallback } from 'react';
-import type { RuleRendererProps } from '../types';
-import type { ZConditionalRule } from '@/types/path';
+import type { RuleRendererProps } from '../../types';
+import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
 /**
  * Компонент рендеринга условных правил (required_if, prohibited_unless, required_unless, prohibited_if).
@@ -12,44 +11,16 @@ export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
   ruleKey,
   isReadonly,
 }) => {
-  const ruleValue = Form.useWatch(['validation_rules', ruleKey], form);
-  const isSimple = typeof ruleValue === 'string' || ruleValue === undefined || ruleValue === null;
-  const [mode, setMode] = useState<'simple' | 'extended'>(isSimple ? 'simple' : 'extended');
-
-  useEffect(() => {
-    const currentIsSimple =
-      typeof ruleValue === 'string' || ruleValue === undefined || ruleValue === null;
-    const newMode = currentIsSimple ? 'simple' : 'extended';
-    if (mode !== newMode) {
-      setMode(newMode);
-    }
-  }, [ruleValue, mode]);
-
-  const handleModeChange = useCallback(
-    (newMode: 'simple' | 'extended') => {
-      setMode(newMode);
-      if (newMode === 'simple') {
-        if (ruleValue && typeof ruleValue === 'object' && ruleValue.field) {
-          form.setFieldValue(['validation_rules', ruleKey], ruleValue.field);
-        } else {
-          form.setFieldValue(['validation_rules', ruleKey], '');
-        }
-      } else {
-        if (typeof ruleValue === 'string' && ruleValue.trim()) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            field: ruleValue.trim(),
-            operator: '==',
-          });
-        } else if (!ruleValue || (typeof ruleValue === 'object' && !ruleValue.field)) {
-          form.setFieldValue(['validation_rules', ruleKey], {
-            field: '',
-            operator: '==',
-          });
-        }
-      }
-    },
-    [form, ruleKey, ruleValue]
-  );
+  const { mode, handleModeChange } = useSimpleExtendedMode({
+    form,
+    ruleKey,
+    extractSimpleValue: (value: any) => value?.field || '',
+    createExtendedValue: (simpleValue: string) => ({
+      field: simpleValue.trim(),
+      operator: '==',
+    }),
+    getObjectKey: () => 'field',
+  });
 
   const operatorOptions = [
     { label: 'Равно (==)', value: '==' },
@@ -126,3 +97,4 @@ export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
     </div>
   );
 };
+

@@ -1,12 +1,11 @@
 import { Form, InputNumber } from 'antd';
-import type { RuleRendererProps } from '../types';
+import type { RuleRendererProps } from '../../types';
 
 /**
  * Компонент рендеринга правил min и max.
  * Отображает поле ввода числа для минимального/максимального значения.
  */
-export const MinMaxRuleRenderer: React.FC<RuleRendererProps> = ({ form, ruleKey, isReadonly }) => {
-  const label = ruleKey === 'min' ? 'Минимальное значение/длина' : 'Максимальное значение/длина';
+export const MinMaxRuleRenderer: React.FC<RuleRendererProps> = ({ ruleKey, isReadonly }) => {
   const tooltip =
     ruleKey === 'min'
       ? 'Минимальное значение для чисел или минимальная длина для строк'
