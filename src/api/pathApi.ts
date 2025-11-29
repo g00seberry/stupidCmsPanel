@@ -1,6 +1,6 @@
 import { rest } from '@/api/rest';
-import { zCreatePathDto, zUpdatePathDto, zPathsResponse, zPathResponse } from '@/types/path';
-import type { ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path';
+import { zPathResponse, zPathsResponse } from '@/types/path';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;
 const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =>
@@ -59,8 +59,7 @@ export const getPath = async (id: number): Promise<ZPath> => {
  * });
  */
 export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Promise<ZPath> => {
-  const parsedDto = zCreatePathDto.parse(dto);
-  const response = await rest.post(getAdminBlueprintsPathsUrl(blueprintId, ''), parsedDto);
+  const response = await rest.post(getAdminBlueprintsPathsUrl(blueprintId, ''), dto);
   return zPathResponse.parse(response.data).data;
 };
 
@@ -79,8 +78,8 @@ export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Prom
  * // При изменении name или parent_id автоматически пересчитывается full_path для всех дочерних полей
  */
 export const updatePath = async (id: number, dto: ZUpdatePathDto): Promise<ZPath> => {
-  const parsedDto = zUpdatePathDto.parse(dto);
-  const response = await rest.put(getAdminPathsUrl(`/${id}`), parsedDto);
+  console.log('dto', dto);
+  const response = await rest.put(getAdminPathsUrl(`/${id}`), dto);
   return zPathResponse.parse(response.data).data;
 };
 

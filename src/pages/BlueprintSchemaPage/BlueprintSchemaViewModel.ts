@@ -224,6 +224,7 @@ export class BlueprintSchemaViewModel {
   async saveNode(values: ZCreatePathDto | ZUpdatePathDto) {
     if (!this.blueprintId) return;
     this.loading = true;
+
     try {
       if (this.ctx.nodeId) {
         await this.saveEditNode(values as ZUpdatePathDto);

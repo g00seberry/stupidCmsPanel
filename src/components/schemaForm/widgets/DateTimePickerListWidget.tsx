@@ -2,6 +2,7 @@ import { viewDate } from '@/utils/dateUtils';
 import { getValueByPath, pathToString } from '@/utils/pathUtils';
 import { Button, DatePicker, Space } from 'antd';
 import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import type { ZEditDateTimePickerList } from '../ZComponent';
@@ -49,9 +50,21 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     return (
       <FormField label={labelText} error={error}>
         {arrayValue.map((item, index) => {
-          // Преобразуем строку в dayjs объект, если значение - строка
-          const dayjsValue: Dayjs | null =
-            typeof item === 'string' ? viewDate(item) : (item ?? null);
+          // Преобразуем значение в dayjs объект
+          let dayjsValue: Dayjs | null = null;
+          if (item === null || item === undefined) {
+            dayjsValue = null;
+          } else if (typeof item === 'string') {
+            dayjsValue = viewDate(item);
+          } else if (dayjs.isDayjs(item)) {
+            dayjsValue = item;
+          } else if (item instanceof Date) {
+            dayjsValue = dayjs(item);
+          } else {
+            // Пытаемся преобразовать в dayjs, если это не dayjs объект
+            const parsed = dayjs(item);
+            dayjsValue = parsed.isValid() ? parsed : null;
+          }
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);
           const itemError = model?.errorFor(itemPathStr);

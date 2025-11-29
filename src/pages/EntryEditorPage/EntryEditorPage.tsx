@@ -8,6 +8,7 @@ import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { viewDate } from '@/utils/dateUtils';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore } from './EntryEditorStore';
 import type { EntryEditorFormValues } from './transforms';
@@ -41,8 +42,13 @@ const Inner = observer(({ store }: PropsInner) => {
   const { postTypeSlug } = store;
 
   useEffect(() => {
-    form.setFieldsValue(store.initialFormValues);
-  }, [store.initialFormValues]);
+    const formValues = { ...store.initialFormValues };
+    // Конвертируем published_at в dayjs объект, если это строка
+    if (formValues.published_at && typeof formValues.published_at === 'string') {
+      formValues.published_at = viewDate(formValues.published_at);
+    }
+    form.setFieldsValue(formValues);
+  }, [store.initialFormValues, form]);
 
   const handleSubmit = useCallback(
     async (values: EntryEditorFormValues) => {

@@ -1,4 +1,6 @@
 import { Form, Input, Select, Space, Radio } from 'antd';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import type { RuleRendererProps } from '../../types';
 import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
@@ -6,13 +8,14 @@ import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
  * Компонент рендеринга условных правил (required_if, prohibited_unless, required_unless, prohibited_if).
  * Поддерживает простой (строка) и расширенный (объект) форматы.
  */
-export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
-  form,
+export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = observer(({
+  store,
   ruleKey,
   isReadonly,
 }) => {
+  const [form] = Form.useForm();
   const { mode, handleModeChange } = useSimpleExtendedMode({
-    form,
+    store,
     ruleKey,
     extractSimpleValue: (value: any) => value?.field || '',
     createExtendedValue: (simpleValue: string) => ({
@@ -22,6 +25,20 @@ export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
     getObjectKey: () => 'field',
   });
 
+  const ruleValue = store.getRule(ruleKey);
+
+  useEffect(() => {
+    if (mode === 'simple') {
+      form.setFieldsValue({ value: typeof ruleValue === 'string' ? ruleValue : '' });
+    } else {
+      form.setFieldsValue({
+        field: (ruleValue as any)?.field || '',
+        operator: (ruleValue as any)?.operator || '==',
+        value: (ruleValue as any)?.value || '',
+      });
+    }
+  }, [ruleValue, mode, form]);
+
   const operatorOptions = [
     { label: 'Равно (==)', value: '==' },
     { label: 'Не равно (!=)', value: '!=' },
@@ -30,6 +47,19 @@ export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
     { label: 'Больше или равно (>=)', value: '>=' },
     { label: 'Меньше или равно (<=)', value: '<=' },
   ];
+
+  const handleSimpleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    store.setRule(ruleKey, e.target.value || undefined);
+  };
+
+  const handleExtendedChange = () => {
+    const values = form.getFieldsValue();
+    store.setRule(ruleKey, {
+      field: values.field || '',
+      operator: values.operator || '==',
+      ...(values.value && { value: values.value }),
+    });
+  };
 
   return (
     <div>
@@ -46,55 +76,60 @@ export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = ({
         </Radio.Group>
       </div>
 
-      {mode === 'simple' ? (
-        <Form.Item
-          name={['validation_rules', ruleKey]}
-          tooltip="Путь к полю для проверки условия (например, 'is_published')"
-        >
-          <Input
-            disabled={isReadonly}
-            placeholder="is_published"
-            style={{ fontFamily: 'monospace' }}
-          />
-        </Form.Item>
-      ) : (
-        <Space direction="vertical" className="w-full" size="small">
+      <Form form={form}>
+        {mode === 'simple' ? (
           <Form.Item
-            label="Поле"
-            name={['validation_rules', ruleKey, 'field']}
-            rules={[{ required: true, message: 'Укажите поле' }]}
+            name="value"
             tooltip="Путь к полю для проверки условия (например, 'is_published')"
           >
             <Input
               disabled={isReadonly}
               placeholder="is_published"
               style={{ fontFamily: 'monospace' }}
+              onChange={handleSimpleChange}
             />
           </Form.Item>
+        ) : (
+          <Space direction="vertical" className="w-full" size="small">
+            <Form.Item
+              label="Поле"
+              name="field"
+              rules={[{ required: true, message: 'Укажите поле' }]}
+              tooltip="Путь к полю для проверки условия (например, 'is_published')"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="is_published"
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleExtendedChange}
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="Оператор"
-            name={['validation_rules', ruleKey, 'operator']}
-            tooltip="Оператор сравнения. По умолчанию '=='"
-            initialValue="=="
-          >
-            <Select disabled={isReadonly} options={operatorOptions} />
-          </Form.Item>
+            <Form.Item
+              label="Оператор"
+              name="operator"
+              tooltip="Оператор сравнения. По умолчанию '=='"
+              initialValue="=="
+            >
+              <Select disabled={isReadonly} options={operatorOptions} onChange={handleExtendedChange} />
+            </Form.Item>
 
-          <Form.Item
-            label="Значение (опционально)"
-            name={['validation_rules', ruleKey, 'value']}
-            tooltip="Значение для сравнения. Если не указано, проверяется наличие поля"
-          >
-            <Input
-              disabled={isReadonly}
-              placeholder="true, 'active', 100..."
-              style={{ fontFamily: 'monospace' }}
-            />
-          </Form.Item>
-        </Space>
-      )}
+            <Form.Item
+              label="Значение (опционально)"
+              name="value"
+              tooltip="Значение для сравнения. Если не указано, проверяется наличие поля"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="true, 'active', 100..."
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleExtendedChange}
+              />
+            </Form.Item>
+          </Space>
+        )}
+      </Form>
     </div>
   );
-};
+});
 

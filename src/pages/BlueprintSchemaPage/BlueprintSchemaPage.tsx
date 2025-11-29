@@ -8,13 +8,12 @@ import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintS
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
-import { App, Card, Drawer } from 'antd';
+import { App, Card, Drawer, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactFlowInstance } from 'reactflow';
 import { onError } from '@/utils/onError';
-import { normalizeValidationRulesForApi } from '@/utils/validationRules';
 
 /**
  * Страница редактирования схемы Blueprint.
@@ -76,14 +75,8 @@ export const BlueprintSchemaPage = observer(() => {
 
   const handleNodeOk = async (values: ZCreatePathDto | ZUpdatePathDto) => {
     try {
-      const normalizedValues = {
-        ...values,
-        validation_rules: normalizeValidationRulesForApi(values.validation_rules),
-      };
       const validatedValues =
-        mode === 'edit'
-          ? zUpdatePathDto.parse(normalizedValues)
-          : zCreatePathDto.parse(normalizedValues);
+        mode === 'edit' ? zUpdatePathDto.parse(values) : zCreatePathDto.parse(values);
       await pageStore.saveNode(validatedValues);
       message.success(pageStore.getSuccessMessage());
     } catch (error: any) {
@@ -185,7 +178,6 @@ export const BlueprintSchemaPage = observer(() => {
             onClose={handleNodeCancel}
             width="80%"
             title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
-            destroyOnClose
           >
             <NodeFormTabs
               disabled={isReadonly}

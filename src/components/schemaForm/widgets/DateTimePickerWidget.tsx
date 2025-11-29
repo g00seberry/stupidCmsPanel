@@ -2,6 +2,7 @@ import { DatePicker } from 'antd';
 import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import type { FieldRendererProps } from '../types';
 import type { ZEditDateTimePicker } from '../ZComponent';
 import { viewDate } from '@/utils/dateUtils';
@@ -28,8 +29,22 @@ export const DateTimePickerWidget: React.FC<PropsDateTimePickerWidget> = observe
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
     const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
-    // Преобразуем строку в dayjs объект, если значение - строка
-    const dayjsValue: Dayjs | null = typeof value === 'string' ? viewDate(value) : (value ?? null);
+
+    // Преобразуем значение в dayjs объект
+    let dayjsValue: Dayjs | null = null;
+    if (value === null || value === undefined) {
+      dayjsValue = null;
+    } else if (typeof value === 'string') {
+      dayjsValue = viewDate(value);
+    } else if (dayjs.isDayjs(value)) {
+      dayjsValue = value;
+    } else if (value instanceof Date) {
+      dayjsValue = dayjs(value);
+    } else {
+      // Пытаемся преобразовать в dayjs, если это не dayjs объект
+      const parsed = dayjs(value);
+      dayjsValue = parsed.isValid() ? parsed : null;
+    }
 
     return (
       <FormField label={labelText} error={error}>

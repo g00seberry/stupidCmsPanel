@@ -1,6 +1,7 @@
 import { NodeForm } from '@/components/paths/NodeForm';
 import { ReadonlyAlert } from '@/components/paths/ReadonlyAlert';
 import { ValidationRulesFormV2 } from '@/components/paths/ValidationRulesFormV2';
+import { ValidationRulesStore } from '@/components/paths/ValidationRulesFormV2/ValidationRulesStore';
 import type {
   ZCardinality,
   ZCreatePathDto,
@@ -10,7 +11,8 @@ import type {
   ZUpdatePathDto,
 } from '@/types/path';
 import { Button, Form, Space, Tabs } from 'antd';
-import { useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo, useState } from 'react';
 
 export type PropsNodeFormTabs = {
   /** Режим формы: создание или редактирование. */
@@ -35,81 +37,108 @@ export type PropsNodeFormTabs = {
  * Компонент формы редактирования/создания Path с вкладками.
  * Управляет формой внутри и предоставляет интерфейс с вкладками "Основное" и "Валидация".
  */
-export const NodeFormTabs: React.FC<PropsNodeFormTabs> = ({
-  mode,
-  wayToRoot,
-  sourceBlueprint,
-  initialValues,
-  onOk,
-  onCancel,
-  loading = false,
-  disabled = false,
-}) => {
-  const [form] = Form.useForm<ZCreatePathDto | ZUpdatePathDto>();
-  const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
-  const cardinality = Form.useWatch<ZCardinality | undefined>('cardinality', form);
-  const name = Form.useWatch<string | undefined>('name', form);
-  const isReadonly = mode === 'edit' && sourceBlueprint;
+export const NodeFormTabs: React.FC<PropsNodeFormTabs> = observer(
+  ({
+    mode,
+    wayToRoot,
+    sourceBlueprint,
+    initialValues,
+    onOk,
+    onCancel,
+    loading = false,
+    disabled = false,
+  }) => {
+    const [form] = Form.useForm<ZCreatePathDto | ZUpdatePathDto>();
+    const [validationRulesStore] = useState(() => new ValidationRulesStore());
+    const dataType = Form.useWatch<ZDataType | undefined>('data_type', form);
+    const cardinality = Form.useWatch<ZCardinality | undefined>('cardinality', form);
+    const name = Form.useWatch<string | undefined>('name', form);
+    const isReadonly = mode === 'edit' && sourceBlueprint;
 
-  const fullPath = useMemo(() => {
-    const fullWay = wayToRoot?.reverse().map(path => path.name) ?? [];
-    if (mode === 'edit') {
-      fullWay.pop();
-      fullWay.push(name ?? '');
-    }
-    return fullWay.join('.');
-  }, [wayToRoot, mode, name]);
+    // Инициализация стора из initialValues
+    useEffect(() => {
+      if (initialValues?.validation_rules) {
+        validationRulesStore.init(initialValues.validation_rules);
+      }
+    }, [initialValues?.validation_rules, validationRulesStore]);
 
-  const handleCancel = () => {
-    form.resetFields();
-    onCancel();
-  };
+    const fullPath = useMemo(() => {
+      const fullWay = wayToRoot?.reverse().map(path => path.name) ?? [];
+      if (mode === 'edit') {
+        fullWay.pop();
+        fullWay.push(name ?? '');
+      }
+      return fullWay.join('.');
+    }, [wayToRoot, mode, name]);
 
-  const tabItems = useMemo(
-    () => [
-      {
-        key: 'basic',
-        label: 'Основное',
-        children: (
-          <>
-            {isReadonly && <ReadonlyAlert sourceBlueprint={sourceBlueprint} />}
-            <NodeForm dataType={dataType} mode={mode} fullPath={fullPath} />
-          </>
-        ),
-      },
-      {
-        key: 'validation',
-        label: 'Валидация',
-        children: (
-          <ValidationRulesFormV2
-            form={form}
-            dataType={dataType}
-            cardinality={cardinality}
-            isReadonly={!!isReadonly}
-          />
-        ),
-      },
-    ],
-    [form, mode, fullPath, sourceBlueprint, dataType, cardinality, isReadonly]
-  );
+    const handleCancel = () => {
+      form.resetFields();
+      onCancel();
+    };
 
-  return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onOk}
-      initialValues={initialValues}
-      disabled={disabled}
-    >
-      <Tabs items={tabItems} />
-      <div className="mt-6 flex justify-end">
-        <Space>
-          <Button onClick={handleCancel}>Отмена</Button>
-          <Button type="primary" loading={loading} htmlType="submit">
-            {mode === 'edit' ? 'Сохранить' : 'Создать'}
-          </Button>
-        </Space>
-      </div>
-    </Form>
-  );
-};
+    /**
+     * Подготавливает данные для сохранения, собирая их из стора и формы.
+     * Устанавливает validation_rules из стора в форму перед сохранением.
+     */
+    const prepareSave = (values: ZCreatePathDto | ZUpdatePathDto) => {
+      const validationRules = validationRulesStore.getRulesForSave();
+      return {
+        ...values,
+        validation_rules: validationRules,
+      };
+    };
+
+    const handleFinish = (values: ZCreatePathDto | ZUpdatePathDto) => {
+      const finalValues = prepareSave(values);
+      onOk(finalValues);
+    };
+
+    const tabItems = useMemo(
+      () => [
+        {
+          key: 'basic',
+          label: 'Основное',
+          children: (
+            <>
+              {isReadonly && <ReadonlyAlert sourceBlueprint={sourceBlueprint} />}
+              <NodeForm dataType={dataType} mode={mode} fullPath={fullPath} />
+            </>
+          ),
+        },
+        {
+          key: 'validation',
+          label: 'Валидация',
+          children: (
+            <ValidationRulesFormV2
+              store={validationRulesStore}
+              dataType={dataType}
+              cardinality={cardinality}
+              isReadonly={!!isReadonly}
+            />
+          ),
+        },
+      ],
+      [validationRulesStore, mode, fullPath, sourceBlueprint, dataType, cardinality, isReadonly]
+    );
+
+    return (
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFinish}
+        initialValues={initialValues}
+        disabled={disabled}
+      >
+        <Tabs items={tabItems} />
+        <div className="mt-6 flex justify-end">
+          <Space>
+            <Button onClick={handleCancel}>Отмена</Button>
+            <Button type="primary" loading={loading} htmlType="submit">
+              {mode === 'edit' ? 'Сохранить' : 'Создать'}
+            </Button>
+          </Space>
+        </div>
+      </Form>
+    );
+  }
+);

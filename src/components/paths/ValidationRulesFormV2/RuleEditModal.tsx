@@ -1,7 +1,7 @@
 import { Modal, Button, Space } from 'antd';
-import type { FormInstance } from 'antd/es/form';
 import type { RuleKey } from './types';
 import { getRuleConfig } from './registry';
+import type { ValidationRulesStore } from './ValidationRulesStore';
 
 /**
  * Пропсы компонента модального окна редактирования правила.
@@ -17,8 +17,8 @@ export type PropsRuleEditModal = {
   onRemove: () => void;
   /** Ключ правила. */
   ruleKey: RuleKey;
-  /** Экземпляр формы Ant Design. */
-  form: FormInstance<any>;
+  /** Store для управления правилами валидации. */
+  store: ValidationRulesStore;
   /** Флаг только для чтения. */
   isReadonly?: boolean;
 };
@@ -33,7 +33,7 @@ export const RuleEditModal: React.FC<PropsRuleEditModal> = ({
   onSave,
   onRemove,
   ruleKey,
-  form,
+  store,
   isReadonly,
 }) => {
   const config = getRuleConfig(ruleKey);
@@ -42,20 +42,10 @@ export const RuleEditModal: React.FC<PropsRuleEditModal> = ({
   const Renderer = config.renderer;
   const meta = config.meta;
 
-  const handleOk = async () => {
-    try {
-      await form.validateFields([['validation_rules', ruleKey]]);
-      onSave();
-    } catch (error) {
-      // Валидация не прошла, ошибки отобразятся автоматически
-    }
-  };
-
   return (
     <Modal
       title={meta.label}
       open={open}
-      onOk={handleOk}
       onCancel={onCancel}
       okText="Сохранить"
       cancelText="Отмена"
@@ -68,7 +58,7 @@ export const RuleEditModal: React.FC<PropsRuleEditModal> = ({
           )}
           <Button onClick={onCancel}>Отмена</Button>
           {!isReadonly && (
-            <Button type="primary" onClick={handleOk}>
+            <Button type="primary" onClick={onSave}>
               Сохранить
             </Button>
           )}
@@ -77,7 +67,7 @@ export const RuleEditModal: React.FC<PropsRuleEditModal> = ({
       width={600}
     >
       <div className="mb-4 text-sm text-muted-foreground">{meta.description}</div>
-      <Renderer form={form} ruleKey={ruleKey} isReadonly={isReadonly} />
+      <Renderer store={store} ruleKey={ruleKey} isReadonly={isReadonly} />
     </Modal>
   );
 };

@@ -1,14 +1,13 @@
-import { Form } from 'antd';
 import { useEffect, useState, useCallback } from 'react';
-import type { FormInstance } from 'antd/es/form';
 import type { RuleKey } from '../types';
+import type { ValidationRulesStore } from '../ValidationRulesStore';
 
 /**
  * Параметры для хука useSimpleExtendedMode.
  */
 export type UseSimpleExtendedModeParams = {
-  /** Экземпляр формы Ant Design. */
-  form: FormInstance<any>;
+  /** Store для управления правилами валидации. */
+  store: ValidationRulesStore;
   /** Ключ правила. */
   ruleKey: RuleKey;
   /** Функция извлечения строкового значения из объекта для простого режима. */
@@ -28,7 +27,7 @@ export type UseSimpleExtendedModeParams = {
  * 
  * @example
  * const { mode, handleModeChange } = useSimpleExtendedMode({
- *   form,
+ *   store,
  *   ruleKey: 'unique',
  *   extractSimpleValue: (value) => value?.table || '',
  *   createExtendedValue: (simpleValue) => ({ table: simpleValue.trim() }),
@@ -36,13 +35,13 @@ export type UseSimpleExtendedModeParams = {
  * });
  */
 export const useSimpleExtendedMode = ({
-  form,
+  store,
   ruleKey,
   extractSimpleValue,
   createExtendedValue,
   getObjectKey,
 }: UseSimpleExtendedModeParams) => {
-  const ruleValue = Form.useWatch(['validation_rules', ruleKey], form);
+  const ruleValue = store.getRule(ruleKey);
   const isSimple = typeof ruleValue === 'string' || ruleValue === undefined || ruleValue === null;
   const [mode, setMode] = useState<'simple' | 'extended'>(isSimple ? 'simple' : 'extended');
 
@@ -62,16 +61,16 @@ export const useSimpleExtendedMode = ({
         const simpleValue = ruleValue && typeof ruleValue === 'object' 
           ? extractSimpleValue(ruleValue) 
           : '';
-        form.setFieldValue(['validation_rules', ruleKey], simpleValue);
+        store.setRule(ruleKey, simpleValue || undefined);
       } else {
         if (typeof ruleValue === 'string' && ruleValue.trim()) {
-          form.setFieldValue(['validation_rules', ruleKey], createExtendedValue(ruleValue));
+          store.setRule(ruleKey, createExtendedValue(ruleValue));
         } else if (!ruleValue || (typeof ruleValue === 'object' && !ruleValue[getObjectKey()])) {
-          form.setFieldValue(['validation_rules', ruleKey], createExtendedValue(''));
+          store.setRule(ruleKey, createExtendedValue(''));
         }
       }
     },
-    [form, ruleKey, ruleValue, extractSimpleValue, createExtendedValue, getObjectKey]
+    [store, ruleKey, ruleValue, extractSimpleValue, createExtendedValue, getObjectKey]
   );
 
   return {

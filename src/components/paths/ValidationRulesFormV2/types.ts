@@ -1,6 +1,6 @@
 import type { ZDataType, ZCardinality, ZValidationRules } from '@/types/path';
-import type { FormInstance } from 'antd/es/form';
 import type { ReactNode } from 'react';
+import type { ValidationRulesStore } from './ValidationRulesStore';
 
 /**
  * Ключ правила валидации.
@@ -34,8 +34,8 @@ export type RuleMeta = {
  * Пропсы компонента рендеринга правила.
  */
 export type RuleRendererProps = {
-  /** Экземпляр формы Ant Design. */
-  form: FormInstance<any>;
+  /** Store для управления правилами валидации. */
+  store: ValidationRulesStore;
   /** Ключ правила. */
   ruleKey: RuleKey;
   /** Флаг только для чтения. */
