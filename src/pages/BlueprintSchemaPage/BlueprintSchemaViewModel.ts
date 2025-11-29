@@ -235,7 +235,7 @@ export class BlueprintSchemaViewModel {
       } else {
         await this.saveCreateNode(values as ZCreatePathDto);
       }
-      this.closeModal();
+      // this.closeModal();
     } catch (error) {
       onError(error);
     } finally {

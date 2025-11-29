@@ -1,112 +1,180 @@
-import { Form, Input, Select, Space } from 'antd';
+import { Form, Input, Radio, Select, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { ZFieldComparisonRule } from '@/types/path';
 import type { RuleRendererProps } from '../../types';
 
 /**
  * Компонент рендеринга правила field_comparison.
- * Отображает форму для настройки сравнения полей.
+ * Позволяет выбрать сравнение либо с другим полем, либо с константным значением (но не оба одновременно).
  */
-export const FieldComparisonRuleRenderer: React.FC<RuleRendererProps> = observer(({
-  store,
-  ruleKey,
-  isReadonly,
-}) => {
-  const [form] = Form.useForm();
-  const ruleValue = store.getRule(ruleKey) as any;
+export const FieldComparisonRuleRenderer: React.FC<RuleRendererProps> = observer(
+  ({ store, ruleKey, isReadonly }) => {
+    const [form] = Form.useForm();
+    const ruleValue = store.getRule(ruleKey) as ZFieldComparisonRule | undefined;
 
-  useEffect(() => {
-    form.setFieldsValue({
-      operator: ruleValue?.operator || '',
-      field: ruleValue?.field || '',
-      value: ruleValue?.value || '',
-    });
-  }, [ruleValue, form]);
-
-  const handleChange = () => {
-    const values = form.getFieldsValue();
-    const result: any = {
-      operator: values.operator || '',
+    // Определяем тип сравнения на основе текущего значения
+    const getComparisonType = (): 'field' | 'value' => {
+      if (ruleValue?.field) return 'field';
+      if (ruleValue?.value !== undefined && ruleValue?.value !== null) return 'value';
+      return 'field'; // По умолчанию
     };
-    if (values.field) result.field = values.field;
-    if (values.value) result.value = values.value;
-    store.setRule(ruleKey, result);
-  };
 
-  const operatorOptions = [
-    { label: 'Равно (==)', value: '==' },
-    { label: 'Не равно (!=)', value: '!=' },
-    { label: 'Больше (>)', value: '>' },
-    { label: 'Меньше (<)', value: '<' },
-    { label: 'Больше или равно (>=)', value: '>=' },
-    { label: 'Меньше или равно (<=)', value: '<=' },
-  ];
+    const [comparisonType, setComparisonType] = useState<'field' | 'value'>(getComparisonType());
 
-  return (
-    <Form form={form}>
-      <Space direction="vertical" className="w-full" size="middle">
-        <Form.Item
-          label="Оператор"
-          name="operator"
-          rules={[{ required: true, message: 'Выберите оператор' }]}
-          tooltip="Оператор сравнения"
-        >
-          <Select
-            disabled={isReadonly}
-            options={operatorOptions}
-            placeholder="Выберите оператор"
-            onChange={handleChange}
-          />
-        </Form.Item>
+    useEffect(() => {
+      const type = getComparisonType();
+      setComparisonType(type);
+      form.setFieldsValue({
+        operator: ruleValue?.operator || '==',
+        comparisonType: type,
+        field: ruleValue?.field || '',
+        value: ruleValue?.value || '',
+      });
+    }, [ruleValue, form]);
 
-        <Form.Item
-          label="Путь к полю (опционально)"
-          name="field"
-          tooltip="Путь к другому полю для сравнения (например, 'content_json.start_date')"
-          rules={[
-            {
-              validator: (_rule, value) => {
-                const comparisonValue = form.getFieldValue('value');
-                if (!value && !comparisonValue) {
-                  return Promise.reject(new Error('Укажите либо поле, либо значение'));
-                }
-                return Promise.resolve();
-              },
-            },
-          ]}
-        >
-          <Input
-            disabled={isReadonly}
-            placeholder="content_json.start_date"
-            style={{ fontFamily: 'monospace' }}
-            onChange={handleChange}
-          />
-        </Form.Item>
+    const operatorOptions = [
+      { label: 'Равно (==)', value: '==' },
+      { label: 'Не равно (!=)', value: '!=' },
+      { label: 'Больше (>)', value: '>' },
+      { label: 'Меньше (<)', value: '<' },
+      { label: 'Больше или равно (>=)', value: '>=' },
+      { label: 'Меньше или равно (<=)', value: '<=' },
+    ];
 
-        <Form.Item
-          label="Константное значение (опционально)"
-          name="value"
-          tooltip="Константное значение для сравнения. Должно быть указано либо поле, либо значение"
-          rules={[
-            {
-              validator: (_rule, value) => {
-                const comparisonField = form.getFieldValue('field');
-                if (!value && !comparisonField) {
-                  return Promise.reject(new Error('Укажите либо поле, либо значение'));
-                }
-                return Promise.resolve();
-              },
-            },
-          ]}
-        >
-          <Input
-            disabled={isReadonly}
-            placeholder="2024-01-01"
-            style={{ fontFamily: 'monospace' }}
-            onChange={handleChange}
-          />
-        </Form.Item>
-      </Space>
-    </Form>
-  );
-});
+    const handleComparisonTypeChange = (newType: 'field' | 'value') => {
+      setComparisonType(newType);
+      // Очищаем противоположное поле при смене типа
+      if (newType === 'field') {
+        form.setFieldsValue({ value: '' });
+      } else {
+        form.setFieldsValue({ field: '' });
+      }
+      // Вызываем handleChange с новым типом
+      handleChange(newType);
+    };
+
+    const handleChange = (typeOverride?: 'field' | 'value') => {
+      const values = form.getFieldsValue();
+      const operator = values.operator;
+      const currentType = typeOverride || comparisonType;
+
+      // Если оператор не указан, удаляем правило
+      if (!operator) {
+        store.setRule(ruleKey, undefined);
+        return;
+      }
+
+      const rule: ZFieldComparisonRule = {
+        operator,
+      };
+
+      // В зависимости от типа сравнения добавляем либо field, либо value
+      if (currentType === 'field') {
+        const field = values.field?.trim();
+        if (!field) {
+          // Если поле пустое, удаляем правило
+          store.setRule(ruleKey, undefined);
+          return;
+        }
+        rule.field = field;
+      } else {
+        const value = values.value;
+        if (value === undefined || value === null) {
+          // Если значение не указано, удаляем правило
+          store.setRule(ruleKey, undefined);
+          return;
+        }
+        // Для строк проверяем, что они не пустые
+        if (typeof value === 'string') {
+          const trimmedValue = value.trim();
+          if (trimmedValue === '') {
+            store.setRule(ruleKey, undefined);
+            return;
+          }
+          rule.value = trimmedValue;
+        } else {
+          // Для чисел, булевых значений и других типов сохраняем как есть
+          rule.value = value;
+        }
+      }
+
+      store.setRule(ruleKey, rule);
+    };
+
+    // Обработчик для Select оператора
+    const handleOperatorChange = () => {
+      handleChange();
+    };
+
+    // Обработчик для Input полей
+    const handleInputChange = () => {
+      handleChange();
+    };
+
+    return (
+      <Form form={form}>
+        <Space direction="vertical" className="w-full" size="middle">
+          <Form.Item
+            label="Оператор"
+            name="operator"
+            rules={[{ required: true, message: 'Выберите оператор' }]}
+            tooltip="Оператор сравнения"
+          >
+            <Select
+              disabled={isReadonly}
+              options={operatorOptions}
+              placeholder="Выберите оператор"
+              onChange={handleOperatorChange}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Тип сравнения"
+            name="comparisonType"
+            tooltip="Выберите, с чем сравнивать: с другим полем или с константным значением"
+          >
+            <Radio.Group
+              disabled={isReadonly}
+              value={comparisonType}
+              onChange={e => handleComparisonTypeChange(e.target.value)}
+            >
+              <Radio value="field">С другим полем</Radio>
+              <Radio value="value">С константным значением</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          {comparisonType === 'field' ? (
+            <Form.Item
+              label="Путь к полю"
+              name="field"
+              rules={[{ required: true, message: 'Укажите путь к полю' }]}
+              tooltip="Путь к другому полю для сравнения (например, 'content_json.start_date')"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="content_json.start_date"
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleInputChange}
+              />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              label="Константное значение"
+              name="value"
+              rules={[{ required: true, message: 'Укажите значение' }]}
+              tooltip="Константное значение для сравнения"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="2024-01-01, 100, true..."
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleInputChange}
+              />
+            </Form.Item>
+          )}
+        </Space>
+      </Form>
+    );
+  }
+);
