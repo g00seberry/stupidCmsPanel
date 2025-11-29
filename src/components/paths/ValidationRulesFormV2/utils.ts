@@ -1,22 +1,36 @@
+import type { FormInstance } from 'antd/es/form';
 import type { ZValidationRules } from '@/types/path';
 import type { RuleKey } from './types';
+import { getActiveRules as getActiveRulesList } from './utils/rules';
+
+export { getActiveRulesList as getActiveRules };
 
 /**
- * Получает список активных правил из объекта validation_rules.
- * Правило считается активным, если его значение не undefined и не null.
- * @param rules Объект правил валидации.
- * @returns Массив ключей активных правил.
+ * Добавляет правило в форму.
+ * @param form Экземпляр формы Ant Design.
+ * @param ruleKey Ключ правила для добавления.
+ * @param defaultValue Значение по умолчанию для правила.
  */
-export const getActiveRules = (rules?: ZValidationRules | null): RuleKey[] => {
-  if (!rules || typeof rules !== 'object') {
-    return [];
-  }
+export const addRuleToForm = (
+  form: FormInstance<any>,
+  ruleKey: RuleKey,
+  defaultValue: ZValidationRules[RuleKey]
+): void => {
+  const currentRules = form.getFieldValue('validation_rules') || {};
+  form.setFieldValue('validation_rules', { ...currentRules, [ruleKey]: defaultValue });
+};
 
-  return (Object.keys(rules) as RuleKey[]).filter(key => {
-    const value = rules[key];
-    if (value === undefined || value === null) return false;
-    if (typeof value === 'object' && Object.keys(value).length === 0) return false;
-    if (typeof value === 'string' && value.trim() === '') return false;
-    return true;
-  });
+/**
+ * Удаляет правило из формы.
+ * Если после удаления не остаётся активных правил, устанавливает validation_rules в null.
+ * @param form Экземпляр формы Ant Design.
+ * @param ruleKey Ключ правила для удаления.
+ */
+export const removeRuleFromForm = (form: FormInstance<any>, ruleKey: RuleKey): void => {
+  const currentRules = form.getFieldValue('validation_rules') || {};
+  const newRules = { ...currentRules };
+  delete newRules[ruleKey];
+
+  const remainingActiveRules = getActiveRulesList(newRules);
+  form.setFieldValue('validation_rules', remainingActiveRules.length === 0 ? null : newRules);
 };

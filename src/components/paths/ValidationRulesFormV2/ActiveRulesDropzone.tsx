@@ -1,5 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import type { ReactNode } from 'react';
+import { ACTIVE_RULES_DROPZONE_ID } from './constants';
 
 /**
  * Пропсы компонента dropzone для активных правил.
@@ -15,7 +16,7 @@ export type PropsActiveRulesDropzone = {
  */
 export const ActiveRulesDropzone: React.FC<PropsActiveRulesDropzone> = ({ children }) => {
   const { setNodeRef, isOver } = useDroppable({
-    id: 'active-rules-dropzone',
+    id: ACTIVE_RULES_DROPZONE_ID,
   });
 
   return (

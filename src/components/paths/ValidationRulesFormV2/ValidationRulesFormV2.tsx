@@ -1,25 +1,30 @@
-import { Form, Space } from 'antd';
-import { useState, useMemo } from 'react';
-import type { FormInstance } from 'antd/es/form';
-import type { ZDataType, ZCardinality } from '@/types/path';
-import { getActiveRules } from './utils';
-import { getRulesByCategory, getRuleMeta, getAvailableRules } from './registry';
-import { defaultRuleValues } from './constants/defaultRuleValues';
-import type { RuleKey } from './types';
+import type { ZCardinality, ZDataType } from '@/types/path';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  useDraggable,
   useSensor,
   useSensors,
-  useDraggable,
 } from '@dnd-kit/core';
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Form, Space } from 'antd';
+import type { FormInstance } from 'antd/es/form';
+import { useMemo, useState } from 'react';
+import { ActiveRulesDropzone } from './ActiveRulesDropzone';
+import {
+  ACTIVE_RULES_DROPZONE_ID,
+  DRAG_ACTIVATION_DISTANCE,
+  EDIT_MODAL_OPEN_DELAY,
+} from './constants';
+import { defaultRuleValues } from './constants/defaultRuleValues';
+import { getAvailableRules, getRuleMeta, getRulesByCategory } from './registry';
 import { RuleCard } from './RuleCard';
 import { RuleEditModal } from './RuleEditModal';
-import { ActiveRulesDropzone } from './ActiveRulesDropzone';
+import type { RuleKey } from './types';
+import { addRuleToForm, getActiveRules, removeRuleFromForm } from './utils';
 
 /**
  * Пропсы компонента формы настройки правил валидации (версия 2).
@@ -53,20 +58,17 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
   const validationRules = Form.useWatch('validation_rules', form);
   const activeRules = useMemo(() => getActiveRules(validationRules), [validationRules]);
 
-  const availableRules = useMemo(
-    () => getAvailableRules(dataType, cardinality).filter(rule => !activeRules.includes(rule)),
-    [dataType, cardinality, activeRules]
-  );
-
-  const rulesByCategory = useMemo(
-    () => getRulesByCategory(dataType, cardinality),
-    [dataType, cardinality]
-  );
+  const { availableRules, rulesByCategory } = useMemo(() => {
+    const allAvailable = getAvailableRules(dataType, cardinality);
+    const available = allAvailable.filter(rule => !activeRules.includes(rule));
+    const byCategory = getRulesByCategory(dataType, cardinality);
+    return { availableRules: available, rulesByCategory: byCategory };
+  }, [dataType, cardinality, activeRules]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: DRAG_ACTIVATION_DISTANCE,
       },
     })
   );
@@ -82,48 +84,23 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
     if (!over || isReadonly) return;
 
     const ruleKey = active.id as RuleKey;
-    const overId = over.id as string;
-
-    // Если перетащили в область активных правил
-    if (overId === 'active-rules-dropzone') {
-      const currentRules = form.getFieldValue('validation_rules') || {};
-      const newRules = { ...currentRules };
-      newRules[ruleKey] = defaultRuleValues[ruleKey];
-      form.setFieldValue('validation_rules', newRules);
-
-      // Автоматически открываем модальное окно для настройки правила
+    console.log('ruleKey', ruleKey);
+    if (over.id === ACTIVE_RULES_DROPZONE_ID) {
+      addRuleToForm(form, ruleKey, defaultRuleValues[ruleKey]);
       setTimeout(() => {
         setEditingRuleKey(ruleKey);
         setEditModalOpen(true);
-      }, 100);
+      }, EDIT_MODAL_OPEN_DELAY);
     }
   };
 
   const handleCardClick = (ruleKey: RuleKey) => {
-    if (activeRules.includes(ruleKey)) {
-      setEditingRuleKey(ruleKey);
-      setEditModalOpen(true);
-    }
+    setEditingRuleKey(ruleKey);
+    setEditModalOpen(true);
   };
 
   const handleRemoveRule = (ruleKey: RuleKey) => {
-    const currentRules = form.getFieldValue('validation_rules') || {};
-    const newRules = { ...currentRules };
-    delete newRules[ruleKey];
-
-    const remainingRules = Object.keys(newRules).filter(key => {
-      const value = newRules[key];
-      if (value === undefined || value === null) return false;
-      if (typeof value === 'object' && Object.keys(value).length === 0) return false;
-      if (typeof value === 'string' && value.trim() === '') return false;
-      return true;
-    });
-
-    if (remainingRules.length === 0) {
-      form.setFieldValue('validation_rules', null);
-    } else {
-      form.setFieldValue('validation_rules', newRules);
-    }
+    removeRuleFromForm(form, ruleKey);
   };
 
   const handleEditSave = () => {
@@ -133,10 +110,15 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
 
   const handleEditRemove = () => {
     if (editingRuleKey) {
-      handleRemoveRule(editingRuleKey);
+      removeRuleFromForm(form, editingRuleKey);
       setEditModalOpen(false);
       setEditingRuleKey(null);
     }
+  };
+
+  const handleEditCancel = () => {
+    setEditModalOpen(false);
+    setEditingRuleKey(null);
   };
 
   if (!dataType) {
@@ -147,7 +129,7 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
     );
   }
 
-  const activeRuleMeta = activeId ? getRuleMeta(activeId as RuleKey) : null;
+  const activeRuleMeta = activeId ? getRuleMeta(activeId as RuleKey) : undefined;
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -156,33 +138,33 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
         <div className="border rounded-lg p-4 overflow-y-auto">
           <div className="mb-4 font-medium text-sm">Доступные правила</div>
           <Space direction="vertical" className="w-full" size="small">
-            {Object.entries(rulesByCategory).map(([category, rules]) => {
-              const availableInCategory = rules.filter(rule => availableRules.includes(rule));
-              if (availableInCategory.length === 0) return null;
+            {Object.entries(rulesByCategory)
+              .filter(([, rules]) => rules.some(rule => availableRules.includes(rule)))
+              .map(([category, rules]) => {
+                const availableInCategory = rules.filter(rule => availableRules.includes(rule));
 
-              return (
-                <div key={category}>
-                  <div className="mb-2 text-xs font-medium text-muted-foreground uppercase">
-                    {category}
+                return (
+                  <div key={category}>
+                    <div className="mb-2 text-xs font-medium text-muted-foreground uppercase">
+                      {category}
+                    </div>
+                    <Space direction="vertical" className="w-full" size="small">
+                      {availableInCategory.map(ruleKey => {
+                        const meta = getRuleMeta(ruleKey);
+                        return meta ? (
+                          <DraggableRuleCard
+                            key={ruleKey}
+                            id={ruleKey}
+                            ruleKey={ruleKey}
+                            meta={meta}
+                            isReadonly={isReadonly}
+                          />
+                        ) : null;
+                      })}
+                    </Space>
                   </div>
-                  <Space direction="vertical" className="w-full" size="small">
-                    {availableInCategory.map(ruleKey => {
-                      const meta = getRuleMeta(ruleKey);
-                      if (!meta) return null;
-                      return (
-                        <DraggableRuleCard
-                          key={ruleKey}
-                          id={ruleKey}
-                          ruleKey={ruleKey}
-                          meta={meta}
-                          isReadonly={isReadonly}
-                        />
-                      );
-                    })}
-                  </Space>
-                </div>
-              );
-            })}
+                );
+              })}
           </Space>
         </div>
 
@@ -194,31 +176,29 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
               Перетащите правила сюда для добавления
             </div>
           ) : (
-            <SortableContext items={activeRules}>
-              <Space direction="vertical" className="w-full" size="small">
-                {activeRules.map(ruleKey => {
-                  const meta = getRuleMeta(ruleKey);
-                  if (!meta) return null;
-                  return (
-                    <SortableRuleCard
-                      key={ruleKey}
-                      id={ruleKey}
-                      ruleKey={ruleKey}
-                      meta={meta}
-                      onClick={() => handleCardClick(ruleKey)}
-                      onRemove={() => handleRemoveRule(ruleKey)}
-                      isReadonly={isReadonly}
-                    />
-                  );
-                })}
-              </Space>
-            </SortableContext>
+            <Space direction="vertical" className="w-full" size="small">
+              {activeRules.map(ruleKey => {
+                const meta = getRuleMeta(ruleKey);
+                return meta ? (
+                  <RuleCard
+                    isActive={true}
+                    key={ruleKey}
+                    id={ruleKey}
+                    ruleKey={ruleKey}
+                    meta={meta}
+                    onClick={() => handleCardClick(ruleKey)}
+                    onRemove={() => handleRemoveRule(ruleKey)}
+                    isReadonly={isReadonly}
+                  />
+                ) : null;
+              })}
+            </Space>
           )}
         </ActiveRulesDropzone>
       </div>
 
       <DragOverlay>
-        {activeId && activeRuleMeta ? (
+        {activeId && activeRuleMeta && (
           <RuleCard
             id={activeId}
             ruleKey={activeId as RuleKey}
@@ -228,16 +208,13 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
             onRemove={() => {}}
             isReadonly={isReadonly}
           />
-        ) : null}
+        )}
       </DragOverlay>
 
       {editingRuleKey && (
         <RuleEditModal
           open={editModalOpen}
-          onCancel={() => {
-            setEditModalOpen(false);
-            setEditingRuleKey(null);
-          }}
+          onCancel={handleEditCancel}
           onSave={handleEditSave}
           onRemove={handleEditRemove}
           ruleKey={editingRuleKey}
@@ -263,21 +240,18 @@ const DraggableRuleCard: React.FC<{
     disabled: isReadonly,
   });
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.5 : 1,
-    cursor: isReadonly ? 'default' : 'grab',
-  };
-
   if (!meta) return null;
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        opacity: isDragging ? 0.5 : 1,
+        cursor: isReadonly ? 'default' : 'grab',
+      }}
       {...attributes}
       {...listeners}
-      className={isDragging ? 'opacity-50' : ''}
     >
       <RuleCard
         id={id}
@@ -286,45 +260,6 @@ const DraggableRuleCard: React.FC<{
         isActive={false}
         onClick={() => {}}
         onRemove={() => {}}
-        isReadonly={isReadonly}
-      />
-    </div>
-  );
-};
-
-/**
- * Сортируемая карточка правила для активных правил.
- */
-const SortableRuleCard: React.FC<{
-  id: string;
-  ruleKey: RuleKey;
-  meta: ReturnType<typeof getRuleMeta>;
-  onClick: () => void;
-  onRemove: () => void;
-  isReadonly: boolean;
-}> = ({ id, ruleKey, meta, onClick, onRemove, isReadonly }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id,
-    disabled: isReadonly,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  if (!meta) return null;
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <RuleCard
-        id={id}
-        ruleKey={ruleKey}
-        meta={meta}
-        isActive={true}
-        onClick={onClick}
-        onRemove={onRemove}
         isReadonly={isReadonly}
       />
     </div>
