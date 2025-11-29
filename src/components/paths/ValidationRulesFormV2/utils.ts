@@ -1,9 +1,6 @@
 import type { FormInstance } from 'antd/es/form';
 import type { ZValidationRules } from '@/types/path';
 import type { RuleKey } from './types';
-import { getActiveRules as getActiveRulesList } from './utils/rules';
-
-export { getActiveRulesList as getActiveRules };
 
 /**
  * Добавляет правило в форму.
@@ -31,6 +28,8 @@ export const removeRuleFromForm = (form: FormInstance<any>, ruleKey: RuleKey): v
   const newRules = { ...currentRules };
   delete newRules[ruleKey];
 
-  const remainingActiveRules = getActiveRulesList(newRules);
+  const remainingActiveRules = Object.keys(newRules).filter(
+    key => newRules[key as RuleKey] !== null
+  );
   form.setFieldValue('validation_rules', remainingActiveRules.length === 0 ? null : newRules);
 };

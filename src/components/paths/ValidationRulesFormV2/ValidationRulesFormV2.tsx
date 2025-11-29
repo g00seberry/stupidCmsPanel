@@ -8,23 +8,18 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Form, Space } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { useMemo, useState } from 'react';
 import { ActiveRulesDropzone } from './ActiveRulesDropzone';
-import {
-  ACTIVE_RULES_DROPZONE_ID,
-  DRAG_ACTIVATION_DISTANCE,
-  EDIT_MODAL_OPEN_DELAY,
-} from './constants';
+import { ACTIVE_RULES_DROPZONE_ID, DRAG_ACTIVATION_DISTANCE } from './constants';
 import { defaultRuleValues } from './constants/defaultRuleValues';
 import { getAvailableRules, getRuleMeta, getRulesByCategory } from './registry';
 import { RuleCard } from './RuleCard';
 import { RuleEditModal } from './RuleEditModal';
 import type { RuleKey } from './types';
-import { addRuleToForm, getActiveRules, removeRuleFromForm } from './utils';
+import { addRuleToForm, removeRuleFromForm } from './utils';
 
 /**
  * Пропсы компонента формы настройки правил валидации (версия 2).
@@ -52,11 +47,13 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
   isReadonly = false,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingRuleKey, setEditingRuleKey] = useState<RuleKey | null>(null);
 
   const validationRules = Form.useWatch('validation_rules', form);
-  const activeRules = useMemo(() => getActiveRules(validationRules), [validationRules]);
+  const activeRules = useMemo(
+    () => Object.keys(validationRules || {}) as RuleKey[],
+    [validationRules]
+  );
 
   const { availableRules, rulesByCategory } = useMemo(() => {
     const allAvailable = getAvailableRules(dataType, cardinality);
@@ -84,41 +81,38 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
     if (!over || isReadonly) return;
 
     const ruleKey = active.id as RuleKey;
-    console.log('ruleKey', ruleKey);
     if (over.id === ACTIVE_RULES_DROPZONE_ID) {
       addRuleToForm(form, ruleKey, defaultRuleValues[ruleKey]);
-      setTimeout(() => {
-        setEditingRuleKey(ruleKey);
-        setEditModalOpen(true);
-      }, EDIT_MODAL_OPEN_DELAY);
+
+      setEditingRuleKey(ruleKey);
     }
   };
 
   const handleCardClick = (ruleKey: RuleKey) => {
     setEditingRuleKey(ruleKey);
-    setEditModalOpen(true);
   };
 
   const handleRemoveRule = (ruleKey: RuleKey) => {
     removeRuleFromForm(form, ruleKey);
   };
 
+  const closeModal = () => {
+    setEditingRuleKey(null);
+  };
+
   const handleEditSave = () => {
-    setEditModalOpen(false);
     setEditingRuleKey(null);
   };
 
   const handleEditRemove = () => {
     if (editingRuleKey) {
       removeRuleFromForm(form, editingRuleKey);
-      setEditModalOpen(false);
-      setEditingRuleKey(null);
     }
+    closeModal();
   };
 
   const handleEditCancel = () => {
-    setEditModalOpen(false);
-    setEditingRuleKey(null);
+    closeModal();
   };
 
   if (!dataType) {
@@ -213,7 +207,7 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = ({
 
       {editingRuleKey && (
         <RuleEditModal
-          open={editModalOpen}
+          open={!!editingRuleKey}
           onCancel={handleEditCancel}
           onSave={handleEditSave}
           onRemove={handleEditRemove}
