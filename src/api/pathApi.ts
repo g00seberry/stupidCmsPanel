@@ -78,7 +78,6 @@ export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Prom
  * // При изменении name или parent_id автоматически пересчитывается full_path для всех дочерних полей
  */
 export const updatePath = async (id: number, dto: ZUpdatePathDto): Promise<ZPath> => {
-  console.log('dto', dto);
   const response = await rest.put(getAdminPathsUrl(`/${id}`), dto);
   return zPathResponse.parse(response.data).data;
 };
