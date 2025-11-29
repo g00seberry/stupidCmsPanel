@@ -52,21 +52,18 @@ export type ZCardinality = z.infer<typeof zCardinality>;
 /**
  * Схема валидации условного правила.
  * Используется для правил required_if, prohibited_unless, required_unless, prohibited_if.
+ * Поддерживается только расширенный формат (объект).
  * @example
  * const rule: ZConditionalRule = { field: 'is_published', value: true, operator: '==' };
- * const simpleRule: ZConditionalRule = 'is_published'; // Простой формат
  */
-export const zConditionalRule = z.union([
-  z.string(),
-  z.object({
-    /** Путь к полю для проверки условия (например, 'is_published'). */
-    field: z.string(),
-    /** Значение для сравнения. */
-    value: z.any().optional(),
-    /** Оператор сравнения. По умолчанию '=='. */
-    operator: z.enum(['==', '!=', '>', '<', '>=', '<=']).optional(),
-  }),
-]);
+export const zConditionalRule = z.object({
+  /** Путь к полю для проверки условия (например, 'is_published'). */
+  field: z.string(),
+  /** Значение для сравнения. */
+  value: z.any().optional(),
+  /** Оператор сравнения. По умолчанию '=='. */
+  operator: z.enum(['==', '!=', '>', '<', '>=', '<=']).optional(),
+});
 
 /**
  * Тип условного правила валидации.
@@ -75,42 +72,39 @@ export type ZConditionalRule = z.infer<typeof zConditionalRule>;
 
 /**
  * Схема валидации правила уникальности.
+ * Поддерживается только расширенный формат (объект).
  * @example
- * const rule: ZUniqueRule = 'entries'; // Простой формат
- * const extendedRule: ZUniqueRule = {
+ * const rule: ZUniqueRule = {
  *   table: 'entries',
  *   column: 'slug',
  *   except: { column: 'id', value: 1 },
  *   where: { column: 'status', value: 'published' }
  * };
  */
-export const zUniqueRule = z.union([
-  z.string(),
-  z.object({
-    /** Таблица для проверки уникальности. */
-    table: z.string(),
-    /** Колонка для проверки. По умолчанию 'id'. */
-    column: z.string().optional(),
-    /** Исключение записи из проверки (например, текущая запись при обновлении). */
-    except: z
-      .object({
-        /** Колонка для исключения. */
-        column: z.string(),
-        /** Значение для исключения. */
-        value: z.any(),
-      })
-      .optional(),
-    /** Дополнительное условие WHERE для проверки. */
-    where: z
-      .object({
-        /** Колонка для условия. */
-        column: z.string(),
-        /** Значение для условия. */
-        value: z.any(),
-      })
-      .optional(),
-  }),
-]);
+export const zUniqueRule = z.object({
+  /** Таблица для проверки уникальности. */
+  table: z.string(),
+  /** Колонка для проверки. По умолчанию используется имя поля. */
+  column: z.string().optional(),
+  /** Исключение записи из проверки (например, текущая запись при обновлении). */
+  except: z
+    .object({
+      /** Колонка для исключения. */
+      column: z.string(),
+      /** Значение для исключения. */
+      value: z.any(),
+    })
+    .optional(),
+  /** Дополнительное условие WHERE для проверки. */
+  where: z
+    .object({
+      /** Колонка для условия. */
+      column: z.string(),
+      /** Значение для условия. */
+      value: z.any(),
+    })
+    .optional(),
+});
 
 /**
  * Тип правила уникальности.
@@ -119,32 +113,29 @@ export type ZUniqueRule = z.infer<typeof zUniqueRule>;
 
 /**
  * Схема валидации правила существования.
+ * Поддерживается только расширенный формат (объект).
  * @example
- * const rule: ZExistsRule = 'categories'; // Простой формат
- * const extendedRule: ZExistsRule = {
+ * const rule: ZExistsRule = {
  *   table: 'categories',
  *   column: 'id',
  *   where: { column: 'status', value: 'active' }
  * };
  */
-export const zExistsRule = z.union([
-  z.string(),
-  z.object({
-    /** Таблица для проверки существования. */
-    table: z.string(),
-    /** Колонка для проверки. По умолчанию 'id'. */
-    column: z.string().optional(),
-    /** Дополнительное условие WHERE для проверки. */
-    where: z
-      .object({
-        /** Колонка для условия. */
-        column: z.string(),
-        /** Значение для условия. */
-        value: z.any(),
-      })
-      .optional(),
-  }),
-]);
+export const zExistsRule = z.object({
+  /** Таблица для проверки существования. */
+  table: z.string(),
+  /** Колонка для проверки. По умолчанию используется имя поля. */
+  column: z.string().optional(),
+  /** Дополнительное условие WHERE для проверки. */
+  where: z
+    .object({
+      /** Колонка для условия. */
+      column: z.string(),
+      /** Значение для условия. */
+      value: z.any(),
+    })
+    .optional(),
+});
 
 /**
  * Тип правила существования.
@@ -196,7 +187,13 @@ export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
  *   array_unique: true
  * };
  * const conditionalRules: ZValidationRules = {
- *   required_if: { field: 'is_published', value: true }
+ *   required_if: { field: 'is_published', value: true, operator: '==' }
+ * };
+ * const uniqueRules: ZValidationRules = {
+ *   unique: { table: 'entries', column: 'slug' }
+ * };
+ * const existsRules: ZValidationRules = {
+ *   exists: { table: 'categories', column: 'id', where: { column: 'status', value: 'active' } }
  * };
  */
 export const zValidationRules = z.object({

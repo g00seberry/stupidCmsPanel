@@ -1,135 +1,109 @@
-import { Form, Input, Select, Space, Radio } from 'antd';
+import { Form, Input, Select, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import type { ZConditionalRule } from '@/types/path';
 import type { RuleRendererProps } from '../../types';
-import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
 /**
  * Компонент рендеринга условных правил (required_if, prohibited_unless, required_unless, prohibited_if).
- * Поддерживает простой (строка) и расширенный (объект) форматы.
+ * Поддерживает только расширенный формат (объект с полями field, operator, value).
  */
-export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = observer(({
-  store,
-  ruleKey,
-  isReadonly,
-}) => {
-  const [form] = Form.useForm();
-  const { mode, handleModeChange } = useSimpleExtendedMode({
-    store,
-    ruleKey,
-    extractSimpleValue: (value: any) => value?.field || '',
-    createExtendedValue: (simpleValue: string) => ({
-      field: simpleValue.trim(),
-      operator: '==',
-    }),
-    getObjectKey: () => 'field',
-  });
+export const ConditionalRuleRenderer: React.FC<RuleRendererProps> = observer(
+  ({ store, ruleKey, isReadonly }) => {
+    const [form] = Form.useForm();
+    const ruleValue = store.getRule(ruleKey) as ZConditionalRule | undefined;
 
-  const ruleValue = store.getRule(ruleKey);
-
-  useEffect(() => {
-    if (mode === 'simple') {
-      form.setFieldsValue({ value: typeof ruleValue === 'string' ? ruleValue : '' });
-    } else {
+    useEffect(() => {
       form.setFieldsValue({
-        field: (ruleValue as any)?.field || '',
-        operator: (ruleValue as any)?.operator || '==',
-        value: (ruleValue as any)?.value || '',
+        field: ruleValue?.field || '',
+        operator: ruleValue?.operator || '==',
+        value: ruleValue?.value || '',
       });
-    }
-  }, [ruleValue, mode, form]);
+    }, [ruleValue, form]);
 
-  const operatorOptions = [
-    { label: 'Равно (==)', value: '==' },
-    { label: 'Не равно (!=)', value: '!=' },
-    { label: 'Больше (>)', value: '>' },
-    { label: 'Меньше (<)', value: '<' },
-    { label: 'Больше или равно (>=)', value: '>=' },
-    { label: 'Меньше или равно (<=)', value: '<=' },
-  ];
+    const operatorOptions = [
+      { label: 'Равно (==)', value: '==' },
+      { label: 'Не равно (!=)', value: '!=' },
+      { label: 'Больше (>)', value: '>' },
+      { label: 'Меньше (<)', value: '<' },
+      { label: 'Больше или равно (>=)', value: '>=' },
+      { label: 'Меньше или равно (<=)', value: '<=' },
+    ];
 
-  const handleSimpleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    store.setRule(ruleKey, e.target.value || undefined);
-  };
+    const handleChange = () => {
+      const values = form.getFieldsValue();
+      const field = values.field?.trim();
 
-  const handleExtendedChange = () => {
-    const values = form.getFieldsValue();
-    store.setRule(ruleKey, {
-      field: values.field || '',
-      operator: values.operator || '==',
-      ...(values.value && { value: values.value }),
-    });
-  };
+      // Если обязательное поле пустое, удаляем правило
+      if (!field) {
+        store.setRule(ruleKey, undefined);
+        return;
+      }
 
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium">Формат</span>
-        <Radio.Group
-          size="small"
-          value={mode}
-          onChange={e => handleModeChange(e.target.value)}
-          disabled={isReadonly}
-        >
-          <Radio.Button value="simple">Простой</Radio.Button>
-          <Radio.Button value="extended">Расширенный</Radio.Button>
-        </Radio.Group>
-      </div>
+      // Сохраняем валидное правило
+      const rule: ZConditionalRule = {
+        field,
+        operator: values.operator || '==',
+      };
 
+      // Добавляем value только если оно указано (обрабатываем строки, числа, булевы значения)
+      const value = values.value;
+      if (value !== undefined && value !== null) {
+        // Для строк проверяем, что они не пустые
+        if (typeof value === 'string') {
+          const trimmedValue = value.trim();
+          if (trimmedValue !== '') {
+            rule.value = trimmedValue;
+          }
+        } else {
+          // Для чисел, булевых значений и других типов сохраняем как есть
+          rule.value = value;
+        }
+      }
+
+      store.setRule(ruleKey, rule);
+    };
+
+    return (
       <Form form={form}>
-        {mode === 'simple' ? (
+        <Space direction="vertical" className="w-full" size="small">
           <Form.Item
-            name="value"
+            label="Поле"
+            name="field"
+            rules={[{ required: true, message: 'Укажите поле' }]}
             tooltip="Путь к полю для проверки условия (например, 'is_published')"
           >
             <Input
               disabled={isReadonly}
               placeholder="is_published"
               style={{ fontFamily: 'monospace' }}
-              onChange={handleSimpleChange}
+              onChange={handleChange}
             />
           </Form.Item>
-        ) : (
-          <Space direction="vertical" className="w-full" size="small">
-            <Form.Item
-              label="Поле"
-              name="field"
-              rules={[{ required: true, message: 'Укажите поле' }]}
-              tooltip="Путь к полю для проверки условия (например, 'is_published')"
-            >
-              <Input
-                disabled={isReadonly}
-                placeholder="is_published"
-                style={{ fontFamily: 'monospace' }}
-                onChange={handleExtendedChange}
-              />
-            </Form.Item>
 
-            <Form.Item
-              label="Оператор"
-              name="operator"
-              tooltip="Оператор сравнения. По умолчанию '=='"
-              initialValue="=="
-            >
-              <Select disabled={isReadonly} options={operatorOptions} onChange={handleExtendedChange} />
-            </Form.Item>
+          <Form.Item
+            label="Оператор"
+            name="operator"
+            tooltip="Оператор сравнения. По умолчанию '=='"
+            initialValue="=="
+          >
+            <Select disabled={isReadonly} options={operatorOptions} onChange={handleChange} />
+          </Form.Item>
 
-            <Form.Item
-              label="Значение (опционально)"
-              name="value"
-              tooltip="Значение для сравнения. Если не указано, проверяется наличие поля"
-            >
-              <Input
-                disabled={isReadonly}
-                placeholder="true, 'active', 100..."
-                style={{ fontFamily: 'monospace' }}
-                onChange={handleExtendedChange}
-              />
-            </Form.Item>
-          </Space>
-        )}
+          <Form.Item
+            label="Значение (опционально)"
+            name="value"
+            tooltip="Значение для сравнения. Если не указано, проверяется наличие поля"
+          >
+            <Input
+              disabled={isReadonly}
+              placeholder="true, 'active', 100..."
+              style={{ fontFamily: 'monospace' }}
+              onChange={handleChange}
+            />
+          </Form.Item>
+        </Space>
       </Form>
-    </div>
-  );
-});
-
+    );
+  }
+);

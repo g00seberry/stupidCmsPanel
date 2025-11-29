@@ -1,185 +1,185 @@
-import { Form, Input, Space, Radio } from 'antd';
+import { Form, Input, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import type { ZUniqueRule } from '@/types/path';
 import type { RuleRendererProps } from '../../types';
-import { useSimpleExtendedMode } from '../../hooks/useSimpleExtendedMode';
 
 /**
  * Компонент рендеринга правила unique.
- * Поддерживает простой (строка) и расширенный (объект) форматы.
+ * Поддерживает только расширенный формат (объект с полями table, column, except, where).
  */
 export const UniqueRuleRenderer: React.FC<RuleRendererProps> = observer(({ store, ruleKey, isReadonly }) => {
   const [form] = Form.useForm();
-  const { mode, handleModeChange } = useSimpleExtendedMode({
-    store,
-    ruleKey,
-    extractSimpleValue: (value: any) => value?.table || '',
-    createExtendedValue: (simpleValue: string) => ({
-      table: simpleValue.trim(),
-    }),
-    getObjectKey: () => 'table',
-  });
-
-  const ruleValue = store.getRule(ruleKey);
+  const ruleValue = store.getRule(ruleKey) as ZUniqueRule | undefined;
 
   useEffect(() => {
-    if (mode === 'simple') {
-      form.setFieldsValue({ value: typeof ruleValue === 'string' ? ruleValue : '' });
-    } else {
-      const value = ruleValue as any;
-      form.setFieldsValue({
-        table: value?.table || '',
-        column: value?.column || '',
-        exceptColumn: value?.except?.column || '',
-        exceptValue: value?.except?.value || '',
-        whereColumn: value?.where?.column || '',
-        whereValue: value?.where?.value || '',
-      });
-    }
-  }, [ruleValue, mode, form]);
+    form.setFieldsValue({
+      table: ruleValue?.table || '',
+      column: ruleValue?.column || '',
+      exceptColumn: ruleValue?.except?.column || '',
+      exceptValue: ruleValue?.except?.value || '',
+      whereColumn: ruleValue?.where?.column || '',
+      whereValue: ruleValue?.where?.value || '',
+    });
+  }, [ruleValue, form]);
 
-  const handleSimpleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    store.setRule(ruleKey, e.target.value || undefined);
-  };
-
-  const handleExtendedChange = () => {
+  const handleChange = () => {
     const values = form.getFieldsValue();
-    const result: any = {
-      table: values.table || '',
+    const table = values.table?.trim();
+
+    // Если обязательное поле пустое, удаляем правило
+    if (!table) {
+      store.setRule(ruleKey, undefined);
+      return;
+    }
+
+    // Создаём валидное правило
+    const rule: ZUniqueRule = {
+      table,
     };
-    if (values.column) result.column = values.column;
-    if (values.exceptColumn || values.exceptValue) {
-      result.except = {};
-      if (values.exceptColumn) result.except.column = values.exceptColumn;
-      if (values.exceptValue) result.except.value = values.exceptValue;
+
+    // Добавляем опциональные поля только если они указаны
+    if (values.column?.trim()) {
+      rule.column = values.column.trim();
     }
-    if (values.whereColumn || values.whereValue) {
-      result.where = {};
-      if (values.whereColumn) result.where.column = values.whereColumn;
-      if (values.whereValue) result.where.value = values.whereValue;
+
+    // Обрабатываем except только если указаны оба поля
+    const exceptColumn = values.exceptColumn?.trim();
+    const exceptValue = values.exceptValue;
+    if (exceptColumn && exceptValue !== undefined && exceptValue !== null) {
+      // Для строк проверяем, что они не пустые
+      if (typeof exceptValue === 'string') {
+        const trimmedValue = exceptValue.trim();
+        if (trimmedValue !== '') {
+          rule.except = {
+            column: exceptColumn,
+            value: trimmedValue,
+          };
+        }
+      } else {
+        // Для чисел, булевых значений и других типов сохраняем как есть
+        rule.except = {
+          column: exceptColumn,
+          value: exceptValue,
+        };
+      }
     }
-    store.setRule(ruleKey, result);
+
+    // Обрабатываем where только если указаны оба поля
+    const whereColumn = values.whereColumn?.trim();
+    const whereValue = values.whereValue;
+    if (whereColumn && whereValue !== undefined && whereValue !== null) {
+      // Для строк проверяем, что они не пустые
+      if (typeof whereValue === 'string') {
+        const trimmedValue = whereValue.trim();
+        if (trimmedValue !== '') {
+          rule.where = {
+            column: whereColumn,
+            value: trimmedValue,
+          };
+        }
+      } else {
+        // Для чисел, булевых значений и других типов сохраняем как есть
+        rule.where = {
+          column: whereColumn,
+          value: whereValue,
+        };
+      }
+    }
+
+    store.setRule(ruleKey, rule);
   };
 
   return (
-    <>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium">Формат</span>
-        <Radio.Group
-          size="small"
-          value={mode}
-          onChange={e => handleModeChange(e.target.value)}
-          disabled={isReadonly}
+    <Form form={form}>
+      <Space direction="vertical" className="w-full" size="middle">
+        <Form.Item
+          label="Таблица"
+          name="table"
+          rules={[{ required: true, message: 'Укажите таблицу' }]}
+          tooltip="Название таблицы для проверки уникальности"
         >
-          <Radio.Button value="simple">Простой</Radio.Button>
-          <Radio.Button value="extended">Расширенный</Radio.Button>
-        </Radio.Group>
-      </div>
+          <Input
+            disabled={isReadonly}
+            placeholder="entries"
+            style={{ fontFamily: 'monospace' }}
+            onChange={handleChange}
+          />
+        </Form.Item>
 
-      <Form form={form}>
-        {mode === 'simple' ? (
-          <Form.Item
-            name="value"
-            tooltip="Название таблицы для проверки уникальности"
-          >
-            <Input
-              disabled={isReadonly}
-              placeholder="entries"
-              style={{ fontFamily: 'monospace' }}
-              onChange={handleSimpleChange}
-            />
-          </Form.Item>
-        ) : (
-          <Space direction="vertical" className="w-full" size="middle">
+        <Form.Item
+          label="Колонка (опционально)"
+          name="column"
+          tooltip="Колонка для проверки. По умолчанию используется имя поля"
+        >
+          <Input
+            disabled={isReadonly}
+            placeholder="slug"
+            style={{ fontFamily: 'monospace' }}
+            onChange={handleChange}
+          />
+        </Form.Item>
+
+        <div className="rounded border border-border bg-muted p-3">
+          <div className="mb-2 text-sm font-medium">Исключение (опционально)</div>
+          <Space direction="vertical" className="w-full" size="small">
             <Form.Item
-              label="Таблица"
-              name="table"
-              rules={[{ required: true, message: 'Укажите таблицу' }]}
-              tooltip="Название таблицы для проверки уникальности"
+              label="Колонка"
+              name="exceptColumn"
+              tooltip="Колонка для исключения (например, 'id' для исключения текущей записи)"
             >
               <Input
                 disabled={isReadonly}
-                placeholder="entries"
+                placeholder="id"
                 style={{ fontFamily: 'monospace' }}
-                onChange={handleExtendedChange}
+                onChange={handleChange}
               />
             </Form.Item>
-
             <Form.Item
-              label="Колонка (опционально)"
-              name="column"
-              tooltip="Колонка для проверки. По умолчанию используется 'id'"
+              label="Значение"
+              name="exceptValue"
+              tooltip="Значение для исключения"
             >
               <Input
                 disabled={isReadonly}
-                placeholder="slug"
+                placeholder="1"
                 style={{ fontFamily: 'monospace' }}
-                onChange={handleExtendedChange}
+                onChange={handleChange}
               />
             </Form.Item>
-
-            <div className="rounded border border-border bg-muted p-3">
-              <div className="mb-2 text-sm font-medium">Исключение (опционально)</div>
-              <Space direction="vertical" className="w-full" size="small">
-                <Form.Item
-                  label="Колонка"
-                  name="exceptColumn"
-                  tooltip="Колонка для исключения (например, 'id' для исключения текущей записи)"
-                >
-                  <Input
-                    disabled={isReadonly}
-                    placeholder="id"
-                    style={{ fontFamily: 'monospace' }}
-                    onChange={handleExtendedChange}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Значение"
-                  name="exceptValue"
-                  tooltip="Значение для исключения"
-                >
-                  <Input
-                    disabled={isReadonly}
-                    placeholder="1"
-                    style={{ fontFamily: 'monospace' }}
-                    onChange={handleExtendedChange}
-                  />
-                </Form.Item>
-              </Space>
-            </div>
-
-            <div className="rounded border border-border bg-muted p-3">
-              <div className="mb-2 text-sm font-medium">Дополнительное условие (опционально)</div>
-              <Space direction="vertical" className="w-full" size="small">
-                <Form.Item
-                  label="Колонка"
-                  name="whereColumn"
-                  tooltip="Колонка для дополнительного условия WHERE"
-                >
-                  <Input
-                    disabled={isReadonly}
-                    placeholder="status"
-                    style={{ fontFamily: 'monospace' }}
-                    onChange={handleExtendedChange}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Значение"
-                  name="whereValue"
-                  tooltip="Значение для условия WHERE"
-                >
-                  <Input
-                    disabled={isReadonly}
-                    placeholder="published"
-                    style={{ fontFamily: 'monospace' }}
-                    onChange={handleExtendedChange}
-                  />
-                </Form.Item>
-              </Space>
-            </div>
           </Space>
-        )}
-      </Form>
-    </>
+        </div>
+
+        <div className="rounded border border-border bg-muted p-3">
+          <div className="mb-2 text-sm font-medium">Дополнительное условие (опционально)</div>
+          <Space direction="vertical" className="w-full" size="small">
+            <Form.Item
+              label="Колонка"
+              name="whereColumn"
+              tooltip="Колонка для дополнительного условия WHERE"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="status"
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleChange}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Значение"
+              name="whereValue"
+              tooltip="Значение для условия WHERE"
+            >
+              <Input
+                disabled={isReadonly}
+                placeholder="published"
+                style={{ fontFamily: 'monospace' }}
+                onChange={handleChange}
+              />
+            </Form.Item>
+          </Space>
+        </div>
+      </Space>
+    </Form>
   );
 });

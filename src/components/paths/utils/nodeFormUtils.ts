@@ -1,5 +1,4 @@
 import type { ZCreatePathDto, ZUpdatePathDto, ZValidationRules } from '@/types/path';
-import { normalizeValidationRulesForForm } from '@/utils/validationRules';
 
 type PathFormValues = ZCreatePathDto | ZUpdatePathDto;
 
@@ -32,9 +31,7 @@ export const normalizeFormInitialValues = (
     initial.validation_rules !== null &&
     initial.validation_rules !== undefined
   ) {
-    normalizedValidationRules = normalizeValidationRulesForForm(
-      initial.validation_rules as ZValidationRules
-    );
+    normalizedValidationRules = initial.validation_rules as ZValidationRules;
   }
 
   const result: Partial<PathFormValues> = {

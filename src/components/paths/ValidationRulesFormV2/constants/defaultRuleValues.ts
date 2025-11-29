@@ -13,12 +13,11 @@ export const defaultRuleValues: Record<RuleKey, ZValidationRules[RuleKey]> = {
   array_min_items: undefined,
   array_max_items: undefined,
   array_unique: false,
-  required_if: '',
-  prohibited_unless: '',
-  required_unless: '',
-  prohibited_if: '',
-  unique: '',
-  exists: '',
+  required_if: { field: '', operator: '==' },
+  prohibited_unless: { field: '', operator: '==' },
+  required_unless: { field: '', operator: '==' },
+  prohibited_if: { field: '', operator: '==' },
+  unique: { table: '' },
+  exists: { table: '' },
   field_comparison: { operator: '==' },
 };
-
