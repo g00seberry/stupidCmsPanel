@@ -1,19 +1,18 @@
 import { EmbedList } from '@/components/embeds/EmbedList';
 import { ContextMenu } from '@/components/paths/ContextMenu';
-import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormTabs } from '@/components/paths/NodeFormTabs';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
+import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
-import { zCreatePathDto, zUpdatePathDto } from '@/types/path';
+import { onError } from '@/utils/onError';
 import { App, Card, Drawer, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ReactFlowInstance } from 'reactflow';
-import { onError } from '@/utils/onError';
 
 /**
  * Страница редактирования схемы Blueprint.
@@ -74,18 +73,8 @@ export const BlueprintSchemaPage = observer(() => {
   const initialValues = pageStore.getNodeFormInitialValues();
 
   const handleNodeOk = async (values: ZCreatePathDto | ZUpdatePathDto) => {
-    try {
-      const validatedValues =
-        mode === 'edit' ? zUpdatePathDto.parse(values) : zCreatePathDto.parse(values);
-      await pageStore.saveNode(validatedValues);
-      message.success(pageStore.getSuccessMessage());
-    } catch (error: any) {
-      if (error?.errorFields) {
-        throw error;
-      }
-      onError(error);
-      throw error;
-    }
+    await pageStore.saveNode(values);
+    message.success(pageStore.getSuccessMessage());
   };
 
   const handleNodeCancel = () => {

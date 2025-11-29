@@ -75,6 +75,10 @@ export class BlueprintSchemaViewModel {
     }
   }
 
+  setLoading(loading: boolean) {
+    this.loading = loading;
+  }
+
   setCtx(ctx: NodeMenuCtx) {
     this.ctx = ctx;
   }
@@ -223,7 +227,7 @@ export class BlueprintSchemaViewModel {
 
   async saveNode(values: ZCreatePathDto | ZUpdatePathDto) {
     if (!this.blueprintId) return;
-    this.loading = true;
+    this.setLoading(true);
 
     try {
       if (this.ctx.nodeId) {
@@ -234,15 +238,14 @@ export class BlueprintSchemaViewModel {
       this.closeModal();
     } catch (error) {
       onError(error);
-      throw error;
     } finally {
-      this.loading = false;
+      this.setLoading(false);
     }
   }
 
   async saveEmbed(values: { embedded_blueprint_id: number }) {
     if (!this.blueprintId) return;
-    this.loading = true;
+    this.setLoading(true);
     try {
       const embedDto = {
         embedded_blueprint_id: values.embedded_blueprint_id,
@@ -257,7 +260,7 @@ export class BlueprintSchemaViewModel {
     } catch (error) {
       onError(error);
     } finally {
-      this.loading = false;
+      this.setLoading(false);
     }
   }
 
