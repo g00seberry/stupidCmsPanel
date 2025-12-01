@@ -50,18 +50,16 @@ export const setValueByPath = (obj: any, path: PathSegment[], value: any): void 
 /**
  * Преобразовать путь в строковое представление.
  * Форматирует путь для отображения в UI и ключей ошибок валидации.
+ * Использует формат с точками для всех сегментов пути (включая индексы массивов).
  * @param path Массив сегментов пути.
- * @returns Строковое представление пути (например, "user.tags[0]" или "rrrr[0].eeee[1]").
+ * @returns Строковое представление пути (например, "user.tags.0" или "rrrr.0.eeee.1").
  * @example
  * pathToString(['user', 'name']); // 'user.name'
- * pathToString(['user', 'tags', 0]); // 'user.tags[0]'
- * pathToString(['rrrr', 0, 'eeee', 1]); // 'rrrr[0].eeee[1]'
+ * pathToString(['user', 'tags', 0]); // 'user.tags.0'
+ * pathToString(['rrrr', 0, 'eeee', 1]); // 'rrrr.0.eeee.1'
  */
 export const pathToString = (path: PathSegment[]): string => {
-  return path
-    .map((seg, idx) => (typeof seg === 'number' ? `[${seg}]` : idx === 0 ? seg : `.${seg}`))
-    .join('')
-    .replace('.[', '[');
+  return path.map(String).join('.');
 };
 
 /**

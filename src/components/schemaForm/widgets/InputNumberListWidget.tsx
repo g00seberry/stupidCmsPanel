@@ -24,9 +24,6 @@ type PropsInputNumberListWidget = FieldRendererProps & {
 export const InputNumberListWidget: React.FC<PropsInputNumberListWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -45,7 +42,7 @@ export const InputNumberListWidget: React.FC<PropsInputNumberListWidget> = obser
     };
 
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         {arrayValue.map((item, index) => {
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);

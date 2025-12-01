@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { listEntries } from '@/api/apiEntries';
 import type { ZEntry } from '@/types/entries';
 import type { FieldRendererProps } from '../types';
-import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { getValueByPath } from '@/utils/pathUtils';
 import { notificationService } from '@/services/notificationService';
 import { FormField } from './common/FormField';
 
@@ -18,9 +18,6 @@ import { FormField } from './common/FormField';
  */
 export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, namePath }) => {
   const value = getValueByPath(model.values, namePath);
-  const pathStr = pathToString(namePath);
-  const error = model.errorFor(pathStr);
-  const labelText = String(namePath[namePath.length - 1]);
   const [options, setOptions] = useState<Array<{ label: string; value: number | string }>>([]);
   const [loading, setLoading] = useState(false);
 
@@ -121,7 +118,7 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
   }, []);
 
   return (
-    <FormField label={labelText} error={error}>
+    <FormField model={model} namePath={namePath}>
       <Select
         value={value}
         onChange={val => model.setValue(namePath, val)}

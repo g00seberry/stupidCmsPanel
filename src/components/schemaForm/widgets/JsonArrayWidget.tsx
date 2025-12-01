@@ -7,6 +7,8 @@ import { FieldError } from '../FieldError';
 import type { FieldRendererProps } from '../types';
 import type { ZEditJsonArray, ZEditJsonObject } from '../ZComponent';
 import { JsonObjectWidget } from './JsonObjectWidget';
+import { FieldTitle } from './common/FieldTitle';
+import { getFieldLabel } from './common/getFieldLabel';
 
 /**
  * Пропсы компонента JsonArrayWidget.
@@ -29,13 +31,13 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
     const value = getValueByPath(model.values, namePath);
     const arrayValue = Array.isArray(value) ? value : [];
     const error = model.errorFor(pathStr);
+    const isOutdated = model.isOutdated(namePath);
 
     if (!field.children) {
       return null;
     }
 
-    // Используем label из конфигурации компонента, если есть
-    const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
+    const labelText = getFieldLabel(componentConfig, namePath);
 
     const handleAddItem = () => {
       model.addArrayItem(namePath, {});
@@ -47,7 +49,7 @@ export const JsonArrayWidget: React.FC<PropsJsonArrayWidget> = observer(
 
     return (
       <Card
-        title={labelText}
+        title={<FieldTitle label={labelText} isOutdated={isOutdated} />}
         extra={<Button onClick={handleAddItem}>Добавить</Button>}
         className="mb-4"
       >

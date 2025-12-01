@@ -24,9 +24,6 @@ type PropsCheckboxGroupWidget = FieldRendererProps & {
 export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     const arrayValue = Array.isArray(value) ? value : [];
 
     const handleItemChange = (index: number, checked: boolean) => {
@@ -44,7 +41,7 @@ export const CheckboxGroupWidget: React.FC<PropsCheckboxGroupWidget> = observer(
     };
 
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         {arrayValue.map((item, index) => {
           const itemPath = [...namePath, index];
           const itemPathStr = pathToString(itemPath);

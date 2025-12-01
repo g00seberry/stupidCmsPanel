@@ -3,7 +3,7 @@ import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditSelect } from '../ZComponent';
-import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { getValueByPath } from '@/utils/pathUtils';
 import { FormField } from './common/FormField';
 
 /**
@@ -25,16 +25,13 @@ type PropsSelectWidget = FieldRendererProps & {
 export const SelectWidget: React.FC<PropsSelectWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
 
     // Опции должны быть предоставлены через другой механизм (например, через schema или расширенную конфигурацию)
     // Пока оставляем пустой массив - виджет используется для ref полей через RefFieldWidget
     const options: Array<{ label: string; value: string | number }> = [];
 
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         <Select
           value={value}
           onChange={val => model.setValue(namePath, val)}

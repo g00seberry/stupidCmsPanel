@@ -15,7 +15,9 @@ export interface FieldRendererProps {
   namePath: PathSegment[];
   /** Модель формы для доступа к значениям, ошибкам и операциям. */
   model: FormModel;
-} /**
+}
+
+/**
  * Выводит тип значения поля на основе его схемы.
  * Рекурсивно обрабатывает вложенные json поля и учитывает cardinality.
  * @template F Схема поля.

@@ -27,9 +27,6 @@ type PropsDateTimePickerListWidget = FieldRendererProps & {
 export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -48,7 +45,7 @@ export const DateTimePickerListWidget: React.FC<PropsDateTimePickerListWidget> =
     };
 
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         {arrayValue.map((item, index) => {
           // Преобразуем значение в dayjs объект
           let dayjsValue: Dayjs | null = null;

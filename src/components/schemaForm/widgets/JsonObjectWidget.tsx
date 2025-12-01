@@ -7,6 +7,8 @@ import { pathToString } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from '../componentRenderer';
 import type { ZEditJsonObject } from '../ZComponent';
 import { FieldError } from '../FieldError';
+import { FieldTitle } from './common/FieldTitle';
+import { getFieldLabel } from './common/getFieldLabel';
 
 /**
  * Пропсы компонента JsonObjectWidget.
@@ -28,16 +30,20 @@ export const JsonObjectWidget: React.FC<PropsJsonObjectWidget> = observer(
     const field = schema as ZBlueprintSchemaField;
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
+    const isOutdated = model.isOutdated(namePath);
 
     if (!field.children) {
       return null;
     }
 
-    // Используем label из конфигурации компонента, если есть
-    const labelText = componentConfig?.props.label || pathStr.split('.').pop() || '';
+    const labelText = getFieldLabel(componentConfig, namePath);
 
     return (
-      <Card title={labelText} className="mb-4" extra={extra}>
+      <Card
+        title={<FieldTitle label={labelText} isOutdated={isOutdated} />}
+        className="mb-4"
+        extra={extra}
+      >
         {Object.entries(field.children).map(([childKey, childField]) => {
           const childPath = [...namePath, childKey];
           const childPathStr = pathToString(childPath);

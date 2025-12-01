@@ -1,4 +1,4 @@
-import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { getValueByPath } from '@/utils/pathUtils';
 import { Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
@@ -24,9 +24,6 @@ type PropsSelectMultipleWidget = FieldRendererProps & {
 export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     // Значение должно быть массивом
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -34,7 +31,7 @@ export const SelectMultipleWidget: React.FC<PropsSelectMultipleWidget> = observe
     const options: Array<{ label: string; value: string | number }> = [];
 
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         <Select
           mode="multiple"
           value={arrayValue}

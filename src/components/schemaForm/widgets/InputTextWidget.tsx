@@ -3,7 +3,7 @@ import type React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { FieldRendererProps } from '../types';
 import type { ZEditInputText } from '../ZComponent';
-import { getValueByPath, pathToString } from '@/utils/pathUtils';
+import { getValueByPath } from '@/utils/pathUtils';
 import { FormField } from './common/FormField';
 
 /**
@@ -23,11 +23,8 @@ type PropsInputTextWidget = FieldRendererProps & {
 export const InputTextWidget: React.FC<PropsInputTextWidget> = observer(
   ({ model, namePath, componentConfig }) => {
     const value = getValueByPath(model.values, namePath);
-    const pathStr = pathToString(namePath);
-    const error = model.errorFor(pathStr);
-    const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
     return (
-      <FormField label={labelText} error={error}>
+      <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
         <Input
           value={value}
           onChange={e => model.setValue(namePath, e.target.value)}

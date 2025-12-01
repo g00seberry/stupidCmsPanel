@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import type { FormValues } from './types';
-import type { ZBlueprintSchema } from '@/types/blueprintSchema';
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import type { ZEditComponent } from './ZComponent';
@@ -109,23 +109,24 @@ export class FormModel {
   /**
    * Устанавливает ошибки валидации из ответа API.
    * Преобразует ошибки из формата API (например, "content_json.title") в формат пути формы.
+   * Убирает префикс content_json. из путей ошибок.
    * Ошибки должны приходить с бэка после неудачного сабмита (422).
    * @param apiErrors Объект ошибок от API, где ключ - путь поля (например, "content_json.title"), значение - массив сообщений об ошибках.
    * @example
    * model.setErrorsFromApi({
    *   'content_json.title': ['Поле обязательно для заполнения'],
-   *   'content_json.slug': ['Slug уже существует']
+   *   'content_json.author.0.name': ['Поле обязательно']
    * });
+   * // Ошибки будут сохранены как: 'title' и 'author.0.name'
    */
   setErrorsFromApi(apiErrors: Record<string, string[]>): void {
     this.errors.clear();
 
-    // Преобразуем пути из формата API в формат формы
-    // Например: "content_json.title" -> "content_json.title"
-    // Пути уже в правильном формате, просто копируем их
     for (const [path, messages] of Object.entries(apiErrors)) {
       if (Array.isArray(messages) && messages.length > 0) {
-        this.errors.set(path.replace('content_json.', ''), messages);
+        // Убираем префикс content_json.
+        const normalizedPath = path.replace('content_json.', '');
+        this.errors.set(normalizedPath, messages);
       }
     }
   }
@@ -140,7 +141,7 @@ export class FormModel {
 
   /**
    * Получает первую ошибку валидации для указанного пути.
-   * @param path Строковое представление пути (например, "title" или "rrrr[0].eeee[1]").
+   * @param path Строковое представление пути (например, "title" или "author.0.name").
    * @returns Первое сообщение об ошибке или `undefined`, если ошибок нет.
    * @example
    * const error = model.errorFor('title');
@@ -159,5 +160,88 @@ export class FormModel {
    */
   get json(): FormValues {
     return this.values;
+  }
+
+  /**
+   * Проверяет, содержит ли поле по указанному пути устаревшие данные.
+   * Устаревшими считаются данные, которые не соответствуют текущей схеме поля,
+   * например, когда cardinality изменился с 'one' на 'many' или наоборот.
+   * @param path Массив сегментов пути к полю.
+   * @returns `true`, если данные устарели и требуют исправления.
+   * @example
+   * const isOutdated = model.isOutdated(['title']);
+   * // true, если title должен быть массивом, но является строкой, или наоборот
+   */
+  isOutdated(path: PathSegment[]): boolean {
+    if (path.length === 0) {
+      return false;
+    }
+
+    // Находим схему поля по пути
+    let currentSchema = this.schema.schema;
+    let currentValue = this.values;
+    let lastFieldSchema: ZBlueprintSchemaField | null = null;
+
+    for (let i = 0; i < path.length; i++) {
+      const segment = path[i];
+      const isLastSegment = i === path.length - 1;
+
+      // Если сегмент - число, это индекс массива
+      if (typeof segment === 'number') {
+        if (Array.isArray(currentValue)) {
+          currentValue = currentValue[segment];
+          // Если это последний сегмент (путь заканчивается индексом), проверяем родительское поле
+          if (isLastSegment && lastFieldSchema) {
+            // Родительское поле должно иметь cardinality 'many', иначе данные устарели
+            if (lastFieldSchema.cardinality !== 'many') {
+              return true; // Устарело: индекс массива, но родительское поле не 'many'
+            }
+            return false; // Всё в порядке
+          }
+        } else {
+          return false; // Не массив, но ожидается индекс
+        }
+        continue;
+      }
+
+      // Если сегмент - строка, это ключ объекта
+      const fieldSchema = currentSchema[segment];
+      if (!fieldSchema) {
+        return false; // Поле не найдено в схеме
+      }
+
+      const fieldValue = currentValue?.[segment];
+      lastFieldSchema = fieldSchema;
+
+      // Если это последний сегмент, проверяем соответствие cardinality
+      if (isLastSegment) {
+        if (fieldSchema.cardinality === 'many') {
+          // Для 'many' значение должно быть массивом
+          if (!Array.isArray(fieldValue) && fieldValue !== undefined && fieldValue !== null) {
+            return true; // Устарело: ожидается массив, но значение не массив
+          }
+        } else {
+          // Для 'one' значение НЕ должно быть массивом (кроме пустого массива, который считается валидным)
+          if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+            return true; // Устарело: ожидается одно значение, но значение - непустой массив
+          }
+        }
+        return false; // Проверка завершена для последнего сегмента
+      }
+
+      // Если это не последний сегмент и это json поле с children, продолжаем рекурсивно
+      if (fieldSchema.type === 'json' && fieldSchema.children) {
+        currentSchema = fieldSchema.children;
+        if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
+          currentValue = fieldValue as any;
+        } else {
+          return false; // Не объект, дальше проверять нечего
+        }
+      } else {
+        return false; // Дошли до примитивного поля, но это не последний сегмент - ошибка пути
+      }
+    }
+
+    return false;
   }
 }
