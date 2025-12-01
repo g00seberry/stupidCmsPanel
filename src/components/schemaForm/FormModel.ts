@@ -163,6 +163,21 @@ export class FormModel {
   }
 
   /**
+   * Проверяет соответствие значения и cardinality поля.
+   * @param value Значение поля.
+   * @param cardinality Ожидаемый cardinality ('one' или 'many').
+   * @returns `true`, если значение не соответствует cardinality.
+   */
+  private isCardinalityMismatch(value: unknown, cardinality: 'one' | 'many'): boolean {
+    if (cardinality === 'many') {
+      // Для 'many' значение должно быть массивом (или undefined/null)
+      return value !== undefined && value !== null && !Array.isArray(value);
+    }
+    // Для 'one' значение НЕ должно быть непустым массивом
+    return Array.isArray(value) && value.length > 0;
+  }
+
+  /**
    * Проверяет, содержит ли поле по указанному пути устаревшие данные.
    * Устаревшими считаются данные, которые не соответствуют текущей схеме поля,
    * например, когда cardinality изменился с 'one' на 'many' или наоборот.
@@ -177,68 +192,51 @@ export class FormModel {
       return false;
     }
 
-    // Находим схему поля по пути
     let currentSchema = this.schema.schema;
-    let currentValue = this.values;
-    let lastFieldSchema: ZBlueprintSchemaField | null = null;
+    let currentValue: any = this.values;
+    let parentFieldSchema: ZBlueprintSchemaField | null = null;
 
     for (let i = 0; i < path.length; i++) {
       const segment = path[i];
       const isLastSegment = i === path.length - 1;
 
-      // Если сегмент - число, это индекс массива
+      // Обработка числового сегмента (индекс массива)
       if (typeof segment === 'number') {
-        if (Array.isArray(currentValue)) {
-          currentValue = currentValue[segment];
-          // Если это последний сегмент (путь заканчивается индексом), проверяем родительское поле
-          if (isLastSegment && lastFieldSchema) {
-            // Родительское поле должно иметь cardinality 'many', иначе данные устарели
-            if (lastFieldSchema.cardinality !== 'many') {
-              return true; // Устарело: индекс массива, но родительское поле не 'many'
-            }
-            return false; // Всё в порядке
-          }
-        } else {
-          return false; // Не массив, но ожидается индекс
+        if (!Array.isArray(currentValue)) {
+          return false;
+        }
+        currentValue = currentValue[segment];
+        // Если путь заканчивается индексом, проверяем родительское поле
+        if (isLastSegment && parentFieldSchema) {
+          return parentFieldSchema.cardinality !== 'many';
         }
         continue;
       }
 
-      // Если сегмент - строка, это ключ объекта
+      // Обработка строкового сегмента (ключ объекта)
       const fieldSchema = currentSchema[segment];
       if (!fieldSchema) {
-        return false; // Поле не найдено в схеме
+        return false;
       }
 
       const fieldValue = currentValue?.[segment];
-      lastFieldSchema = fieldSchema;
 
-      // Если это последний сегмент, проверяем соответствие cardinality
+      // Проверка последнего сегмента на соответствие cardinality
       if (isLastSegment) {
-        if (fieldSchema.cardinality === 'many') {
-          // Для 'many' значение должно быть массивом
-          if (!Array.isArray(fieldValue) && fieldValue !== undefined && fieldValue !== null) {
-            return true; // Устарело: ожидается массив, но значение не массив
-          }
-        } else {
-          // Для 'one' значение НЕ должно быть массивом (кроме пустого массива, который считается валидным)
-          if (Array.isArray(fieldValue) && fieldValue.length > 0) {
-            return true; // Устарело: ожидается одно значение, но значение - непустой массив
-          }
-        }
-        return false; // Проверка завершена для последнего сегмента
+        return this.isCardinalityMismatch(fieldValue, fieldSchema.cardinality);
       }
 
-      // Если это не последний сегмент и это json поле с children, продолжаем рекурсивно
+      // Продолжение обхода для вложенных json полей
       if (fieldSchema.type === 'json' && fieldSchema.children) {
-        currentSchema = fieldSchema.children;
         if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
-          currentValue = fieldValue as any;
+          currentSchema = fieldSchema.children;
+          currentValue = fieldValue;
+          parentFieldSchema = fieldSchema;
         } else {
-          return false; // Не объект, дальше проверять нечего
+          return false;
         }
       } else {
-        return false; // Дошли до примитивного поля, но это не последний сегмент - ошибка пути
+        return false;
       }
     }
 
