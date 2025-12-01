@@ -2,7 +2,6 @@ import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsMana
 import { SchemaForm } from '@/components/schemaForm/SchemaForm';
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { handleFormSubmit } from '@/components/schemaForm/formSubmitHandler';
 import { Card, DatePicker, Form, Input, Select, Spin, Switch } from 'antd';
 import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -52,22 +51,9 @@ const Inner = observer(({ store }: PropsInner) => {
 
   const handleSubmit = useCallback(
     async (values: EntryEditorFormValues) => {
-      // Валидируем и получаем данные Blueprint формы, если она есть
-      let blueprintData: Record<string, any> | undefined = undefined;
-
-      if (store.blueprintModel) {
-        const result = await handleFormSubmit(store.blueprintModel);
-        if (!result.success) {
-          // Ошибки валидации Blueprint формы - не сохраняем
-          return;
-        }
-        blueprintData = result.values;
-      }
-
-      // Объединяем данные основной формы с данными Blueprint
       const finalValues: EntryEditorFormValues = {
         ...values,
-        content_json: blueprintData || values.content_json,
+        content_json: store.blueprintModel?.json ?? values.content_json,
       };
 
       const nextEntry = await store.saveEntry(finalValues);

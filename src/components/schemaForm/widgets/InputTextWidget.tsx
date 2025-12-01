@@ -26,7 +26,6 @@ export const InputTextWidget: React.FC<PropsInputTextWidget> = observer(
     const pathStr = pathToString(namePath);
     const error = model.errorFor(pathStr);
     const labelText = String(componentConfig?.props.label || namePath[namePath.length - 1]);
-
     return (
       <FormField label={labelText} error={error}>
         <Input

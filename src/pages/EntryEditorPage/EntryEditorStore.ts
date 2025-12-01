@@ -11,6 +11,8 @@ import type { ZTemplate } from '@/types/templates';
 import { onError } from '@/utils/onError';
 import { createFormModelFromBlueprintSchema } from '@/components/schemaForm/schemaFormAdapter';
 import { makeAutoObservable } from 'mobx';
+import type { AxiosError } from 'axios';
+import { zProblemJson, type ZProblemJson } from '@/types/ZProblemJson';
 import {
   entry2formValues,
   formValues2entryPayload,
@@ -146,12 +148,9 @@ export class EntryEditorStore {
 
   /**
    * Сохраняет запись (создаёт новую или обновляет существующую).
+   * При ошибке валидации (422) устанавливает ошибки в blueprintModel из ответа API.
    * @param values Значения формы.
-   * @param isEditMode Режим редактирования.
-   * @param entryId ID записи (для режима редактирования).
-   * @param postType Slug типа контента (обязателен при создании).
-   * @returns Обновлённая запись.
-   * @throws Ошибка валидации JSON или ошибка API.
+   * @returns Обновлённая запись или `null`, если произошла ошибка.
    */
   async saveEntry(values: EntryEditorFormValues): Promise<ZEntry | null> {
     this.setLoading(true);
@@ -163,11 +162,34 @@ export class EntryEditorStore {
       const formValues = entry2formValues(nextEntry, values.term_ids);
       this.setInitialFormValues(formValues);
       this.blueprintModel?.setAll(formValues.content_json ?? {});
+      // Очищаем ошибки при успешном сохранении
+      this.blueprintModel?.setErrorsFromApi({});
       notificationService.showSuccess({
         message: this.isEditMode ? 'Запись обновлена' : 'Запись создана',
       });
       return nextEntry;
     } catch (error) {
+      // Обрабатываем ошибки валидации (422) и устанавливаем их в blueprintModel
+      if (this.blueprintModel && (error as AxiosError).response?.status === 422) {
+        const problemResult = zProblemJson.safeParse((error as AxiosError).response?.data);
+        if (problemResult.success) {
+          // Извлекаем ошибки из meta.errors или errors (в корне объекта)
+          const data = problemResult.data as ZProblemJson & { errors?: Record<string, string[]> };
+          const apiErrors = data.meta?.errors || data.errors;
+          if (apiErrors && typeof apiErrors === 'object') {
+            // Фильтруем ошибки, относящиеся к content_json (Blueprint форме)
+            const blueprintErrors: Record<string, string[]> = {};
+            for (const [path, messages] of Object.entries(apiErrors)) {
+              if (path.startsWith('content_json.') && Array.isArray(messages)) {
+                blueprintErrors[path] = messages;
+              }
+            }
+            if (Object.keys(blueprintErrors).length > 0) {
+              this.blueprintModel.setErrorsFromApi(blueprintErrors);
+            }
+          }
+        }
+      }
       onError(error);
       return null;
     } finally {

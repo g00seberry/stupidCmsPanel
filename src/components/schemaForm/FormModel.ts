@@ -1,25 +1,25 @@
 import { makeAutoObservable } from 'mobx';
 import type { FormValues } from './types';
-import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { ZBlueprintSchema } from '@/types/blueprintSchema';
 import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
-import { getValueByPath, pathToString, setValueByPath, type PathSegment } from '@/utils/pathUtils';
-import { validateField } from '@/utils/validationUtils';
+import { getValueByPath, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import type { ZEditComponent } from './ZComponent';
 
 /**
  * Модель формы на основе схемы сущности.
  * Управляет состоянием формы: значениями, ошибками валидации и операциями над данными.
  * Использует MobX для реактивности и является единым источником истины для формы.
+ * Ошибки валидации устанавливаются с бэка после неудачного сабмита.
  * @template E Схема сущности.
  * @example
  * const schema: EntitySchema = {
  *   schema: {
- *     title: { type: 'string', cardinality: 'one', indexed: true, validation: { required: true } }
+ *     title: { type: 'string', cardinality: 'one', indexed: true }
  *   }
  * };
  * const model = new FormModel(schema, { title: 'Initial Title' });
  * model.setValue(['title'], 'New Title');
- * const isValid = model.validate();
+ * model.setErrorsFromApi({ 'content_json.title': ['Поле обязательно'] });
  */
 export class FormModel {
   /** Схема сущности, описывающая структуру формы. */
@@ -107,118 +107,32 @@ export class FormModel {
   }
 
   /**
-   * Рекурсивно валидирует поле и его вложенные поля (для json типа).
-   * @param field Схема поля.
-   * @param value Значение поля.
-   * @param path Путь к полю.
-   */
-  private validateFieldRecursive(
-    field: ZBlueprintSchemaField,
-    value: any,
-    path: PathSegment[]
-  ): void {
-    if (field.type === 'json' && field.children) {
-      const children = field.children; // Сохраняем для сужения типа
-      // Для json полей проверяем только required из validation, остальная валидация для children
-      const isRequired = field.validation?.required ?? false;
-      if (isRequired) {
-        const isEmpty =
-          value === null ||
-          value === undefined ||
-          (field.cardinality === 'many' && Array.isArray(value) && value.length === 0) ||
-          (field.cardinality === 'one' &&
-            (!value || (typeof value === 'object' && Object.keys(value).length === 0)));
-        if (isEmpty) {
-          const pathStr = pathToString(path);
-          this.errors.set(pathStr, ['Обязательное поле']);
-        }
-      }
-
-      // Валидируем children
-      if (field.cardinality === 'many') {
-        // Массив json объектов
-        if (Array.isArray(value)) {
-          value.forEach((item, index) => {
-            const itemPath = [...path, index];
-            // Валидируем children каждого элемента массива
-            if (item && typeof item === 'object' && !Array.isArray(item)) {
-              for (const [childName, childField] of Object.entries(children)) {
-                const childPath = [...itemPath, childName];
-                const childValue = item[childName];
-                this.validateFieldRecursive(childField, childValue, childPath);
-              }
-            }
-          });
-        }
-      } else {
-        // Один json объект
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          for (const [childName, childField] of Object.entries(children)) {
-            const childPath = [...path, childName];
-            const childValue = value[childName];
-            this.validateFieldRecursive(childField, childValue, childPath);
-          }
-        }
-      }
-    } else {
-      // Для примитивных полей валидируем значение
-      if (field.cardinality === 'many') {
-        // Массив примитивов
-        if (Array.isArray(value)) {
-          value.forEach((item, index) => {
-            const itemPath = [...path, index];
-            const errors = validateField(field, item, itemPath);
-            if (errors.length > 0) {
-              const pathStr = pathToString(itemPath);
-              this.errors.set(pathStr, errors);
-            }
-          });
-        } else {
-          // Если поле required и массив пустой
-          const errors = validateField(field, value, path);
-          if (errors.length > 0) {
-            const pathStr = pathToString(path);
-            this.errors.set(pathStr, errors);
-          }
-        }
-      } else {
-        // Одно примитивное значение
-        const errors = validateField(field, value, path);
-        if (errors.length > 0) {
-          const pathStr = pathToString(path);
-          this.errors.set(pathStr, errors);
-        }
-      }
-    }
-  }
-
-  /**
-   * Выполняет валидацию всех полей формы.
-   * Рекурсивно обходит схему и значения, применяет правила валидации
-   * и записывает ошибки в `errors` по ключам вида "rrrr[0].eeee[1]".
-   * @returns `true`, если валидация прошла успешно (нет ошибок).
+   * Устанавливает ошибки валидации из ответа API.
+   * Преобразует ошибки из формата API (например, "content_json.title") в формат пути формы.
+   * Ошибки должны приходить с бэка после неудачного сабмита (422).
+   * @param apiErrors Объект ошибок от API, где ключ - путь поля (например, "content_json.title"), значение - массив сообщений об ошибках.
    * @example
-   * const isValid = model.validate();
-   * if (!isValid) {
-   *   console.log('Ошибки:', Array.from(model.errors.entries()));
-   * }
+   * model.setErrorsFromApi({
+   *   'content_json.title': ['Поле обязательно для заполнения'],
+   *   'content_json.slug': ['Slug уже существует']
+   * });
    */
-  validate(): boolean {
+  setErrorsFromApi(apiErrors: Record<string, string[]>): void {
     this.errors.clear();
 
-    // Рекурсивно обходим все поля схемы
-    for (const [fieldName, field] of Object.entries(this.schema.schema)) {
-      const path: PathSegment[] = [fieldName];
-      const value = getValueByPath(this.values, path);
-      this.validateFieldRecursive(field, value, path);
+    // Преобразуем пути из формата API в формат формы
+    // Например: "content_json.title" -> "content_json.title"
+    // Пути уже в правильном формате, просто копируем их
+    for (const [path, messages] of Object.entries(apiErrors)) {
+      if (Array.isArray(messages) && messages.length > 0) {
+        this.errors.set(path.replace('content_json.', ''), messages);
+      }
     }
-
-    return this.errors.size === 0;
   }
 
   /**
-   * Проверяет, валидна ли форма (нет ошибок валидации).
-   * @returns `true`, если форма валидна.
+   * Проверяет, есть ли ошибки валидации в форме.
+   * @returns `true`, если ошибок нет (форма валидна).
    */
   get isValid(): boolean {
     return this.errors.size === 0;
