@@ -17,7 +17,5 @@ export const defaultRuleValues: Record<RuleKey, ZValidationRules[RuleKey]> = {
   prohibited_unless: { field: '', operator: '==' },
   required_unless: { field: '', operator: '==' },
   prohibited_if: { field: '', operator: '==' },
-  unique: { table: '' },
-  exists: { table: '' },
   field_comparison: { operator: '==' },
 };

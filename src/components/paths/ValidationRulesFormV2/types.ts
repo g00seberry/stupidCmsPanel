@@ -10,7 +10,7 @@ export type RuleKey = keyof ZValidationRules;
 /**
  * Категория правила валидации.
  */
-export type RuleCategory = 'basic' | 'array' | 'conditional' | 'unique' | 'exists' | 'comparison';
+export type RuleCategory = 'basic' | 'array' | 'conditional' | 'comparison';
 
 /**
  * Метаданные правила валидации.

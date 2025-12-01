@@ -6,8 +6,6 @@ import { PatternRuleRenderer } from './renderers/basic/PatternRuleRenderer';
 import { ArrayItemsRuleRenderer } from './renderers/array/ArrayItemsRuleRenderer';
 import { ArrayUniqueRuleRenderer } from './renderers/array/ArrayUniqueRuleRenderer';
 import { ConditionalRuleRenderer } from './renderers/conditional/ConditionalRuleRenderer';
-import { UniqueRuleRenderer } from './renderers/complex/UniqueRuleRenderer';
-import { ExistsRuleRenderer } from './renderers/complex/ExistsRuleRenderer';
 import { FieldComparisonRuleRenderer } from './renderers/complex/FieldComparisonRuleRenderer';
 
 /**
@@ -120,24 +118,6 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
     },
     renderer: ConditionalRuleRenderer,
   },
-  unique: {
-    key: 'unique',
-    meta: {
-      label: 'Правило уникальности',
-      description: 'Проверка уникальности значения в таблице',
-      category: 'unique',
-    },
-    renderer: UniqueRuleRenderer,
-  },
-  exists: {
-    key: 'exists',
-    meta: {
-      label: 'Правило существования',
-      description: 'Проверка существования значения в таблице',
-      category: 'exists',
-    },
-    renderer: ExistsRuleRenderer,
-  },
   field_comparison: {
     key: 'field_comparison',
     meta: {
@@ -222,8 +202,6 @@ export const getRulesByCategory = (
     basic: [],
     array: [],
     conditional: [],
-    unique: [],
-    exists: [],
     comparison: [],
   };
 

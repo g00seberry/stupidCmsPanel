@@ -71,78 +71,6 @@ export const zConditionalRule = z.object({
 export type ZConditionalRule = z.infer<typeof zConditionalRule>;
 
 /**
- * Схема валидации правила уникальности.
- * Поддерживается только расширенный формат (объект).
- * @example
- * const rule: ZUniqueRule = {
- *   table: 'entries',
- *   column: 'slug',
- *   except: { column: 'id', value: 1 },
- *   where: { column: 'status', value: 'published' }
- * };
- */
-export const zUniqueRule = z.object({
-  /** Таблица для проверки уникальности. */
-  table: z.string(),
-  /** Колонка для проверки. По умолчанию используется имя поля. */
-  column: z.string().optional(),
-  /** Исключение записи из проверки (например, текущая запись при обновлении). */
-  except: z
-    .object({
-      /** Колонка для исключения. */
-      column: z.string(),
-      /** Значение для исключения. */
-      value: z.any(),
-    })
-    .optional(),
-  /** Дополнительное условие WHERE для проверки. */
-  where: z
-    .object({
-      /** Колонка для условия. */
-      column: z.string(),
-      /** Значение для условия. */
-      value: z.any(),
-    })
-    .optional(),
-});
-
-/**
- * Тип правила уникальности.
- */
-export type ZUniqueRule = z.infer<typeof zUniqueRule>;
-
-/**
- * Схема валидации правила существования.
- * Поддерживается только расширенный формат (объект).
- * @example
- * const rule: ZExistsRule = {
- *   table: 'categories',
- *   column: 'id',
- *   where: { column: 'status', value: 'active' }
- * };
- */
-export const zExistsRule = z.object({
-  /** Таблица для проверки существования. */
-  table: z.string(),
-  /** Колонка для проверки. По умолчанию используется имя поля. */
-  column: z.string().optional(),
-  /** Дополнительное условие WHERE для проверки. */
-  where: z
-    .object({
-      /** Колонка для условия. */
-      column: z.string(),
-      /** Значение для условия. */
-      value: z.any(),
-    })
-    .optional(),
-});
-
-/**
- * Тип правила существования.
- */
-export type ZExistsRule = z.infer<typeof zExistsRule>;
-
-/**
  * Схема валидации правила сравнения полей.
  * @example
  * const rule: ZFieldComparisonRule = {
@@ -189,12 +117,6 @@ export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
  * const conditionalRules: ZValidationRules = {
  *   required_if: { field: 'is_published', value: true, operator: '==' }
  * };
- * const uniqueRules: ZValidationRules = {
- *   unique: { table: 'entries', column: 'slug' }
- * };
- * const existsRules: ZValidationRules = {
- *   exists: { table: 'categories', column: 'id', where: { column: 'status', value: 'active' } }
- * };
  */
 export const zValidationRules = z.object({
   /** Флаг обязательности поля. */
@@ -219,10 +141,6 @@ export const zValidationRules = z.object({
   required_unless: zConditionalRule.optional(),
   /** Поле запрещено, если условие выполнено. */
   prohibited_if: zConditionalRule.optional(),
-  /** Правило уникальности значения. */
-  unique: zUniqueRule.optional(),
-  /** Правило существования значения. */
-  exists: zExistsRule.optional(),
   /** Правило сравнения полей. */
   field_comparison: zFieldComparisonRule.optional(),
 });
