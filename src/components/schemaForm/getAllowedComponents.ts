@@ -33,11 +33,6 @@ const componentsOptionsRegistry: Record<
     one: ['checkbox'],
     many: ['checkboxGroup'],
   },
-  /** Поля даты. */
-  date: {
-    one: ['datePicker'],
-    many: ['datePickerList'],
-  },
   /** Поля даты и времени. */
   datetime: {
     one: ['dateTimePicker'],
@@ -62,13 +57,13 @@ const componentsOptionsRegistry: Record<
 
 /**
  * Получает список доступных компонентов для типа данных и кардинальности.
- * @param dataType Тип данных из схемы blueprint (например, 'string', 'int', 'date').
+ * @param dataType Тип данных из схемы blueprint (например, 'string', 'int', 'datetime').
  * @param cardinality Кардинальность ('one' или 'many').
  * @returns Массив доступных компонентов или пустой массив, если тип данных не поддерживается.
  * @example
  * getAllowedComponents('string', 'one'); // ['inputText']
  * getAllowedComponents('int', 'one'); // ['inputNumber']
- * getAllowedComponents('date', 'many'); // ['datePickerList']
+ * getAllowedComponents('datetime', 'many'); // ['dateTimePickerList']
  */
 export const getAllowedComponents = (
   dataType: string,

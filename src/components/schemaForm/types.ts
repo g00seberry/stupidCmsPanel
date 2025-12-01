@@ -37,7 +37,7 @@ type InferFieldValue<F extends ZBlueprintSchemaField> = F['type'] extends 'json'
       ? number
       : F['type'] extends 'bool'
         ? boolean
-        : F['type'] extends 'date' | 'datetime'
+        : F['type'] extends 'datetime'
           ? string
           : F['type'] extends 'ref'
             ? string | number

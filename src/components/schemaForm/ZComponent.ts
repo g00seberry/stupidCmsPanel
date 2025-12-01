@@ -154,7 +154,7 @@ export type ZEditCheckbox = z.infer<typeof zEditCheckbox>;
 
 /**
  * Схема валидации компонента выбора даты (DatePicker).
- * Используется для полей типа 'date'.
+ * Используется для полей типа 'datetime' (может использоваться только с датой без времени).
  */
 export const zEditDatePicker = z.object({
   name: z.literal('datePicker'),
@@ -231,7 +231,7 @@ export type ZEditCheckboxGroup = z.infer<typeof zEditCheckboxGroup>;
 
 /**
  * Схема валидации компонента списка полей выбора даты (DatePicker для массива).
- * Используется для полей типа 'date' с кардинальностью 'many'.
+ * Используется для полей типа 'datetime' с кардинальностью 'many' (может использоваться только с датой без времени).
  */
 export const zEditDatePickerList = z.object({
   name: z.literal('datePickerList'),

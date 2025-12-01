@@ -7,17 +7,7 @@ import { z } from 'zod';
 /**
  * Допустимые типы данных для полей Path.
  */
-const DATA_TYPES = [
-  'string',
-  'text',
-  'int',
-  'float',
-  'bool',
-  'date',
-  'datetime',
-  'json',
-  'ref',
-] as const;
+const DATA_TYPES = ['string', 'text', 'int', 'float', 'bool', 'datetime', 'json', 'ref'] as const;
 
 /**
  * Схема валидации типа данных поля Path.

@@ -17,7 +17,6 @@ const DATA_TYPE_LABELS: Record<ZDataType, string> = {
   int: 'Целое число',
   float: 'Число с плавающей точкой',
   bool: 'Булево',
-  date: 'Дата',
   datetime: 'Дата и время',
   json: 'JSON-объект',
   ref: 'Ссылка',

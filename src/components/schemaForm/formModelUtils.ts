@@ -14,7 +14,6 @@ const getDefaultFieldValue = (field: ZBlueprintSchemaField): any => {
   switch (field.type) {
     case 'string':
     case 'text':
-    case 'date':
     case 'datetime':
       return '';
     case 'int':

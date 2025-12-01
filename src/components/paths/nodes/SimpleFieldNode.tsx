@@ -16,7 +16,6 @@ const getDataTypeIcon = (dataType: string) => {
       return <Hash className="w-4 h-4" />;
     case 'bool':
       return <CheckSquare className="w-4 h-4" />;
-    case 'date':
     case 'datetime':
       return <Calendar className="w-4 h-4" />;
     case 'ref':
@@ -38,7 +37,6 @@ const getDataTypeColor = (dataType: string): string => {
     case 'int':
     case 'float':
     case 'bool':
-    case 'date':
     case 'datetime':
       return 'bg-blue-100 border-blue-300';
     default:
