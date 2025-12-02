@@ -1,6 +1,6 @@
 import type { FormInstance } from 'antd/es/form';
 import type { ZValidationRules } from '@/types/path';
-import type { RuleKey } from './types';
+import type { RuleCategory, RuleKey } from './types';
 
 /**
  * Добавляет правило в форму.
@@ -32,4 +32,19 @@ export const removeRuleFromForm = (form: FormInstance<any>, ruleKey: RuleKey): v
     key => newRules[key as RuleKey] !== null
   );
   form.setFieldValue('validation_rules', remainingActiveRules.length === 0 ? null : newRules);
+};
+
+/**
+ * Получает отображаемое название категории правила на русском языке.
+ * @param category Ключ категории правила.
+ * @returns Отображаемое название категории.
+ */
+export const getCategoryLabel = (category: RuleCategory): string => {
+  const labels: Record<RuleCategory, string> = {
+    basic: 'Основные',
+    array: 'Массивы',
+    conditional: 'Условные',
+    comparison: 'Сравнение',
+  };
+  return labels[category] || category;
 };

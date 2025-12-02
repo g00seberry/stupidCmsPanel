@@ -1,18 +1,11 @@
 import type { ZCardinality, ZDataType } from '@/types/path';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useDraggable,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import { Space } from 'antd';
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { observer } from 'mobx-react-lite';
 import { useMemo, useState } from 'react';
 import { ActiveRulesDropzone } from './ActiveRulesDropzone';
+import { ActiveRulesList } from './ActiveRulesList';
+import { AvailableRulesList } from './AvailableRulesList';
 import { ACTIVE_RULES_DROPZONE_ID, DRAG_ACTIVATION_DISTANCE } from './constants';
 import { defaultRuleValues } from './constants/defaultRuleValues';
 import { getAvailableRules, getRuleMeta, getRulesByCategory } from './registry';
@@ -121,64 +114,37 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = obser
         <div className="grid grid-cols-2 gap-4 h-[600px]">
           {/* Левая область: Доступные правила */}
           <div className="border rounded-lg p-4 overflow-y-auto">
-            <div className="mb-4 font-medium text-sm">Доступные правила</div>
-            <Space direction="vertical" className="w-full" size="small">
-              {Object.entries(rulesByCategory)
-                .filter(([, rules]) => rules.some(rule => availableRules.includes(rule)))
-                .map(([category, rules]) => {
-                  const availableInCategory = rules.filter(rule => availableRules.includes(rule));
-
-                  return (
-                    <div key={category}>
-                      <div className="mb-2 text-xs font-medium text-muted-foreground uppercase">
-                        {category}
-                      </div>
-                      <Space direction="vertical" className="w-full" size="small">
-                        {availableInCategory.map(ruleKey => {
-                          const meta = getRuleMeta(ruleKey);
-                          return meta ? (
-                            <DraggableRuleCard
-                              key={ruleKey}
-                              id={ruleKey}
-                              ruleKey={ruleKey}
-                              meta={meta}
-                              isReadonly={isReadonly}
-                            />
-                          ) : null;
-                        })}
-                      </Space>
-                    </div>
-                  );
-                })}
-            </Space>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="font-medium text-sm">Доступные правила</span>
+              {availableRules.length > 0 && (
+                <span className="text-muted-foreground text-xs bg-muted px-2 py-0.5 rounded-full">
+                  {availableRules.length}
+                </span>
+              )}
+            </div>
+            <AvailableRulesList
+              rulesByCategory={rulesByCategory}
+              availableRules={availableRules}
+              isReadonly={isReadonly}
+            />
           </div>
 
           {/* Правая область: Активные правила */}
           <ActiveRulesDropzone>
-            <div className="mb-4 font-medium text-sm">Активные правила</div>
-            {activeRules.length === 0 ? (
-              <div className="text-muted-foreground text-sm text-center py-8">
-                Перетащите правила сюда для добавления
-              </div>
-            ) : (
-              <Space direction="vertical" className="w-full" size="small">
-                {activeRules.map(ruleKey => {
-                  const meta = getRuleMeta(ruleKey);
-                  return meta ? (
-                    <RuleCard
-                      isActive={true}
-                      key={ruleKey}
-                      id={ruleKey}
-                      ruleKey={ruleKey}
-                      meta={meta}
-                      onClick={() => handleCardClick(ruleKey)}
-                      onRemove={() => handleRemoveRule(ruleKey)}
-                      isReadonly={isReadonly}
-                    />
-                  ) : null;
-                })}
-              </Space>
-            )}
+            <div className="mb-3 flex items-center justify-between">
+              <span className="font-medium text-sm">Активные правила</span>
+              {activeRules.length > 0 && (
+                <span className="text-muted-foreground text-xs bg-muted px-2 py-0.5 rounded-full">
+                  {activeRules.length}
+                </span>
+              )}
+            </div>
+            <ActiveRulesList
+              ruleKeys={activeRules}
+              onRuleClick={handleCardClick}
+              onRuleRemove={handleRemoveRule}
+              isReadonly={isReadonly}
+            />
           </ActiveRulesDropzone>
         </div>
 
@@ -211,43 +177,3 @@ export const ValidationRulesFormV2: React.FC<PropsValidationRulesFormV2> = obser
     );
   }
 );
-
-/**
- * Перетаскиваемая карточка правила для доступных правил.
- */
-const DraggableRuleCard: React.FC<{
-  id: string;
-  ruleKey: RuleKey;
-  meta: ReturnType<typeof getRuleMeta>;
-  isReadonly: boolean;
-}> = ({ id, ruleKey, meta, isReadonly }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id,
-    disabled: isReadonly,
-  });
-
-  if (!meta) return null;
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Translate.toString(transform),
-        opacity: isDragging ? 0.5 : 1,
-        cursor: isReadonly ? 'default' : 'grab',
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      <RuleCard
-        id={id}
-        ruleKey={ruleKey}
-        meta={meta}
-        isActive={false}
-        onClick={() => {}}
-        onRemove={() => {}}
-        isReadonly={isReadonly}
-      />
-    </div>
-  );
-};
