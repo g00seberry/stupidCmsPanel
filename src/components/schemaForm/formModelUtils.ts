@@ -15,22 +15,22 @@ const getDefaultFieldValue = (field: ZBlueprintSchemaField): any => {
     case 'string':
     case 'text':
     case 'datetime':
-      return '';
+      return undefined;
     case 'int':
     case 'float':
-      return 0;
+      return undefined;
     case 'bool':
       return false;
     case 'ref':
-      return null;
+      return undefined;
     case 'json':
       // Для json полей создаём объект из children
       if (field.children) {
         return createDefaultValuesFromSchema(field.children);
       }
-      return {};
+      return undefined;
     default:
-      return null;
+      return undefined;
   }
 };
 
