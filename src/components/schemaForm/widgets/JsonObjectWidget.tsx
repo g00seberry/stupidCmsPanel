@@ -1,12 +1,12 @@
-import { Card } from 'antd';
-import React from 'react';
-import { observer } from 'mobx-react-lite';
-import type { FieldRendererProps } from '../types';
 import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import { pathToString } from '@/utils/pathUtils';
+import { Card } from 'antd';
+import { observer } from 'mobx-react-lite';
+import React from 'react';
 import { renderComponentFromConfig } from '../componentRenderer';
-import type { ZEditJsonObject } from '../ZComponent';
 import { FieldError } from '../FieldError';
+import type { FieldRendererProps } from '../types';
+import type { ZEditJsonObject } from '../ZComponent';
 import { FieldTitle } from './common/FieldTitle';
 import { getFieldLabel } from './common/getFieldLabel';
 

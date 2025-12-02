@@ -4,6 +4,8 @@ import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormModel } from '@/components/schemaForm/FormModel';
 import { pathToString, type PathSegment } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from './componentRenderer';
+import { Button } from 'antd';
+import { RefreshCcwIcon } from 'lucide-react';
 
 /**
  * Пропсы компонента SchemaForm.
@@ -51,8 +53,22 @@ export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
     return widgetElement ?? <div>No widget found</div>;
   };
 
+  const outdatedPaths = model.getAllOutdatedPaths();
+  const hasOutdatedFields = outdatedPaths.length > 0;
+
+  const handleRefreshAll = () => {
+    model.refreshAllOutdated();
+  };
+
   return (
     <div>
+      {hasOutdatedFields && (
+        <div className="mb-4 flex justify-end">
+          <Button icon={<RefreshCcwIcon />} onClick={handleRefreshAll}>
+            Обновить все устаревшие поля ({outdatedPaths.length})
+          </Button>
+        </div>
+      )}
       {Object.entries(model.schema.schema).map(([key, field]) => (
         <React.Fragment key={key}>{renderField(key, field)}</React.Fragment>
       ))}

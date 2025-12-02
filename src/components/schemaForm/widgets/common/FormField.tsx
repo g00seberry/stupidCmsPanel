@@ -1,12 +1,12 @@
-import type React from 'react';
-import { pathToString } from '@/utils/pathUtils';
 import type { PathSegment } from '@/utils/pathUtils';
+import { pathToString } from '@/utils/pathUtils';
+import { observer } from 'mobx-react-lite';
+import type React from 'react';
 import { FieldError } from '../../FieldError';
 import type { FormModel } from '../../FormModel';
 import type { ZEditComponent } from '../../ZComponent';
 import { OutdatedFieldIcon } from './OutdatedFieldIcon';
 import { getFieldLabel } from './getFieldLabel';
-import { observer } from 'mobx-react-lite';
 
 type PropsFormField = {
   /** Модель формы для доступа к значениям, ошибкам и операциям. */

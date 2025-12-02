@@ -25,4 +25,3 @@ export const FieldTitle: React.FC<PropsFieldTitle> = ({ label, isOutdated }) => 
     </div>
   );
 };
-

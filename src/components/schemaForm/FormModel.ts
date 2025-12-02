@@ -242,4 +242,60 @@ export class FormModel {
 
     return false;
   }
+
+  refreshField(path: PathSegment[]): void {
+    console.log('refreshField', path);
+    this.setValue(path, undefined);
+  }
+
+  /**
+   * Рекурсивно собирает все пути полей из схемы.
+   * @param fields Поля схемы.
+   * @param parentPath Путь к родительскому полю.
+   * @returns Массив путей к полям.
+   */
+  private getAllFieldPaths(
+    fields: Record<string, ZBlueprintSchemaField>,
+    parentPath: PathSegment[] = []
+  ): PathSegment[][] {
+    const result: PathSegment[][] = [];
+
+    for (const [key, field] of Object.entries(fields)) {
+      const currentPath = [...parentPath, key];
+      result.push(currentPath);
+
+      // Рекурсивно обрабатываем вложенные поля
+      if (field.type === 'json' && field.children) {
+        result.push(...this.getAllFieldPaths(field.children, currentPath));
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Получает все пути полей с устаревшими данными.
+   * Проверяет все поля схемы на соответствие их значений текущей схеме.
+   * @returns Массив путей к полям с устаревшими данными.
+   * @example
+   * const outdatedPaths = model.getAllOutdatedPaths();
+   * // [['title'], ['author', 'name']]
+   */
+  getAllOutdatedPaths(): PathSegment[][] {
+    const allPaths = this.getAllFieldPaths(this.schema.schema);
+    return allPaths.filter(path => this.isOutdated(path));
+  }
+
+  /**
+   * Обновляет все поля с устаревшими данными.
+   * Получает все outdated поля и вызывает refreshField для каждого.
+   * @example
+   * model.refreshAllOutdated();
+   */
+  refreshAllOutdated(): void {
+    const outdatedPaths = this.getAllOutdatedPaths();
+    for (const path of outdatedPaths) {
+      this.refreshField(path);
+    }
+  }
 }
