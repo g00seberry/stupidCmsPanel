@@ -3,7 +3,6 @@ import type { RuleKey, RuleConfig, RuleCategory } from './types';
 import { RequiredRuleRenderer } from './renderers/basic/RequiredRuleRenderer';
 import { MinMaxRuleRenderer } from './renderers/basic/MinMaxRuleRenderer';
 import { PatternRuleRenderer } from './renderers/basic/PatternRuleRenderer';
-import { ArrayItemsRuleRenderer } from './renderers/array/ArrayItemsRuleRenderer';
 import { ArrayUniqueRuleRenderer } from './renderers/array/ArrayUniqueRuleRenderer';
 import { ConditionalRuleRenderer } from './renderers/conditional/ConditionalRuleRenderer';
 import { FieldComparisonRuleRenderer } from './renderers/complex/FieldComparisonRuleRenderer';
@@ -52,28 +51,8 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
     },
     renderer: PatternRuleRenderer,
   },
-  array_min_items: {
-    key: 'array_min_items',
-    meta: {
-      label: 'Минимальное количество элементов',
-      description: 'Минимальное количество элементов в массиве',
-      category: 'array',
-      cardinality: ['many'],
-    },
-    renderer: ArrayItemsRuleRenderer,
-  },
-  array_max_items: {
-    key: 'array_max_items',
-    meta: {
-      label: 'Максимальное количество элементов',
-      description: 'Максимальное количество элементов в массиве',
-      category: 'array',
-      cardinality: ['many'],
-    },
-    renderer: ArrayItemsRuleRenderer,
-  },
-  array_unique: {
-    key: 'array_unique',
+  distinct: {
+    key: 'distinct',
     meta: {
       label: 'Уникальность элементов',
       description: 'Требовать уникальность всех элементов в массиве',

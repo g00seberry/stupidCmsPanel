@@ -98,11 +98,9 @@ export type ZFieldComparisonRule = z.infer<typeof zFieldComparisonRule>;
  *   pattern: '/^[A-Z]/'
  * };
  * const arrayRules: ZValidationRules = {
- *   array_min_items: 2,
- *   array_max_items: 10,
  *   min: 3,
  *   max: 50,
- *   array_unique: true
+ *   distinct: true
  * };
  * const conditionalRules: ZValidationRules = {
  *   required_if: { field: 'is_published', value: true, operator: '==' }
@@ -117,12 +115,8 @@ export const zValidationRules = z.object({
   max: z.number().optional(),
   /** Регулярное выражение для валидации строки. */
   pattern: z.string().optional(),
-  /** Минимальное количество элементов в массиве (только для cardinality: 'many'). */
-  array_min_items: z.number().optional(),
-  /** Максимальное количество элементов в массиве (только для cardinality: 'many'). */
-  array_max_items: z.number().optional(),
   /** Требование уникальности элементов массива (только для cardinality: 'many'). */
-  array_unique: z.boolean().optional(),
+  distinct: z.boolean().optional(),
   /** Поле обязательно, если условие выполнено. */
   required_if: zConditionalRule.optional(),
   /** Поле запрещено, если условие не выполнено. */

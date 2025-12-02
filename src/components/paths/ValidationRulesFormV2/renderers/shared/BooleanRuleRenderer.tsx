@@ -12,37 +12,28 @@ export type PropsBooleanRuleRenderer = RuleRendererProps & {
 };
 
 /**
- * Компонент рендеринга boolean правил (required, array_unique).
+ * Компонент рендеринга boolean правил (required, distinct).
  * Отображает переключатель для boolean значений.
  */
-export const BooleanRuleRenderer: React.FC<PropsBooleanRuleRenderer> = observer(({
-  store,
-  ruleKey,
-  isReadonly,
-  tooltip,
-}) => {
-  const [form] = Form.useForm();
-  const value = store.getRule(ruleKey);
+export const BooleanRuleRenderer: React.FC<PropsBooleanRuleRenderer> = observer(
+  ({ store, ruleKey, isReadonly, tooltip }) => {
+    const [form] = Form.useForm();
+    const value = store.getRule(ruleKey);
 
-  useEffect(() => {
-    form.setFieldsValue({ value: value ?? false });
-  }, [value, form]);
+    useEffect(() => {
+      form.setFieldsValue({ value: value ?? false });
+    }, [value, form]);
 
-  const handleChange = (checked: boolean) => {
-    store.setRule(ruleKey, checked);
-  };
+    const handleChange = (checked: boolean) => {
+      store.setRule(ruleKey, checked);
+    };
 
-  return (
-    <Form form={form}>
-      <Form.Item
-        label="Значение"
-        name="value"
-        valuePropName="checked"
-        tooltip={tooltip}
-      >
-        <Switch disabled={isReadonly} onChange={handleChange} />
-      </Form.Item>
-    </Form>
-  );
-});
-
+    return (
+      <Form form={form}>
+        <Form.Item label="Значение" name="value" valuePropName="checked" tooltip={tooltip}>
+          <Switch disabled={isReadonly} onChange={handleChange} />
+        </Form.Item>
+      </Form>
+    );
+  }
+);
