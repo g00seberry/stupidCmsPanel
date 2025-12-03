@@ -1,10 +1,9 @@
 import { makeAutoObservable } from 'mobx';
 import type { FormValues } from './types';
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
-import { createDefaultValues } from '@/components/schemaForm/formModelUtils';
+import { createDefaultValues, flatSchema } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import type { ZEditComponent } from './ZComponent';
-
 /**
  * Модель формы на основе схемы сущности.
  * Управляет состоянием формы: значениями, ошибками валидации и операциями над данными.
@@ -163,21 +162,6 @@ export class FormModel {
   }
 
   /**
-   * Проверяет соответствие значения и cardinality поля.
-   * @param value Значение поля.
-   * @param cardinality Ожидаемый cardinality ('one' или 'many').
-   * @returns `true`, если значение не соответствует cardinality.
-   */
-  private isCardinalityMismatch(value: unknown, cardinality: 'one' | 'many'): boolean {
-    if (cardinality === 'many') {
-      // Для 'many' значение должно быть массивом (или undefined/null)
-      return value !== undefined && value !== null && !Array.isArray(value);
-    }
-    // Для 'one' значение НЕ должно быть непустым массивом
-    return Array.isArray(value) && value.length > 0;
-  }
-
-  /**
    * Проверяет, содержит ли поле по указанному пути устаревшие данные.
    * Устаревшими считаются данные, которые не соответствуют текущей схеме поля,
    * например, когда cardinality изменился с 'one' на 'many' или наоборот.
@@ -188,63 +172,42 @@ export class FormModel {
    * // true, если title должен быть массивом, но является строкой, или наоборот
    */
   isOutdated(path: PathSegment[]): boolean {
-    if (path.length === 0) {
+    const finalValue = getValueByPath(this.values, path);
+    const schemaLikePath = path.filter(item => typeof item === 'string');
+    const flattenedSchema = flatSchema(this.schema);
+    const finalSchema = flattenedSchema.find(
+      item => item.path.join('.') === schemaLikePath.join('.')
+    )?.schema;
+
+    if (
+      finalValue === undefined ||
+      finalValue === null ||
+      finalSchema === undefined ||
+      typeof path[path.length - 1] === 'number'
+    ) {
       return false;
     }
 
-    let currentSchema = this.schema.schema;
-    let currentValue: any = this.values;
-    let parentFieldSchema: ZBlueprintSchemaField | null = null;
+    if (finalSchema.cardinality === 'one') {
+      return Array.isArray(finalValue);
+    }
 
-    for (let i = 0; i < path.length; i++) {
-      const segment = path[i];
-      const isLastSegment = i === path.length - 1;
-
-      // Обработка числового сегмента (индекс массива)
-      if (typeof segment === 'number') {
-        if (!Array.isArray(currentValue)) {
-          return false;
-        }
-        currentValue = currentValue[segment];
-        // Если путь заканчивается индексом, проверяем родительское поле
-        if (isLastSegment && parentFieldSchema) {
-          return parentFieldSchema.cardinality !== 'many';
-        }
-        continue;
-      }
-
-      // Обработка строкового сегмента (ключ объекта)
-      const fieldSchema = currentSchema[segment];
-      if (!fieldSchema) {
-        return false;
-      }
-
-      const fieldValue = currentValue?.[segment];
-
-      // Проверка последнего сегмента на соответствие cardinality
-      if (isLastSegment) {
-        return this.isCardinalityMismatch(fieldValue, fieldSchema.cardinality);
-      }
-
-      // Продолжение обхода для вложенных json полей
-      if (fieldSchema.type === 'json' && fieldSchema.children) {
-        if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
-          currentSchema = fieldSchema.children;
-          currentValue = fieldValue;
-          parentFieldSchema = fieldSchema;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
+    if (finalSchema.cardinality === 'many') {
+      return !Array.isArray(finalValue);
     }
 
     return false;
   }
 
+  /**
+   * Обновляет поле по указанному пути, устанавливая его значение в `undefined`.
+   * Используется для сброса устаревших полей к значениям по умолчанию.
+   * @param path Массив сегментов пути к полю.
+   * @example
+   * model.refreshField(['title']);
+   * // Поле title будет установлено в undefined, что приведёт к пересозданию значения по умолчанию
+   */
   refreshField(path: PathSegment[]): void {
-    console.log('refreshField', path);
     this.setValue(path, undefined);
   }
 

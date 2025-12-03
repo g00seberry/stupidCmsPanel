@@ -1,5 +1,6 @@
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { FormValues } from './types';
+import type { PathSegment } from '@/utils/pathUtils';
 
 /**
  * Создаёт значение по умолчанию для поля на основе его типа.
@@ -139,4 +140,26 @@ export const createDefaultValues = (
   initial?: Partial<FormValues>
 ): FormValues => {
   return mergeWithInitial(schema.schema, initial as Record<string, any>) as FormValues;
+};
+
+/**
+ * Рекурсивно преобразует схему в плоский список путей и схем полей.
+ * Используется для поиска схемы поля по пути в isOutdated.
+ * @param schema Схема для преобразования.
+ * @param parentPath Путь к родительскому полю.
+ * @returns Массив объектов с путём и схемой поля.
+ */
+export const flatSchema = (
+  schema: ZBlueprintSchema,
+  parentPath: PathSegment[] = []
+): Array<{ path: PathSegment[]; schema: ZBlueprintSchemaField }> => {
+  const result: Array<{ path: PathSegment[]; schema: ZBlueprintSchemaField }> = [];
+  const list = Object.entries(schema.schema);
+  for (const [key, value] of list) {
+    result.push({ path: [...parentPath, key], schema: value });
+    if (value.type === 'json' && value.children) {
+      result.push(...flatSchema({ schema: value.children }, [...parentPath, key]));
+    }
+  }
+  return result;
 };

@@ -1,3 +1,4 @@
+import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { ZPath } from '@/types/path';
 
 /**
@@ -85,10 +86,26 @@ export const findPathInTree = (paths: ZPath[], pathId: number): ZPath | undefine
   return undefined;
 };
 
+/**
+ * Рекурсивно преобразует дерево путей в плоский массив.
+ * Используется для построения карты путей по ID в buildPathWayToRoot.
+ * @param paths Массив путей для преобразования.
+ * @returns Плоский массив всех путей из дерева.
+ */
 const flatTree = (paths: ZPath[]): ZPath[] => {
   return paths.flatMap(path => [path, ...flatTree(path.children || [])]);
 };
 
+/**
+ * Строит путь от указанного узла до корня дерева путей.
+ * Рекурсивно обходит дерево по parent_id, собирая все узлы на пути к корню.
+ * @param paths Дерево путей для поиска.
+ * @param pathId Идентификатор начального узла.
+ * @returns Массив путей от указанного узла до корня (включая сам узел).
+ * @example
+ * const way = buildPathWayToRoot(pathStore.paths, 5);
+ * // [path5, path3, path1] - путь от узла 5 через родителя 3 до корня 1
+ */
 export const buildPathWayToRoot = (paths: ZPath[], pathId: number): ZPath[] => {
   const flatPaths = flatTree(paths);
   const flatMap = new Map<number, ZPath>(flatPaths.map(path => [path.id, path]));
