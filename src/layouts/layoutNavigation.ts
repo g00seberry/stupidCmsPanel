@@ -59,14 +59,3 @@ export const sidebarLinks: readonly SidebarLink[] = [
 export const systemSidebarLinks: readonly SidebarLink[] = [
   { title: 'Настройки', url: PageUrl.Settings, icon: Settings },
 ] as const;
-
-/**
- * Ссылки основного горизонтального меню.
- */
-export const headerLinks: readonly HeaderLink[] = [
-  { title: 'Dashboard', url: PageUrl.Dashboard, exact: true },
-  { title: 'Media', url: PageUrl.Media },
-  { title: 'Taxonomies', url: PageUrl.Taxonomies },
-  { title: 'Content Types', url: PageUrl.ContentTypes },
-  { title: 'Blueprints', url: PageUrl.Blueprints },
-] as const;

@@ -1,36 +1,20 @@
 import { authStore } from '@/AuthStore';
-import type { HeaderLink } from '@/layouts/layoutNavigation';
-import { joinClassNames } from '@/utils/joinClassNames';
 import { ChevronDown, LogOut, Sliders } from 'lucide-react';
-import type { FC } from 'react';
+import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-
-/**
- * Пропсы компонента верхнего меню.
- */
-export interface PropsMainHeader {
-  /**
-   * Ссылки для навигации.
-   */
-  readonly links: ReadonlyArray<HeaderLink>;
-}
+import { useLocation } from 'react-router-dom';
 
 /**
  * Верхняя панель управления с навигацией и меню пользователя.
  * @param props Свойства компонента.
  * @returns Разметку шапки страницы.
  */
-export const MainHeader: FC<PropsMainHeader> = props => {
-  const { links } = props;
+export const MainHeader = observer(() => {
   const { name: userName, email: userEmail } = authStore.user ?? {};
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
-
-  const headerNavLinkBaseClass =
-    'px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-primary-foreground/10';
 
   useEffect(() => {
     if (!isProfileMenuOpen) {
@@ -70,21 +54,6 @@ export const MainHeader: FC<PropsMainHeader> = props => {
           <span className="font-semibold text-lg">CMS</span>
         </div>
 
-        <nav className="flex items-center gap-1 ml-8">
-          {links.map(link => (
-            <NavLink
-              key={link.url}
-              to={link.url}
-              end={link.exact}
-              className={({ isActive }) =>
-                joinClassNames(headerNavLinkBaseClass, isActive ? 'bg-primary-foreground/20' : '')
-              }
-            >
-              {link.title}
-            </NavLink>
-          ))}
-        </nav>
-
         <div className="ml-auto relative" ref={profileMenuRef}>
           <button
             type="button"
@@ -120,4 +89,4 @@ export const MainHeader: FC<PropsMainHeader> = props => {
       </div>
     </header>
   );
-};
+});

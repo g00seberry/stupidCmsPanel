@@ -1,6 +1,6 @@
 import { MainHeader } from '@/layouts/components/MainHeader';
 import { MainSidebar } from '@/layouts/components/MainSidebar';
-import { headerLinks, sidebarLinks, systemSidebarLinks } from '@/layouts/layoutNavigation';
+import { sidebarLinks, systemSidebarLinks } from '@/layouts/layoutNavigation';
 import type { FC, ReactNode } from 'react';
 import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -44,7 +44,7 @@ export const MainLayout: FC<PropsMainLayout> = props => {
         onToggle={handleToggleSidebar}
       />
       <div className="flex flex-1 flex-col">
-        <MainHeader links={headerLinks} />
+        <MainHeader />
         <main className="flex flex-1 flex-col">{children}</main>
       </div>
     </div>
