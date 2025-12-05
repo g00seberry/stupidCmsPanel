@@ -15,7 +15,7 @@ export const sidebarFromFs = async (entries: Entry[]) => {
   // Путь к директории docs относительно .vitepress
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const docsDir = path.resolve(__dirname, '..');
-  
+
   for (const e of entries) {
     const dirPath = path.join(docsDir, e.dir);
     const files = await globby(['**/*.md'], { cwd: dirPath });
@@ -50,4 +50,3 @@ const firstHeading = (file: string): string | null => {
     return null;
   }
 };
-

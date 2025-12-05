@@ -12,16 +12,16 @@ const fixLinks = (content: string, currentDir: string): string => {
   // Вычисляем путь относительно docs/api
   const relativePath = path.relative('docs/api', currentDir);
   const depth = relativePath.split(path.sep).filter(p => p !== '.').length;
-  
+
   return content.replace(/\]\(([^)]+\.md)\)/g, (match, link) => {
     // Если ссылка уже абсолютная, оставляем как есть
     if (link.startsWith('/')) {
       return match;
     }
-    
+
     // Обрабатываем относительные ссылки
     let absoluteLink = link;
-    
+
     // Если ссылка начинается с ../, это относительный путь вверх
     if (link.startsWith('../')) {
       const upLevels = (link.match(/\.\.\//g) || []).length;
@@ -46,7 +46,7 @@ const fixLinks = (content: string, currentDir: string): string => {
       const dirParts = relativePath.split(path.sep).filter(p => p !== '.');
       absoluteLink = `/api/${[...dirParts, linkPath].join('/')}`;
     }
-    
+
     return `](${absoluteLink})`;
   });
 };
@@ -61,12 +61,12 @@ const createIndexFromReadme = async (readmePath: string, apiDir: string) => {
     const readmeContent = await fs.readFile(readmePath, 'utf8');
     const dir = path.dirname(readmePath);
     const indexPath = path.join(dir, 'index.md');
-    
+
     // Извлекаем заголовок и контент из README
     const lines = readmeContent.split('\n');
     let title = 'API Документация';
     let contentStart = 0;
-    
+
     // Ищем заголовок
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith('# ')) {
@@ -75,7 +75,7 @@ const createIndexFromReadme = async (readmePath: string, apiDir: string) => {
         break;
       }
     }
-    
+
     // Улучшаем заголовок
     if (title === 'admin' || title.toLowerCase().includes('admin') || title.includes('/')) {
       // Для главного index.md используем специальный заголовок
@@ -91,7 +91,7 @@ const createIndexFromReadme = async (readmePath: string, apiDir: string) => {
           .replace(/([A-Z])/g, ' $1')
           .replace(/^./, str => str.toUpperCase())
           .trim();
-        
+
         // Специальные случаи
         if (title.toLowerCase() === 'api auth') {
           title = 'API Авторизация';
@@ -110,41 +110,50 @@ const createIndexFromReadme = async (readmePath: string, apiDir: string) => {
         }
       }
     }
-    
+
     // Создаём index.md с правильным заголовком и контентом
     let restContent = lines.slice(contentStart).join('\n');
-    
+
     // Удаляем ссылку на родительский README если есть (только строку с ссылкой, не весь текст)
     restContent = restContent.replace(/^\*\*.*?\*\*.*$/gm, ''); // Удаляем строки вида **admin**
     restContent = restContent.replace(/^\*\*\*+.*$/gm, ''); // Удаляем разделители
     restContent = restContent.replace(/^\[.*?\]\(.*?README\.md\).*$/gm, ''); // Удаляем строки со ссылками на README
-    
+
     // Преобразуем ссылки: заменяем README.md на / для index.md
     // Сначала обрабатываем ссылки вида [text](path/README.md)
     restContent = restContent.replace(/\]\(([^)]+)\/README\.md\)/g, (match, linkPath) => {
       // Вычисляем абсолютный путь относительно docs/api
       const relativePath = path.relative(apiDir, dir);
       const targetPath = path.join(relativePath === '.' ? '' : relativePath, linkPath);
-      const normalizedPath = targetPath.split(path.sep).filter(p => p).join('/');
+      const normalizedPath = targetPath
+        .split(path.sep)
+        .filter(p => p)
+        .join('/');
       return `](/api/${normalizedPath}/)`;
     });
-    
+
     // Обрабатываем ссылки вида [text](README.md) - это ссылки в текущей директории
     restContent = restContent.replace(/\]\(([^)]*?)README\.md\)/g, (match, linkPath) => {
       if (!linkPath || linkPath === './') {
         // Текущая директория
         const relativePath = path.relative(apiDir, dir);
-        const normalizedPath = relativePath === '.' ? '' : relativePath.split(path.sep).filter(p => p).join('/');
+        const normalizedPath =
+          relativePath === '.'
+            ? ''
+            : relativePath
+                .split(path.sep)
+                .filter(p => p)
+                .join('/');
         return `](/api/${normalizedPath}/)`;
       }
       return match;
     });
-    
+
     // Исправляем оставшиеся ссылки через fixLinks
     restContent = fixLinks(restContent, dir);
-    
+
     const indexContent = `# ${title}\n\n${restContent.trim()}\n`;
-    
+
     await fs.writeFile(indexPath, indexContent, 'utf8');
     console.log(`Created ${indexPath}`);
   } catch (error) {
@@ -157,25 +166,25 @@ const createIndexFromReadme = async (readmePath: string, apiDir: string) => {
  */
 const run = async () => {
   const apiDir = 'docs/api';
-  
+
   // Находим все README.md в docs/api и поддиректориях
   const readmeFiles = await globby(['**/README.md'], { cwd: apiDir });
-  
+
   // Создаём index.md для каждого README.md
   // Важно: сначала обрабатываем главный README.md, чтобы он имел доступ к apiDir
   const mainReadme = readmeFiles.find(f => f === 'README.md');
   const otherReadmes = readmeFiles.filter(f => f !== 'README.md');
-  
+
   if (mainReadme) {
     const readmePath = path.join(apiDir, mainReadme);
     await createIndexFromReadme(readmePath, apiDir);
   }
-  
+
   for (const readmeFile of otherReadmes) {
     const readmePath = path.join(apiDir, readmeFile);
     await createIndexFromReadme(readmePath, apiDir);
   }
-  
+
   console.log(`Created ${readmeFiles.length} index.md files`);
 };
 
@@ -183,4 +192,3 @@ run().catch(e => {
   console.error(e);
   process.exit(1);
 });
-

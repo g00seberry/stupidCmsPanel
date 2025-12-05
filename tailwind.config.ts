@@ -81,4 +81,3 @@ export default {
   },
   plugins: [animatePlugin],
 } satisfies Config;
-

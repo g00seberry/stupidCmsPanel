@@ -46,21 +46,21 @@ export type ZProblemJsonMeta = z.infer<typeof zProblemJsonMeta>;
 export const zProblemJson = z
   .object({
     /** URI, идентифицирующий тип проблемы. */
-    type: z.string().optional(),
+    type: z.string().nullish(),
     /** Краткое описание проблемы. */
-    title: z.string().optional(),
+    title: z.string().nullish(),
     /** HTTP статус код ошибки. */
-    status: z.number().optional(),
+    status: z.number().nullish(),
     /** Внутренний код ошибки приложения. */
-    code: z.string().optional(),
+    code: z.string().nullish(),
     /** Подробное описание проблемы. */
-    detail: z.string().optional(),
+    detail: z.string().nullish(),
     /** URI, указывающий на конкретный экземпляр проблемы. */
-    instance: z.string().optional(),
+    instance: z.string().nullish(),
     /** Дополнительные мета-данные об ошибке. */
-    meta: zProblemJsonMeta.optional(),
+    meta: zProblemJsonMeta.nullish(),
     /** Идентификатор трассировки для отладки. */
-    trace_id: z.string().optional(),
+    trace_id: z.string().nullish(),
   })
   .catchall(z.unknown());
 

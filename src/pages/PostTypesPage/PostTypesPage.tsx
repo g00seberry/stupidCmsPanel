@@ -49,7 +49,7 @@ export const PostTypesPage = () => {
             <div className="flex items-center gap-3">
               <Button
                 type="primary"
-                onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: 'new' }))}
+                onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
                 icon={<Plus className="w-4 h-4" />}
               >
                 Создать тип
@@ -86,12 +86,12 @@ export const PostTypesPage = () => {
                     </p>
                   )}
                   <div className="flex gap-2 pt-2">
-                    <Link to={buildUrl(PageUrl.EntriesByType, { postType: postType.slug })}>
+                    <Link to={buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id })}>
                       <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
                         Записи
                       </Button>
                     </Link>
-                    <Link to={buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug })}>
+                    <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })}>
                       <Button size="small">Редактировать</Button>
                     </Link>
                   </div>

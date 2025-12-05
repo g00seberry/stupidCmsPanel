@@ -28,4 +28,3 @@ export type ZTemplate = z.infer<typeof zTemplate>;
  * Тип ответа API получения списка шаблонов.
  */
 export type ZTemplatesResponse = z.infer<typeof zTemplatesResponse>;
-

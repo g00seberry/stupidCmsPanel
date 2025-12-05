@@ -15,7 +15,9 @@ const parser = withCustomConfig('tsconfig.json', {
  * @returns Экранированная строка.
  */
 const mdEscape = (s: string): string => {
-  return String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+  return String(s ?? '')
+    .replace(/\|/g, '\\|')
+    .replace(/\n/g, ' ');
 };
 
 /**
@@ -83,4 +85,3 @@ run().catch(e => {
   console.error(e);
   process.exit(1);
 });
-

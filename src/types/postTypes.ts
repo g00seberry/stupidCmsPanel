@@ -27,20 +27,26 @@ export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
  * Тип контента определяет структуру и настройки для записей определённого вида.
  * @example
  * const postType: ZPostType = {
+ *   id: 1,
  *   slug: 'article',
  *   name: 'Articles',
  *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } },
+ *   blueprint_id: 1,
  *   created_at: '2025-01-10T12:45:00+00:00',
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };
  */
 export const zPostType = z.object({
+  /** Уникальный числовой идентификатор типа контента. */
+  id: zId,
   /** Уникальный идентификатор типа контента (URL-friendly строка). */
   slug: z.string(),
   /** Отображаемое название типа контента. */
   name: z.string(),
   /** Дополнительные настройки типа контента в формате JSON. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
+  /** ID привязанного Blueprint. `null` если Blueprint не привязан. */
+  blueprint_id: zId.nullable().optional(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -69,6 +75,8 @@ export const zPostTypePayload = z.object({
   name: z.string().min(1),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
+  /** ID Blueprint для привязки. `null` для отвязки. Опционально. */
+  blueprint_id: zId.nullable().optional(),
 });
 
 /**

@@ -1,20 +1,19 @@
 import { rest } from '@/api/rest';
-import {
-  zEntriesResponse,
-  zEntriesStatusesResponse,
-  zEntryResponse,
-  zEntryPayload,
-  zEntryTermsResponse,
-  zEntryTermsPayload,
-} from '@/types/entries';
 import type {
-  ZEntry,
   ZEntriesListParams,
+  ZEntry,
   ZEntryPayload,
   ZEntryTermsData,
   ZEntryTermsPayload,
 } from '@/types/entries';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import {
+  zEntriesResponse,
+  zEntriesStatusesResponse,
+  zEntryResponse,
+  zEntryTermsPayload,
+  zEntryTermsResponse,
+} from '@/types/entries';
+import type { ZPaginationLinks, ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
@@ -29,8 +28,8 @@ const buildQueryParams = (
 ): Record<string, number | ZId | number[] | ZId[]> => {
   const queryParams: Record<string, number | ZId | number[] | ZId[]> = {};
 
-  if (params.post_type) {
-    queryParams.post_type = params.post_type;
+  if (params.post_type_id) {
+    queryParams.post_type_id = params.post_type_id;
   }
 
   if (params.status && params.status !== 'all') {
@@ -84,7 +83,7 @@ const buildQueryParams = (
  * @returns Объект с массивом записей, метаданными пагинации и ссылками.
  * @example
  * const result = await listEntries({
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   status: 'published',
  *   per_page: 20,
  *   page: 1
@@ -142,7 +141,7 @@ export const getEntry = async (id: ZId): Promise<ZEntry> => {
  * @returns Созданная запись.
  * @example
  * const newEntry = await createEntry({
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   content_json: { hero: { title: 'Launch' } },
@@ -150,8 +149,7 @@ export const getEntry = async (id: ZId): Promise<ZEntry> => {
  * });
  */
 export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
-  const parsedPayload = zEntryPayload.parse(payload);
-  const response = await rest.post(getAdminEntriesUrl(''), parsedPayload);
+  const response = await rest.post(getAdminEntriesUrl(''), payload);
   const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
 };
@@ -168,8 +166,7 @@ export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
  * });
  */
 export const updateEntry = async (id: ZId, payload: ZEntryPayload): Promise<ZEntry> => {
-  const parsedPayload = zEntryPayload.parse(payload);
-  const response = await rest.put(getAdminEntriesUrl(`/${id}`), parsedPayload);
+  const response = await rest.put(getAdminEntriesUrl(`/${id}`), payload);
   const parsed = zEntryResponse.parse(response.data);
   return parsed.data;
 };

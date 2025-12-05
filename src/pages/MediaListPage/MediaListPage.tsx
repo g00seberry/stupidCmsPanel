@@ -5,7 +5,7 @@ import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia, ZMediaListParams } from '@/types/media';
 import { App, Checkbox, Modal, Pagination, Typography } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MediaListStore } from './MediaListStore';
 import {
@@ -26,12 +26,13 @@ export const MediaListPageMain = () => {
 export const MediaListPageTrash = () => {
   const store = useMemo(() => {
     const s = new MediaListStore();
-    s.loader.setFilters({
+    // Разделяем параметры на фильтры и пагинацию
+    s.loader.setFilters({ deleted: 'only' });
+    s.loader.setPagination({
       page: 1,
       per_page: 15,
       sort: 'created_at',
       order: 'desc',
-      deleted: 'only',
     });
     return s;
   }, []);
@@ -39,6 +40,52 @@ export const MediaListPageTrash = () => {
 };
 
 const { Title, Paragraph } = Typography;
+
+/**
+ * Преобразует значения формы в параметры фильтрации медиа (без пагинации и сортировки).
+ * @param values Значения формы фильтров.
+ * @returns Параметры фильтрации для API.
+ */
+const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaListParams> => {
+  const filters: Partial<ZMediaListParams> = {};
+
+  if (values.q && typeof values.q === 'string' && values.q.trim()) {
+    filters.q = values.q.trim();
+  }
+
+  if (values.kind && typeof values.kind === 'string') {
+    filters.kind = values.kind as ZMediaListParams['kind'];
+  }
+
+  if (values.mime && typeof values.mime === 'string' && values.mime.trim()) {
+    filters.mime = values.mime.trim();
+  }
+
+  if (values.deleted && typeof values.deleted === 'string') {
+    filters.deleted = values.deleted as ZMediaListParams['deleted'];
+  }
+
+  return filters;
+};
+
+/**
+ * Преобразует значения формы в параметры пагинации и сортировки.
+ * @param values Значения формы фильтров.
+ * @returns Параметры пагинации и сортировки для API.
+ */
+const convertToMediaPagination = (values: Record<string, unknown>): Partial<ZMediaListParams> => {
+  const pagination: Partial<ZMediaListParams> = {};
+
+  if (values.sort && typeof values.sort === 'string') {
+    pagination.sort = values.sort as ZMediaListParams['sort'];
+  }
+
+  if (values.order && typeof values.order === 'string') {
+    pagination.order = values.order as ZMediaListParams['order'];
+  }
+
+  return pagination;
+};
 
 /**
  * Пропсы универсального компонента списка медиа-файлов.
@@ -55,6 +102,13 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   const { modal, message } = App.useApp();
   const [uploadVisible, setUploadVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Отслеживание изменений фильтров и вызов onApply с дебаунсингом
+  useEffect(() => {
+    const filters = convertToMediaFilters(store.filterStore.values);
+    const pagination = convertToMediaPagination(store.filterStore.values);
+    handleApplyFilters(filters, pagination);
+  }, [store.filterStore.values]);
 
   /**
    * Обрабатывает изменение страницы пагинации.
@@ -168,17 +222,18 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   };
 
   /**
-   * Обрабатывает применение фильтров.
+   * Обрабатывает применение фильтров и параметров пагинации.
+   * @param filters Параметры фильтрации (без пагинации и сортировки).
+   * @param pagination Параметры пагинации и сортировки.
    */
-  const handleApplyFilters = (filters: Partial<ZMediaListParams>) => {
+  const handleApplyFilters = (
+    filters: Partial<ZMediaListParams>,
+    pagination?: Partial<ZMediaListParams>
+  ) => {
     store.loader.setFilters(filters);
-  };
-
-  /**
-   * Обрабатывает сброс фильтров.
-   */
-  const handleResetFilters = async () => {
-    await store.resetFilters();
+    if (pagination && Object.keys(pagination).length > 0) {
+      store.loader.setPagination(pagination);
+    }
   };
 
   const totalCount = store.loader.paginationMeta?.total || 0;
@@ -233,14 +288,7 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
         )}
 
         {/* Фильтры */}
-        {!isTrashMode && (
-          <MediaFilters
-            store={store.filterStore}
-            onApply={handleApplyFilters}
-            onReset={handleResetFilters}
-            cardClassName="mb-6"
-          />
-        )}
+        {!isTrashMode && <MediaFilters store={store.filterStore} cardClassName="mb-6" />}
 
         {/* Панель массового выбора */}
         {store.loader.data.length > 0 && (

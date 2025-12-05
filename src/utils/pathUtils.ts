@@ -1,0 +1,125 @@
+import type { ZPath } from '@/types/path';
+import type { ZId } from '@/types/ZId';
+
+/**
+ * Сегмент пути в объекте.
+ * Может быть строковым ключом объекта или числовым индексом массива.
+ */
+export type PathSegment = string | number;
+
+/**
+ * Получить значение из объекта по пути.
+ * Рекурсивно обходит объект по сегментам пути и возвращает значение.
+ * @param obj Объект для обхода.
+ * @param path Массив сегментов пути (строки для ключей объектов, числа для индексов массивов).
+ * @returns Значение по пути или `undefined`, если путь не существует.
+ * @example
+ * const obj = { user: { name: 'John', tags: ['admin', 'user'] } };
+ * getValueByPath(obj, ['user', 'name']); // 'John'
+ * getValueByPath(obj, ['user', 'tags', 0]); // 'admin'
+ * getValueByPath(obj, ['user', 'age']); // undefined
+ */
+export const getValueByPath = (obj: any, path: PathSegment[]): any => {
+  return path.reduce((acc, seg) => (acc == null ? acc : acc[seg]), obj);
+};
+
+/**
+ * Установить значение в объект по пути.
+ * Создаёт промежуточные объекты и массивы при необходимости.
+ * @param obj Объект для изменения.
+ * @param path Массив сегментов пути.
+ * @param value Значение для установки.
+ * @example
+ * const obj = {};
+ * setValueByPath(obj, ['user', 'name'], 'John');
+ * // obj = { user: { name: 'John' } }
+ * setValueByPath(obj, ['user', 'tags', 0], 'admin');
+ * // obj = { user: { name: 'John', tags: ['admin'] } }
+ */
+export const setValueByPath = (obj: any, path: PathSegment[], value: any): void => {
+  if (!path.length) return;
+  const last = path[path.length - 1];
+  const parent = path.slice(0, -1).reduce((acc, seg) => {
+    if (acc[seg] == null) {
+      acc[seg] = typeof seg === 'number' ? [] : {};
+    }
+    return acc[seg];
+  }, obj);
+  parent[last] = value;
+};
+
+/**
+ * Преобразовать путь в строковое представление.
+ * Форматирует путь для отображения в UI и ключей ошибок валидации.
+ * Использует формат с точками для всех сегментов пути (включая индексы массивов).
+ * @param path Массив сегментов пути.
+ * @returns Строковое представление пути (например, "user.tags.0" или "rrrr.0.eeee.1").
+ * @example
+ * pathToString(['user', 'name']); // 'user.name'
+ * pathToString(['user', 'tags', 0]); // 'user.tags.0'
+ * pathToString(['rrrr', 0, 'eeee', 1]); // 'rrrr.0.eeee.1'
+ */
+export const pathToString = (path: PathSegment[]): string => {
+  return path.map(String).join('.');
+};
+
+/**
+ * Найти путь в дереве по ID.
+ * Рекурсивно обходит дерево путей и возвращает узел с указанным ID.
+ * @param paths Дерево путей для поиска.
+ * @param pathId Идентификатор искомого пути.
+ * @returns Найденный узел или `undefined`, если не найден.
+ * @example
+ * const path = findPathInTree(pathStore.paths, 5);
+ * if (path) {
+ *   console.log(path.name); // 'fieldName'
+ * }
+ */
+export const findPathInTree = (paths: ZPath[], pathId: ZId): ZPath | undefined => {
+  for (const path of paths) {
+    if (path.id === pathId) return path;
+    if (path.children) {
+      const found = findPathInTree(path.children, pathId);
+      if (found) return found;
+    }
+  }
+  return undefined;
+};
+
+/**
+ * Рекурсивно преобразует дерево путей в плоский массив.
+ * Используется для построения карты путей по ID в buildPathWayToRoot.
+ * @param paths Массив путей для преобразования.
+ * @returns Плоский массив всех путей из дерева.
+ */
+const flatTree = (paths: ZPath[]): ZPath[] => {
+  return paths.flatMap(path => [path, ...flatTree(path.children || [])]);
+};
+
+/**
+ * Строит путь от указанного узла до корня дерева путей.
+ * Рекурсивно обходит дерево по parent_id, собирая все узлы на пути к корню.
+ * @param paths Дерево путей для поиска.
+ * @param pathId Идентификатор начального узла.
+ * @returns Массив путей от указанного узла до корня (включая сам узел).
+ * @example
+ * const way = buildPathWayToRoot(pathStore.paths, 5);
+ * // [path5, path3, path1] - путь от узла 5 через родителя 3 до корня 1
+ */
+export const buildPathWayToRoot = (paths: ZPath[], pathId: ZId): ZPath[] => {
+  const flatPaths = flatTree(paths);
+  const flatMap = new Map<ZId, ZPath>(flatPaths.map(path => [path.id, path]));
+
+  let curr = flatMap.get(pathId);
+  if (!curr) return [];
+  const way: ZPath[] = [curr];
+  while (curr.parent_id) {
+    curr = flatMap.get(curr.parent_id);
+    if (curr) {
+      way.push(curr);
+    } else {
+      break;
+    }
+  }
+  return way;
+};

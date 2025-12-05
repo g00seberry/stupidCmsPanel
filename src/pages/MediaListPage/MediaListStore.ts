@@ -61,14 +61,6 @@ export class MediaListStore {
   }
 
   /**
-   * Сбрасывает фильтры к значениям по умолчанию.
-   */
-  async resetFilters(): Promise<void> {
-    await this.loader.resetFilters(defaultFilters);
-    this.filterStore.reset({ sort: 'created_at', order: 'desc' });
-  }
-
-  /**
    * Инициализирует загрузку данных при первом открытии страницы.
    */
   async initialize(): Promise<void> {

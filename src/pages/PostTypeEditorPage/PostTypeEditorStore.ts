@@ -99,12 +99,12 @@ export class PostTypeEditorStore {
 
   /**
    * Загружает данные типа контента для редактирования.
-   * @param slug Slug типа контента.
+   * @param id ID типа контента.
    */
-  async loadPostType(slug: string): Promise<void> {
+  async loadPostType(id: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
-      const postType = await getPostType(slug);
+      const postType = await getPostType(id);
       this.setCurrentPostType(postType);
       this.setFormValues(toFormValues(postType));
     } catch (error) {
@@ -136,14 +136,14 @@ export class PostTypeEditorStore {
    * Сохраняет тип контента (создаёт новый или обновляет существующий).
    * @param values Значения формы.
    * @param isEditMode Режим редактирования.
-   * @param currentSlug Текущий slug (для режима редактирования).
+   * @param currentId Текущий ID (для режима редактирования).
    * @returns Обновлённый тип контента.
    * @throws Ошибка валидации JSON или ошибка API.
    */
   async savePostType(
     values: FormValues,
     isEditMode: boolean,
-    currentSlug?: string
+    currentId?: ZId
   ): Promise<ZPostType | null> {
     this.setPending(true);
 
@@ -151,8 +151,8 @@ export class PostTypeEditorStore {
 
     try {
       const nextPostType =
-        isEditMode && currentSlug
-          ? await updatePostType(currentSlug, payload)
+        isEditMode && currentId
+          ? await updatePostType(currentId, payload)
           : await createPostType(payload);
       const successMessage = isEditMode ? 'Тип контента обновлён' : 'Тип контента создан';
       notificationService.showSuccess({ message: successMessage });
@@ -169,15 +169,15 @@ export class PostTypeEditorStore {
 
   /**
    * Удаляет тип контента.
-   * @param slug Slug типа контента для удаления.
+   * @param id ID типа контента для удаления.
    * @param force Если `true`, каскадно удаляет все записи этого типа.
    * @returns `true`, если удаление выполнено успешно.
    * @throws Ошибка 409 (CONFLICT), если тип содержит записи и `force=false`.
    */
-  async deletePostType(slug: string, force = false): Promise<boolean> {
+  async deletePostType(id: ZId, force = false): Promise<boolean> {
     this.setPending(true);
     try {
-      await deletePostType(slug, force);
+      await deletePostType(id, force);
       notificationService.showSuccess({ message: 'Тип контента удалён' });
       return true;
     } catch (error) {

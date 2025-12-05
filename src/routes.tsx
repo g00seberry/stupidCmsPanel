@@ -4,12 +4,17 @@ import { EntryEditorPage } from '@/pages/EntryEditorPage/EntryEditorPage';
 import { LoginPage } from '@/pages/LoginPage/LoginPage';
 import { PostTypeEditorPage } from '@/pages/PostTypeEditorPage/PostTypeEditorPage';
 import { PostTypesPage } from '@/pages/PostTypesPage/PostTypesPage';
+import { PostTypeBlueprintsPage } from '@/pages/PostTypeBlueprintsPage/PostTypeBlueprintsPage';
 import { TaxonomiesPage } from '@/pages/TaxonomiesPage/TaxonomiesPage';
 import { TaxonomiesEditorPage } from '@/pages/TaxonomiesEditorPage/TaxonomiesEditorPage';
 import { TermsPage } from '@/pages/TermsPage/TermsPage';
 import { TermEditorPage } from '@/pages/TermEditorPage/TermEditorPage';
 import { MediaListPageMain, MediaListPageTrash } from '@/pages/MediaListPage/MediaListPage';
 import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
+import { BlueprintListPage } from '@/pages/BlueprintsPage/BlueprintListPage';
+import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
+import { BlueprintSchemaPage } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPage';
+import { FormConfigPage } from '@/pages/FormConfigPage/FormConfigPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -23,6 +28,8 @@ export const routes = [
   { path: PageUrl.Entries, element: <EntriesListPage /> },
   { path: PageUrl.ContentTypes, element: <PostTypesPage /> },
   { path: PageUrl.ContentTypesEdit, element: <PostTypeEditorPage /> },
+  { path: PageUrl.ContentTypesBlueprints, element: <PostTypeBlueprintsPage /> },
+  { path: PageUrl.ContentTypesFormConfig, element: <FormConfigPage /> },
   { path: PageUrl.Taxonomies, element: <TaxonomiesPage /> },
   { path: PageUrl.TaxonomiesEdit, element: <TaxonomiesEditorPage /> },
   { path: PageUrl.TermsByTaxonomy, element: <TermsPage /> },
@@ -30,5 +37,8 @@ export const routes = [
   { path: PageUrl.Media, element: <MediaListPageMain /> },
   { path: PageUrl.MediaEdit, element: <MediaEditorPage /> },
   { path: PageUrl.MediaTrash, element: <MediaListPageTrash /> },
+  { path: PageUrl.Blueprints, element: <BlueprintListPage /> },
+  { path: PageUrl.BlueprintsEdit, element: <BlueprintEditorPage /> },
+  { path: PageUrl.BlueprintsSchema, element: <BlueprintSchemaPage /> },
   { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

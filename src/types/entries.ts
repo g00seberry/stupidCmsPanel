@@ -5,12 +5,31 @@ import { z } from 'zod';
 import { zId, type ZId } from './ZId';
 
 /**
+ * Схема валидации Blueprint в контексте Entry.
+ * Упрощённая версия Blueprint, возвращаемая в ответе Entry.
+ */
+const zEntryBlueprint = z.object({
+  /** Уникальный идентификатор Blueprint. */
+  id: zId,
+  /** Отображаемое название Blueprint. */
+  name: z.string(),
+  /** Уникальный код Blueprint (URL-friendly строка). */
+  code: z.string(),
+  /** Описание Blueprint. Может быть `null`. */
+  description: z.string().nullable(),
+  /** Дата создания в формате ISO 8601. Может быть `null`. */
+  created_at: z.string().nullable(),
+  /** Дата последнего обновления в формате ISO 8601. Может быть `null`. */
+  updated_at: z.string().nullable(),
+});
+
+/**
  * Схема валидации записи CMS.
  * Запись представляет собой единицу контента определённого типа.
  * @example
  * const entry: ZEntry = {
  *   id: 42,
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   status: 'published',
@@ -27,8 +46,8 @@ import { zId, type ZId } from './ZId';
 export const zEntry = z.object({
   /** Уникальный идентификатор записи. */
   id: zId,
-  /** Тип контента записи (slug типа). */
-  post_type: z.string(),
+  /** ID типа контента записи. */
+  post_type_id: z.number(),
   /** Заголовок записи. */
   title: z.string(),
   /** URL-friendly идентификатор записи. */
@@ -45,6 +64,8 @@ export const zEntry = z.object({
   meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Переопределение шаблона для записи. Может быть `null`. */
   template_override: z.string().nullable().optional(),
+  /** Blueprint, назначенный в PostType. Присутствует только если PostType имеет blueprint_id. */
+  blueprint: zEntryBlueprint.optional(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -92,8 +113,8 @@ export type ZEntriesStatusesResponse = z.infer<typeof zEntriesStatusesResponse>;
  * Параметры запроса списка записей.
  */
 export type ZEntriesListParams = {
-  /** Фильтр по slug типа контента. */
-  post_type?: string;
+  /** Фильтр по ID типа контента. */
+  post_type_id?: ZId;
   /** Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all. */
   status?: 'all' | 'draft' | 'published' | 'scheduled' | 'trashed';
   /** Поиск по названию/slug. */
@@ -139,7 +160,7 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  * Схема валидации данных для создания или обновления записи.
  * @example
  * const payload: ZEntryPayload = {
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   content_json: { hero: { title: 'Launch' } },
@@ -151,8 +172,8 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  * };
  */
 export const zEntryPayload = z.object({
-  /** Тип контента записи (slug типа). Обязателен при создании. */
-  post_type: z.string().optional(),
+  /** ID типа контента записи. Обязателен при создании. */
+  post_type_id: zId.optional(),
   /** Заголовок записи. */
   title: z.string().min(1),
   /** URL-friendly идентификатор записи. */

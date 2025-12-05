@@ -1,4 +1,5 @@
 import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsManager';
+import { SchemaForm } from '@/components/schemaForm/SchemaForm';
 import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { Card, DatePicker, Form, Input, Select, Spin, Switch } from 'antd';
@@ -6,19 +7,24 @@ import { Info } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { EntryEditorStore, type FormValues } from './EntryEditorStore';
+import { viewDate } from '@/utils/dateUtils';
 import { EntryEditorHeader } from './EntryEditorHeader';
+import { EntryEditorStore } from './EntryEditorStore';
+import type { EntryEditorFormValues } from './transforms';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Страница создания и редактирования записи CMS.
  */
 export const EntryEditorPage = observer(() => {
-  const { postType: postTypeSlug, id } = useParams<{ postType?: string; id?: string }>();
+  const { postTypeId, id } = useParams<{ postTypeId?: ZId; id?: ZId }>();
 
-  const store = useMemo(
-    () => (postTypeSlug && id ? new EntryEditorStore(postTypeSlug, id) : null),
-    [postTypeSlug, id]
-  );
+  const store = useMemo(() => {
+    if (postTypeId && id) {
+      return new EntryEditorStore(postTypeId, id);
+    }
+    return null;
+  }, [postTypeId, id]);
 
   if (!store) return null;
 
@@ -29,47 +35,57 @@ interface PropsInner {
   store: EntryEditorStore;
 }
 const Inner = observer(({ store }: PropsInner) => {
-  const [form] = Form.useForm<FormValues>();
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
-  const { currentPostTypeSlug: postTypeSlug, entryId: id } = store;
+  const postType = store.postType;
 
   useEffect(() => {
-    form.setFieldsValue(store?.formValues ?? {});
-  }, [form, store?.formValues]);
+    const formValues = { ...store.initialFormValues };
+    // Конвертируем published_at в dayjs объект, если это строка
+    if (formValues.published_at && typeof formValues.published_at === 'string') {
+      formValues.published_at = viewDate(formValues.published_at);
+    }
+    form.setFieldsValue(formValues);
+  }, [store.initialFormValues, form]);
 
   const handleSubmit = useCallback(
-    async (values: FormValues) => {
-      const nextEntry = await store.saveEntry(values, isEditMode, id, postTypeSlug);
-      if (nextEntry) {
-        const url = buildUrl(PageUrl.EntryEdit, {
-          postType: postTypeSlug,
-          id: String(nextEntry.id),
-        });
-        navigate(url, { replace: !isEditMode });
+    async (values: EntryEditorFormValues) => {
+      const finalValues: EntryEditorFormValues = {
+        ...values,
+        content_json: store.blueprintModel?.json ?? values.content_json,
+      };
+
+      const nextEntry = await store.saveEntry(finalValues);
+      if (nextEntry && postType) {
+        navigate(
+          buildUrl(PageUrl.EntryEdit, { postTypeId: postType.id, id: String(nextEntry.id) }),
+          {
+            replace: !isEditMode,
+          }
+        );
       }
     },
-    [isEditMode, navigate, postTypeSlug, id, store]
+    [isEditMode, navigate, postType, store]
   );
 
   const handleCancel = useCallback(() => {
-    navigate(
-      postTypeSlug ? buildUrl(PageUrl.EntriesByType, { postType: postTypeSlug }) : PageUrl.Entries
-    );
-  }, [navigate, postTypeSlug]);
+    if (postType) {
+      navigate(buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id }));
+    }
+  }, [navigate, postType]);
 
   const handleSave = useCallback(() => {
     form.submit();
   }, [form]);
-
   return (
     <div className="min-h-screen bg-background w-full">
       <EntryEditorHeader
         postType={store.postType}
         isEditMode={isEditMode}
         onSave={handleSave}
-        pending={store.pending}
+        pending={store.loading}
         onCancel={handleCancel}
       />
 
@@ -79,12 +95,7 @@ const Inner = observer(({ store }: PropsInner) => {
             <Spin size="large" />
           </div>
         ) : (
-          <Form<FormValues>
-            form={form}
-            layout="vertical"
-            initialValues={store.formValues}
-            onFinish={handleSubmit}
-          >
+          <Form<EntryEditorFormValues> form={form} layout="vertical" onFinish={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <Card className="p-6">
@@ -126,7 +137,7 @@ const Inner = observer(({ store }: PropsInner) => {
                           from={titleValue ?? ''}
                           holdOnChange={isEditMode}
                           placeholder="entry-slug"
-                          disabled={store.loading || store.pending}
+                          disabled={store.loading}
                         />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
@@ -190,16 +201,20 @@ const Inner = observer(({ store }: PropsInner) => {
                 {isEditMode && store.termsManagerStore && (
                   <Card className="p-6">
                     <Form.Item name="term_ids" className="mb-0">
-                      <EntryTermsManager
-                        store={store.termsManagerStore}
-                        disabled={store.pending || store.loading}
-                      />
+                      <EntryTermsManager store={store.termsManagerStore} disabled={store.loading} />
                     </Form.Item>
                   </Card>
                 )}
               </div>
             </div>
           </Form>
+        )}
+
+        {!store.loading && store.postType?.blueprint_id && store.blueprintModel && (
+          <Card className="p-6 mt-6">
+            <h2 className="text-2xl font-semibold mb-6">Данные Blueprint</h2>
+            <SchemaForm model={store.blueprintModel} />
+          </Card>
         )}
       </div>
     </div>

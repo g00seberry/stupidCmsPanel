@@ -45,7 +45,7 @@ export const EntryEditorHeader: React.FC<PropsEntryEditorHeader> = ({
               <>
                 <span>/</span>
                 <Link
-                  to={buildUrl(PageUrl.EntriesByType, { postType: postType.slug })}
+                  to={buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id })}
                   className="hover:text-foreground cursor-pointer transition-colors"
                 >
                   {postType.name}

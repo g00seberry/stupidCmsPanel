@@ -4,22 +4,23 @@ import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Spin } from 'antd';
 import axios from 'axios';
-import { Check, Info, Trash2 } from 'lucide-react';
+import { Check, Info, Trash2, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PostTypeEditorStore, type FormValues } from './PostTypeEditorStore';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Форма создания и редактирования типа контента CMS.
  */
 export const PostTypeEditorPage = observer(() => {
-  const { slug } = useParams<{ slug?: string }>();
+  const { id: postTypeId } = useParams<{ id?: ZId }>();
   const [form] = Form.useForm<FormValues>();
   const navigate = useNavigate();
   const { modal } = App.useApp();
-  const isEditMode = slug !== 'new' && slug !== undefined;
-  const store = useMemo(() => new PostTypeEditorStore(), [slug]);
+  const isEditMode = postTypeId !== 'new';
+  const store = useMemo(() => new PostTypeEditorStore(), [postTypeId]);
   const nameValue = Form.useWatch('name', form);
 
   // Синхронизация формы со стором при изменении данных в сторе
@@ -27,12 +28,12 @@ export const PostTypeEditorPage = observer(() => {
     form.setFieldsValue(store.formValues);
   }, [form, store.formValues]);
 
-  // Загрузка данных при изменении slug в режиме редактирования
+  // Загрузка данных при изменении id в режиме редактирования
   useEffect(() => {
-    if (slug && isEditMode) {
-      void store.loadPostType(slug);
+    if (postTypeId && isEditMode) {
+      void store.loadPostType(postTypeId);
     }
-  }, [slug, isEditMode, store]);
+  }, [postTypeId, isEditMode, store]);
 
   /**
    * Сохраняет изменения формы.
@@ -40,15 +41,15 @@ export const PostTypeEditorPage = observer(() => {
    */
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      const nextPostType = await store.savePostType(values, isEditMode, slug);
+      const nextPostType = await store.savePostType(values, isEditMode, postTypeId);
       if (nextPostType) {
         // Форма автоматически обновится через первый useEffect при изменении store.formValues
-        navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: nextPostType.slug }), {
+        navigate(buildUrl(PageUrl.ContentTypesEdit, { id: nextPostType.id }), {
           replace: false,
         });
       }
     },
-    [isEditMode, navigate, slug, store]
+    [isEditMode, navigate, postTypeId, store]
   );
 
   const handleCancel = useCallback(() => {
@@ -59,7 +60,7 @@ export const PostTypeEditorPage = observer(() => {
    * Обрабатывает удаление типа контента с подтверждением и обработкой ошибок.
    */
   const handleDelete = useCallback(async () => {
-    if (!slug || !isEditMode) {
+    if (!postTypeId || !isEditMode) {
       return;
     }
 
@@ -71,7 +72,7 @@ export const PostTypeEditorPage = observer(() => {
       cancelText: 'Отмена',
       onOk: async () => {
         try {
-          const success = await store.deletePostType(slug, false);
+          const success = await store.deletePostType(postTypeId, false);
           if (success) {
             navigate(PageUrl.ContentTypes);
           }
@@ -93,7 +94,7 @@ export const PostTypeEditorPage = observer(() => {
               okType: 'danger',
               cancelText: 'Отмена',
               onOk: async () => {
-                const forceSuccess = await store.deletePostType(slug, true);
+                const forceSuccess = await store.deletePostType(postTypeId, true);
                 if (forceSuccess) {
                   navigate(PageUrl.ContentTypes);
                 }
@@ -103,7 +104,7 @@ export const PostTypeEditorPage = observer(() => {
         }
       },
     });
-  }, [slug, isEditMode, navigate, store, modal]);
+  }, [postTypeId, isEditMode, navigate, store, modal]);
 
   return (
     <div className="min-h-screen bg-background w-full">
@@ -124,15 +125,30 @@ export const PostTypeEditorPage = observer(() => {
               </span>
             </div>
             <div className="flex items-center gap-3">
-              {isEditMode && (
-                <Button
-                  danger
-                  onClick={handleDelete}
-                  loading={store.pending}
-                  icon={<Trash2 className="w-4 h-4" />}
-                >
-                  Удалить
-                </Button>
+              {isEditMode && postTypeId && (
+                <>
+                  <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
+                    <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
+                  </Link>
+                  {store.currentPostType?.blueprint_id && (
+                    <Link
+                      to={buildUrl(PageUrl.ContentTypesFormConfig, {
+                        id: postTypeId,
+                        blueprintId: String(store.currentPostType.blueprint_id),
+                      })}
+                    >
+                      <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
+                    </Link>
+                  )}
+                  <Button
+                    danger
+                    onClick={handleDelete}
+                    loading={store.pending}
+                    icon={<Trash2 className="w-4 h-4" />}
+                  >
+                    Удалить
+                  </Button>
+                </>
               )}
               <Button onClick={handleCancel}>Отмена</Button>
               <Button

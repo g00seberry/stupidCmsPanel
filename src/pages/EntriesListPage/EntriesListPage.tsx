@@ -14,47 +14,57 @@ import type { ZEntry } from '@/types/entries';
 import { PaginatedTable } from '@/components/PaginatedTable';
 import { FilterForm, FilterFormStore } from '@/components/FilterForm';
 import { viewDate } from '@/utils/dateUtils';
+import type { ZId } from '@/types/ZId';
 
+type FilterValues = {
+  q: string;
+  status: string;
+};
 const { Title, Paragraph } = Typography;
 
 /**
  * Страница со списком записей конкретного типа контента CMS.
  */
 export const EntriesListPage = observer(() => {
-  const { postType: postTypeSlug } = useParams<{ postType?: string }>();
+  const { postTypeId } = useParams<{ postTypeId?: ZId }>();
   const navigate = useNavigate();
   const store = useMemo(() => new EntriesListStore(), []);
-  const filterStore = useMemo(() => new FilterFormStore({ status: 'all' }), []);
+  const filterStore = useMemo(
+    () => new FilterFormStore<FilterValues>({ q: '', status: 'all' }),
+    []
+  );
   const [postType, setPostType] = useState<ZPostType | null>(null);
   const [loadingPostType, setLoadingPostType] = useState(false);
 
   // Загрузка информации о типе контента
   useEffect(() => {
-    if (postTypeSlug) {
+    if (postTypeId) {
       setLoadingPostType(true);
-      getPostType(postTypeSlug)
+      getPostType(postTypeId)
         .then(setPostType)
         .catch(onError)
         .finally(() => setLoadingPostType(false));
     }
-  }, [postTypeSlug]);
+  }, [postTypeId]);
 
   // Инициализация загрузки данных
   useEffect(() => {
-    if (postTypeSlug) {
-      void store.initialize(postTypeSlug);
+    if (postTypeId) {
+      void store.initialize(postTypeId);
     }
-  }, [postTypeSlug, store]);
+  }, [postTypeId, store]);
 
   // Реакция на изменение фильтров
   useEffect(() => {
-    if (postTypeSlug) {
+    if (postTypeId) {
       const values = filterStore.values;
       const status = (values.status as string) || 'all';
       const q = values.q as string | undefined;
-      void store.setFilters({ status: status as any, q, page: 1 }, postTypeSlug);
+      void store.setFilters({ status: status as any, q }, postTypeId);
+      // Сбрасываем страницу на первую при изменении фильтров
+      void store.goToPage(1, postTypeId);
     }
-  }, [filterStore.values, postTypeSlug, store]);
+  }, [filterStore.values, postTypeId, store]);
 
   /**
    * Маппинг статусов на отображаемые названия и цвета.
@@ -120,8 +130,10 @@ export const EntriesListPage = observer(() => {
           <Button
             type="link"
             onClick={() => {
-              if (postTypeSlug) {
-                navigate(buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(record.id) }));
+              if (postTypeId) {
+                navigate(
+                  buildUrl(PageUrl.EntryEdit, { postTypeId: postTypeId, id: String(record.id) })
+                );
               }
             }}
           >
@@ -169,9 +181,10 @@ export const EntriesListPage = observer(() => {
         },
       },
     ],
-    [statusMap, postTypeSlug, navigate]
+    [statusMap, postTypeId, navigate]
   );
 
+  const defaultValues: FilterValues = useMemo(() => ({ q: '', status: 'all' }), []);
   const pageTitle = postType ? `Записи: ${postType.name}` : 'Записи';
   const pageDescription = postType
     ? `Список записей типа контента "${postType.name}"`
@@ -196,7 +209,7 @@ export const EntriesListPage = observer(() => {
                   <span
                     className="hover:text-foreground cursor-pointer transition-colors"
                     onClick={() =>
-                      navigate(buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug }))
+                      navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postType.id }))
                     }
                   >
                     {postType.name}
@@ -207,12 +220,12 @@ export const EntriesListPage = observer(() => {
               <span className="text-foreground font-medium">Записи</span>
             </div>
             <div className="flex items-center gap-3">
-              {postTypeSlug && (
+              {postTypeId && (
                 <Button
                   type="primary"
                   icon={<Plus className="w-4 h-4" />}
                   onClick={() => {
-                    navigate(buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: 'new' }));
+                    navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
                   }}
                 >
                   Создать запись
@@ -238,7 +251,7 @@ export const EntriesListPage = observer(() => {
         <FilterForm
           store={filterStore}
           fields={filterFields}
-          defaultValues={{ status: 'all' }}
+          defaultValues={defaultValues}
           cardClassName="mb-6"
         />
 
