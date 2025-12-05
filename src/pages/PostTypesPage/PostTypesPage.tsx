@@ -72,14 +72,16 @@ export const PostTypesPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {postTypes.map(postType => (
               <Card
-                key={postType.slug}
+                key={postType.id}
                 className="transition-all hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>
-                  <code className="block text-sm text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
-                    {postType.slug}
-                  </code>
+                  {postType.template && (
+                    <code className="block text-sm text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
+                      {postType.template}
+                    </code>
+                  )}
                   {postType.updated_at && (
                     <p className="text-xs text-muted-foreground">
                       Обновлено: {new Date(postType.updated_at).toLocaleDateString('ru-RU')}

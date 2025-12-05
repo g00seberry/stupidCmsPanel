@@ -1,8 +1,7 @@
-import { SlugInput } from '@/components/SlugInput';
 import { TaxonomySelector } from '@/components/TaxonomySelector';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
-import { App, Button, Card, Form, Input, Spin } from 'antd';
+import { App, Button, Card, Form, Input, Select, Spin } from 'antd';
 import axios from 'axios';
 import { Check, Info, Trash2, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -21,7 +20,6 @@ export const PostTypeEditorPage = observer(() => {
   const { modal } = App.useApp();
   const isEditMode = postTypeId !== 'new';
   const store = useMemo(() => new PostTypeEditorStore(), [postTypeId]);
-  const nameValue = Form.useWatch('name', form);
 
   // Синхронизация формы со стором при изменении данных в сторе
   useEffect(() => {
@@ -32,6 +30,9 @@ export const PostTypeEditorPage = observer(() => {
   useEffect(() => {
     if (postTypeId && isEditMode) {
       void store.loadPostType(postTypeId);
+    } else {
+      // Загружаем шаблоны при создании нового типа контента
+      void store.loadTemplates();
     }
   }, [postTypeId, isEditMode, store]);
 
@@ -201,31 +202,26 @@ export const PostTypeEditorPage = observer(() => {
                       </p>
                     </div>
 
-                    {/* Slug */}
+                    {/* Template */}
                     <div className="space-y-2">
-                      <Form.Item
-                        label="Slug"
-                        name="slug"
-                        rules={[
-                          { required: true, message: 'Slug обязателен.' },
-                          {
-                            pattern: /^[a-z0-9-]+$/,
-                            message:
-                              'Slug может содержать только строчные латинские буквы, цифры и дефис.',
-                          },
-                        ]}
-                        className="mb-0"
-                      >
-                        <SlugInput
-                          from={nameValue ?? ''}
-                          holdOnChange={isEditMode}
-                          placeholder="article"
-                          disabled={store.initialLoading || store.pending}
+                      <Form.Item label="Шаблон" name="template" className="mb-0">
+                        <Select
+                          placeholder="Выберите шаблон"
+                          allowClear
+                          showSearch
+                          loading={store.initialLoading || store.pending}
+                          filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                          }
+                          options={store.templates.map(({ name }) => ({
+                            value: name,
+                            label: name,
+                          }))}
                         />
                       </Form.Item>
                       <p className="text-sm text-muted-foreground flex items-start gap-1">
                         <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>Уникальный идентификатор типа контента в URL</span>
+                        <span>Имя шаблона Blade для этого типа контента. Опциональное поле.</span>
                       </p>
                     </div>
                   </div>

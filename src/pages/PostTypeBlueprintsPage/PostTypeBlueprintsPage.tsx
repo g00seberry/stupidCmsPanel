@@ -78,8 +78,8 @@ export const PostTypeBlueprintsPage = observer(() => {
 
     try {
       await updatePostType(postTypeId, {
-        slug: postType.slug,
         name: postType.name,
+        template: postType.template ?? null,
         options_json: postType.options_json,
         blueprint_id: selectedBlueprintId,
       });

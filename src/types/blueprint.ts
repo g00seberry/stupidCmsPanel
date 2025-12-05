@@ -16,7 +16,7 @@ import { zId } from './ZId';
  *   embeds_count: 2,
  *   embedded_in_count: 1,
  *   post_types_count: 3,
- *   post_types: [{ slug: 'news', name: 'News', options_json: { taxonomies: [] } }],
+ *   post_types: [{ id: 1, name: 'News', template: 'templates.news', options_json: { taxonomies: [] } }],
  *   created_at: '2025-01-10T12:45:00+00:00',
  *   updated_at: '2025-01-10T12:45:00+00:00'
  * };

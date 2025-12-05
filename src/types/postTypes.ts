@@ -28,8 +28,8 @@ export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
  * @example
  * const postType: ZPostType = {
  *   id: 1,
- *   slug: 'article',
  *   name: 'Articles',
+ *   template: 'templates.article',
  *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } },
  *   blueprint_id: 1,
  *   created_at: '2025-01-10T12:45:00+00:00',
@@ -39,10 +39,18 @@ export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
 export const zPostType = z.object({
   /** Уникальный числовой идентификатор типа контента. */
   id: zId,
-  /** Уникальный идентификатор типа контента (URL-friendly строка). */
-  slug: z.string(),
   /** Отображаемое название типа контента. */
   name: z.string(),
+  /** Путь к шаблону Blade. Должен начинаться с `templates.`. Может быть `null`. */
+  template: z
+    .union([
+      z
+        .string()
+        .max(255, 'Максимум 255 символов')
+        .refine(val => val.startsWith('templates.'), 'Шаблон должен начинаться с templates.'),
+      z.null(),
+    ])
+    .optional(),
   /** Дополнительные настройки типа контента в формате JSON. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
   /** ID привязанного Blueprint. `null` если Blueprint не привязан. */
@@ -63,16 +71,24 @@ export type ZPostType = z.infer<typeof zPostType>;
  * Схема валидации данных для создания или обновления типа контента.
  * @example
  * const payload: ZPostTypePayload = {
- *   slug: 'product',
  *   name: 'Products',
+ *   template: 'templates.product',
  *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } }
  * };
  */
 export const zPostTypePayload = z.object({
-  /** Уникальный идентификатор типа контента. Не может быть пустым. */
-  slug: z.string().min(1),
   /** Отображаемое название типа контента. Не может быть пустым. */
   name: z.string().min(1),
+  /** Путь к шаблону Blade. Должен начинаться с `templates.`. Может быть `null`. */
+  template: z
+    .union([
+      z
+        .string()
+        .max(255, 'Максимум 255 символов')
+        .refine(val => val.startsWith('templates.'), 'Шаблон должен начинаться с templates.'),
+      z.null(),
+    ])
+    .optional(),
   /** Дополнительные настройки в формате JSON. По умолчанию пустой объект. */
   options_json: zPostTypeOptions.default({ taxonomies: [] }),
   /** ID Blueprint для привязки. `null` для отвязки. Опционально. */

@@ -11,7 +11,7 @@ const getAdminPostTypesUrl = (path: string): string => `/api/v1/admin/post-types
  * @example
  * const postTypes = await listPostTypes();
  * postTypes.forEach(type => {
- *   console.log(`${type.name} (${type.slug})`);
+ *   console.log(`${type.name} (ID: ${type.id})`);
  * });
  */
 export const listPostTypes = async (): Promise<ZPostType[]> => {
@@ -35,8 +35,8 @@ export const getPostType = async (id: ZId): Promise<ZPostType> => {
  * @returns Созданный тип контента.
  * @example
  * const newType = await createPostType({
- *   slug: 'product',
  *   name: 'Products',
+ *   template: 'templates.product',
  *   options_json: { fields: { price: { type: 'number' } } }
  * });
  */

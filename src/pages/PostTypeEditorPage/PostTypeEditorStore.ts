@@ -1,6 +1,8 @@
 import { createPostType, deletePostType, getPostType, updatePostType } from '@/api/apiPostTypes';
+import { getTemplates } from '@/api/apiTemplates';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
+import type { ZTemplate } from '@/types/templates';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import {
@@ -15,13 +17,13 @@ import { makeAutoObservable } from 'mobx';
  */
 export interface FormValues {
   readonly name: string;
-  readonly slug: string;
+  readonly template: string | null;
   readonly taxonomies: ZId[];
 }
 
 const defaultFormValues: FormValues = {
   name: '',
-  slug: '',
+  template: null,
   taxonomies: [],
 };
 
@@ -33,7 +35,7 @@ const defaultFormValues: FormValues = {
 const toFormValues = (postType: ZPostType): FormValues => {
   return {
     name: postType.name,
-    slug: postType.slug,
+    template: postType.template ?? null,
     taxonomies: getTaxonomiesFromOptions(postType.options_json),
   };
 };
@@ -45,9 +47,10 @@ export class PostTypeEditorStore {
   formValues: FormValues = defaultFormValues;
   initialLoading = false;
   pending = false;
-  slugManuallyEdited = false;
   /** Текущий тип контента, загруженный из API. */
   currentPostType: ZPostType | null = null;
+  /** Список доступных шаблонов. */
+  templates: ZTemplate[] = [];
 
   /**
    * Создаёт экземпляр стора редактора типа контента.
@@ -90,6 +93,14 @@ export class PostTypeEditorStore {
   }
 
   /**
+   * Устанавливает список доступных шаблонов.
+   * @param templates Массив шаблонов.
+   */
+  setTemplates(templates: ZTemplate[]): void {
+    this.templates = templates;
+  }
+
+  /**
    * Устанавливает текущий тип контента.
    * @param postType Тип контента для установки.
    */
@@ -98,19 +109,32 @@ export class PostTypeEditorStore {
   }
 
   /**
-   * Загружает данные типа контента для редактирования.
+   * Загружает данные типа контента для редактирования и список шаблонов.
    * @param id ID типа контента.
    */
   async loadPostType(id: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
-      const postType = await getPostType(id);
+      const [postType, templates] = await Promise.all([getPostType(id), getTemplates()]);
       this.setCurrentPostType(postType);
       this.setFormValues(toFormValues(postType));
+      this.setTemplates(templates);
     } catch (error) {
       onError(error);
     } finally {
       this.setInitialLoading(false);
+    }
+  }
+
+  /**
+   * Загружает список доступных шаблонов.
+   */
+  async loadTemplates(): Promise<void> {
+    try {
+      const templates = await getTemplates();
+      this.setTemplates(templates);
+    } catch (error) {
+      onError(error);
     }
   }
 
@@ -126,8 +150,8 @@ export class PostTypeEditorStore {
     const updatedOptions = setTaxonomiesInOptions(currentOptions, values.taxonomies);
 
     return {
-      slug: values.slug.trim(),
       name: values.name.trim(),
+      template: values.template && values.template.trim() !== '' ? values.template.trim() : null,
       options_json: updatedOptions,
     };
   }
