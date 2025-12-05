@@ -41,7 +41,7 @@ export const MainSidebar: FC<PropsMainSidebar> = props => {
   const { isActivePath, isCollapsed, links, onToggle, systemLinks } = props;
 
   const containerClassName = joinClassNames(
-    'border-r bg-card transition-all duration-300 flex flex-col',
+    'border-r bg-card transition-all duration-300 flex flex-col h-full overflow-hidden',
     isCollapsed ? 'w-16' : 'w-64'
   );
 

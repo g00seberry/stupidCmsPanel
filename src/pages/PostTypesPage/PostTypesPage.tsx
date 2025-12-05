@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Spin } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, List } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { listPostTypes } from '@/api/apiPostTypes';
 import type { ZPostType } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
@@ -36,28 +37,19 @@ export const PostTypesPage = () => {
   }, [loadPostTypes]);
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="hover:text-foreground cursor-pointer transition-colors">
-                Типы контента
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                type="primary"
-                onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
-                icon={<Plus className="w-4 h-4" />}
-              >
-                Создать тип
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={['Типы контента']}
+        extra={
+          <Button
+            type="primary"
+            onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
+            icon={<Plus className="w-4 h-4" />}
+          >
+            Создать тип
+          </Button>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {pending ? (

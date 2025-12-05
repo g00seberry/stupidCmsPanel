@@ -5,6 +5,7 @@ import { Button, Card, Form, Input, Spin, Tag, Typography, Popconfirm } from 'an
 import { Save, Trash2, RotateCcw } from 'lucide-react';
 import { MediaEditorStore } from './MediaEditorStore';
 import { PageUrl } from '@/PageUrl';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { formatFileSize } from '@/utils/fileUtils';
 import { viewDate } from '@/utils/dateUtils';
 import { getKindTagColor, getKindLabel } from '@/utils/mediaUtils';
@@ -112,52 +113,40 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
   const displayTitle = media?.title || media?.name || 'Медиа-файл';
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={handleCancel}
-              >
-                Медиа-файлы
-              </span>
-              <span>/</span>
-              <span className="text-foreground font-medium">{displayTitle}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              {isDeleted && (
-                <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleRestore}>
-                  Восстановить
-                </Button>
-              )}
-              {!isDeleted && (
-                <Popconfirm
-                  title="Удалить медиа-файл?"
-                  description="Медиа-файл будет перемещен в корзину."
-                  onConfirm={handleDelete}
-                  okText="Удалить"
-                  cancelText="Отмена"
-                >
-                  <Button danger icon={<Trash2 className="w-4 h-4" />}>
-                    Удалить
-                  </Button>
-                </Popconfirm>
-              )}
-              <Button
-                type="primary"
-                icon={<Save className="w-4 h-4" />}
-                onClick={handleSave}
-                loading={store.saving}
-              >
-                Сохранить
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[{ label: 'Медиа-файлы', onClick: handleCancel }, displayTitle]}
+        extra={
+          <>
+            {isDeleted && (
+              <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleRestore}>
+                Восстановить
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+            )}
+            {!isDeleted && (
+              <Popconfirm
+                title="Удалить медиа-файл?"
+                description="Медиа-файл будет перемещен в корзину."
+                onConfirm={handleDelete}
+                okText="Удалить"
+                cancelText="Отмена"
+              >
+                <Button danger icon={<Trash2 className="w-4 h-4" />}>
+                  Удалить
+                </Button>
+              </Popconfirm>
+            )}
+            <Button
+              type="primary"
+              icon={<Save className="w-4 h-4" />}
+              onClick={handleSave}
+              loading={store.saving}
+            >
+              Сохранить
+            </Button>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {store.pending ? (

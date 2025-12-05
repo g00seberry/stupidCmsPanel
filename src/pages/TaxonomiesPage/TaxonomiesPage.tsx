@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { App, Button, Card, Empty, Spin, Tag, Input } from 'antd';
 import { Link } from 'react-router-dom';
 import { Plus, Search, List, Trash2 } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { deleteTaxonomy, listTaxonomies } from '@/api/apiTaxonomies';
 import type { ZTaxonomy } from '@/types/taxonomies';
 import { onError } from '@/utils/onError';
@@ -98,26 +99,17 @@ export const TaxonomiesPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="hover:text-foreground cursor-pointer transition-colors">
-                Таксономии
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link to={buildUrl(PageUrl.TaxonomiesEdit, { id: 'new' })}>
-                <Button type="primary" icon={<Plus className="w-4 h-4" />}>
-                  Создать таксономию
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={['Таксономии']}
+        extra={
+          <Link to={buildUrl(PageUrl.TaxonomiesEdit, { id: 'new' })}>
+            <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+              Создать таксономию
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {/* Поиск */}

@@ -239,7 +239,7 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   const totalCount = store.loader.paginationMeta?.total || 0;
 
   return (
-    <div className="min-h-screen bg-background w-full">
+    <div className="bg-background w-full">
       <MediaListHeader
         store={store}
         isTrashMode={isTrashMode}

@@ -3,6 +3,7 @@ import { ContextMenu } from '@/components/paths/ContextMenu';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormTabs } from '@/components/paths/NodeFormTabs';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
@@ -107,30 +108,17 @@ export const BlueprintSchemaPage = observer(() => {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate(PageUrl.Blueprints)}
-              >
-                Blueprint
-              </span>
-              <span>/</span>
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate(buildUrl(PageUrl.BlueprintsEdit, { id: blueprintId }))}
-              >
-                Редактирование
-              </span>
-              <span>/</span>
-              <span className="text-foreground">Схема</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
+          {
+            label: 'Редактирование',
+            onClick: () => navigate(buildUrl(PageUrl.BlueprintsEdit, { id: blueprintId })),
+          },
+          'Схема',
+        ]}
+      />
 
       <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

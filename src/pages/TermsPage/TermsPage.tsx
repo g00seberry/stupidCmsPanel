@@ -11,6 +11,8 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TermsListStore } from './TermsListStore';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Находит термин в дереве по ID.
@@ -43,7 +45,7 @@ const findTermInTree = (tree: ZTermTree[], termId: string | number): ZTermTree |
  */
 const convertTermsTreeToTreeData = (
   tree: ZTermTree[],
-  taxonomyId: number,
+  taxonomyId: ZId,
   onDelete: (term: ZTermTree) => void
 ): DataNode[] => {
   const convertNode = (node: ZTermTree): DataNode => {
@@ -60,7 +62,7 @@ const convertTermsTreeToTreeData = (
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Link
               to={buildUrl(PageUrl.TermEdit, {
-                taxonomyId: String(taxonomyId),
+                taxonomyId,
                 id: String(node.id),
               })}
             >
@@ -91,15 +93,14 @@ const convertTermsTreeToTreeData = (
  * Отображает термины в виде иерархического дерева.
  */
 export const TermsPage = observer(() => {
-  const { taxonomyId: taxonomyIdParam } = useParams<{ taxonomyId: string }>();
-  const taxonomyId = taxonomyIdParam ? Number.parseInt(taxonomyIdParam, 10) : undefined;
+  const { taxonomyId } = useParams<{ taxonomyId: ZId }>();
   const store = useMemo(() => new TermsListStore(), []);
   const { modal } = App.useApp();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
   // Инициализация загрузки данных
   useEffect(() => {
-    if (taxonomyId && !Number.isNaN(taxonomyId)) {
+    if (taxonomyId) {
       void store.initialize(taxonomyId);
     }
   }, [taxonomyId, store]);
@@ -120,7 +121,7 @@ export const TermsPage = observer(() => {
           try {
             await deleteTerm(term.id, false);
             notificationService.showSuccess({ message: 'Термин удалён' });
-            if (taxonomyId && !Number.isNaN(taxonomyId)) {
+            if (taxonomyId) {
               void store.initialize(taxonomyId);
             }
           } catch (error) {
@@ -139,7 +140,7 @@ export const TermsPage = observer(() => {
                     notificationService.showSuccess({
                       message: 'Термин удалён и отвязан от записей',
                     });
-                    if (taxonomyId && !Number.isNaN(taxonomyId)) {
+                    if (taxonomyId) {
                       void store.initialize(taxonomyId);
                     }
                   } catch (forceError) {
@@ -242,7 +243,7 @@ export const TermsPage = observer(() => {
         });
 
         // Перезагружаем дерево
-        if (taxonomyId && !Number.isNaN(taxonomyId)) {
+        if (taxonomyId) {
           void store.initialize(taxonomyId);
         }
       } catch (error) {
@@ -252,53 +253,35 @@ export const TermsPage = observer(() => {
     [store, taxonomyId]
   );
 
-  if (!taxonomyId || Number.isNaN(taxonomyId)) {
+  if (!taxonomyId) {
     return (
-      <div className="min-h-screen bg-background w-full flex items-center justify-center">
+      <div className="bg-background w-full flex items-center justify-center">
         <Empty description="Таксономия не указана" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link
-                to={PageUrl.Taxonomies}
-                className="hover:text-foreground cursor-pointer transition-colors"
-              >
-                Таксономии
-              </Link>
-              <span>/</span>
-              {store.loading ? (
-                <Spin size="small" />
-              ) : (
-                <span className="text-foreground">{store.taxonomy?.label || taxonomyId}</span>
-              )}
-              <span>/</span>
-              <span className="text-foreground">Термины</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link to={PageUrl.Taxonomies}>
-                <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
-              </Link>
-              {taxonomyId && !Number.isNaN(taxonomyId) && (
-                <Link
-                  to={buildUrl(PageUrl.TermEdit, { taxonomyId: String(taxonomyId), id: 'new' })}
-                >
-                  <Button type="primary" icon={<Plus className="w-4 h-4" />}>
-                    Создать термин
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Таксономии', to: PageUrl.Taxonomies },
+          store.loading ? 'Загрузка...' : store.taxonomy?.label || taxonomyId,
+          'Термины',
+        ]}
+        extra={
+          <>
+            <Link to={PageUrl.Taxonomies}>
+              <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            </Link>
+            <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId, id: 'new' })}>
+              <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+                Создать термин
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {/* Информация о таксономии */}

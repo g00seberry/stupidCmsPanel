@@ -10,6 +10,7 @@ import { getTaxonomy } from '@/api/apiTaxonomies';
 import type { ZTaxonomy } from '@/types/taxonomies';
 
 import { onError } from '@/utils/onError';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 
 /**
  * Форма создания и редактирования термина таксономии CMS.
@@ -121,69 +122,56 @@ export const TermEditorPage = observer(() => {
 
   if (!taxonomyId) {
     return (
-      <div className="min-h-screen bg-background w-full flex items-center justify-center">
+      <div className="bg-background w-full flex items-center justify-center">
         <Empty description="Таксономия не указана" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate(PageUrl.Taxonomies)}
-              >
-                Таксономии
-              </span>
-              <span>/</span>
-              {loadingTaxonomy ? (
-                <Spin size="small" />
-              ) : (
-                <span
-                  className="hover:text-foreground cursor-pointer transition-colors"
-                  onClick={() =>
-                    taxonomyId &&
-                    !Number.isNaN(taxonomyId) &&
-                    navigate(buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) }))
-                  }
-                >
-                  {taxonomy?.label || taxonomyId}
-                </span>
-              )}
-              <span>/</span>
-              <span className="text-foreground font-medium">
-                {isEditMode ? 'Редактирование' : 'Создание'}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              {isEditMode && (
-                <Button
-                  danger
-                  onClick={handleDelete}
-                  loading={store.pending}
-                  icon={<Trash2 className="w-4 h-4" />}
-                >
-                  Удалить
-                </Button>
-              )}
-              <Button onClick={handleCancel}>Отмена</Button>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Таксономии', onClick: () => navigate(PageUrl.Taxonomies) },
+          ...(loadingTaxonomy
+            ? ['Загрузка...']
+            : taxonomyId && !Number.isNaN(taxonomyId) && taxonomy
+              ? [
+                  {
+                    label: taxonomy.label || taxonomyId || '',
+                    onClick: () =>
+                      navigate(
+                        buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomyId) })
+                      ),
+                  },
+                ]
+              : []),
+          isEditMode ? 'Редактирование' : 'Создание',
+        ]}
+        extra={
+          <>
+            {isEditMode && (
               <Button
-                type="primary"
-                onClick={() => form.submit()}
+                danger
+                onClick={handleDelete}
                 loading={store.pending}
-                icon={<Check className="w-4 h-4" />}
+                icon={<Trash2 className="w-4 h-4" />}
               >
-                Сохранить
+                Удалить
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+            )}
+            <Button onClick={handleCancel}>Отмена</Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              loading={store.pending}
+              icon={<Check className="w-4 h-4" />}
+            >
+              Сохранить
+            </Button>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {store.initialLoading ? (

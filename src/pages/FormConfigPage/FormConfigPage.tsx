@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Button, Card, Select, Spin, Tree, Empty } from 'antd';
 import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
@@ -222,7 +223,7 @@ export const FormConfigPage = observer(() => {
 
   if (store.initialLoading) {
     return (
-      <div className="min-h-screen bg-background w-full flex items-center justify-center">
+      <div className="bg-background w-full flex items-center justify-center">
         <Spin size="large" />
       </div>
     );
@@ -233,44 +234,32 @@ export const FormConfigPage = observer(() => {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link
-                to={PageUrl.ContentTypes}
-                className="hover:text-foreground cursor-pointer transition-colors"
-              >
-                Типы контента
-              </Link>
-              <span>/</span>
-              <Link
-                to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}
-                className="hover:text-foreground cursor-pointer transition-colors"
-              >
-                {store.postType.name}
-              </Link>
-              <span>/</span>
-              <span className="text-foreground font-medium">Настройка формы</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
-                <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
-              </Link>
-              <Button
-                type="primary"
-                onClick={handleSave}
-                loading={store.pending}
-                icon={<Check className="w-4 h-4" />}
-              >
-                Сохранить
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Типы контента', to: PageUrl.ContentTypes },
+          {
+            label: store.postType.name,
+            to: buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id }),
+          },
+          'Настройка формы',
+        ]}
+        extra={
+          <>
+            <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
+              <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            </Link>
+            <Button
+              type="primary"
+              onClick={handleSave}
+              loading={store.pending}
+              icon={<Check className="w-4 h-4" />}
+            >
+              Сохранить
+            </Button>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         <div className="mb-6">

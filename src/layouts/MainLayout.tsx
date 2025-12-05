@@ -35,7 +35,7 @@ export const MainLayout: FC<PropsMainLayout> = props => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       <MainSidebar
         isActivePath={isActivePath}
         isCollapsed={isSidebarCollapsed}
@@ -43,9 +43,9 @@ export const MainLayout: FC<PropsMainLayout> = props => {
         systemLinks={systemSidebarLinks}
         onToggle={handleToggleSidebar}
       />
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <MainHeader />
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex flex-1 flex-col overflow-y-auto">{children}</main>
       </div>
     </div>
   );

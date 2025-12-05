@@ -47,7 +47,7 @@ export const MainHeader = observer(() => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
+    <header className="z-50 w-full border-b bg-primary text-primary-foreground">
       <div className="flex h-14 items-center px-4 gap-4">
         <div className="flex items-center gap-2">
           <Sliders className="h-5 w-5" aria-hidden />

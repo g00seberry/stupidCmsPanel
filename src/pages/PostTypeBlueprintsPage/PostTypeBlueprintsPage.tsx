@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Radio, Spin } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Check, ArrowLeft } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { listBlueprints } from '@/api/blueprintApi';
 import { getPostType, updatePostType } from '@/api/apiPostTypes';
 import type { ZBlueprintListItem } from '@/types/blueprint';
@@ -95,62 +96,50 @@ export const PostTypeBlueprintsPage = observer(() => {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-background w-full flex items-center justify-center">
+      <div className="bg-background w-full flex items-center justify-center">
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link
-                to={PageUrl.ContentTypes}
-                className="hover:text-foreground cursor-pointer transition-colors"
-              >
-                Типы контента
-              </Link>
-              <span>/</span>
-              {postType && (
-                <>
-                  <Link
-                    to={buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })}
-                    className="hover:text-foreground cursor-pointer transition-colors"
-                  >
-                    {postType.name}
-                  </Link>
-                  <span>/</span>
-                </>
-              )}
-              <span className="text-foreground font-medium">Настройка Blueprints</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                to={
-                  postType
-                    ? buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })
-                    : PageUrl.ContentTypes
-                }
-              >
-                <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
-              </Link>
-              <Button
-                type="primary"
-                onClick={handleSave}
-                loading={saving}
-                disabled={!hasChanges}
-                icon={<Check className="w-4 h-4" />}
-              >
-                Сохранить
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Типы контента', to: PageUrl.ContentTypes },
+          ...(postType
+            ? [
+                {
+                  label: postType.name,
+                  to: buildUrl(PageUrl.ContentTypesEdit, { id: postType.id }),
+                },
+              ]
+            : []),
+          'Настройка Blueprints',
+        ]}
+        extra={
+          <>
+            <Link
+              to={
+                postType
+                  ? buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })
+                  : PageUrl.ContentTypes
+              }
+            >
+              <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            </Link>
+            <Button
+              type="primary"
+              onClick={handleSave}
+              loading={saving}
+              disabled={!hasChanges}
+              icon={<Check className="w-4 h-4" />}
+            >
+              Сохранить
+            </Button>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         <Card className="p-6">

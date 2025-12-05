@@ -1,4 +1,5 @@
 import { TaxonomySelector } from '@/components/TaxonomySelector';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Select, Spin } from 'antd';
@@ -108,62 +109,51 @@ export const PostTypeEditorPage = observer(() => {
   }, [postTypeId, isEditMode, navigate, store, modal]);
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate(PageUrl.ContentTypes)}
-              >
-                Типы контента
-              </span>
-              <span>/</span>
-              <span className="text-foreground font-medium">
-                {isEditMode ? 'Редактирование' : 'Создание'}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              {isEditMode && postTypeId && (
-                <>
-                  <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
-                    <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
-                  </Link>
-                  {store.currentPostType?.blueprint_id && (
-                    <Link
-                      to={buildUrl(PageUrl.ContentTypesFormConfig, {
-                        id: postTypeId,
-                        blueprintId: String(store.currentPostType.blueprint_id),
-                      })}
-                    >
-                      <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
-                    </Link>
-                  )}
-                  <Button
-                    danger
-                    onClick={handleDelete}
-                    loading={store.pending}
-                    icon={<Trash2 className="w-4 h-4" />}
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
+          isEditMode ? 'Редактирование' : 'Создание',
+        ]}
+        extra={
+          <>
+            {isEditMode && postTypeId && (
+              <>
+                <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
+                  <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
+                </Link>
+                {store.currentPostType?.blueprint_id && (
+                  <Link
+                    to={buildUrl(PageUrl.ContentTypesFormConfig, {
+                      id: postTypeId,
+                      blueprintId: String(store.currentPostType.blueprint_id),
+                    })}
                   >
-                    Удалить
-                  </Button>
-                </>
-              )}
-              <Button onClick={handleCancel}>Отмена</Button>
-              <Button
-                type="primary"
-                onClick={() => form.submit()}
-                loading={store.pending}
-                icon={<Check className="w-4 h-4" />}
-              >
-                Сохранить
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+                    <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
+                  </Link>
+                )}
+                <Button
+                  danger
+                  onClick={handleDelete}
+                  loading={store.pending}
+                  icon={<Trash2 className="w-4 h-4" />}
+                >
+                  Удалить
+                </Button>
+              </>
+            )}
+            <Button onClick={handleCancel}>Отмена</Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              loading={store.pending}
+              icon={<Check className="w-4 h-4" />}
+            >
+              Сохранить
+            </Button>
+          </>
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {store.initialLoading ? (

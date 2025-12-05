@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Button, Input, Select, Typography, Tag } from 'antd';
 import { Plus, Search } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { EntriesListStore } from './EntriesListStore';
 import { getPostType } from '@/api/apiPostTypes';
 import { onError } from '@/utils/onError';
@@ -191,50 +192,34 @@ export const EntriesListPage = observer(() => {
     : 'Список записей CMS';
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      {/* Breadcrumbs and action buttons */}
-      <div className="border-b bg-card w-full">
-        <div className="px-6 py-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() => navigate(PageUrl.ContentTypes)}
-              >
-                Типы контента
-              </span>
-              {postType && (
-                <>
-                  <span>/</span>
-                  <span
-                    className="hover:text-foreground cursor-pointer transition-colors"
-                    onClick={() =>
-                      navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postType.id }))
-                    }
-                  >
-                    {postType.name}
-                  </span>
-                </>
-              )}
-              <span>/</span>
-              <span className="text-foreground font-medium">Записи</span>
-            </div>
-            <div className="flex items-center gap-3">
-              {postTypeId && (
-                <Button
-                  type="primary"
-                  icon={<Plus className="w-4 h-4" />}
-                  onClick={() => {
-                    navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
-                  }}
-                >
-                  Создать запись
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-background w-full">
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
+          ...(postType
+            ? [
+                {
+                  label: postType.name,
+                  onClick: () => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })),
+                },
+              ]
+            : []),
+          'Записи',
+        ]}
+        extra={
+          postTypeId ? (
+            <Button
+              type="primary"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={() => {
+                navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
+              }}
+            >
+              Создать запись
+            </Button>
+          ) : undefined
+        }
+      />
 
       <div className="px-6 py-8 w-full">
         {/* Заголовок */}
