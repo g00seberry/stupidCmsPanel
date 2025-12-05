@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZId } from '@/types/ZId';
 import { buildPathWayToRoot, findPathInTree } from '@/utils/pathUtils';
 import { PathStore } from './PathStore';
 import { BlueprintEmbedStore } from './BlueprintEmbedStore';
@@ -9,14 +10,14 @@ import { notificationService } from '@/services/notificationService';
 
 export type ContextMenuPosition = { x: number; y: number };
 export type NodeMenuCtx = {
-  parentId: number | null;
-  nodeId: number | null;
+  parentId: ZId | null;
+  nodeId: ZId | null;
   position: ContextMenuPosition | null;
 };
 
 export class BlueprintSchemaViewModel {
   modalMode: 'node' | 'embed' | 'ctx' | null = null;
-  blueprintId: number | null = null;
+  blueprintId: ZId | null = null;
   loading = false;
   ctx: NodeMenuCtx = {
     parentId: null,
@@ -61,7 +62,7 @@ export class BlueprintSchemaViewModel {
     return [];
   }
 
-  async init(blueprintId: number) {
+  async init(blueprintId: ZId) {
     this.blueprintId = blueprintId;
     this.loading = true;
     try {
@@ -99,7 +100,7 @@ export class BlueprintSchemaViewModel {
    * @param nodeId ID узла, на котором открывается меню.
    * @param position Позиция курсора для отображения меню.
    */
-  openNodeContextMenu(nodeId: number, position: ContextMenuPosition) {
+  openNodeContextMenu(nodeId: ZId, position: ContextMenuPosition) {
     this.setCtx({
       parentId: null,
       nodeId,
@@ -125,7 +126,7 @@ export class BlueprintSchemaViewModel {
    * Подготавливает контекст для создания дочернего узла.
    * @param parentId ID родительского узла, под которым будет создан дочерний узел.
    */
-  prepareAddChild(parentId: number) {
+  prepareAddChild(parentId: ZId) {
     this.setCtx({
       parentId,
       nodeId: null,
@@ -138,7 +139,7 @@ export class BlueprintSchemaViewModel {
    * Подготавливает контекст для встраивания Blueprint.
    * @param parentId ID родительского узла, под которым будет встроен Blueprint. Если null, то встраивается в корень.
    */
-  prepareEmbed(parentId: number | null) {
+  prepareEmbed(parentId: ZId | null) {
     this.setCtx({
       parentId,
       nodeId: null,
@@ -151,7 +152,7 @@ export class BlueprintSchemaViewModel {
    * Открывает форму редактирования узла.
    * @param nodeId ID узла для редактирования.
    */
-  openEditNodeForm(nodeId: number) {
+  openEditNodeForm(nodeId: ZId) {
     this.setCtx({
       parentId: null,
       nodeId,
@@ -177,7 +178,7 @@ export class BlueprintSchemaViewModel {
     this.clearContext();
   }
 
-  openAddChildForm(parentId: number): boolean {
+  openAddChildForm(parentId: ZId): boolean {
     const parentPath = findPathInTree(this.paths, parentId);
     if (parentPath && parentPath.data_type === 'json') {
       return true;
@@ -185,7 +186,7 @@ export class BlueprintSchemaViewModel {
     return false;
   }
 
-  openEmbedForm(parentId: number | null): boolean {
+  openEmbedForm(parentId: ZId | null): boolean {
     if (parentId !== null) {
       const parentPath = findPathInTree(this.paths, parentId);
       if (!parentPath || parentPath.data_type !== 'json') return false;
@@ -194,12 +195,12 @@ export class BlueprintSchemaViewModel {
     return true;
   }
 
-  canDeleteNode(pathId: number): boolean {
+  canDeleteNode(pathId: ZId): boolean {
     const path = findPathInTree(this.paths, pathId);
     return path ? !path.is_readonly : false;
   }
 
-  getPathById(pathId: number | null) {
+  getPathById(pathId: ZId | null) {
     if (!pathId) return undefined;
     return findPathInTree(this.paths, pathId);
   }
@@ -243,7 +244,7 @@ export class BlueprintSchemaViewModel {
     }
   }
 
-  async saveEmbed(values: { embedded_blueprint_id: number }) {
+  async saveEmbed(values: { embedded_blueprint_id: ZId }) {
     if (!this.blueprintId) return;
     this.setLoading(true);
     try {

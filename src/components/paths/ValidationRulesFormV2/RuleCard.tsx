@@ -28,7 +28,7 @@ export type PropsRuleCard = {
  * Отображает правило в виде карточки с возможностью редактирования и удаления.
  */
 export const RuleCard: React.FC<PropsRuleCard> = ({
-  ruleKey,
+  ruleKey: _ruleKey,
   meta,
   isActive,
   onClick,
@@ -39,16 +39,21 @@ export const RuleCard: React.FC<PropsRuleCard> = ({
     <Card
       size="small"
       className={`transition-all hover:shadow-md ${
-        isActive ? 'border-primary cursor-pointer' : 'border-border cursor-grab active:cursor-grabbing'
+        isActive
+          ? 'border-primary cursor-pointer'
+          : 'border-border cursor-grab active:cursor-grabbing'
       }`}
       onClick={isActive ? onClick : undefined}
       actions={
         isActive && !isReadonly
           ? [
-              <EditOutlined key="edit" onClick={e => {
-                e.stopPropagation();
-                onClick();
-              }} />,
+              <EditOutlined
+                key="edit"
+                onClick={e => {
+                  e.stopPropagation();
+                  onClick();
+                }}
+              />,
               <CloseOutlined
                 key="remove"
                 onClick={e => {
@@ -67,4 +72,3 @@ export const RuleCard: React.FC<PropsRuleCard> = ({
     </Card>
   );
 };
-

@@ -1,5 +1,6 @@
 import { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
+import type { ZId } from '@/types/ZId';
 import { Button, List, Space, Tag } from 'antd';
 import { Eye, Unlink } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -11,7 +12,7 @@ export type PropsEmbedList = {
   /** Store для управления встраиваниями. */
   store: BlueprintEmbedStore;
   /** Обработчик отвязки встраивания. */
-  onUnembed?: (id: number) => void;
+  onUnembed?: (id: ZId) => void;
   /** Обработчик показа встраивания в графе. */
   onShowInGraph?: (embed: ZBlueprintEmbed) => void;
 };

@@ -48,4 +48,3 @@ export const viewDate = (date: string | null | undefined): Dayjs | null => {
 
   return dayjsDate;
 };
-

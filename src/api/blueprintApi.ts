@@ -12,6 +12,7 @@ import {
 import type { ZBlueprint, ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
 import { zBlueprintSchema } from '@/types/blueprintSchema';
 import type { ZBlueprintSchema } from '@/types/blueprintSchema';
+import type { ZId } from '@/types/ZId';
 import { z } from 'zod';
 
 const getAdminBlueprintsUrl = (path: string): string => `/api/v1/admin/blueprints${path}`;
@@ -72,7 +73,7 @@ export const listBlueprints = async (params?: {
  * console.log(blueprint.name); // 'Article'
  * console.log(blueprint.post_types); // Массив типов контента
  */
-export const getBlueprint = async (id: number): Promise<ZBlueprint> => {
+export const getBlueprint = async (id: ZId): Promise<ZBlueprint> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}`));
   return zBlueprintResponse.parse(response.data).data;
 };
@@ -107,10 +108,7 @@ export const createBlueprint = async (dto: ZCreateBlueprintDto): Promise<ZBluepr
  *   description: 'Updated description'
  * });
  */
-export const updateBlueprint = async (
-  id: number,
-  dto: ZUpdateBlueprintDto
-): Promise<ZBlueprint> => {
+export const updateBlueprint = async (id: ZId, dto: ZUpdateBlueprintDto): Promise<ZBlueprint> => {
   const parsedDto = zUpdateBlueprintDto.parse(dto);
   const response = await rest.put(getAdminBlueprintsUrl(`/${id}`), parsedDto);
   return zBlueprintResponse.parse(response.data).data;
@@ -123,7 +121,7 @@ export const updateBlueprint = async (
  * @example
  * await deleteBlueprint(1);
  */
-export const deleteBlueprint = async (id: number): Promise<void> => {
+export const deleteBlueprint = async (id: ZId): Promise<void> => {
   await rest.delete(getAdminBlueprintsUrl(`/${id}`));
 };
 
@@ -137,9 +135,7 @@ export const deleteBlueprint = async (id: number): Promise<void> => {
  *   console.log('Нельзя удалить:', check.reasons);
  * }
  */
-export const canDeleteBlueprint = async (
-  id: number
-): Promise<z.infer<typeof zCanDeleteBlueprint>> => {
+export const canDeleteBlueprint = async (id: ZId): Promise<z.infer<typeof zCanDeleteBlueprint>> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}/can-delete`));
   return zCanDeleteBlueprint.parse(response.data);
 };
@@ -154,7 +150,7 @@ export const canDeleteBlueprint = async (
  * console.log('Зависят от него:', deps.depended_by);
  */
 export const getBlueprintDependencies = async (
-  id: number
+  id: ZId
 ): Promise<z.infer<typeof zBlueprintDependencies>> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}/dependencies`));
   return zBlueprintDependencies.parse(response.data);
@@ -171,7 +167,7 @@ export const getBlueprintDependencies = async (
  * });
  */
 export const getEmbeddableBlueprints = async (
-  id: number
+  id: ZId
 ): Promise<z.infer<typeof zEmbeddableBlueprints>> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}/embeddable`));
   return zEmbeddableBlueprints.parse(response.data);
@@ -187,7 +183,7 @@ export const getEmbeddableBlueprints = async (
  * console.log(schema.schema.title.type); // 'string'
  * console.log(schema.schema.author.children?.name.type); // 'string'
  */
-export const getBlueprintSchema = async (id: number): Promise<ZBlueprintSchema> => {
+export const getBlueprintSchema = async (id: ZId): Promise<ZBlueprintSchema> => {
   const response = await rest.get(getAdminBlueprintsUrl(`/${id}/schema`));
   return zBlueprintSchema.parse(response.data);
 };

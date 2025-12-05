@@ -6,6 +6,7 @@ import { Save } from 'lucide-react';
 import { BlueprintForm } from '@/components/blueprints/BlueprintForm';
 import { BlueprintEditorStore } from '@/pages/BlueprintEditorPage/BlueprintEditorStore';
 import type { ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
+import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { onError } from '@/utils/onError';
 import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
@@ -20,7 +21,7 @@ export const BlueprintEditorPage = observer(() => {
   const navigate = useNavigate();
 
   const isEditMode = id !== 'new' && id !== undefined;
-  const blueprintId = isEditMode ? Number(id) : null;
+  const blueprintId: ZId | null = isEditMode ? id : null;
 
   const blueprintStore = useMemo(() => new BlueprintEditorStore(), []);
 
@@ -93,7 +94,7 @@ export const BlueprintEditorPage = observer(() => {
             </div>
             <div className="flex items-center gap-3">
               {isEditMode && blueprintId && (
-                <Link to={buildUrl(PageUrl.BlueprintsSchema, { id: String(blueprintId) })}>
+                <Link to={buildUrl(PageUrl.BlueprintsSchema, { id: blueprintId })}>
                   <Button>Схема</Button>
                 </Link>
               )}

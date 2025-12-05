@@ -4,6 +4,7 @@ import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
 import { onError } from '@/utils/onError';
 import type { ZEntry, ZEntriesListParams } from '@/types/entries';
 import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Store для управления состоянием списка записей CMS.
@@ -67,11 +68,11 @@ export class EntriesListStore {
 
   /**
    * Загружает список записей с текущими фильтрами.
-   * @param postType Slug типа контента для фильтрации.
+   * @param postTypeId ID типа контента для фильтрации.
    */
-  async loadEntries(postType?: string): Promise<void> {
-    if (postType !== undefined) {
-      await this.loader.setFilters({ post_type: postType } as Partial<ZEntriesListParams>);
+  async loadEntries(postTypeId?: ZId): Promise<void> {
+    if (postTypeId !== undefined) {
+      await this.loader.setFilters({ post_type_id: postTypeId } as Partial<ZEntriesListParams>);
     } else {
       await this.loader.load();
     }
@@ -80,12 +81,12 @@ export class EntriesListStore {
   /**
    * Устанавливает фильтры и перезагружает данные.
    * @param filters Новые параметры фильтрации (без пагинации и сортировки).
-   * @param postType Slug типа контента для фильтрации.
+   * @param postTypeId ID типа контента для фильтрации.
    */
-  async setFilters(filters: Partial<ZEntriesListParams>, postType?: string): Promise<void> {
+  async setFilters(filters: Partial<ZEntriesListParams>, postTypeId?: ZId): Promise<void> {
     const updatedFilters: Partial<ZEntriesListParams> = { ...filters };
-    if (postType !== undefined) {
-      updatedFilters.post_type = postType;
+    if (postTypeId !== undefined) {
+      updatedFilters.post_type_id = postTypeId;
     }
     // Удаляем параметры пагинации из фильтров
     delete updatedFilters.page;
@@ -96,40 +97,40 @@ export class EntriesListStore {
   /**
    * Переходит на указанную страницу.
    * @param page Номер страницы.
-   * @param postType Slug типа контента для фильтрации.
+   * @param postTypeId ID типа контента для фильтрации.
    */
-  async goToPage(page: number, postType?: string): Promise<void> {
-    if (postType !== undefined) {
-      // Сначала устанавливаем фильтр post_type, если нужно
-      await this.loader.setFilters({ post_type: postType } as Partial<ZEntriesListParams>);
+  async goToPage(page: number, postTypeId?: ZId): Promise<void> {
+    if (postTypeId !== undefined) {
+      // Сначала устанавливаем фильтр post_type_id, если нужно
+      await this.loader.setFilters({ post_type_id: postTypeId } as Partial<ZEntriesListParams>);
     }
     await this.loader.goToPage(page);
   }
 
   /**
    * Сбрасывает фильтры к значениям по умолчанию.
-   * @param postType Slug типа контента для фильтрации.
+   * @param postTypeId ID типа контента для фильтрации.
    */
-  async resetFilters(postType?: string): Promise<void> {
+  async resetFilters(postTypeId?: ZId): Promise<void> {
     const defaultFilters: ZEntriesListParams = {
       page: 1,
       per_page: 15,
       status: 'all',
-      ...(postType !== undefined && { post_type: postType }),
+      ...(postTypeId !== undefined && { post_type_id: postTypeId }),
     };
     await this.loader.resetFilters(defaultFilters);
   }
 
   /**
    * Инициализирует загрузку данных при первом открытии страницы.
-   * @param postType Slug типа контента для фильтрации.
+   * @param postTypeId ID типа контента для фильтрации.
    */
-  async initialize(postType?: string): Promise<void> {
+  async initialize(postTypeId?: ZId): Promise<void> {
     await Promise.all([
       this.loadStatuses(),
       this.loader.initialize(
-        postType !== undefined
-          ? ({ post_type: postType } as Partial<ZEntriesListParams>)
+        postTypeId !== undefined
+          ? ({ post_type_id: postTypeId } as Partial<ZEntriesListParams>)
           : undefined
       ),
     ]);

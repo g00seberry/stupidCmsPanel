@@ -1,5 +1,5 @@
-import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { ZPath } from '@/types/path';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Сегмент пути в объекте.
@@ -75,7 +75,7 @@ export const pathToString = (path: PathSegment[]): string => {
  *   console.log(path.name); // 'fieldName'
  * }
  */
-export const findPathInTree = (paths: ZPath[], pathId: number): ZPath | undefined => {
+export const findPathInTree = (paths: ZPath[], pathId: ZId): ZPath | undefined => {
   for (const path of paths) {
     if (path.id === pathId) return path;
     if (path.children) {
@@ -106,9 +106,9 @@ const flatTree = (paths: ZPath[]): ZPath[] => {
  * const way = buildPathWayToRoot(pathStore.paths, 5);
  * // [path5, path3, path1] - путь от узла 5 через родителя 3 до корня 1
  */
-export const buildPathWayToRoot = (paths: ZPath[], pathId: number): ZPath[] => {
+export const buildPathWayToRoot = (paths: ZPath[], pathId: ZId): ZPath[] => {
   const flatPaths = flatTree(paths);
-  const flatMap = new Map<number, ZPath>(flatPaths.map(path => [path.id, path]));
+  const flatMap = new Map<ZId, ZPath>(flatPaths.map(path => [path.id, path]));
 
   let curr = flatMap.get(pathId);
   if (!curr) return [];

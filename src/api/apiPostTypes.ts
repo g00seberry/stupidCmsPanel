@@ -1,6 +1,7 @@
 import { rest } from '@/api/rest';
 import { zPostTypePayload, zPostTypesResponse, zPostTypeResponse } from '@/types/postTypes';
 import type { ZPostType, ZPostTypePayload } from '@/types/postTypes';
+import type { ZId } from '@/types/ZId';
 
 const getAdminPostTypesUrl = (path: string): string => `/api/v1/admin/post-types${path}`;
 
@@ -20,11 +21,11 @@ export const listPostTypes = async (): Promise<ZPostType[]> => {
 
 /**
  * Загружает сведения о конкретном типе контента.
- * @param slug Уникальный идентификатор типа контента.
+ * @param id Уникальный идентификатор типа контента.
  * @returns Тип контента, прошедший валидацию схемой `zPostType`.
  */
-export const getPostType = async (slug: string): Promise<ZPostType> => {
-  const response = await rest.get(getAdminPostTypesUrl(`/${slug}`));
+export const getPostType = async (id: ZId): Promise<ZPostType> => {
+  const response = await rest.get(getAdminPostTypesUrl(`/${id}`));
   return zPostTypeResponse.parse(response.data).data;
 };
 
@@ -47,34 +48,31 @@ export const createPostType = async (payload: ZPostTypePayload): Promise<ZPostTy
 
 /**
  * Обновляет существующий тип контента.
- * @param slug Текущий slug (идентификатор) типа контента.
+ * @param id ID типа контента.
  * @param payload Новые значения полей типа контента.
  * @returns Обновлённый тип контента.
  */
-export const updatePostType = async (
-  slug: string,
-  payload: ZPostTypePayload
-): Promise<ZPostType> => {
+export const updatePostType = async (id: ZId, payload: ZPostTypePayload): Promise<ZPostType> => {
   const parsedPayload = zPostTypePayload.parse(payload);
-  const response = await rest.put(getAdminPostTypesUrl(`/${slug}`), parsedPayload);
+  const response = await rest.put(getAdminPostTypesUrl(`/${id}`), parsedPayload);
   return zPostTypeResponse.parse(response.data).data;
 };
 
 /**
  * Удаляет тип контента.
- * @param slug Slug типа контента для удаления.
+ * @param id ID типа контента для удаления.
  * @param force Если `true`, каскадно удаляет все записи этого типа. По умолчанию `false`.
  * @returns `true`, если удаление выполнено успешно.
  * @throws Ошибка, если тип контента не найден или содержит записи (без `force=true`).
  * @example
  * // Обычное удаление (не удалит, если есть записи)
- * await deletePostType('article');
+ * await deletePostType(1);
  *
  * // Каскадное удаление (удалит тип и все его записи)
- * await deletePostType('article', true);
+ * await deletePostType(1, true);
  */
-export const deletePostType = async (slug: string, force = false): Promise<boolean> => {
-  const url = getAdminPostTypesUrl(`/${slug}`);
+export const deletePostType = async (id: ZId, force = false): Promise<boolean> => {
+  const url = getAdminPostTypesUrl(`/${id}`);
   const config = force ? { params: { force: '1' } } : undefined;
   await rest.delete(url, config);
   return true;

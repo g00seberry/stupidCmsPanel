@@ -40,4 +40,3 @@ export const notificationService = {
     notification.success(config);
   },
 } as const;
-

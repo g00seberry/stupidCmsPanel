@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zId } from './ZId';
 
 // ============================================================================
 // Константы и базовые типы данных
@@ -146,7 +147,7 @@ export type ZValidationRules = z.infer<typeof zValidationRules>;
  */
 const zSourceBlueprint = z.object({
   /** Идентификатор исходного Blueprint. */
-  id: z.number(),
+  id: zId,
   /** Код исходного Blueprint. */
   code: z.string(),
   /** Название исходного Blueprint. */
@@ -187,11 +188,11 @@ export type ZSourceBlueprint = z.infer<typeof zSourceBlueprint>;
  */
 export const zPathBase = z.object({
   /** Уникальный идентификатор поля. */
-  id: z.number(),
+  id: zId,
   /** Идентификатор Blueprint, к которому принадлежит поле. */
-  blueprint_id: z.number(),
+  blueprint_id: zId,
   /** Идентификатор родительского поля. `null` для корневых полей. */
-  parent_id: z.number().nullable(),
+  parent_id: zId.nullable(),
   /** Имя поля (URL-friendly строка). */
   name: z.string(),
   /** Полный путь поля в иерархии (например, "author.contacts.email"). */
@@ -209,9 +210,9 @@ export const zPathBase = z.object({
   /** Правила валидации поля. Может быть `null`. */
   validation_rules: zValidationRules.nullable(),
   /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
-  source_blueprint_id: z.number().nullable(),
+  source_blueprint_id: zId.nullable(),
   /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
-  blueprint_embed_id: z.number().nullable(),
+  blueprint_embed_id: zId.nullable(),
   /** Информация об исходном Blueprint (для readonly полей). Может быть `null` или `undefined`. */
   source_blueprint: zSourceBlueprint.nullish(),
   /** Дата создания в формате ISO 8601. */
@@ -285,7 +286,7 @@ export const zCreatePathDto = z.object({
     .max(255, 'Максимум 255 символов')
     .regex(/^[a-z0-9_]+$/, 'Только a-z, 0-9 и _'),
   /** Идентификатор родительского поля. `null` для корневых полей. */
-  parent_id: z.number().nullable().optional(),
+  parent_id: zId.nullable().optional(),
   /** Тип данных поля. */
   data_type: zDataType,
   /** Мощность поля: одно значение или множество. По умолчанию 'one'. */

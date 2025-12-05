@@ -1,5 +1,6 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import type { ZPath, ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { findPathInTree } from '@/utils/pathUtils';
 import {
@@ -20,7 +21,7 @@ export class PathStore {
   /** Флаг выполнения запроса. */
   pending = false;
   /** Идентификатор текущего Blueprint. */
-  blueprintId: number | null = null;
+  blueprintId: ZId | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -34,7 +35,7 @@ export class PathStore {
     this.pending = value;
   }
 
-  setBlueprintId(blueprintId: number | null) {
+  setBlueprintId(blueprintId: ZId | null) {
     this.blueprintId = blueprintId;
   }
 
@@ -42,7 +43,7 @@ export class PathStore {
    * Загрузить дерево полей Blueprint.
    * @param blueprintId Идентификатор Blueprint.
    */
-  async loadPaths(blueprintId: number): Promise<void> {
+  async loadPaths(blueprintId: ZId): Promise<void> {
     this.setBlueprintId(blueprintId);
     this.setPending(true);
     try {
@@ -83,7 +84,7 @@ export class PathStore {
    * @param id Идентификатор поля.
    * @param dto Данные для обновления.
    */
-  async updatePath(id: number, dto: ZUpdatePathDto): Promise<void> {
+  async updatePath(id: ZId, dto: ZUpdatePathDto): Promise<void> {
     this.setPending(true);
     try {
       await updatePathApi(id, dto);
@@ -102,7 +103,7 @@ export class PathStore {
    * Удалить поле (с каскадным удалением дочерних).
    * @param id Идентификатор поля для удаления.
    */
-  async deletePath(id: number): Promise<void> {
+  async deletePath(id: ZId): Promise<void> {
     this.setPending(true);
     try {
       await deletePathApi(id);
@@ -123,7 +124,7 @@ export class PathStore {
    * @param parentId Идентификатор родительского поля. `null` для корневого поля.
    * @returns Полный путь поля для предпросмотра.
    */
-  computeFullPath(name: string, parentId: number | null): string {
+  computeFullPath(name: string, parentId: ZId | null): string {
     if (!parentId) {
       return name;
     }

@@ -30,4 +30,3 @@ export const ActiveRulesDropzone: React.FC<PropsActiveRulesDropzone> = ({ childr
     </div>
   );
 };
-

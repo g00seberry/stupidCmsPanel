@@ -1,4 +1,5 @@
 import type { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { findPathInTree } from '@/utils/pathUtils';
 import type { MenuProps } from 'antd';
@@ -26,7 +27,7 @@ export type PropsContextMenu = {
  * @returns Массив пунктов меню.
  */
 const createNodeMenuItems = (
-  nodeId: number,
+  nodeId: ZId,
   pageStore: BlueprintSchemaViewModel,
   canEdit: boolean,
   canAddChild: boolean,

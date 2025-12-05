@@ -3,6 +3,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ZBlueprintListItem } from '@/types/blueprint';
+import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 
 /**
@@ -10,7 +11,7 @@ import { buildUrl, PageUrl } from '@/PageUrl';
  */
 export type BuildColumnsParams = {
   /** Обработчик удаления Blueprint. */
-  onDelete?: (id: number) => void;
+  onDelete?: (id: ZId) => void;
 };
 
 /**

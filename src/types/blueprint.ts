@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { zPostType } from './postTypes';
 import { zPaginationLinks, zPaginationMeta } from './pagination';
+import { zId } from './ZId';
 
 /**
  * Схема валидации Blueprint.
@@ -22,7 +23,7 @@ import { zPaginationLinks, zPaginationMeta } from './pagination';
  */
 export const zBlueprint = z.object({
   /** Уникальный идентификатор Blueprint. */
-  id: z.number(),
+  id: zId,
   /** Отображаемое название Blueprint. */
   name: z.string(),
   /** Уникальный код Blueprint (URL-friendly строка). */
@@ -69,7 +70,7 @@ export type ZBlueprint = z.infer<typeof zBlueprint>;
  */
 export const zBlueprintListItem = z.object({
   /** Уникальный идентификатор Blueprint. */
-  id: z.number(),
+  id: zId,
   /** Отображаемое название Blueprint. */
   name: z.string(),
   /** Уникальный код Blueprint (URL-friendly строка). */
@@ -156,7 +157,7 @@ export type ZUpdateBlueprintDto = z.infer<typeof zUpdateBlueprintDto>;
  */
 const zBlueprintInfo = z.object({
   /** Идентификатор Blueprint. */
-  id: z.number(),
+  id: zId,
   /** Код Blueprint. */
   code: z.string(),
   /** Название Blueprint. */

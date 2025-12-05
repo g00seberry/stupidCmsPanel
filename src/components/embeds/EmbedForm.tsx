@@ -2,6 +2,7 @@ import { Form, Select, TreeSelect, Alert, Card, Space, Tag } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
 import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
+import type { ZId } from '@/types/ZId';
 import type { ZPath } from '@/types/path';
 import { useMemo, useCallback } from 'react';
 import { canEmbedInPath } from '@/utils/blueprintValidation';
@@ -12,15 +13,15 @@ import { canEmbedInPath } from '@/utils/blueprintValidation';
 export type PropsEmbedForm = {
   /** Экземпляр формы Ant Design. */
   form: FormInstance<{
-    embedded_blueprint_id: number;
-    host_path_id?: number;
+    embedded_blueprint_id: ZId;
+    host_path_id?: ZId;
   }>;
   /** Store для управления встраиваниями. */
   embedStore: BlueprintEmbedStore;
   /** Store для управления полями (для выбора host_path). */
   pathStore: PathStore;
   /** Обработчик изменения выбранного Blueprint. */
-  onBlueprintChange?: (blueprintId: number) => void;
+  onBlueprintChange?: (blueprintId: ZId) => void;
 };
 
 /**
@@ -35,8 +36,8 @@ export const EmbedForm: React.FC<PropsEmbedForm> = ({
 }) => {
   type TreeDataNode = {
     title: React.ReactNode;
-    value: number;
-    key: number;
+    value: ZId;
+    key: ZId;
     children?: TreeDataNode[];
   };
 
@@ -90,7 +91,7 @@ export const EmbedForm: React.FC<PropsEmbedForm> = ({
             [embedStore.embeddableBlueprints]
           )}
           onChange={useCallback(
-            (value: number) => {
+            (value: ZId) => {
               onBlueprintChange?.(value);
             },
             [onBlueprintChange]

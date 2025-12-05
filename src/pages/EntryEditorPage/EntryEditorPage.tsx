@@ -11,19 +11,20 @@ import { viewDate } from '@/utils/dateUtils';
 import { EntryEditorHeader } from './EntryEditorHeader';
 import { EntryEditorStore } from './EntryEditorStore';
 import type { EntryEditorFormValues } from './transforms';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Страница создания и редактирования записи CMS.
  */
 export const EntryEditorPage = observer(() => {
-  const { postType, id } = useParams<{ postType?: string; id?: string }>();
+  const { postTypeId, id } = useParams<{ postTypeId?: ZId; id?: ZId }>();
 
   const store = useMemo(() => {
-    if (postType && id) {
-      return new EntryEditorStore(postType, id);
+    if (postTypeId && id) {
+      return new EntryEditorStore(postTypeId, id);
     }
     return null;
-  }, [postType, id]);
+  }, [postTypeId, id]);
 
   if (!store) return null;
 
@@ -38,7 +39,7 @@ const Inner = observer(({ store }: PropsInner) => {
   const navigate = useNavigate();
   const titleValue = Form.useWatch('title', form);
   const isEditMode = store?.isEditMode ?? false;
-  const { postTypeSlug } = store;
+  const postType = store.postType;
 
   useEffect(() => {
     const formValues = { ...store.initialFormValues };
@@ -57,21 +58,23 @@ const Inner = observer(({ store }: PropsInner) => {
       };
 
       const nextEntry = await store.saveEntry(finalValues);
-      if (nextEntry) {
+      if (nextEntry && postType) {
         navigate(
-          buildUrl(PageUrl.EntryEdit, { postType: postTypeSlug, id: String(nextEntry.id) }),
+          buildUrl(PageUrl.EntryEdit, { postTypeId: postType.id, id: String(nextEntry.id) }),
           {
             replace: !isEditMode,
           }
         );
       }
     },
-    [isEditMode, navigate, postTypeSlug, store]
+    [isEditMode, navigate, postType, store]
   );
 
   const handleCancel = useCallback(() => {
-    navigate(buildUrl(PageUrl.EntriesByType, { postType: postTypeSlug }));
-  }, [postTypeSlug]);
+    if (postType) {
+      navigate(buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id }));
+    }
+  }, [navigate, postType]);
 
   const handleSave = useCallback(() => {
     form.submit();

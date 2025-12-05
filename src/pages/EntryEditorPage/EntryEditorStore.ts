@@ -39,18 +39,18 @@ export class EntryEditorStore {
   loading = false;
   templates: ZTemplate[] = [];
   postType: ZPostType | null = null;
-  postTypeSlug: string;
+  postTypeId: ZId;
   entryId: ZId | typeof idNew;
   termsManagerStore: EntryTermsManagerStore | null = null;
   blueprintModel: FormModel | null = null;
 
   /**
    * Создаёт экземпляр стора редактора записи.
-   * @param postTypeSlug Slug типа контента (опционально).
+   * @param postTypeId ID типа контента.
    * @param entryId ID записи для редактирования (опционально).
    */
-  constructor(postTypeSlug: string, entryId: ZId) {
-    this.postTypeSlug = postTypeSlug;
+  constructor(postTypeId: ZId, entryId: ZId) {
+    this.postTypeId = postTypeId;
     this.entryId = entryId;
     makeAutoObservable(this);
     void this.init();
@@ -106,13 +106,11 @@ export class EntryEditorStore {
 
   /**
    * Инициализирует стор: загружает шаблоны, тип контента (если указан) и запись (если указан ID).
-   * @param postTypeSlug Slug типа контента (опционально).
-   * @param entryId ID записи для редактирования (опционально).
    */
   async init(): Promise<void> {
     try {
       this.setLoading(true);
-      const postType = await getPostType(this.postTypeSlug);
+      const postType = await getPostType(this.postTypeId);
       this.setPostType(postType);
       const templates = await getTemplates();
       this.setTemplates(templates);
@@ -135,7 +133,7 @@ export class EntryEditorStore {
         const model = await createFormModelFromBlueprintSchema(
           postType.blueprint_id,
           initialValues,
-          this.postTypeSlug
+          this.postTypeId
         );
         this.setBlueprintModel(model);
       }
@@ -155,7 +153,7 @@ export class EntryEditorStore {
   async saveEntry(values: EntryEditorFormValues): Promise<ZEntry | null> {
     this.setLoading(true);
     try {
-      const payload = formValues2entryPayload(values, this.postTypeSlug);
+      const payload = formValues2entryPayload(values, this.postTypeId);
       const nextEntry = this.isEditMode
         ? await updateEntry(this.entryId, payload)
         : await createEntry(payload);

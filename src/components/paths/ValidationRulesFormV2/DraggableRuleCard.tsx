@@ -58,4 +58,3 @@ export const DraggableRuleCard: React.FC<PropsDraggableRuleCard> = ({
     </div>
   );
 };
-

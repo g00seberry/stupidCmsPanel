@@ -1,5 +1,6 @@
 import { Modal } from 'antd';
 import type { BlueprintEditorStore } from '@/pages/BlueprintEditorPage/BlueprintEditorStore';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Параметры для функции подтверждения удаления Blueprint.
@@ -8,7 +9,7 @@ export type ConfirmDeleteBlueprintParams = {
   /** Store для управления Blueprint. */
   store: BlueprintEditorStore;
   /** Идентификатор Blueprint для удаления. */
-  blueprintId: number;
+  blueprintId: ZId;
   /** Название Blueprint (для отображения в сообщении). */
   blueprintName: string;
   /** Обработчик успешного удаления. */

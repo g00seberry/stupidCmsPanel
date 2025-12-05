@@ -10,7 +10,7 @@ import { zId, type ZId } from './ZId';
  */
 const zEntryBlueprint = z.object({
   /** Уникальный идентификатор Blueprint. */
-  id: z.number(),
+  id: zId,
   /** Отображаемое название Blueprint. */
   name: z.string(),
   /** Уникальный код Blueprint (URL-friendly строка). */
@@ -29,7 +29,7 @@ const zEntryBlueprint = z.object({
  * @example
  * const entry: ZEntry = {
  *   id: 42,
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   status: 'published',
@@ -46,8 +46,8 @@ const zEntryBlueprint = z.object({
 export const zEntry = z.object({
   /** Уникальный идентификатор записи. */
   id: zId,
-  /** Тип контента записи (slug типа). */
-  post_type: z.string(),
+  /** ID типа контента записи. */
+  post_type_id: z.number(),
   /** Заголовок записи. */
   title: z.string(),
   /** URL-friendly идентификатор записи. */
@@ -113,8 +113,8 @@ export type ZEntriesStatusesResponse = z.infer<typeof zEntriesStatusesResponse>;
  * Параметры запроса списка записей.
  */
 export type ZEntriesListParams = {
-  /** Фильтр по slug типа контента. */
-  post_type?: string;
+  /** Фильтр по ID типа контента. */
+  post_type_id?: ZId;
   /** Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all. */
   status?: 'all' | 'draft' | 'published' | 'scheduled' | 'trashed';
   /** Поиск по названию/slug. */
@@ -160,7 +160,7 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  * Схема валидации данных для создания или обновления записи.
  * @example
  * const payload: ZEntryPayload = {
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   content_json: { hero: { title: 'Launch' } },
@@ -172,8 +172,8 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  * };
  */
 export const zEntryPayload = z.object({
-  /** Тип контента записи (slug типа). Обязателен при создании. */
-  post_type: z.string().optional(),
+  /** ID типа контента записи. Обязателен при создании. */
+  post_type_id: zId.optional(),
   /** Заголовок записи. */
   title: z.string().min(1),
   /** URL-friendly идентификатор записи. */

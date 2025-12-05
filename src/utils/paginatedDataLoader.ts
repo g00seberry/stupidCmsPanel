@@ -295,9 +295,8 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
     this.initialLoading = true;
 
     if (initialParams) {
-      const { filters: newFilters, pagination: newPagination } = this.splitPartialParams(
-        initialParams
-      );
+      const { filters: newFilters, pagination: newPagination } =
+        this.splitPartialParams(initialParams);
 
       // Объединяем с текущими значениями, приоритет у initialParams
       if (Object.keys(newFilters).length > 0) {

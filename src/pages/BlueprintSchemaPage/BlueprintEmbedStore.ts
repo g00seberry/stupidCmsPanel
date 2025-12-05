@@ -6,6 +6,7 @@ import {
 } from '@/api/blueprintEmbedApi';
 import type { ZEmbeddableBlueprints } from '@/types/blueprint';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
 
@@ -18,11 +19,11 @@ export class BlueprintEmbedStore {
   /** Список встраиваний текущего Blueprint. */
   embeds: ZBlueprintEmbed[] = [];
   /** Список Blueprint, доступных для безопасного встраивания. */
-  embeddableBlueprints: Array<{ id: number; code: string; name: string }> = [];
+  embeddableBlueprints: Array<{ id: ZId; code: string; name: string }> = [];
   /** Флаг выполнения запроса. */
   pending = false;
   /** Идентификатор текущего Blueprint. */
-  blueprintId: number | null = null;
+  blueprintId: ZId | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -32,7 +33,7 @@ export class BlueprintEmbedStore {
     this.embeds = embeds;
   }
 
-  setEmbeddableBlueprints(blueprints: Array<{ id: number; code: string; name: string }>) {
+  setEmbeddableBlueprints(blueprints: Array<{ id: ZId; code: string; name: string }>) {
     this.embeddableBlueprints = blueprints;
   }
 
@@ -40,7 +41,7 @@ export class BlueprintEmbedStore {
     this.pending = value;
   }
 
-  setBlueprintId(blueprintId: number | null) {
+  setBlueprintId(blueprintId: ZId | null) {
     this.blueprintId = blueprintId;
   }
 
@@ -48,7 +49,7 @@ export class BlueprintEmbedStore {
    * Загрузить список встраиваний.
    * @param blueprintId Идентификатор Blueprint.
    */
-  async loadEmbeds(blueprintId: number): Promise<void> {
+  async loadEmbeds(blueprintId: ZId): Promise<void> {
     this.setBlueprintId(blueprintId);
     this.setPending(true);
     try {
@@ -66,7 +67,7 @@ export class BlueprintEmbedStore {
    * Загрузить список доступных для встраивания Blueprint.
    * @param blueprintId Идентификатор Blueprint, в который планируется встраивание.
    */
-  async loadEmbeddable(blueprintId: number): Promise<void> {
+  async loadEmbeddable(blueprintId: ZId): Promise<void> {
     this.setBlueprintId(blueprintId);
     this.setPending(true);
     try {
@@ -86,8 +87,8 @@ export class BlueprintEmbedStore {
    * @returns Созданное встраивание.
    */
   async createEmbed(dto: {
-    embedded_blueprint_id: number;
-    host_path_id?: number;
+    embedded_blueprint_id: ZId;
+    host_path_id?: ZId;
   }): Promise<ZBlueprintEmbed> {
     if (!this.blueprintId) {
       throw new Error('Blueprint ID не установлен');
@@ -107,7 +108,7 @@ export class BlueprintEmbedStore {
    * Удалить встраивание.
    * @param id Идентификатор встраивания для удаления.
    */
-  async deleteEmbed(id: number): Promise<void> {
+  async deleteEmbed(id: ZId): Promise<void> {
     this.setPending(true);
     try {
       await deleteEmbedApi(id);

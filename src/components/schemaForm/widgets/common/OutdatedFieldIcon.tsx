@@ -27,4 +27,3 @@ export const OutdatedFieldIcon: React.FC<PropsOutdatedFieldIcon> = ({ isOutdated
     </Tooltip>
   );
 };
-

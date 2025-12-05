@@ -3,6 +3,7 @@ import { getBlueprintSchema } from '@/api/blueprintApi';
 import { FormModel } from '@/components/schemaForm/FormModel';
 import type { FormValues } from './types';
 import type { ZEditComponent } from './ZComponent';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Создаёт FormModel из Blueprint схемы.
@@ -10,25 +11,25 @@ import type { ZEditComponent } from './ZComponent';
  * и создаёт готовый FormModel для использования в компонентах.
  * @param blueprintId Идентификатор Blueprint.
  * @param initial Опциональные начальные значения (частичные).
- * @param postTypeSlug Опциональный slug типа контента для загрузки конфигурации формы.
+ * @param postTypeId Опциональный ID типа контента для загрузки конфигурации формы.
  * @returns Готовый FormModel для использования в SchemaForm.
  * @example
- * const model = await createFormModelFromBlueprintSchema(1, { title: 'Initial Title' }, 'article');
+ * const model = await createFormModelFromBlueprintSchema(1, { title: 'Initial Title' }, 1);
  * <SchemaForm model={model} schema={model.schema} />
  */
 export const createFormModelFromBlueprintSchema = async (
-  blueprintId: number,
+  blueprintId: ZId,
   initial?: Partial<FormValues>,
-  postTypeSlug?: string
+  postTypeId?: ZId
 ): Promise<FormModel> => {
   // Загружаем схему Blueprint из API
   const blueprintSchema = await getBlueprintSchema(blueprintId);
 
-  // Загружаем конфигурацию формы, если передан postTypeSlug
+  // Загружаем конфигурацию формы, если передан postTypeId
   let formConfig: Record<string, ZEditComponent> | undefined;
-  if (postTypeSlug) {
+  if (postTypeId) {
     try {
-      formConfig = await getFormConfig(postTypeSlug, blueprintId);
+      formConfig = await getFormConfig(postTypeId, blueprintId);
     } catch {
       // Если конфигурация не найдена или произошла ошибка, используем пустой объект
       // Не показываем ошибку пользователю, так как конфигурация опциональна

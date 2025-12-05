@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Button, Card, Select, Spin, Tree, Empty } from 'antd';
 import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
 import { PropsForm } from '@/components/PropsForm/PropsForm';
@@ -17,28 +18,29 @@ import { Tooltip } from 'antd';
  * Позволяет настроить компоненты формы для каждого поля схемы blueprint.
  */
 export const FormConfigPage = observer(() => {
-  const { slug, blueprintId } = useParams<{ slug: string; blueprintId: string }>();
+  const { id: idParam, blueprintId } = useParams<{ id: string; blueprintId: string }>();
   const store = useMemo(() => new FormConfigStore(), []);
 
-  const blueprintIdNum = blueprintId ? Number(blueprintId) : null;
+  const postTypeId: ZId | null = idParam || null;
+  const blueprintIdNum: ZId | null = blueprintId || null;
 
   // Загрузка данных при монтировании
   useEffect(() => {
-    if (slug && blueprintIdNum) {
-      void store.loadData(slug, blueprintIdNum);
+    if (postTypeId && blueprintIdNum) {
+      void store.loadData(postTypeId, blueprintIdNum);
     }
-  }, [slug, blueprintIdNum, store]);
+  }, [postTypeId, blueprintIdNum, store]);
 
   /**
    * Обрабатывает сохранение конфигурации.
    */
   const handleSave = useCallback(async () => {
-    if (!slug || !blueprintIdNum) {
+    if (!postTypeId || !blueprintIdNum) {
       return;
     }
 
-    await store.saveConfig(slug, blueprintIdNum);
-  }, [slug, blueprintIdNum, store]);
+    await store.saveConfig(postTypeId, blueprintIdNum);
+  }, [postTypeId, blueprintIdNum, store]);
 
   /**
    * Обрабатывает изменение компонента для поля.
@@ -245,7 +247,7 @@ export const FormConfigPage = observer(() => {
               </Link>
               <span>/</span>
               <Link
-                to={buildUrl(PageUrl.ContentTypesEdit, { slug: store.postType.slug })}
+                to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}
                 className="hover:text-foreground cursor-pointer transition-colors"
               >
                 {store.postType.name}
@@ -254,7 +256,7 @@ export const FormConfigPage = observer(() => {
               <span className="text-foreground font-medium">Настройка формы</span>
             </div>
             <div className="flex items-center gap-3">
-              <Link to={buildUrl(PageUrl.ContentTypesEdit, { slug: store.postType.slug })}>
+              <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
                 <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
               </Link>
               <Button

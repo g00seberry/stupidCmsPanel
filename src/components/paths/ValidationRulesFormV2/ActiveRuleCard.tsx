@@ -68,4 +68,3 @@ export const ActiveRuleCard: React.FC<PropsActiveRuleCard> = ({
     </div>
   );
 };
-

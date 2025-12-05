@@ -21,4 +21,3 @@ export const FieldError: React.FC<PropsFieldError> = ({ error }) => {
 
   return <div className="text-red-500 text-sm mt-1">{error}</div>;
 };
-

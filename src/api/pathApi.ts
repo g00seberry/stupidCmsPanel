@@ -1,9 +1,10 @@
 import { rest } from '@/api/rest';
 import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path';
 import { zPathResponse, zPathsResponse } from '@/types/path';
+import type { ZId } from '@/types/ZId';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;
-const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =>
+const getAdminBlueprintsPathsUrl = (blueprintId: ZId, path: string): string =>
   `/api/v1/admin/blueprints/${blueprintId}/paths${path}`;
 
 /**
@@ -19,7 +20,7 @@ const getAdminBlueprintsPathsUrl = (blueprintId: number, path: string): string =
  *   }
  * });
  */
-export const listPaths = async (blueprintId: number): Promise<ZPath[]> => {
+export const listPaths = async (blueprintId: ZId): Promise<ZPath[]> => {
   const response = await rest.get(getAdminBlueprintsPathsUrl(blueprintId, ''));
   return zPathsResponse.parse(response.data).data;
 };
@@ -33,7 +34,7 @@ export const listPaths = async (blueprintId: number): Promise<ZPath[]> => {
  * console.log(path.full_path); // 'author.contacts.phone'
  * console.log(path.is_readonly); // true (если скопировано из другого Blueprint)
  */
-export const getPath = async (id: number): Promise<ZPath> => {
+export const getPath = async (id: ZId): Promise<ZPath> => {
   const response = await rest.get(getAdminPathsUrl(`/${id}`));
   return zPathResponse.parse(response.data).data;
 };
@@ -58,7 +59,7 @@ export const getPath = async (id: number): Promise<ZPath> => {
  *   data_type: 'string'
  * });
  */
-export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Promise<ZPath> => {
+export const createPath = async (blueprintId: ZId, dto: ZCreatePathDto): Promise<ZPath> => {
   const response = await rest.post(getAdminBlueprintsPathsUrl(blueprintId, ''), dto);
   return zPathResponse.parse(response.data).data;
 };
@@ -77,7 +78,7 @@ export const createPath = async (blueprintId: number, dto: ZCreatePathDto): Prom
  * });
  * // При изменении name или parent_id автоматически пересчитывается full_path для всех дочерних полей
  */
-export const updatePath = async (id: number, dto: ZUpdatePathDto): Promise<ZPath> => {
+export const updatePath = async (id: ZId, dto: ZUpdatePathDto): Promise<ZPath> => {
   const response = await rest.put(getAdminPathsUrl(`/${id}`), dto);
   return zPathResponse.parse(response.data).data;
 };
@@ -91,6 +92,6 @@ export const updatePath = async (id: number, dto: ZUpdatePathDto): Promise<ZPath
  * // Внимание: удаление поля приводит к каскадному удалению всех дочерних полей
  * // и потере всех данных в этих полях для всех Entry данного Blueprint
  */
-export const deletePath = async (id: number): Promise<void> => {
+export const deletePath = async (id: ZId): Promise<void> => {
   await rest.delete(getAdminPathsUrl(`/${id}`));
 };

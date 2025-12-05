@@ -14,4 +14,3 @@ export const getTemplates = async (): Promise<ZTemplate[]> => {
   const parsed = zTemplatesResponse.parse(response.data);
   return parsed.data;
 };
-

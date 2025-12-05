@@ -1,10 +1,12 @@
 import { rest } from '@/api/rest';
 import { zBlueprintEmbed } from '@/types/blueprintEmbed';
 import type { ZBlueprintEmbed } from '@/types/blueprintEmbed';
+import type { ZId } from '@/types/ZId';
 import { z } from 'zod';
+import { zId } from '@/types/ZId';
 
 const getAdminEmbedsUrl = (path: string): string => `/api/v1/admin/embeds${path}`;
-const getAdminBlueprintsEmbedsUrl = (blueprintId: number, path: string): string =>
+const getAdminBlueprintsEmbedsUrl = (blueprintId: ZId, path: string): string =>
   `/api/v1/admin/blueprints/${blueprintId}/embeds${path}`;
 
 /**
@@ -26,9 +28,9 @@ const zEmbedResponse = z.object({
  */
 const zCreateEmbedDto = z.object({
   /** Идентификатор Blueprint для встраивания. */
-  embedded_blueprint_id: z.number(),
+  embedded_blueprint_id: zId,
   /** Идентификатор поля-контейнера. Если не указан, встраивание происходит в корень. */
-  host_path_id: z.number().optional(),
+  host_path_id: zId.optional(),
 });
 
 /**
@@ -41,7 +43,7 @@ const zCreateEmbedDto = z.object({
  *   console.log(`${embed.embedded_blueprint?.name} встроен в ${embed.host_path?.full_path || 'корень'}`);
  * });
  */
-export const listEmbeds = async (blueprintId: number): Promise<ZBlueprintEmbed[]> => {
+export const listEmbeds = async (blueprintId: ZId): Promise<ZBlueprintEmbed[]> => {
   const response = await rest.get(getAdminBlueprintsEmbedsUrl(blueprintId, ''));
   return zEmbedsResponse.parse(response.data).data;
 };
@@ -55,7 +57,7 @@ export const listEmbeds = async (blueprintId: number): Promise<ZBlueprintEmbed[]
  * console.log(embed.embedded_blueprint?.name); // 'Address'
  * console.log(embed.host_path?.full_path); // 'office' или null для корневого встраивания
  */
-export const getEmbed = async (id: number): Promise<ZBlueprintEmbed> => {
+export const getEmbed = async (id: ZId): Promise<ZBlueprintEmbed> => {
   const response = await rest.get(getAdminEmbedsUrl(`/${id}`));
   return zEmbedResponse.parse(response.data).data;
 };
@@ -80,10 +82,10 @@ export const getEmbed = async (id: number): Promise<ZBlueprintEmbed> => {
  * });
  */
 export const createEmbed = async (
-  blueprintId: number,
+  blueprintId: ZId,
   dto: {
-    embedded_blueprint_id: number;
-    host_path_id?: number;
+    embedded_blueprint_id: ZId;
+    host_path_id?: ZId;
   }
 ): Promise<ZBlueprintEmbed> => {
   const parsedDto = zCreateEmbedDto.parse(dto);
@@ -100,6 +102,6 @@ export const createEmbed = async (
  * // Внимание: удаление встраивания приводит к удалению всех скопированных полей
  * // (с is_readonly = true) и потере всех данных в этих полях для всех Entry данного Blueprint
  */
-export const deleteEmbed = async (id: number): Promise<void> => {
+export const deleteEmbed = async (id: ZId): Promise<void> => {
   await rest.delete(getAdminEmbedsUrl(`/${id}`));
 };

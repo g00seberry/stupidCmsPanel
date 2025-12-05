@@ -1,11 +1,12 @@
 import { Alert } from 'antd';
+import type { ZId } from '@/types/ZId';
 
 /**
  * Пропсы компонента предупреждения о режиме только чтения.
  */
 export type PropsReadonlyAlert = {
   /** Исходный Blueprint, из которого встроено поле. */
-  sourceBlueprint: { id: number; name: string; code: string };
+  sourceBlueprint: { id: ZId; name: string; code: string };
 };
 
 /**
@@ -38,4 +39,3 @@ export const ReadonlyAlert: React.FC<PropsReadonlyAlert> = ({ sourceBlueprint })
     </div>
   );
 };
-

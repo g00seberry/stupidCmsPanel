@@ -1,4 +1,5 @@
 import type { ZCreatePathDto, ZUpdatePathDto, ZValidationRules } from '@/types/path';
+import type { ZId } from '@/types/ZId';
 
 type PathFormValues = ZCreatePathDto | ZUpdatePathDto;
 
@@ -61,7 +62,7 @@ export const normalizeFormInitialValues = (
  */
 export const buildFullPath = (
   name?: string,
-  parentPath?: { id: number; full_path: string }
+  parentPath?: { id: ZId; full_path: string }
 ): string | undefined => {
   const trimmed = name?.trim();
   if (!trimmed) return undefined;

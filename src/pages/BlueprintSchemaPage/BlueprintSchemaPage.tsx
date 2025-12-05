@@ -6,6 +6,7 @@ import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
+import type { ZId } from '@/types/ZId';
 import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import { onError } from '@/utils/onError';
 import { App, Card, Drawer, Modal } from 'antd';
@@ -21,7 +22,7 @@ import type { ReactFlowInstance } from 'reactflow';
 export const BlueprintSchemaPage = observer(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const blueprintId = id ? Number(id) : null;
+  const blueprintId: ZId | null = id || null;
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const { modal, message } = App.useApp();
   const pageStore = useMemo(() => new BlueprintSchemaViewModel(), []);
@@ -34,7 +35,7 @@ export const BlueprintSchemaPage = observer(() => {
     }
   }, [blueprintId, pageStore]);
 
-  const handleNodeContextMenu = (pathId: number, event: React.MouseEvent) => {
+  const handleNodeContextMenu = (pathId: ZId, event: React.MouseEvent) => {
     event.preventDefault();
     pageStore.openNodeContextMenu(pathId, { x: event.clientX, y: event.clientY });
   };
@@ -44,7 +45,7 @@ export const BlueprintSchemaPage = observer(() => {
     pageStore.openPaneContextMenu({ x: event.clientX, y: event.clientY });
   };
 
-  const handleDeleteEmbed = async (embedId: number) => {
+  const handleDeleteEmbed = async (embedId: ZId) => {
     if (!blueprintId) return;
 
     modal.confirm({
@@ -81,7 +82,7 @@ export const BlueprintSchemaPage = observer(() => {
     pageStore.closeModal();
   };
 
-  const handleEmbedSave = (values: { embedded_blueprint_id: number }) => {
+  const handleEmbedSave = (values: { embedded_blueprint_id: ZId }) => {
     void pageStore.saveEmbed(values);
   };
 
@@ -120,9 +121,7 @@ export const BlueprintSchemaPage = observer(() => {
               <span>/</span>
               <span
                 className="hover:text-foreground cursor-pointer transition-colors"
-                onClick={() =>
-                  navigate(buildUrl(PageUrl.BlueprintsEdit, { id: String(blueprintId) }))
-                }
+                onClick={() => navigate(buildUrl(PageUrl.BlueprintsEdit, { id: blueprintId }))}
               >
                 Редактирование
               </span>

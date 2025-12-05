@@ -37,10 +37,10 @@ export const entry2formValues = (entry: ZEntry, termIds: ZId[] = []): EntryEdito
 
 export const formValues2entryPayload = (
   values: EntryEditorFormValues,
-  postTypeSlug: string
+  postTypeId: ZId
 ): ZEntryPayload => {
   return {
-    post_type: postTypeSlug,
+    post_type_id: postTypeId,
     title: values.title,
     slug: values.slug,
     is_published: values.is_published,

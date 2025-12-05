@@ -1,6 +1,7 @@
 import { FilterForm } from '@/components/FilterForm';
 import { PaginatedTable } from '@/components/PaginatedTable/PaginatedTable';
 import type { BlueprintListStore } from '@/pages/BlueprintsPage/BlueprintListStore';
+import type { ZId } from '@/types/ZId';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { buildColumns } from './buildColumns';
@@ -22,7 +23,7 @@ export const BlueprintList: React.FC<PropsBlueprintList> = observer(({ store }) 
   const columns = useMemo(
     () =>
       buildColumns({
-        onDelete: (id: number) => {
+        onDelete: (id: ZId) => {
           void store.deleteBlueprint(id);
         },
       }),

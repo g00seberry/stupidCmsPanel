@@ -28,8 +28,8 @@ const buildQueryParams = (
 ): Record<string, number | ZId | number[] | ZId[]> => {
   const queryParams: Record<string, number | ZId | number[] | ZId[]> = {};
 
-  if (params.post_type) {
-    queryParams.post_type = params.post_type;
+  if (params.post_type_id) {
+    queryParams.post_type_id = params.post_type_id;
   }
 
   if (params.status && params.status !== 'all') {
@@ -83,7 +83,7 @@ const buildQueryParams = (
  * @returns Объект с массивом записей, метаданными пагинации и ссылками.
  * @example
  * const result = await listEntries({
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   status: 'published',
  *   per_page: 20,
  *   page: 1
@@ -141,7 +141,7 @@ export const getEntry = async (id: ZId): Promise<ZEntry> => {
  * @returns Созданная запись.
  * @example
  * const newEntry = await createEntry({
- *   post_type: 'article',
+ *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
  *   slug: 'launch-checklist',
  *   content_json: { hero: { title: 'Launch' } },

@@ -11,6 +11,7 @@ import ReactFlow, {
   applyEdgeChanges,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import type { ZId } from '@/types/ZId';
 import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
 import { pathTreeToGraph, applyDagreLayout } from './utils/pathToGraph';
 import { SimpleFieldNode } from './nodes/SimpleFieldNode';
@@ -24,11 +25,11 @@ export type PropsPathGraphEditor = {
   /** Store для управления полями Blueprint. */
   store: PathStore;
   /** Обработчик контекстного меню на узле. */
-  onNodeContextMenu?: (pathId: number, event: React.MouseEvent) => void;
+  onNodeContextMenu?: (pathId: ZId, event: React.MouseEvent) => void;
   /** Обработчик контекстного меню на пустой области графа. */
   onPaneContextMenu?: (event: React.MouseEvent) => void;
   /** Выделенные узлы (для подсветки). */
-  highlightedNodes?: number[];
+  highlightedNodes?: ZId[];
   /** Референс на ReactFlow instance (для управления извне через GraphControls). */
   reactFlowInstanceRef?: React.MutableRefObject<ReactFlowInstance | null>;
 };
@@ -68,7 +69,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
       const layoutedNodes = applyDagreLayout(rawGraph.nodes, rawGraph.edges);
       const nodesWithSelection = layoutedNodes.map(node => ({
         ...node,
-        selected: highlightedSet.has(Number(node.id)),
+        selected: highlightedSet.has(node.id as ZId),
       }));
       return { nodes: nodesWithSelection, edges: rawGraph.edges };
     }, [store.paths, highlightedNodes]);
@@ -123,7 +124,7 @@ export const PathGraphEditor: React.FC<PropsPathGraphEditor> = observer(
           onEdgesChange={changes => setEdges(prev => applyEdgeChanges(changes, prev))}
           onNodeContextMenu={(e, node) => {
             e.preventDefault();
-            onNodeContextMenu?.(Number(node.id), e);
+            onNodeContextMenu?.(node.id as ZId, e);
           }}
           onPaneContextMenu={e => {
             e.preventDefault();

@@ -7,6 +7,7 @@ import { listBlueprints } from '@/api/blueprintApi';
 import { getPostType, updatePostType } from '@/api/apiPostTypes';
 import type { ZBlueprintListItem } from '@/types/blueprint';
 import type { ZPostType } from '@/types/postTypes';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { buildUrl, PageUrl } from '@/PageUrl';
 
@@ -15,20 +16,22 @@ import { buildUrl, PageUrl } from '@/PageUrl';
  * Позволяет выбрать один Blueprint для привязки к PostType или отвязать Blueprint.
  */
 export const PostTypeBlueprintsPage = observer(() => {
-  const { slug } = useParams<{ slug: string }>();
+  const { id: idParam } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [postType, setPostType] = useState<ZPostType | null>(null);
   const [blueprints, setBlueprints] = useState<ZBlueprintListItem[]>([]);
-  const [selectedBlueprintId, setSelectedBlueprintId] = useState<number | null>(null);
+  const [selectedBlueprintId, setSelectedBlueprintId] = useState<ZId | null>(null);
   const [pending, setPending] = useState(false);
   const [saving, setSaving] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  const postTypeId: ZId | null = idParam || null;
 
   /**
    * Загружает данные типа контента и список Blueprints.
    */
   const loadData = useCallback(async () => {
-    if (!slug) {
+    if (!postTypeId) {
       return;
     }
 
@@ -37,7 +40,7 @@ export const PostTypeBlueprintsPage = observer(() => {
 
     try {
       const [postTypeData, blueprintsData] = await Promise.all([
-        getPostType(slug),
+        getPostType(postTypeId),
         listBlueprints({ per_page: 1000 }),
       ]);
 
@@ -50,7 +53,7 @@ export const PostTypeBlueprintsPage = observer(() => {
       setPending(false);
       setInitialLoading(false);
     }
-  }, [slug]);
+  }, [postTypeId]);
 
   useEffect(() => {
     void loadData();
@@ -59,7 +62,7 @@ export const PostTypeBlueprintsPage = observer(() => {
   /**
    * Обрабатывает изменение выбора Blueprint.
    */
-  const handleBlueprintChange = useCallback((blueprintId: number | null) => {
+  const handleBlueprintChange = useCallback((blueprintId: ZId | null) => {
     setSelectedBlueprintId(blueprintId);
   }, []);
 
@@ -67,26 +70,26 @@ export const PostTypeBlueprintsPage = observer(() => {
    * Сохраняет изменения.
    */
   const handleSave = useCallback(async () => {
-    if (!slug || !postType) {
+    if (!postTypeId || !postType) {
       return;
     }
 
     setSaving(true);
 
     try {
-      await updatePostType(slug, {
+      await updatePostType(postTypeId, {
         slug: postType.slug,
         name: postType.name,
         options_json: postType.options_json,
         blueprint_id: selectedBlueprintId,
       });
-      navigate(buildUrl(PageUrl.ContentTypesEdit, { slug }));
+      navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postTypeId }));
     } catch (error) {
       onError(error);
     } finally {
       setSaving(false);
     }
-  }, [slug, postType, selectedBlueprintId, navigate]);
+  }, [postTypeId, postType, selectedBlueprintId, navigate]);
 
   const hasChanges = postType?.blueprint_id !== selectedBlueprintId;
 
@@ -115,7 +118,7 @@ export const PostTypeBlueprintsPage = observer(() => {
               {postType && (
                 <>
                   <Link
-                    to={buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug })}
+                    to={buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })}
                     className="hover:text-foreground cursor-pointer transition-colors"
                   >
                     {postType.name}
@@ -126,7 +129,13 @@ export const PostTypeBlueprintsPage = observer(() => {
               <span className="text-foreground font-medium">Настройка Blueprints</span>
             </div>
             <div className="flex items-center gap-3">
-              <Link to={postType ? buildUrl(PageUrl.ContentTypesEdit, { slug: postType.slug }) : PageUrl.ContentTypes}>
+              <Link
+                to={
+                  postType
+                    ? buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })
+                    : PageUrl.ContentTypes
+                }
+              >
                 <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
               </Link>
               <Button
@@ -213,4 +222,3 @@ export const PostTypeBlueprintsPage = observer(() => {
     </div>
   );
 });
-

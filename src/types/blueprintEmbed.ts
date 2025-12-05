@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zId } from './ZId';
 
 /**
  * Схема валидации вложенного объекта blueprint в BlueprintEmbed.
@@ -7,7 +8,7 @@ import { z } from 'zod';
 const zBlueprintInfo = z
   .object({
     /** Идентификатор Blueprint. */
-    id: z.number(),
+    id: zId,
     /** Код Blueprint. */
     code: z.string(),
     /** Название Blueprint. */
@@ -22,7 +23,7 @@ const zBlueprintInfo = z
 const zEmbeddedBlueprintInfo = z
   .object({
     /** Идентификатор встроенного Blueprint. */
-    id: z.number(),
+    id: zId,
     /** Код встроенного Blueprint. */
     code: z.string(),
     /** Название встроенного Blueprint. */
@@ -37,7 +38,7 @@ const zEmbeddedBlueprintInfo = z
 const zHostPathInfo = z
   .object({
     /** Идентификатор поля-хозяина. */
-    id: z.number(),
+    id: zId,
     /** Имя поля-хозяина. */
     name: z.string(),
     /** Полный путь поля-хозяина. */
@@ -76,13 +77,13 @@ const zHostPathInfo = z
  */
 export const zBlueprintEmbed = z.object({
   /** Уникальный идентификатор встраивания. */
-  id: z.number(),
+  id: zId,
   /** Идентификатор Blueprint, в который встроен другой Blueprint. */
-  blueprint_id: z.number(),
+  blueprint_id: zId,
   /** Идентификатор встроенного Blueprint. */
-  embedded_blueprint_id: z.number(),
+  embedded_blueprint_id: zId,
   /** Идентификатор поля-хозяина, в которое встроен Blueprint. `null` для корневого встраивания. */
-  host_path_id: z.number().nullable(),
+  host_path_id: zId.nullable(),
   /** Информация о Blueprint-хозяине (в который встроен другой Blueprint). */
   blueprint: zBlueprintInfo,
   /** Информация о встроенном Blueprint. */

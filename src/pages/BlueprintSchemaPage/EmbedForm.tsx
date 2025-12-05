@@ -1,16 +1,17 @@
 import { Alert, Button, Form, Select, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import type { ZId } from '@/types/ZId';
 import { useEffect, useMemo } from 'react';
 
-const filterOption = (input: string, option?: { label?: string; value?: number }) =>
+const filterOption = (input: string, option?: { label?: string; value?: ZId }) =>
   (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
 export type EmbedFormValues = {
-  embedded_blueprint_id: number;
+  embedded_blueprint_id: ZId;
 };
 
 export type EmbeddableBlueprint = {
-  id: number;
+  id: ZId;
   code: string;
   name: string;
 };

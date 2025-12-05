@@ -1,6 +1,5 @@
 import { CheckCircleOutlined } from '@ant-design/icons';
 import type { RuleCategory, RuleKey } from './types';
-import { getCategoryLabel } from './utils';
 import { RuleCategorySection } from './RuleCategorySection';
 
 /**

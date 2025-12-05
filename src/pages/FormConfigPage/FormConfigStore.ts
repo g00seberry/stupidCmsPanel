@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import { getPostType } from '@/api/apiPostTypes';
 import { getBlueprintSchema } from '@/api/blueprintApi';
 import { getFormConfig, saveFormConfig } from '@/api/apiFormConfig';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { notificationService } from '@/services/notificationService';
 import type { ZPostType } from '@/types/postTypes';
@@ -115,16 +116,16 @@ export class FormConfigStore {
 
   /**
    * Загружает данные для настройки формы.
-   * @param postTypeSlug Slug типа контента.
+   * @param postTypeId ID типа контента.
    * @param blueprintId Идентификатор blueprint.
    */
-  async loadData(postTypeSlug: string, blueprintId: number): Promise<void> {
+  async loadData(postTypeId: ZId, blueprintId: ZId): Promise<void> {
     this.setInitialLoading(true);
     try {
       const [postTypeData, schemaData, configData] = await Promise.all([
-        getPostType(postTypeSlug),
+        getPostType(postTypeId),
         getBlueprintSchema(blueprintId),
-        getFormConfig(postTypeSlug, blueprintId).catch(() => ({})), // Если конфигурации нет, используем пустой объект
+        getFormConfig(postTypeId, blueprintId).catch(() => ({})), // Если конфигурации нет, используем пустой объект
       ]);
 
       this.setPostType(postTypeData);
@@ -139,13 +140,13 @@ export class FormConfigStore {
 
   /**
    * Сохраняет конфигурацию формы.
-   * @param postTypeSlug Slug типа контента.
+   * @param postTypeId ID типа контента.
    * @param blueprintId Идентификатор blueprint.
    */
-  async saveConfig(postTypeSlug: string, blueprintId: number): Promise<boolean> {
+  async saveConfig(postTypeId: ZId, blueprintId: ZId): Promise<boolean> {
     this.setPending(true);
     try {
-      await saveFormConfig(postTypeSlug, blueprintId, this.formConfig);
+      await saveFormConfig(postTypeId, blueprintId, this.formConfig);
       notificationService.showSuccess({ message: 'Конфигурация формы сохранена' });
       return true;
     } catch (error) {

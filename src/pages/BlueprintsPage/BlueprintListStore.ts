@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import type { ZBlueprintListItem } from '@/types/blueprint';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { listBlueprints, deleteBlueprint as deleteBlueprintApi } from '@/api/blueprintApi';
 import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
@@ -57,7 +58,7 @@ export class BlueprintListStore {
    * Удалить Blueprint из списка.
    * @param id Идентификатор Blueprint для удаления.
    */
-  async deleteBlueprint(id: number): Promise<void> {
+  async deleteBlueprint(id: ZId): Promise<void> {
     this.setDeleting(true);
     try {
       await deleteBlueprintApi(id);

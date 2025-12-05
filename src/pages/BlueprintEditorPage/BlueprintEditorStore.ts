@@ -7,6 +7,7 @@ import type {
   ZBlueprintDependencies,
   ZEmbeddableBlueprints,
 } from '@/types/blueprint';
+import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import {
   getBlueprint,
@@ -44,7 +45,7 @@ export class BlueprintEditorStore {
    * Загрузить Blueprint по ID.
    * @param id Идентификатор Blueprint.
    */
-  async loadBlueprint(id: number): Promise<void> {
+  async loadBlueprint(id: ZId): Promise<void> {
     this.pending = true;
     try {
       const blueprint = await getBlueprint(id);
@@ -91,7 +92,7 @@ export class BlueprintEditorStore {
    * @param id Идентификатор Blueprint.
    * @param dto Данные для обновления.
    */
-  async updateBlueprint(id: number, dto: ZUpdateBlueprintDto): Promise<void> {
+  async updateBlueprint(id: ZId, dto: ZUpdateBlueprintDto): Promise<void> {
     this.updating = true;
     try {
       const updated = await updateBlueprintApi(id, dto);
@@ -112,7 +113,7 @@ export class BlueprintEditorStore {
    * Удалить Blueprint.
    * @param id Идентификатор Blueprint для удаления.
    */
-  async deleteBlueprint(id: number): Promise<void> {
+  async deleteBlueprint(id: ZId): Promise<void> {
     this.deleting = true;
     try {
       await deleteBlueprintApi(id);
@@ -136,7 +137,7 @@ export class BlueprintEditorStore {
    * @param id Идентификатор Blueprint.
    * @returns Результат проверки с флагом can_delete и списком причин.
    */
-  async checkCanDelete(id: number): Promise<ZCanDeleteBlueprint> {
+  async checkCanDelete(id: ZId): Promise<ZCanDeleteBlueprint> {
     try {
       return await canDeleteBlueprintApi(id);
     } catch (error) {
@@ -150,7 +151,7 @@ export class BlueprintEditorStore {
    * @param id Идентификатор Blueprint.
    * @returns Граф зависимостей (depends_on и depended_by).
    */
-  async loadDependencies(id: number): Promise<ZBlueprintDependencies> {
+  async loadDependencies(id: ZId): Promise<ZBlueprintDependencies> {
     try {
       return await getBlueprintDependenciesApi(id);
     } catch (error) {
@@ -164,7 +165,7 @@ export class BlueprintEditorStore {
    * @param id Идентификатор Blueprint, в который планируется встраивание.
    * @returns Список Blueprint, которые можно безопасно встроить.
    */
-  async loadEmbeddable(id: number): Promise<ZEmbeddableBlueprints> {
+  async loadEmbeddable(id: ZId): Promise<ZEmbeddableBlueprints> {
     try {
       return await getEmbeddableBlueprintsApi(id);
     } catch (error) {
@@ -173,4 +174,3 @@ export class BlueprintEditorStore {
     }
   }
 }
-

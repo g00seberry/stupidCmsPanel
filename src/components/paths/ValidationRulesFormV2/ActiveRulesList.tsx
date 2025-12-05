@@ -31,9 +31,7 @@ export const ActiveRulesList: React.FC<PropsActiveRulesList> = ({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <InboxOutlined className="text-4xl text-muted-foreground/40 mb-3" />
-        <div className="text-muted-foreground text-sm mb-1 font-medium">
-          Нет активных правил
-        </div>
+        <div className="text-muted-foreground text-sm mb-1 font-medium">Нет активных правил</div>
         <div className="text-muted-foreground/70 text-xs max-w-[240px]">
           Перетащите правила из левой панели или нажмите на правило для добавления
         </div>
@@ -59,4 +57,3 @@ export const ActiveRulesList: React.FC<PropsActiveRulesList> = ({
     </div>
   );
 };
-

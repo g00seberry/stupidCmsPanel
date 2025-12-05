@@ -8,4 +8,3 @@ import { BooleanRuleRenderer } from '../shared/BooleanRuleRenderer';
 export const RequiredRuleRenderer: React.FC<RuleRendererProps> = props => {
   return <BooleanRuleRenderer {...props} tooltip="Поле обязательно к заполнению" />;
 };
-

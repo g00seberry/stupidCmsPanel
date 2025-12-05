@@ -55,4 +55,3 @@ export const DraggableRuleCardCompact: React.FC<PropsDraggableRuleCardCompact> =
     </div>
   );
 };
-
