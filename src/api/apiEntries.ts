@@ -143,8 +143,7 @@ export const getEntry = async (id: ZId): Promise<ZEntry> => {
  * const newEntry = await createEntry({
  *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
- *   slug: 'launch-checklist',
- *   content_json: { hero: { title: 'Launch' } },
+ *   data_json: { hero: { title: 'Launch' } },
  *   meta_json: { title: 'Launch', description: 'Checklist' }
  * });
  */
@@ -162,7 +161,7 @@ export const createEntry = async (payload: ZEntryPayload): Promise<ZEntry> => {
  * @example
  * const updatedEntry = await updateEntry(42, {
  *   title: 'Updated checklist',
- *   content_json: { body: { blocks: [] } }
+ *   data_json: { body: { blocks: [] } }
  * });
  */
 export const updateEntry = async (id: ZId, payload: ZEntryPayload): Promise<ZEntry> => {

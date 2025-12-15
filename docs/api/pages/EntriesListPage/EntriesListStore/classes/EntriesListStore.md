@@ -1,6 +1,6 @@
 [**admin**](../../../../README.md)
 
-***
+---
 
 # Class: EntriesListStore
 
@@ -31,7 +31,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:17](https://github.co
 
 Массив возможных статусов записей.
 
-***
+---
 
 ### statusesPending
 
@@ -55,7 +55,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:34](https://github.co
 
 ##### Returns
 
-***
+---
 
 ### filters
 
@@ -71,7 +71,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:59](https://github.co
 
 [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)
 
-***
+---
 
 ### initialLoading
 
@@ -87,13 +87,13 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:54](https://github.co
 
 `boolean`
 
-***
+---
 
 ### paginatedLoader
 
 #### Get Signature
 
-> **get** **paginatedLoader**(): [`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
+> **get** **paginatedLoader**(): [`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `data_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
 
 Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:64](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntriesListPage/EntriesListStore.ts#L64)
 
@@ -101,9 +101,9 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:64](https://github.co
 
 ##### Returns
 
-[`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
+[`PaginatedDataLoader`](../../../../utils/paginatedDataLoader/classes/PaginatedDataLoader.md)\<\{ `data_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \}, [`ZEntriesListParams`](../../../../types/entries/type-aliases/ZEntriesListParams.md)\>
 
-***
+---
 
 ### paginationLinks
 
@@ -145,7 +145,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:44](https://github.co
 
 `null`
 
-***
+---
 
 ### paginationMeta
 
@@ -161,21 +161,21 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:39](https://github.co
 
 \{ `current_page`: `number`; `last_page`: `number`; `per_page`: `number`; `total`: `number`; \}
 
-###### current\_page
+###### current_page
 
-> **current\_page**: `number`
+> **current_page**: `number`
 
 Текущая страница.
 
-###### last\_page
+###### last_page
 
-> **last\_page**: `number`
+> **last_page**: `number`
 
 Последняя страница.
 
-###### per\_page
+###### per_page
 
-> **per\_page**: `number`
+> **per_page**: `number`
 
 Количество элементов на странице.
 
@@ -187,7 +187,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:39](https://github.co
 
 `null`
 
-***
+---
 
 ### pending
 
@@ -231,7 +231,7 @@ Slug типа контента для фильтрации.
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### initialize()
 
@@ -253,7 +253,7 @@ Slug типа контента для фильтрации.
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### loadEntries()
 
@@ -275,7 +275,7 @@ Slug типа контента для фильтрации.
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### loadStatuses()
 
@@ -289,7 +289,7 @@ Defined in: [src/pages/EntriesListPage/EntriesListStore.ts:138](https://github.c
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### resetFilters()
 
@@ -311,7 +311,7 @@ Slug типа контента для фильтрации.
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### setFilters()
 

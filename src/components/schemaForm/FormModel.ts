@@ -18,7 +18,7 @@ import type { ZEditComponent } from './ZComponent';
  * };
  * const model = new FormModel(schema, { title: 'Initial Title' });
  * model.setValue(['title'], 'New Title');
- * model.setErrorsFromApi({ 'content_json.title': ['Поле обязательно'] });
+ * model.setErrorsFromApi({ 'data_json.title': ['Поле обязательно'] });
  */
 export class FormModel {
   /** Схема сущности, описывающая структуру формы. */
@@ -107,14 +107,14 @@ export class FormModel {
 
   /**
    * Устанавливает ошибки валидации из ответа API.
-   * Преобразует ошибки из формата API (например, "content_json.title") в формат пути формы.
-   * Убирает префикс content_json. из путей ошибок.
+   * Преобразует ошибки из формата API (например, "data_json.title") в формат пути формы.
+   * Убирает префикс data_json. из путей ошибок.
    * Ошибки должны приходить с бэка после неудачного сабмита (422).
-   * @param apiErrors Объект ошибок от API, где ключ - путь поля (например, "content_json.title"), значение - массив сообщений об ошибках.
+   * @param apiErrors Объект ошибок от API, где ключ - путь поля (например, "data_json.title"), значение - массив сообщений об ошибках.
    * @example
    * model.setErrorsFromApi({
-   *   'content_json.title': ['Поле обязательно для заполнения'],
-   *   'content_json.author.0.name': ['Поле обязательно']
+   *   'data_json.title': ['Поле обязательно для заполнения'],
+   *   'data_json.author.0.name': ['Поле обязательно']
    * });
    * // Ошибки будут сохранены как: 'title' и 'author.0.name'
    */
@@ -123,8 +123,8 @@ export class FormModel {
 
     for (const [path, messages] of Object.entries(apiErrors)) {
       if (Array.isArray(messages) && messages.length > 0) {
-        // Убираем префикс content_json.
-        const normalizedPath = path.replace('content_json.', '');
+        // Убираем префикс data_json.
+        const normalizedPath = path.replace('data_json.', '');
         this.errors.set(normalizedPath, messages);
       }
     }

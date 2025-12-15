@@ -15,6 +15,8 @@ import { BlueprintListPage } from '@/pages/BlueprintsPage/BlueprintListPage';
 import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
 import { BlueprintSchemaPage } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPage';
 import { FormConfigPage } from '@/pages/FormConfigPage/FormConfigPage';
+import { RoutesPage } from '@/pages/RoutesPage/RoutesPage';
+import { RouteEditorPage } from '@/pages/RouteEditorPage/RouteEditorPage';
 import { PageUrl } from '@/PageUrl';
 
 /**
@@ -40,5 +42,8 @@ export const routes = [
   { path: PageUrl.Blueprints, element: <BlueprintListPage /> },
   { path: PageUrl.BlueprintsEdit, element: <BlueprintEditorPage /> },
   { path: PageUrl.BlueprintsSchema, element: <BlueprintSchemaPage /> },
+  { path: PageUrl.Routes, element: <RoutesPage /> },
+  { path: PageUrl.RouteNew, element: <RouteEditorPage /> },
+  { path: PageUrl.RouteEdit, element: <RouteEditorPage /> },
   { path: '*', element: <Navigate to={PageUrl.Entries} replace /> },
 ];

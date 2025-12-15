@@ -1,6 +1,6 @@
 import { PageUrl } from '@/PageUrl';
 import type { LucideIcon } from 'lucide-react';
-import { FileType, Image, LayoutDashboard, Settings, Tags, Box } from 'lucide-react';
+import { FileType, Image, LayoutDashboard, Settings, Tags, Box, Route } from 'lucide-react';
 
 /**
  * Пункт навигации сайдбара.
@@ -51,6 +51,7 @@ export const sidebarLinks: readonly SidebarLink[] = [
   { title: 'Taxonomies', url: PageUrl.Taxonomies, icon: Tags },
   { title: 'Content Types', url: PageUrl.ContentTypes, icon: FileType },
   { title: 'Blueprints', url: PageUrl.Blueprints, icon: Box },
+  { title: 'Routes', url: PageUrl.Routes, icon: Route },
 ] as const;
 
 /**

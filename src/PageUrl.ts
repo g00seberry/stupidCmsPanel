@@ -23,6 +23,9 @@ export const PageUrl = {
   Blueprints: '/blueprints',
   BlueprintsEdit: '/blueprints/:id',
   BlueprintsSchema: '/blueprints/:id/schema',
+  Routes: '/routes',
+  RouteNew: '/routes/new',
+  RouteEdit: '/routes/:id',
 } as const;
 
 /**

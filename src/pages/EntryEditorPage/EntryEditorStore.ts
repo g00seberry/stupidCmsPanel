@@ -23,12 +23,11 @@ const idNew = 'new';
 
 const defaultFormValues: EntryEditorFormValues = {
   title: '',
-  slug: '',
   is_published: false,
   published_at: null,
   template_override: '',
   term_ids: [],
-  content_json: {},
+  data_json: {},
 };
 
 /**
@@ -129,7 +128,7 @@ export class EntryEditorStore {
       }
       // Инициализируем Blueprint форму
       if (postType.blueprint_id) {
-        const initialValues: any = this.initialFormValues.content_json;
+        const initialValues: any = this.initialFormValues.data_json;
         const model = await createFormModelFromBlueprintSchema(
           postType.blueprint_id,
           initialValues,
@@ -159,7 +158,7 @@ export class EntryEditorStore {
         : await createEntry(payload);
       const formValues = entry2formValues(nextEntry, values.term_ids);
       this.setInitialFormValues(formValues);
-      this.blueprintModel?.setAll(formValues.content_json ?? {});
+      this.blueprintModel?.setAll(formValues.data_json ?? {});
       // Очищаем ошибки при успешном сохранении
       this.blueprintModel?.setErrorsFromApi({});
       notificationService.showSuccess({
@@ -175,10 +174,10 @@ export class EntryEditorStore {
           const data = problemResult.data as ZProblemJson & { errors?: Record<string, string[]> };
           const apiErrors = data.meta?.errors || data.errors;
           if (apiErrors && typeof apiErrors === 'object') {
-            // Фильтруем ошибки, относящиеся к content_json (Blueprint форме)
+            // Фильтруем ошибки, относящиеся к data_json (Blueprint форме)
             const blueprintErrors: Record<string, string[]> = {};
             for (const [path, messages] of Object.entries(apiErrors)) {
-              if (path.startsWith('content_json.') && Array.isArray(messages)) {
+              if (path.startsWith('data_json.') && Array.isArray(messages)) {
                 blueprintErrors[path] = messages;
               }
             }

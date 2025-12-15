@@ -6,13 +6,13 @@ import { zId } from './ZId';
  * Содержит настройки типа контента, включая список разрешённых таксономий.
  * @example
  * const options: ZPostTypeOptions = {
- *   taxonomies: ['categories', 'tags'],
+ *   taxonomies: [1, 2],
  *   fields: { price: { type: 'number' } }
  * };
  */
 export const zPostTypeOptions = z
   .object({
-    /** Массив slug'ов разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии. */
+    /** Массив ID разрешённых таксономий. Если пуст или отсутствует, разрешены все таксономии. */
     taxonomies: z.array(zId).optional().default([]),
   })
   .catchall(z.unknown());
@@ -30,7 +30,7 @@ export type ZPostTypeOptions = z.infer<typeof zPostTypeOptions>;
  *   id: 1,
  *   name: 'Articles',
  *   template: 'templates.article',
- *   options_json: { taxonomies: ['categories'], fields: { price: { type: 'number' } } },
+ *   options_json: { taxonomies: [1, 2], fields: { price: { type: 'number' } } },
  *   blueprint_id: 1,
  *   created_at: '2025-01-10T12:45:00+00:00',
  *   updated_at: '2025-01-10T12:45:00+00:00'

@@ -86,7 +86,7 @@ export const EntriesListPage = observer(() => {
         name: 'q',
         element: (
           <Input
-            placeholder="Поиск по названию или slug"
+            placeholder="Поиск по названию "
             prefix={<Search className="w-4 h-4 text-muted-foreground" />}
             allowClear
           />
@@ -142,15 +142,7 @@ export const EntriesListPage = observer(() => {
           </Button>
         ),
       },
-      {
-        title: 'Slug',
-        dataIndex: 'slug',
-        key: 'slug',
-        ellipsis: true,
-        render: (text: string) => (
-          <code className="text-xs bg-muted px-2 py-1 rounded">{text}</code>
-        ),
-      },
+
       {
         title: 'Статус',
         dataIndex: 'status',

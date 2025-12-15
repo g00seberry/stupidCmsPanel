@@ -1,6 +1,6 @@
 [**admin**](../../../../README.md)
 
-***
+---
 
 # Class: EntryEditorStore
 
@@ -44,7 +44,7 @@ ID записи для редактирования (опционально).
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:65](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L65)
 
-***
+---
 
 ### entryId
 
@@ -52,7 +52,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:65](https://github.co
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:66](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L66)
 
-***
+---
 
 ### formValues
 
@@ -60,7 +60,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:66](https://github.co
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:59](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L59)
 
-***
+---
 
 ### initialLoading
 
@@ -68,7 +68,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:59](https://github.co
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:60](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L60)
 
-***
+---
 
 ### loading
 
@@ -76,7 +76,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:60](https://github.co
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:63](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L63)
 
-***
+---
 
 ### pending
 
@@ -84,7 +84,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:63](https://github.co
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:61](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L61)
 
-***
+---
 
 ### postType
 
@@ -96,9 +96,9 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:64](https://github.co
 
 \{ `created_at?`: `string`; `name`: `string`; `options_json`: \{\[`key`: `string`\]: `unknown`; `taxonomies`: `string`[]; \}; `slug`: `string`; `updated_at?`: `string`; \}
 
-#### created\_at?
+#### created_at?
 
-> `optional` **created\_at**: `string`
+> `optional` **created_at**: `string`
 
 Дата создания в формате ISO 8601.
 
@@ -108,9 +108,9 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:64](https://github.co
 
 Отображаемое название типа контента.
 
-#### options\_json
+#### options_json
 
-> **options\_json**: `object`
+> **options_json**: `object`
 
 Дополнительные настройки типа контента в формате JSON.
 
@@ -118,7 +118,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:64](https://github.co
 
 \[`key`: `string`\]: `unknown`
 
-##### options\_json.taxonomies
+##### options_json.taxonomies
 
 > **taxonomies**: `string`[]
 
@@ -130,15 +130,15 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:64](https://github.co
 
 Уникальный идентификатор типа контента (URL-friendly строка).
 
-#### updated\_at?
+#### updated_at?
 
-> `optional` **updated\_at**: `string`
+> `optional` **updated_at**: `string`
 
 Дата последнего обновления в формате ISO 8601.
 
 `null`
 
-***
+---
 
 ### templates
 
@@ -164,7 +164,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:62](https://github.co
 
 Путь к файлу шаблона.
 
-***
+---
 
 ### termsManagerStore
 
@@ -202,11 +202,11 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:130](https://github.c
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### saveEntry()
 
-> **saveEntry**(`values`, `isEditMode`, `entryId?`, `postType?`): `Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
+> **saveEntry**(`values`, `isEditMode`, `entryId?`, `postType?`): `Promise`\<\{ `data_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
 Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:164](https://github.com/g00seberry/stupidCmsPanel/blob/b3777cc02da2ea27b85692d61c5913d00466ceb6/src/pages/EntryEditorPage/EntryEditorStore.ts#L164)
 
@@ -240,7 +240,7 @@ Slug типа контента (обязателен при создании).
 
 #### Returns
 
-`Promise`\<\{ `content_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
+`Promise`\<\{ `data_json`: `Record`\<`string`, `unknown`\> \| `null`; `created_at?`: `string`; `deleted_at?`: `string` \| `null`; `id`: `string`; `is_published`: `boolean`; `meta_json`: `Record`\<`string`, `unknown`\> \| `null`; `post_type`: `string`; `published_at`: `string` \| `null`; `slug`: `string`; `status`: `"draft"` \| `"published"` \| `"scheduled"` \| `"trashed"`; `template_override?`: `string` \| `null`; `title`: `string`; `updated_at?`: `string`; \} \| `null`\>
 
 Обновлённая запись.
 
@@ -248,7 +248,7 @@ Slug типа контента (обязателен при создании).
 
 Ошибка валидации JSON или ошибка API.
 
-***
+---
 
 ### setFormValues()
 
@@ -270,7 +270,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:105](https://github.c
 
 `void`
 
-***
+---
 
 ### setLoading()
 
@@ -292,7 +292,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:113](https://github.c
 
 `void`
 
-***
+---
 
 ### setPending()
 
@@ -314,7 +314,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:121](https://github.c
 
 `void`
 
-***
+---
 
 ### setPostType()
 
@@ -370,7 +370,7 @@ Defined in: [src/pages/EntryEditorPage/EntryEditorStore.ts:89](https://github.co
 
 `void`
 
-***
+---
 
 ### setTemplates()
 

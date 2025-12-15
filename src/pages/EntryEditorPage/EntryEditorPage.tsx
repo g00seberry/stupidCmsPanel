@@ -58,7 +58,7 @@ const Inner = observer(({ store }: PropsInner) => {
     async (values: EntryEditorFormValues) => {
       const finalValues: EntryEditorFormValues = {
         ...values,
-        content_json: store.blueprintModel?.json ?? values.content_json,
+        data_json: store.blueprintModel?.json ?? values.data_json,
       };
 
       const nextEntry = await store.saveEntry(finalValues);
@@ -166,46 +166,6 @@ const Inner = observer(({ store }: PropsInner) => {
                       </Form.Item>
                       <p className="text-sm text-muted-foreground ml-6">
                         Заголовок записи, отображаемый в интерфейсе и поисковых системах
-                      </p>
-                    </div>
-
-                    {/* Slug */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label={
-                          <span className="text-base font-semibold flex items-center gap-2">
-                            <span>URL-адрес</span>
-                            {titleValue && (
-                              <Tag color="blue" className="text-xs">
-                                Автогенерация
-                              </Tag>
-                            )}
-                          </span>
-                        }
-                        name="slug"
-                        rules={[
-                          { required: true, message: 'URL-адрес обязателен.' },
-                          {
-                            pattern: /^[a-z0-9-]+$/,
-                            message:
-                              'URL-адрес может содержать только строчные латинские буквы, цифры и дефис.',
-                          },
-                        ]}
-                        className="mb-0"
-                      >
-                        <SlugInput
-                          from={titleValue ?? ''}
-                          holdOnChange={isEditMode}
-                          placeholder="entry-slug"
-                          disabled={store.loading}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground ml-6 flex items-start gap-1">
-                        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>
-                          Уникальный идентификатор записи в URL. Автоматически генерируется из
-                          заголовка при создании.
-                        </span>
                       </p>
                     </div>
                   </div>

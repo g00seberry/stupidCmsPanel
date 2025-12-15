@@ -31,11 +31,10 @@ const zEntryBlueprint = z.object({
  *   id: 42,
  *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
- *   slug: 'launch-checklist',
  *   status: 'published',
  *   is_published: true,
  *   published_at: '2025-02-10T08:00:00+00:00',
- *   content_json: { hero: { title: 'Launch' } },
+ *   data_json: { hero: { title: 'Launch' } },
  *   meta_json: { title: 'Launch', description: 'Checklist' },
  *   template_override: 'templates.landing',
  *   created_at: '2025-02-09T10:15:00+00:00',
@@ -50,8 +49,6 @@ export const zEntry = z.object({
   post_type_id: z.number(),
   /** Заголовок записи. */
   title: z.string(),
-  /** URL-friendly идентификатор записи. */
-  slug: z.string(),
   /** Статус записи: draft, published, scheduled, trashed. */
   status: z.enum(['draft', 'published', 'scheduled', 'trashed']),
   /** Флаг публикации записи. */
@@ -59,7 +56,7 @@ export const zEntry = z.object({
   /** Дата публикации в формате ISO 8601. Может быть `null`. */
   published_at: z.string().nullable(),
   /** Содержимое записи в формате JSON. */
-  content_json: z.record(z.string(), z.unknown()).nullish().default(null),
+  data_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Метаданные записи в формате JSON. */
   meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Переопределение шаблона для записи. Может быть `null`. */
@@ -117,7 +114,7 @@ export type ZEntriesListParams = {
   post_type_id?: ZId;
   /** Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all. */
   status?: 'all' | 'draft' | 'published' | 'scheduled' | 'trashed';
-  /** Поиск по названию/slug. */
+  /** Поиск по названию. */
   q?: string;
   /** ID автора. */
   author_id?: ZId;
@@ -162,8 +159,7 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  * const payload: ZEntryPayload = {
  *   post_type_id: 1,
  *   title: 'Headless CMS launch checklist',
- *   slug: 'launch-checklist',
- *   content_json: { hero: { title: 'Launch' } },
+ *   data_json: { hero: { title: 'Launch' } },
  *   meta_json: { title: 'Launch', description: 'Checklist' },
  *   is_published: false,
  *   published_at: '2025-02-10T08:00:00Z',
@@ -176,10 +172,8 @@ export const zEntryPayload = z.object({
   post_type_id: zId.optional(),
   /** Заголовок записи. */
   title: z.string().min(1),
-  /** URL-friendly идентификатор записи. */
-  slug: z.string().min(1),
   /** Содержимое записи в формате JSON. */
-  content_json: z.record(z.string(), z.unknown()).nullish().optional(),
+  data_json: z.record(z.string(), z.unknown()).nullish().optional(),
   /** Метаданные записи в формате JSON. */
   meta_json: z.record(z.string(), z.unknown()).nullish().optional(),
   /** Флаг публикации записи. */

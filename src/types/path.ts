@@ -66,7 +66,7 @@ export type ZConditionalRule = z.infer<typeof zConditionalRule>;
  * @example
  * const rule: ZFieldComparisonRule = {
  *   operator: '>=',
- *   field: 'content_json.start_date'
+ *   field: 'data_json.start_date'
  * };
  * const rule2: ZFieldComparisonRule = {
  *   operator: '>=',
@@ -76,7 +76,7 @@ export type ZConditionalRule = z.infer<typeof zConditionalRule>;
 export const zFieldComparisonRule = z.object({
   /** Оператор сравнения. */
   operator: z.enum(['>=', '<=', '>', '<', '==', '!=']),
-  /** Путь к другому полю для сравнения (например, 'content_json.start_date'). */
+  /** Путь к другому полю для сравнения (например, 'data_json.start_date'). */
   field: z.string().optional(),
   /** Константное значение для сравнения. */
   value: z.any().optional(),

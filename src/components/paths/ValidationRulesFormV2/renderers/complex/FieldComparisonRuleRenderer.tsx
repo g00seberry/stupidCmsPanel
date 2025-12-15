@@ -149,11 +149,11 @@ export const FieldComparisonRuleRenderer: React.FC<RuleRendererProps> = observer
               label="Путь к полю"
               name="field"
               rules={[{ required: true, message: 'Укажите путь к полю' }]}
-              tooltip="Путь к другому полю для сравнения (например, 'content_json.start_date')"
+              tooltip="Путь к другому полю для сравнения (например, 'data_json.start_date')"
             >
               <Input
                 disabled={isReadonly}
-                placeholder="content_json.start_date"
+                placeholder="data_json.start_date"
                 style={{ fontFamily: 'monospace' }}
                 onChange={handleInputChange}
               />
