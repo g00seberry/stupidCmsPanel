@@ -1,5 +1,5 @@
 import { TaxonomySelector } from '@/components/TaxonomySelector';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Select, Spin } from 'antd';
@@ -109,147 +109,143 @@ export const PostTypeEditorPage = observer(() => {
   }, [postTypeId, isEditMode, navigate, store, modal]);
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
-          isEditMode ? 'Редактирование' : 'Создание',
-        ]}
-        extra={
-          <>
-            {isEditMode && postTypeId && (
-              <>
-                <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
-                  <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
-                </Link>
-                {store.currentPostType?.blueprint_id && (
-                  <Link
-                    to={buildUrl(PageUrl.ContentTypesFormConfig, {
-                      id: postTypeId,
-                      blueprintId: String(store.currentPostType.blueprint_id),
-                    })}
-                  >
-                    <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
-                  </Link>
-                )}
-                <Button
-                  danger
-                  onClick={handleDelete}
-                  loading={store.pending}
-                  icon={<Trash2 className="w-4 h-4" />}
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
+        isEditMode ? 'Редактирование' : 'Создание',
+      ]}
+      extra={
+        <>
+          {isEditMode && postTypeId && (
+            <>
+              <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
+                <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
+              </Link>
+              {store.currentPostType?.blueprint_id && (
+                <Link
+                  to={buildUrl(PageUrl.ContentTypesFormConfig, {
+                    id: postTypeId,
+                    blueprintId: String(store.currentPostType.blueprint_id),
+                  })}
                 >
-                  Удалить
-                </Button>
-              </>
-            )}
-            <Button onClick={handleCancel}>Отмена</Button>
-            <Button
-              type="primary"
-              onClick={() => form.submit()}
-              loading={store.pending}
-              icon={<Check className="w-4 h-4" />}
-            >
-              Сохранить
-            </Button>
-          </>
-        }
-      />
-
-      <div className="px-6 py-8 w-full">
-        {store.initialLoading ? (
-          <div className="flex justify-center py-12">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Form<FormValues>
-            form={form}
-            layout="vertical"
-            initialValues={store.formValues}
-            onFinish={handleSubmit}
+                  <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
+                </Link>
+              )}
+              <Button
+                danger
+                onClick={handleDelete}
+                loading={store.pending}
+                icon={<Trash2 className="w-4 h-4" />}
+              >
+                Удалить
+              </Button>
+            </>
+          )}
+          <Button onClick={handleCancel}>Отмена</Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            loading={store.pending}
+            icon={<Check className="w-4 h-4" />}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-2xl font-semibold mb-6">Основные настройки</h2>
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      {store.initialLoading ? (
+        <div className="flex justify-center py-12">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Form<FormValues>
+          form={form}
+          layout="vertical"
+          initialValues={store.formValues}
+          onFinish={handleSubmit}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-6">Основные настройки</h2>
 
-                  <div className="space-y-6">
-                    {/* Name */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label="Название"
-                        name="name"
-                        rules={[
-                          { required: true, message: 'Название обязательно.' },
-                          { max: 255, message: 'Название не должно превышать 255 символов.' },
-                        ]}
-                        className="mb-0"
-                      >
-                        <Input placeholder="Например, Articles" className="text-lg" />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Название типа контента, отображаемое в интерфейсе
-                      </p>
-                    </div>
-
-                    {/* Template */}
-                    <div className="space-y-2">
-                      <Form.Item label="Шаблон" name="template" className="mb-0">
-                        <Select
-                          placeholder="Выберите шаблон"
-                          allowClear
-                          showSearch
-                          loading={store.initialLoading || store.pending}
-                          filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                          }
-                          options={store.templates.map(({ name }) => ({
-                            value: name,
-                            label: name,
-                          }))}
-                        />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground flex items-start gap-1">
-                        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>Имя шаблона Blade для этого типа контента. Опциональное поле.</span>
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Таксономии */}
-                <Card className="p-6">
-                  <h2 className="text-2xl font-semibold mb-6">Таксономии</h2>
-                  <Form.Item name="taxonomies" label="Таксономии">
-                    <TaxonomySelector />
-                  </Form.Item>
-                </Card>
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <Card className="p-6 sticky top-24">
-                  <h2 className="text-lg font-semibold mb-6">Информация</h2>
-                  <div className="space-y-4 text-sm text-muted-foreground">
-                    <p>
-                      Тип контента определяет структуру и поведение записей в системе управления
-                      контентом.
-                    </p>
-                    <p>
-                      После создания типа контента вы сможете добавлять записи этого типа и
-                      настраивать их поля.
-                    </p>
-                    <p>
-                      Вы можете ограничить список таксономий, доступных для этого типа контента.
-                      Если ничего не выбрано, не будет доступно ни одной таксономии.
+                <div className="space-y-6">
+                  {/* Name */}
+                  <div className="space-y-2">
+                    <Form.Item
+                      label="Название"
+                      name="name"
+                      rules={[
+                        { required: true, message: 'Название обязательно.' },
+                        { max: 255, message: 'Название не должно превышать 255 символов.' },
+                      ]}
+                      className="mb-0"
+                    >
+                      <Input placeholder="Например, Articles" className="text-lg" />
+                    </Form.Item>
+                    <p className="text-sm text-muted-foreground">
+                      Название типа контента, отображаемое в интерфейсе
                     </p>
                   </div>
-                </Card>
-              </div>
+
+                  {/* Template */}
+                  <div className="space-y-2">
+                    <Form.Item label="Шаблон" name="template" className="mb-0">
+                      <Select
+                        placeholder="Выберите шаблон"
+                        allowClear
+                        showSearch
+                        loading={store.initialLoading || store.pending}
+                        filterOption={(input, option) =>
+                          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
+                        options={store.templates.map(({ name }) => ({
+                          value: name,
+                          label: name,
+                        }))}
+                      />
+                    </Form.Item>
+                    <p className="text-sm text-muted-foreground flex items-start gap-1">
+                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>Имя шаблона Blade для этого типа контента. Опциональное поле.</span>
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Таксономии */}
+              <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-6">Таксономии</h2>
+                <Form.Item name="taxonomies" label="Таксономии">
+                  <TaxonomySelector />
+                </Form.Item>
+              </Card>
             </div>
-          </Form>
-        )}
-      </div>
-    </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="p-6 sticky top-24">
+                <h2 className="text-lg font-semibold mb-6">Информация</h2>
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <p>
+                    Тип контента определяет структуру и поведение записей в системе управления
+                    контентом.
+                  </p>
+                  <p>
+                    После создания типа контента вы сможете добавлять записи этого типа и
+                    настраивать их поля.
+                  </p>
+                  <p>
+                    Вы можете ограничить список таксономий, доступных для этого типа контента. Если
+                    ничего не выбрано, не будет доступно ни одной таксономии.
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </Form>
+      )}
+    </PageLayout>
   );
 });

@@ -147,8 +147,6 @@ export const zRouteNodeBase = z.object({
   where: z.record(z.string(), z.string()).nullable(),
   /** Значения по умолчанию для параметров. Может быть `null`. */
   defaults: z.record(z.string(), z.unknown()).nullable(),
-  /** Дополнительные опции маршрута. Может быть `null`. */
-  options: z.record(z.string(), z.unknown()).nullable(),
   /** Связанная Entry (при загрузке). Может быть `null` или `undefined`. */
   entry: zRouteNodeEntry.nullish(),
   /** Родительский узел (при загрузке). Может быть `null` или `undefined`. */

@@ -1,6 +1,6 @@
 import { FilterForm } from '@/components/FilterForm';
 import { PaginatedTable } from '@/components/PaginatedTable/PaginatedTable';
-import type { BlueprintListStore } from '@/pages/BlueprintsPage/BlueprintListStore';
+import type { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore';
 import type { ZId } from '@/types/ZId';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';

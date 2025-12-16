@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Button, Card, Form, message } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Save } from 'lucide-react';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { BlueprintForm } from '@/components/blueprints/BlueprintForm';
 import { BlueprintEditorStore } from '@/pages/BlueprintEditorPage/BlueprintEditorStore';
 import type { ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
@@ -75,43 +75,39 @@ export const BlueprintEditorPage = observer(() => {
   }, [form, isEditMode, blueprintId, blueprintStore, navigate]);
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
-          isEditMode ? blueprintStore.currentBlueprint?.name || 'Редактирование' : 'Создание',
-        ]}
-        extra={
-          <>
-            {isEditMode && blueprintId && (
-              <Link to={buildUrl(PageUrl.BlueprintsSchema, { id: blueprintId })}>
-                <Button>Схема</Button>
-              </Link>
-            )}
-            <Button type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>
-              Сохранить
-            </Button>
-          </>
-        }
-      />
-
-      <div className="p-6">
-        <Card className="mb-6">
-          <BlueprintForm
-            form={form}
-            initialValues={
-              blueprintStore.currentBlueprint
-                ? {
-                    name: blueprintStore.currentBlueprint.name,
-                    code: blueprintStore.currentBlueprint.code,
-                    description: blueprintStore.currentBlueprint.description ?? undefined,
-                  }
-                : undefined
-            }
-            isEditMode={isEditMode}
-          />
-        </Card>
-      </div>
-    </div>
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
+        isEditMode ? blueprintStore.currentBlueprint?.name || 'Редактирование' : 'Создание',
+      ]}
+      extra={
+        <>
+          {isEditMode && blueprintId && (
+            <Link to={buildUrl(PageUrl.BlueprintsSchema, { id: blueprintId })}>
+              <Button>Схема</Button>
+            </Link>
+          )}
+          <Button type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      <Card className="mb-6">
+        <BlueprintForm
+          form={form}
+          initialValues={
+            blueprintStore.currentBlueprint
+              ? {
+                  name: blueprintStore.currentBlueprint.name,
+                  code: blueprintStore.currentBlueprint.code,
+                  description: blueprintStore.currentBlueprint.description ?? undefined,
+                }
+              : undefined
+          }
+          isEditMode={isEditMode}
+        />
+      </Card>
+    </PageLayout>
   );
 });

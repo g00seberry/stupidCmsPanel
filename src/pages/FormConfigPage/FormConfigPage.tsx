@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Button, Card, Select, Spin, Tree, Empty } from 'antd';
 import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { FormConfigStore } from './FormConfigStore';
@@ -234,71 +234,65 @@ export const FormConfigPage = observer(() => {
   }
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Типы контента', to: PageUrl.ContentTypes },
-          {
-            label: store.postType.name,
-            to: buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id }),
-          },
-          'Настройка формы',
-        ]}
-        extra={
-          <>
-            <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
-              <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
-            </Link>
-            <Button
-              type="primary"
-              onClick={handleSave}
-              loading={store.pending}
-              icon={<Check className="w-4 h-4" />}
-            >
-              Сохранить
-            </Button>
-          </>
-        }
-      />
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Типы контента', to: PageUrl.ContentTypes },
+        {
+          label: store.postType.name,
+          to: buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id }),
+        },
+        'Настройка формы',
+      ]}
+      extra={
+        <>
+          <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
+            <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+          </Link>
+          <Button
+            type="primary"
+            onClick={handleSave}
+            loading={store.pending}
+            icon={<Check className="w-4 h-4" />}
+          >
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          Настройка формы для &quot;{store.postType.name}&quot;
+        </h2>
+        <p className="text-muted-foreground">
+          Выберите поле из дерева схемы для настройки компонента формы.
+        </p>
+      </div>
 
-      <div className="px-6 py-8 w-full">
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">
-            Настройка формы для &quot;{store.postType.name}&quot;
-          </h2>
-          <p className="text-muted-foreground">
-            Выберите поле из дерева схемы для настройки компонента формы.
-          </p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <Card title="Схема полей" className="h-full">
+            {store.schema?.schema && Object.keys(store.schema.schema).length > 0 ? (
+              <Tree
+                treeData={store.getSchemaTree() as DataNode[]}
+                selectedKeys={store.selectedPath ? [store.selectedPath] : []}
+                onSelect={handleTreeSelect}
+                defaultExpandAll
+                showLine={{ showLeafIcon: false }}
+                className="bg-transparent"
+                titleRender={renderTreeNodeTitle}
+              />
+            ) : (
+              <Empty description="Нет полей в схеме" />
+            )}
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <Card title="Схема полей" className="h-full">
-              {store.schema?.schema && Object.keys(store.schema.schema).length > 0 ? (
-                <Tree
-                  treeData={store.getSchemaTree() as DataNode[]}
-                  selectedKeys={store.selectedPath ? [store.selectedPath] : []}
-                  onSelect={handleTreeSelect}
-                  defaultExpandAll
-                  showLine={{ showLeafIcon: false }}
-                  className="bg-transparent"
-                  titleRender={renderTreeNodeTitle}
-                />
-              ) : (
-                <Empty description="Нет полей в схеме" />
-              )}
-            </Card>
-          </div>
-
-          <div className="lg:col-span-2">
-            <Card
-              title={store.selectedPath ? `Настройка: ${store.selectedPath}` : 'Настройка поля'}
-            >
-              {renderFieldConfig()}
-            </Card>
-          </div>
+        <div className="lg:col-span-2">
+          <Card title={store.selectedPath ? `Настройка: ${store.selectedPath}` : 'Настройка поля'}>
+            {renderFieldConfig()}
+          </Card>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 });

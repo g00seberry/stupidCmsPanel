@@ -11,7 +11,7 @@ import { TermsPage } from '@/pages/TermsPage/TermsPage';
 import { TermEditorPage } from '@/pages/TermEditorPage/TermEditorPage';
 import { MediaListPageMain, MediaListPageTrash } from '@/pages/MediaListPage/MediaListPage';
 import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
-import { BlueprintListPage } from '@/pages/BlueprintsPage/BlueprintListPage';
+import { BlueprintListPage } from '@/pages/BlueprintListPage/BlueprintListPage';
 import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
 import { BlueprintSchemaPage } from '@/pages/BlueprintSchemaPage/BlueprintSchemaPage';
 import { FormConfigPage } from '@/pages/FormConfigPage/FormConfigPage';

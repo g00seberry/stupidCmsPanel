@@ -1,9 +1,12 @@
 import { MediaFilters } from '@/components/MediaFilters';
 import { MediaGrid } from '@/components/MediaGrid';
 import { MediaUpload } from '@/components/MediaUpload';
+import { PageLayout } from '@/components/PageLayout';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia, ZMediaListParams } from '@/types/media';
-import { App, Checkbox, Modal, Pagination, Typography } from 'antd';
+import { App, Checkbox, Modal, Pagination, Popconfirm, Typography, Button } from 'antd';
+import { AlertTriangle, Archive, RotateCcw, Trash2, Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +19,6 @@ import {
   handleDeleteMedia,
   handleRestoreMedia,
 } from './mediaListHandlers';
-import { MediaListHeader } from './MediaListHeader';
 
 export const MediaListPageMain = () => {
   const store = useMemo(() => new MediaListStore(), []);
@@ -238,119 +240,174 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
 
   const totalCount = store.loader.paginationMeta?.total || 0;
 
+  const breadcrumbs = isTrashMode
+    ? [{ label: 'Медиа-файлы', onClick: () => navigate(PageUrl.Media) }, 'Корзина']
+    : ['Медиа-файлы'];
+
+  const extra = isTrashMode ? (
+    <>
+      {store.hasSelection && (
+        <>
+          <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleBulkRestore}>
+            Восстановить выбранные ({store.selectedCount})
+          </Button>
+          <Popconfirm
+            title="Окончательно удалить выбранные?"
+            description={`Будет окончательно удалено ${store.selectedCount} медиа-файлов. Это действие нельзя отменить.`}
+            onConfirm={handleBulkForceDelete}
+            okText="Удалить"
+            okType="danger"
+            cancelText="Отмена"
+            icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
+          >
+            <Button danger icon={<Trash2 className="w-4 h-4" />}>
+              Удалить окончательно ({store.selectedCount})
+            </Button>
+          </Popconfirm>
+        </>
+      )}
+      {totalCount > 0 && (
+        <Popconfirm
+          title="Очистить корзину?"
+          description={`Будет окончательно удалено ${totalCount} медиа-файлов. Это действие нельзя отменить.`}
+          onConfirm={handleClearTrashAction}
+          okText="Очистить"
+          okType="danger"
+          cancelText="Отмена"
+          icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
+        >
+          <Button danger icon={<Trash2 className="w-4 h-4" />}>
+            Очистить корзину
+          </Button>
+        </Popconfirm>
+      )}
+    </>
+  ) : (
+    <>
+      <Link to={PageUrl.MediaTrash}>
+        <Button icon={<Archive className="w-4 h-4" />}>Корзина</Button>
+      </Link>
+      <Button
+        type="primary"
+        icon={<Upload className="w-4 h-4" />}
+        onClick={() => setUploadVisible(true)}
+      >
+        Загрузить файлы
+      </Button>
+      {store.hasSelection && (
+        <Popconfirm
+          title="Удалить выбранные медиа-файлы?"
+          description={`Будет удалено ${store.selectedCount} медиа-файлов.`}
+          onConfirm={handleBulkDelete}
+          okText="Удалить"
+          cancelText="Отмена"
+        >
+          <Button danger icon={<Trash2 className="w-4 h-4" />}>
+            Удалить выбранные ({store.selectedCount})
+          </Button>
+        </Popconfirm>
+      )}
+    </>
+  );
+
   return (
-    <div className="bg-background w-full">
-      <MediaListHeader
-        store={store}
-        isTrashMode={isTrashMode}
-        totalCount={totalCount}
-        onUploadClick={() => setUploadVisible(true)}
-        onBulkDelete={handleBulkDelete}
-        onBulkRestore={handleBulkRestore}
-        onBulkForceDelete={handleBulkForceDelete}
-        onClearTrash={handleClearTrashAction}
+    <PageLayout breadcrumbs={breadcrumbs} extra={extra}>
+      {/* Заголовок */}
+      <div className="mb-6">
+        <Title level={3} className="mb-2">
+          {isTrashMode ? 'Корзина' : 'Медиа-файлы'}
+        </Title>
+        <Paragraph type="secondary" className="mb-0">
+          {isTrashMode
+            ? totalCount > 0
+              ? `Удалено медиа-файлов: ${totalCount}. Вы можете восстановить или окончательно удалить файлы.`
+              : 'Корзина пуста'
+            : 'Управление медиа-файлами: изображения, видео, аудио и документы'}
+        </Paragraph>
+      </div>
+
+      {/* Модальное окно загрузки */}
+      {!isTrashMode && (
+        <Modal
+          title="Загрузка фото"
+          open={uploadVisible}
+          onCancel={handleModalCancel}
+          footer={null}
+          width={600}
+          maskClosable={!isUploading}
+          closable={true}
+        >
+          <MediaUpload
+            config={store.config}
+            onSuccess={handleUploadSuccess}
+            onAllComplete={handleAllUploadsComplete}
+            onUploadingChange={handleUploadingChange}
+            disabled={isUploading}
+          />
+        </Modal>
+      )}
+
+      {/* Фильтры */}
+      {!isTrashMode && <MediaFilters store={store.filterStore} cardClassName="mb-6" />}
+
+      {/* Панель массового выбора */}
+      {store.loader.data.length > 0 && (
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={
+                store.loader.data.length > 0 &&
+                store.loader.data.every(item => store.selectedIds.has(item.id))
+              }
+              indeterminate={
+                store.loader.data.some(item => store.selectedIds.has(item.id)) &&
+                !store.loader.data.every(item => store.selectedIds.has(item.id))
+              }
+              onChange={e => {
+                if (e.target.checked) {
+                  store.selectAll();
+                } else {
+                  store.deselectAll();
+                }
+              }}
+            >
+              Выбрать все на странице
+            </Checkbox>
+            {store.hasSelection && (
+              <span className="text-sm text-muted-foreground">Выбрано: {store.selectedCount}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Сетка медиа-файлов */}
+      <MediaGrid
+        media={store.loader.data}
+        loading={store.loader.pending}
+        initialLoading={store.loader.initialLoading}
+        selectable
+        selectedIds={store.selectedIds}
+        onSelectChange={handleSelectChange}
+        onCardClick={handleCardClick}
+        onDelete={isTrashMode ? undefined : handleDelete}
+        onRestore={isTrashMode ? handleRestore : undefined}
+        columns={4}
+        emptyText={isTrashMode ? 'Корзина пуста' : undefined}
       />
 
-      <div className="px-6 py-8 w-full">
-        {/* Заголовок */}
-        <div className="mb-6">
-          <Title level={3} className="mb-2">
-            {isTrashMode ? 'Корзина' : 'Медиа-файлы'}
-          </Title>
-          <Paragraph type="secondary" className="mb-0">
-            {isTrashMode
-              ? totalCount > 0
-                ? `Удалено медиа-файлов: ${totalCount}. Вы можете восстановить или окончательно удалить файлы.`
-                : 'Корзина пуста'
-              : 'Управление медиа-файлами: изображения, видео, аудио и документы'}
-          </Paragraph>
+      {/* Пагинация */}
+      {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            current={store.loader.paginationMeta.current_page}
+            total={store.loader.paginationMeta.total}
+            pageSize={store.loader.paginationMeta.per_page}
+            showSizeChanger={false}
+            showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
+            onChange={handlePageChange}
+          />
         </div>
-
-        {/* Модальное окно загрузки */}
-        {!isTrashMode && (
-          <Modal
-            title="Загрузка фото"
-            open={uploadVisible}
-            onCancel={handleModalCancel}
-            footer={null}
-            width={600}
-            maskClosable={!isUploading}
-            closable={true}
-          >
-            <MediaUpload
-              config={store.config}
-              onSuccess={handleUploadSuccess}
-              onAllComplete={handleAllUploadsComplete}
-              onUploadingChange={handleUploadingChange}
-              disabled={isUploading}
-            />
-          </Modal>
-        )}
-
-        {/* Фильтры */}
-        {!isTrashMode && <MediaFilters store={store.filterStore} cardClassName="mb-6" />}
-
-        {/* Панель массового выбора */}
-        {store.loader.data.length > 0 && (
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={
-                  store.loader.data.length > 0 &&
-                  store.loader.data.every(item => store.selectedIds.has(item.id))
-                }
-                indeterminate={
-                  store.loader.data.some(item => store.selectedIds.has(item.id)) &&
-                  !store.loader.data.every(item => store.selectedIds.has(item.id))
-                }
-                onChange={e => {
-                  if (e.target.checked) {
-                    store.selectAll();
-                  } else {
-                    store.deselectAll();
-                  }
-                }}
-              >
-                Выбрать все на странице
-              </Checkbox>
-              {store.hasSelection && (
-                <span className="text-sm text-muted-foreground">
-                  Выбрано: {store.selectedCount}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Сетка медиа-файлов */}
-        <MediaGrid
-          media={store.loader.data}
-          loading={store.loader.pending}
-          initialLoading={store.loader.initialLoading}
-          selectable
-          selectedIds={store.selectedIds}
-          onSelectChange={handleSelectChange}
-          onCardClick={handleCardClick}
-          onDelete={isTrashMode ? undefined : handleDelete}
-          onRestore={isTrashMode ? handleRestore : undefined}
-          columns={4}
-          emptyText={isTrashMode ? 'Корзина пуста' : undefined}
-        />
-
-        {/* Пагинация */}
-        {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
-          <div className="mt-6 flex justify-center">
-            <Pagination
-              current={store.loader.paginationMeta.current_page}
-              total={store.loader.paginationMeta.total}
-              pageSize={store.loader.paginationMeta.per_page}
-              showSizeChanger={false}
-              showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
-              onChange={handlePageChange}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </PageLayout>
   );
 });

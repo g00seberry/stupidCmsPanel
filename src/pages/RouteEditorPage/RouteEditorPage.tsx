@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Button, Card, Form, Spin } from 'antd';
 import { Check } from 'lucide-react';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { RouteEditorStore } from './RouteEditorStore';
 import { RouteForm } from '@/components/RouteForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
@@ -59,28 +59,26 @@ export const RouteEditorPage = observer(() => {
   };
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Маршруты', onClick: () => navigate(PageUrl.Routes) },
-          isEditMode ? 'Редактирование' : 'Создание',
-        ]}
-        extra={
-          <>
-            <Button onClick={handleCancel}>Отмена</Button>
-            <Button
-              type="primary"
-              onClick={handleSave}
-              loading={store.saving}
-              icon={<Check className="w-4 h-4" />}
-            >
-              Сохранить
-            </Button>
-          </>
-        }
-      />
-
-      <div className="px-6 py-8 w-full max-w-4xl mx-auto">
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Маршруты', onClick: () => navigate(PageUrl.Routes) },
+        isEditMode ? 'Редактирование' : 'Создание',
+      ]}
+      extra={
+        <>
+          <Button onClick={handleCancel}>Отмена</Button>
+          <Button
+            type="primary"
+            onClick={handleSave}
+            loading={store.saving}
+            icon={<Check className="w-4 h-4" />}
+          >
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      <div className="w-full max-w-4xl mx-auto">
         {store.loading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Spin size="large" />
@@ -99,6 +97,6 @@ export const RouteEditorPage = observer(() => {
           </Card>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 });

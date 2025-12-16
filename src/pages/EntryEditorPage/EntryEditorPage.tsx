@@ -1,18 +1,17 @@
 import { EntryTermsManager } from '@/components/EntryTermsManager/EntryTermsManager';
+import { PageLayout } from '@/components/PageLayout';
 import { SchemaForm } from '@/components/schemaForm/SchemaForm';
-import { SlugInput } from '@/components/SlugInput';
 import { buildUrl, PageUrl } from '@/PageUrl';
+import type { ZId } from '@/types/ZId';
+import { viewDate } from '@/utils/dateUtils';
 import { Button, Card, Collapse, DatePicker, Form, Input, Select, Spin, Switch, Tag } from 'antd';
-import { Calendar, Check, FileText, Info, Settings, Tag as TagIcon } from 'lucide-react';
+import dayjs from 'dayjs';
+import { Calendar, Check, FileText, Settings, Tag as TagIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { viewDate } from '@/utils/dateUtils';
-import dayjs from 'dayjs';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { EntryEditorStore } from './EntryEditorStore';
 import type { EntryEditorFormValues } from './transforms';
-import type { ZId } from '@/types/ZId';
 
 /**
  * Страница создания и редактирования записи CMS.
@@ -38,7 +37,6 @@ interface PropsInner {
 const Inner = observer(({ store }: PropsInner) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const titleValue = Form.useWatch('title', form);
   const isPublished = Form.useWatch('is_published', form) ?? false;
   const publishedAt = Form.useWatch('published_at', form);
   const isEditMode = store?.isEditMode ?? false;
@@ -96,36 +94,34 @@ const Inner = observer(({ store }: PropsInner) => {
   const publicationStatus = getPublicationStatus();
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Типы контента', to: PageUrl.ContentTypes },
-          ...(postType
-            ? [
-                {
-                  label: postType.name,
-                  to: buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id }),
-                },
-              ]
-            : []),
-          isEditMode ? 'Редактирование' : 'Создание',
-        ]}
-        extra={
-          <>
-            <Button onClick={handleCancel}>Отмена</Button>
-            <Button
-              type="primary"
-              onClick={handleSave}
-              loading={store.loading}
-              icon={<Check className="w-4 h-4" />}
-            >
-              Сохранить
-            </Button>
-          </>
-        }
-      />
-
-      <div className="px-6 py-8 w-full max-w-7xl mx-auto">
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Типы контента', to: PageUrl.ContentTypes },
+        ...(postType
+          ? [
+              {
+                label: postType.name,
+                to: buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id }),
+              },
+            ]
+          : []),
+        isEditMode ? 'Редактирование' : 'Создание',
+      ]}
+      extra={
+        <>
+          <Button onClick={handleCancel}>Отмена</Button>
+          <Button
+            type="primary"
+            onClick={handleSave}
+            loading={store.loading}
+            icon={<Check className="w-4 h-4" />}
+          >
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      <div className="w-full max-w-7xl mx-auto">
         {store.loading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Spin size="large" />
@@ -294,6 +290,6 @@ const Inner = observer(({ store }: PropsInner) => {
           </Form>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 });

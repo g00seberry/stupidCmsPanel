@@ -3,7 +3,7 @@ import { ContextMenu } from '@/components/paths/ContextMenu';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { NodeFormTabs } from '@/components/paths/NodeFormTabs';
 import { PathGraphEditor } from '@/components/paths/PathGraphEditor';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintSchemaViewModel';
 import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
@@ -108,77 +108,73 @@ export const BlueprintSchemaPage = observer(() => {
   }
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
-          {
-            label: 'Редактирование',
-            onClick: () => navigate(buildUrl(PageUrl.BlueprintsEdit, { id: blueprintId })),
-          },
-          'Схема',
-        ]}
-      />
-
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card className="mt-4">
-              <GraphControls
-                onCenter={handleFitView}
-                onAutoLayout={handleFitView}
-                onZoomIn={handleZoomIn}
-                onZoomOut={handleZoomOut}
-                onResetZoom={handleResetZoom}
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
+        {
+          label: 'Редактирование',
+          onClick: () => navigate(buildUrl(PageUrl.BlueprintsEdit, { id: blueprintId })),
+        },
+        'Схема',
+      ]}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card className="mt-4">
+            <GraphControls
+              onCenter={handleFitView}
+              onAutoLayout={handleFitView}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onResetZoom={handleResetZoom}
+            />
+            <div className="h-[600px]">
+              <PathGraphEditor
+                store={pathStore}
+                onNodeContextMenu={handleNodeContextMenu}
+                onPaneContextMenu={handlePaneContextMenu}
+                highlightedNodes={pageStore.highlightedNodes}
+                reactFlowInstanceRef={reactFlowInstanceRef}
               />
-              <div className="h-[600px]">
-                <PathGraphEditor
-                  store={pathStore}
-                  onNodeContextMenu={handleNodeContextMenu}
-                  onPaneContextMenu={handlePaneContextMenu}
-                  highlightedNodes={pageStore.highlightedNodes}
-                  reactFlowInstanceRef={reactFlowInstanceRef}
-                />
-              </div>
-            </Card>
-          </div>
-          <div>
-            <Card className="mt-4" title="Встраивания">
-              <EmbedList store={embedStore} onUnembed={handleDeleteEmbed} />
-            </Card>
-          </div>
+            </div>
+          </Card>
         </div>
-        {pageStore.modalMode === 'node' && (
-          <Drawer
-            open
-            onClose={handleNodeCancel}
-            width="80%"
-            title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
-          >
-            <NodeFormTabs
-              disabled={isReadonly}
-              mode={mode}
-              wayToRoot={wayToRoot}
-              sourceBlueprint={sourceBlueprint}
-              initialValues={initialValues}
-              onOk={handleNodeOk}
-              onCancel={handleNodeCancel}
-              loading={pageStore.pending}
-            />
-          </Drawer>
-        )}
-        {pageStore.modalMode === 'embed' && (
-          <Modal open onCancel={pageStore.closeModal} footer={null} width={600} forceRender>
-            <EmbedForm
-              embeddableBlueprints={embedStore.embeddableBlueprints}
-              onOk={handleEmbedSave}
-              onCancel={() => pageStore.closeModal()}
-              loading={pageStore.pending}
-            />
-          </Modal>
-        )}
-        {pageStore.modalMode === 'ctx' && <ContextMenu pageStore={pageStore} />}
+        <div>
+          <Card className="mt-4" title="Встраивания">
+            <EmbedList store={embedStore} onUnembed={handleDeleteEmbed} />
+          </Card>
+        </div>
       </div>
-    </div>
+      {pageStore.modalMode === 'node' && (
+        <Drawer
+          open
+          onClose={handleNodeCancel}
+          width="80%"
+          title={mode === 'edit' ? 'Редактирование поля' : 'Создание поля'}
+        >
+          <NodeFormTabs
+            disabled={isReadonly}
+            mode={mode}
+            wayToRoot={wayToRoot}
+            sourceBlueprint={sourceBlueprint}
+            initialValues={initialValues}
+            onOk={handleNodeOk}
+            onCancel={handleNodeCancel}
+            loading={pageStore.pending}
+          />
+        </Drawer>
+      )}
+      {pageStore.modalMode === 'embed' && (
+        <Modal open onCancel={pageStore.closeModal} footer={null} width={600} forceRender>
+          <EmbedForm
+            embeddableBlueprints={embedStore.embeddableBlueprints}
+            onOk={handleEmbedSave}
+            onCancel={() => pageStore.closeModal()}
+            loading={pageStore.pending}
+          />
+        </Modal>
+      )}
+      {pageStore.modalMode === 'ctx' && <ContextMenu pageStore={pageStore} />}
+    </PageLayout>
   );
 });

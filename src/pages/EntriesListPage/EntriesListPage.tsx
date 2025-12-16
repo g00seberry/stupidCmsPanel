@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Button, Input, Select, Typography, Tag } from 'antd';
 import { Plus, Search } from 'lucide-react';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { EntriesListStore } from './EntriesListStore';
 import { getPostType } from '@/api/apiPostTypes';
 import { onError } from '@/utils/onError';
@@ -184,62 +184,58 @@ export const EntriesListPage = observer(() => {
     : 'Список записей CMS';
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
-          ...(postType
-            ? [
-                {
-                  label: postType.name,
-                  onClick: () => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })),
-                },
-              ]
-            : []),
-          'Записи',
-        ]}
-        extra={
-          postTypeId ? (
-            <Button
-              type="primary"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={() => {
-                navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
-              }}
-            >
-              Создать запись
-            </Button>
-          ) : undefined
-        }
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Типы контента', onClick: () => navigate(PageUrl.ContentTypes) },
+        ...(postType
+          ? [
+              {
+                label: postType.name,
+                onClick: () => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })),
+              },
+            ]
+          : []),
+        'Записи',
+      ]}
+      extra={
+        postTypeId ? (
+          <Button
+            type="primary"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={() => {
+              navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
+            }}
+          >
+            Создать запись
+          </Button>
+        ) : undefined
+      }
+    >
+      {/* Заголовок */}
+      <div className="mb-6">
+        <Title level={3} className="mb-2">
+          {loadingPostType ? 'Загрузка...' : pageTitle}
+        </Title>
+        <Paragraph type="secondary" className="mb-0">
+          {pageDescription}
+        </Paragraph>
+      </div>
+
+      {/* Фильтры */}
+      <FilterForm
+        store={filterStore}
+        fields={filterFields}
+        defaultValues={defaultValues}
+        cardClassName="mb-6"
       />
 
-      <div className="px-6 py-8 w-full">
-        {/* Заголовок */}
-        <div className="mb-6">
-          <Title level={3} className="mb-2">
-            {loadingPostType ? 'Загрузка...' : pageTitle}
-          </Title>
-          <Paragraph type="secondary" className="mb-0">
-            {pageDescription}
-          </Paragraph>
-        </div>
-
-        {/* Фильтры */}
-        <FilterForm
-          store={filterStore}
-          fields={filterFields}
-          defaultValues={defaultValues}
-          cardClassName="mb-6"
-        />
-
-        {/* Таблица */}
-        <PaginatedTable
-          loader={store.paginatedLoader}
-          columns={columns}
-          rowKey="id"
-          emptyText="Записи отсутствуют"
-        />
-      </div>
-    </div>
+      {/* Таблица */}
+      <PaginatedTable
+        loader={store.paginatedLoader}
+        columns={columns}
+        rowKey="id"
+        emptyText="Записи отсутствуют"
+      />
+    </PageLayout>
   );
 });

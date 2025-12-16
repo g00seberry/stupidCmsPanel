@@ -11,7 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TermsListStore } from './TermsListStore';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import type { ZId } from '@/types/ZId';
 
 /**
@@ -262,64 +262,60 @@ export const TermsPage = observer(() => {
   }
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Таксономии', to: PageUrl.Taxonomies },
-          store.loading ? 'Загрузка...' : store.taxonomy?.label || taxonomyId,
-          'Термины',
-        ]}
-        extra={
-          <>
-            <Link to={PageUrl.Taxonomies}>
-              <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
-            </Link>
-            <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId, id: 'new' })}>
-              <Button type="primary" icon={<Plus className="w-4 h-4" />}>
-                Создать термин
-              </Button>
-            </Link>
-          </>
-        }
-      />
-
-      <div className="px-6 py-8 w-full">
-        {/* Информация о таксономии */}
-        {store.taxonomy && (
-          <div className="mb-6">
-            <Card>
-              <div className="flex items-center gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">{store.taxonomy.label}</h2>
-                  <code className="text-sm text-muted-foreground">ID: {store.taxonomy.id}</code>
-                </div>
-                {store.taxonomy.hierarchical && <Tag color="blue">Иерархическая</Tag>}
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Таксономии', to: PageUrl.Taxonomies },
+        store.loading ? 'Загрузка...' : store.taxonomy?.label || taxonomyId,
+        'Термины',
+      ]}
+      extra={
+        <>
+          <Link to={PageUrl.Taxonomies}>
+            <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+          </Link>
+          <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId, id: 'new' })}>
+            <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+              Создать термин
+            </Button>
+          </Link>
+        </>
+      }
+    >
+      {/* Информация о таксономии */}
+      {store.taxonomy && (
+        <div className="mb-6">
+          <Card>
+            <div className="flex items-center gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">{store.taxonomy.label}</h2>
+                <code className="text-sm text-muted-foreground">ID: {store.taxonomy.id}</code>
               </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Иерархия терминов */}
-        <Card>
-          {store.loading ? (
-            <div className="flex justify-center py-12">
-              <Spin size="large" />
+              {store.taxonomy.hierarchical && <Tag color="blue">Иерархическая</Tag>}
             </div>
-          ) : treeData.length === 0 ? (
-            <Empty description="Термины отсутствуют" />
-          ) : (
-            <Tree
-              treeData={treeData}
-              defaultExpandAll
-              selectedKeys={selectedKeys}
-              onSelect={setSelectedKeys}
-              onDrop={handleDrop}
-              draggable={store.taxonomy?.hierarchical}
-              blockNode
-            />
-          )}
-        </Card>
-      </div>
-    </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Иерархия терминов */}
+      <Card>
+        {store.loading ? (
+          <div className="flex justify-center py-12">
+            <Spin size="large" />
+          </div>
+        ) : treeData.length === 0 ? (
+          <Empty description="Термины отсутствуют" />
+        ) : (
+          <Tree
+            treeData={treeData}
+            defaultExpandAll
+            selectedKeys={selectedKeys}
+            onSelect={setSelectedKeys}
+            onDrop={handleDrop}
+            draggable={store.taxonomy?.hierarchical}
+            blockNode
+          />
+        )}
+      </Card>
+    </PageLayout>
   );
 });

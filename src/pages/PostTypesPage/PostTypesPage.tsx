@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Spin } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, List } from 'lucide-react';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 import { listPostTypes } from '@/api/apiPostTypes';
 import type { ZPostType } from '@/types/postTypes';
 import { onError } from '@/utils/onError';
@@ -37,64 +37,57 @@ export const PostTypesPage = () => {
   }, [loadPostTypes]);
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={['Типы контента']}
-        extra={
-          <Button
-            type="primary"
-            onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
-            icon={<Plus className="w-4 h-4" />}
-          >
-            Создать тип
-          </Button>
-        }
-      />
-
-      <div className="px-6 py-8 w-full">
-        {pending ? (
-          <div className="flex justify-center py-12">
-            <Spin size="large" />
-          </div>
-        ) : postTypes.length === 0 ? (
-          <div className="flex justify-center py-12">
-            <Empty description="Типы контента отсутствуют" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {postTypes.map(postType => (
-              <Card
-                key={postType.id}
-                className="transition-all hover:shadow-lg hover:-translate-y-1"
-              >
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>
-                  {postType.template && (
-                    <code className="block text-sm text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
-                      {postType.template}
-                    </code>
-                  )}
-                  {postType.updated_at && (
-                    <p className="text-xs text-muted-foreground">
-                      Обновлено: {new Date(postType.updated_at).toLocaleDateString('ru-RU')}
-                    </p>
-                  )}
-                  <div className="flex gap-2 pt-2">
-                    <Link to={buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id })}>
-                      <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
-                        Записи
-                      </Button>
-                    </Link>
-                    <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })}>
-                      <Button size="small">Редактировать</Button>
-                    </Link>
-                  </div>
+    <PageLayout
+      breadcrumbs={['Типы контента']}
+      extra={
+        <Button
+          type="primary"
+          onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
+          icon={<Plus className="w-4 h-4" />}
+        >
+          Создать тип
+        </Button>
+      }
+    >
+      {pending ? (
+        <div className="flex justify-center py-12">
+          <Spin size="large" />
+        </div>
+      ) : postTypes.length === 0 ? (
+        <div className="flex justify-center py-12">
+          <Empty description="Типы контента отсутствуют" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {postTypes.map(postType => (
+            <Card key={postType.id} className="transition-all hover:shadow-lg hover:-translate-y-1">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-foreground">{postType.name}</h3>
+                {postType.template && (
+                  <code className="block text-sm text-muted-foreground bg-muted px-2 py-1 rounded font-mono">
+                    {postType.template}
+                  </code>
+                )}
+                {postType.updated_at && (
+                  <p className="text-xs text-muted-foreground">
+                    Обновлено: {new Date(postType.updated_at).toLocaleDateString('ru-RU')}
+                  </p>
+                )}
+                <div className="flex gap-2 pt-2">
+                  <Link to={buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id })}>
+                    <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
+                      Записи
+                    </Button>
+                  </Link>
+                  <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: postType.id })}>
+                    <Button size="small">Редактировать</Button>
+                  </Link>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </PageLayout>
   );
 };

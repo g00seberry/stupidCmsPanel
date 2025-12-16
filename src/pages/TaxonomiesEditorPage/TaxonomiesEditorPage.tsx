@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { TaxonomiesEditorStore, type FormValues } from './TaxonomiesEditorStore';
 import axios from 'axios';
 import { zProblemJson } from '@/types/ZProblemJson';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { PageLayout } from '@/components/PageLayout';
 
 /**
  * Форма создания и редактирования таксономии CMS.
@@ -104,117 +104,113 @@ export const TaxonomiesEditorPage = observer(() => {
   }, [id, isEditMode, navigate, store, modal]);
 
   return (
-    <div className="bg-background w-full">
-      <PageHeader
-        breadcrumbs={[
-          { label: 'Таксономии', onClick: () => navigate(PageUrl.Taxonomies) },
-          isEditMode ? 'Редактирование' : 'Создание',
-        ]}
-        extra={
-          <>
-            {isEditMode && (
-              <Button
-                danger
-                onClick={handleDelete}
-                loading={store.pending}
-                icon={<Trash2 className="w-4 h-4" />}
-              >
-                Удалить
-              </Button>
-            )}
-            <Button onClick={handleCancel}>Отмена</Button>
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Таксономии', onClick: () => navigate(PageUrl.Taxonomies) },
+        isEditMode ? 'Редактирование' : 'Создание',
+      ]}
+      extra={
+        <>
+          {isEditMode && (
             <Button
-              type="primary"
-              onClick={() => form.submit()}
+              danger
+              onClick={handleDelete}
               loading={store.pending}
-              icon={<Check className="w-4 h-4" />}
+              icon={<Trash2 className="w-4 h-4" />}
             >
-              Сохранить
+              Удалить
             </Button>
-          </>
-        }
-      />
-
-      <div className="px-6 py-8 w-full">
-        {store.initialLoading ? (
-          <div className="flex justify-center py-12">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Form<FormValues>
-            form={form}
-            layout="vertical"
-            initialValues={store.formValues}
-            onFinish={handleSubmit}
+          )}
+          <Button onClick={handleCancel}>Отмена</Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            loading={store.pending}
+            icon={<Check className="w-4 h-4" />}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-2xl font-semibold mb-6">Основные настройки</h2>
+            Сохранить
+          </Button>
+        </>
+      }
+    >
+      {store.initialLoading ? (
+        <div className="flex justify-center py-12">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Form<FormValues>
+          form={form}
+          layout="vertical"
+          initialValues={store.formValues}
+          onFinish={handleSubmit}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-6">Основные настройки</h2>
 
-                  <div className="space-y-6">
-                    {/* Label */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label="Название"
-                        name="label"
-                        rules={[
-                          { required: true, message: 'Название обязательно.' },
-                          { max: 255, message: 'Название не должно превышать 255 символов.' },
-                        ]}
-                        className="mb-0"
-                      >
-                        <Input placeholder="Например, Categories" className="text-lg" />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Название таксономии, отображаемое в интерфейсе
-                      </p>
-                    </div>
-
-                    {/* Hierarchical */}
-                    <div className="space-y-2">
-                      <Form.Item
-                        label="Иерархическая"
-                        name="hierarchical"
-                        valuePropName="checked"
-                        className="mb-0"
-                      >
-                        <Switch />
-                      </Form.Item>
-                      <p className="text-sm text-muted-foreground">
-                        Иерархические таксономии поддерживают вложенность терминов (например,
-                        категории с подкатегориями)
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <Card className="p-6 sticky top-24">
-                  <h2 className="text-lg font-semibold mb-6">Информация</h2>
-                  <div className="space-y-4 text-sm text-muted-foreground">
-                    <p>
-                      Таксономия определяет способ категоризации контента в системе управления
-                      контентом.
-                    </p>
-                    <p>
-                      После создания таксономии вы сможете добавлять термины (например, категории
-                      или теги) и привязывать их к записям.
-                    </p>
-                    <p>
-                      Иерархические таксономии позволяют создавать вложенные структуры терминов,
-                      например, категории с подкатегориями.
+                <div className="space-y-6">
+                  {/* Label */}
+                  <div className="space-y-2">
+                    <Form.Item
+                      label="Название"
+                      name="label"
+                      rules={[
+                        { required: true, message: 'Название обязательно.' },
+                        { max: 255, message: 'Название не должно превышать 255 символов.' },
+                      ]}
+                      className="mb-0"
+                    >
+                      <Input placeholder="Например, Categories" className="text-lg" />
+                    </Form.Item>
+                    <p className="text-sm text-muted-foreground">
+                      Название таксономии, отображаемое в интерфейсе
                     </p>
                   </div>
-                </Card>
-              </div>
+
+                  {/* Hierarchical */}
+                  <div className="space-y-2">
+                    <Form.Item
+                      label="Иерархическая"
+                      name="hierarchical"
+                      valuePropName="checked"
+                      className="mb-0"
+                    >
+                      <Switch />
+                    </Form.Item>
+                    <p className="text-sm text-muted-foreground">
+                      Иерархические таксономии поддерживают вложенность терминов (например,
+                      категории с подкатегориями)
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </div>
-          </Form>
-        )}
-      </div>
-    </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="p-6 sticky top-24">
+                <h2 className="text-lg font-semibold mb-6">Информация</h2>
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <p>
+                    Таксономия определяет способ категоризации контента в системе управления
+                    контентом.
+                  </p>
+                  <p>
+                    После создания таксономии вы сможете добавлять термины (например, категории или
+                    теги) и привязывать их к записям.
+                  </p>
+                  <p>
+                    Иерархические таксономии позволяют создавать вложенные структуры терминов,
+                    например, категории с подкатегориями.
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </Form>
+      )}
+    </PageLayout>
   );
 });
