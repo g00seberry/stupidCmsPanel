@@ -2,46 +2,16 @@ import { MediaFilters } from '@/components/MediaFilters';
 import { MediaGrid } from '@/components/MediaGrid';
 import { MediaUpload } from '@/components/MediaUpload';
 import { PageLayout } from '@/components/PageLayout';
+import { BulkSelectPanel } from '@/pages/MediaListPage/BulkSelectPanel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia, ZMediaListParams } from '@/types/media';
-import { App, Checkbox, Modal, Pagination, Popconfirm, Typography, Button } from 'antd';
-import { AlertTriangle, Archive, RotateCcw, Trash2, Upload } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { App, Button, Modal, Pagination, Popconfirm } from 'antd';
+import { Archive, Trash2, Upload } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { handleBulkDeleteMedia, handleDeleteMedia } from './mediaListHandlers';
 import { MediaListStore } from './MediaListStore';
-import {
-  handleBulkDeleteMedia,
-  handleBulkForceDeleteMedia,
-  handleBulkRestoreMedia,
-  handleClearTrash,
-  handleDeleteMedia,
-  handleRestoreMedia,
-} from './mediaListHandlers';
-
-export const MediaListPageMain = () => {
-  const store = useMemo(() => new MediaListStore(), []);
-  return <Inner store={store} />;
-};
-
-export const MediaListPageTrash = () => {
-  const store = useMemo(() => {
-    const s = new MediaListStore();
-    // Разделяем параметры на фильтры и пагинацию
-    s.loader.setFilters({ deleted: 'only' });
-    s.loader.setPagination({
-      page: 1,
-      per_page: 15,
-      sort: 'created_at',
-      order: 'desc',
-    });
-    return s;
-  }, []);
-  return <Inner store={store} isTrashMode />;
-};
-
-const { Title, Paragraph } = Typography;
 
 /**
  * Преобразует значения формы в параметры фильтрации медиа (без пагинации и сортировки).
@@ -90,18 +60,12 @@ const convertToMediaPagination = (values: Record<string, unknown>): Partial<ZMed
 };
 
 /**
- * Пропсы универсального компонента списка медиа-файлов.
+ * Компонент основного списка медиа-файлов.
  */
-interface PropsInner {
-  /** Store для управления состоянием списка медиа-файлов. */
-  store: MediaListStore;
-  /** Флаг режима корзины. Если `true`, отображается интерфейс для управления удаленными файлами. */
-  isTrashMode?: boolean;
-}
-
-const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
+export const MediaListPageMain = observer(() => {
+  const store = useMemo(() => new MediaListStore(), []);
   const navigate = useNavigate();
-  const { modal, message } = App.useApp();
+  const { modal } = App.useApp();
   const [uploadVisible, setUploadVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -196,34 +160,6 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
   };
 
   /**
-   * Обрабатывает восстановление одного медиа-файла.
-   */
-  const handleRestore = async (id: string) => {
-    await handleRestoreMedia(store, id, message);
-  };
-
-  /**
-   * Обрабатывает восстановление выбранных медиа-файлов.
-   */
-  const handleBulkRestore = async () => {
-    await handleBulkRestoreMedia(store, message);
-  };
-
-  /**
-   * Обрабатывает окончательное удаление выбранных медиа-файлов.
-   */
-  const handleBulkForceDelete = async () => {
-    await handleBulkForceDeleteMedia(store, modal, message);
-  };
-
-  /**
-   * Обрабатывает очистку всей корзины.
-   */
-  const handleClearTrashAction = async () => {
-    await handleClearTrash(store, modal, message);
-  };
-
-  /**
    * Обрабатывает применение фильтров и параметров пагинации.
    * @param filters Параметры фильтрации (без пагинации и сортировки).
    * @param pagination Параметры пагинации и сортировки.
@@ -238,51 +174,9 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
     }
   };
 
-  const totalCount = store.loader.paginationMeta?.total || 0;
+  const breadcrumbs = ['Медиа-файлы'];
 
-  const breadcrumbs = isTrashMode
-    ? [{ label: 'Медиа-файлы', onClick: () => navigate(PageUrl.Media) }, 'Корзина']
-    : ['Медиа-файлы'];
-
-  const extra = isTrashMode ? (
-    <>
-      {store.hasSelection && (
-        <>
-          <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleBulkRestore}>
-            Восстановить выбранные ({store.selectedCount})
-          </Button>
-          <Popconfirm
-            title="Окончательно удалить выбранные?"
-            description={`Будет окончательно удалено ${store.selectedCount} медиа-файлов. Это действие нельзя отменить.`}
-            onConfirm={handleBulkForceDelete}
-            okText="Удалить"
-            okType="danger"
-            cancelText="Отмена"
-            icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
-          >
-            <Button danger icon={<Trash2 className="w-4 h-4" />}>
-              Удалить окончательно ({store.selectedCount})
-            </Button>
-          </Popconfirm>
-        </>
-      )}
-      {totalCount > 0 && (
-        <Popconfirm
-          title="Очистить корзину?"
-          description={`Будет окончательно удалено ${totalCount} медиа-файлов. Это действие нельзя отменить.`}
-          onConfirm={handleClearTrashAction}
-          okText="Очистить"
-          okType="danger"
-          cancelText="Отмена"
-          icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
-        >
-          <Button danger icon={<Trash2 className="w-4 h-4" />}>
-            Очистить корзину
-          </Button>
-        </Popconfirm>
-      )}
-    </>
-  ) : (
+  const extra = (
     <>
       <Link to={PageUrl.MediaTrash}>
         <Button icon={<Archive className="w-4 h-4" />}>Корзина</Button>
@@ -309,28 +203,13 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
       )}
     </>
   );
-
   return (
     <PageLayout breadcrumbs={breadcrumbs} extra={extra}>
-      {/* Заголовок */}
-      <div className="mb-6">
-        <Title level={3} className="mb-2">
-          {isTrashMode ? 'Корзина' : 'Медиа-файлы'}
-        </Title>
-        <Paragraph type="secondary" className="mb-0">
-          {isTrashMode
-            ? totalCount > 0
-              ? `Удалено медиа-файлов: ${totalCount}. Вы можете восстановить или окончательно удалить файлы.`
-              : 'Корзина пуста'
-            : 'Управление медиа-файлами: изображения, видео, аудио и документы'}
-        </Paragraph>
-      </div>
-
       {/* Модальное окно загрузки */}
-      {!isTrashMode && (
+      {uploadVisible && (
         <Modal
           title="Загрузка фото"
-          open={uploadVisible}
+          open
           onCancel={handleModalCancel}
           footer={null}
           width={600}
@@ -348,37 +227,10 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
       )}
 
       {/* Фильтры */}
-      {!isTrashMode && <MediaFilters store={store.filterStore} cardClassName="mb-6" />}
+      <MediaFilters store={store.filterStore} cardClassName="mb-6" />
 
       {/* Панель массового выбора */}
-      {store.loader.data.length > 0 && (
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={
-                store.loader.data.length > 0 &&
-                store.loader.data.every(item => store.selectedIds.has(item.id))
-              }
-              indeterminate={
-                store.loader.data.some(item => store.selectedIds.has(item.id)) &&
-                !store.loader.data.every(item => store.selectedIds.has(item.id))
-              }
-              onChange={e => {
-                if (e.target.checked) {
-                  store.selectAll();
-                } else {
-                  store.deselectAll();
-                }
-              }}
-            >
-              Выбрать все на странице
-            </Checkbox>
-            {store.hasSelection && (
-              <span className="text-sm text-muted-foreground">Выбрано: {store.selectedCount}</span>
-            )}
-          </div>
-        </div>
-      )}
+      <BulkSelectPanel store={store} />
 
       {/* Сетка медиа-файлов */}
       <MediaGrid
@@ -389,10 +241,8 @@ const Inner = observer(({ store, isTrashMode = false }: PropsInner) => {
         selectedIds={store.selectedIds}
         onSelectChange={handleSelectChange}
         onCardClick={handleCardClick}
-        onDelete={isTrashMode ? undefined : handleDelete}
-        onRestore={isTrashMode ? handleRestore : undefined}
+        onDelete={handleDelete}
         columns={4}
-        emptyText={isTrashMode ? 'Корзина пуста' : undefined}
       />
 
       {/* Пагинация */}

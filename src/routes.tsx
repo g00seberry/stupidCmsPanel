@@ -9,7 +9,7 @@ import { TaxonomiesPage } from '@/pages/TaxonomiesPage/TaxonomiesPage';
 import { TaxonomiesEditorPage } from '@/pages/TaxonomiesEditorPage/TaxonomiesEditorPage';
 import { TermsPage } from '@/pages/TermsPage/TermsPage';
 import { TermEditorPage } from '@/pages/TermEditorPage/TermEditorPage';
-import { MediaListPageMain, MediaListPageTrash } from '@/pages/MediaListPage/MediaListPage';
+import { MediaListPageMain } from '@/pages/MediaListPage/MediaListPage';
 import { MediaEditorPage } from '@/pages/MediaEditorPage/MediaEditorPage';
 import { BlueprintListPage } from '@/pages/BlueprintListPage/BlueprintListPage';
 import { BlueprintEditorPage } from '@/pages/BlueprintEditorPage/BlueprintEditorPage';
@@ -18,6 +18,7 @@ import { FormConfigPage } from '@/pages/FormConfigPage/FormConfigPage';
 import { RoutesPage } from '@/pages/RoutesPage/RoutesPage';
 import { RouteEditorPage } from '@/pages/RouteEditorPage/RouteEditorPage';
 import { PageUrl } from '@/PageUrl';
+import { MediaListPageTrash } from './pages/MediaListPage';
 
 /**
  * Маршруты приложения CMS.

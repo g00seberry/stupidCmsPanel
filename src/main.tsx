@@ -6,17 +6,17 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from '@/App';
 import { themeConfig } from '@/themeConfig';
-import { NotificationProvider } from '@/providers/NotificationProvider';
+import { NotificationProvider } from './providers/NotificationProvider';
 
 createRoot(document.getElementById('app')!).render(
   <StrictMode>
     <ConfigProvider theme={themeConfig}>
       <AntdApp>
-        <NotificationProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          <NotificationProvider>
             <App />
-          </BrowserRouter>
-        </NotificationProvider>
+          </NotificationProvider>
+        </BrowserRouter>
       </AntdApp>
     </ConfigProvider>
   </StrictMode>
