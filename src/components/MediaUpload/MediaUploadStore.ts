@@ -1,21 +1,17 @@
 import { bulkUploadMedia } from '@/api/apiMedia';
-import { onError } from '@/utils/onError';
-import { formatFileSize } from '@/utils/fileUtils';
+import {
+  createFileState,
+  generateFileUuid,
+  mapStatusToUploadStatus,
+} from '@/components/MediaUpload/mediaUploadUtils';
 import type { ZMedia, ZMediaConfig } from '@/types/media';
-import { makeAutoObservable, observable } from 'mobx';
+import { onError } from '@/utils/onError';
 import type { UploadFile } from 'antd/es/upload';
+import { makeAutoObservable } from 'mobx';
+import type { FileUploadState } from './types';
+import { validateMediaFile } from './validateMediaFile';
 
-/** Статус загрузки файла. */
-export type FileUploadStatus = 'pending' | 'uploading' | 'success' | 'error';
-
-/** Состояние загрузки одного файла. */
-export type FileUploadState = {
-  file: File;
-  progress: number;
-  status: FileUploadStatus;
-  media?: ZMedia;
-  error?: string;
-};
+export type { FileUploadState, FileUploadStatus } from './types';
 
 /** Интерфейс колбэков для MediaUploadStore. */
 export interface MediaUploadStoreCallbacks {
@@ -39,7 +35,7 @@ const BATCH_SIZE = 50;
  */
 export class MediaUploadStore {
   /** Карта состояний загрузки файлов (fileId -> FileUploadState). */
-  readonly uploadStates = observable.map<string, FileUploadState>();
+  readonly uploadStates = new Map<string, FileUploadState>();
 
   /** Флаг выполнения загрузки. */
   isUploading = false;
@@ -70,65 +66,21 @@ export class MediaUploadStore {
   }
 
   /**
-   * Генерирует уникальный идентификатор файла.
-   */
-  private getFileId(file: File): string {
-    return `${file.name}-${file.size}-${file.lastModified}`;
-  }
-
-  /**
-   * Валидирует файл перед загрузкой.
-   * @returns Сообщение об ошибке или null, если файл валиден.
-   */
-  validateFile(file: File): string | null {
-    if (!this.config) {
-      return 'Конфигурация не загружена';
-    }
-
-    if (!this.config.allowed_mimes.includes(file.type)) {
-      return `Тип файла ${file.type} не разрешен. Разрешенные типы: ${this.config.allowed_mimes.join(', ')}`;
-    }
-
-    const maxSizeBytes = this.config.max_upload_mb * 1024 * 1024;
-
-    if (file.size > maxSizeBytes) {
-      return `Размер файла ${formatFileSize(file.size)} превышает максимальный ${formatFileSize(maxSizeBytes)}`;
-    }
-
-    return null;
-  }
-
-  /**
-   * Создает начальное состояние файла.
-   */
-  private createFileState(file: File, status: FileUploadStatus, error?: string): FileUploadState {
-    return {
-      file,
-      progress: 0,
-      status,
-      error,
-    };
-  }
-
-  /**
    * Добавляет файл в список загрузки.
    * Валидирует файл сразу после добавления.
+   * Присваивает файлу уникальный UUID.
    */
   addFile(file: File): void {
-    const fileId = this.getFileId(file);
+    const fileId = generateFileUuid();
 
-    if (this.uploadStates.has(fileId)) {
-      return;
-    }
-
-    const validationError = this.validateFile(file);
+    const validationError = validateMediaFile(file, this.config);
 
     if (validationError) {
-      const state = this.createFileState(file, 'error', validationError);
+      const state = createFileState(file, 'error', validationError);
       this.uploadStates.set(fileId, state);
       this.callbacks.onError?.(new Error(validationError), file);
     } else {
-      const state = this.createFileState(file, 'pending');
+      const state = createFileState(file, 'pending');
       this.uploadStates.set(fileId, state);
     }
   }
@@ -141,28 +93,20 @@ export class MediaUploadStore {
   }
 
   /**
-   * Удаляет файл по объекту File.
+   * Получает список файлов со статусом pending с их UUID.
+   * @returns Массив объектов с fileId и file.
    */
-  removeFileByFile(file: File): void {
-    const fileId = this.getFileId(file);
-    this.removeFile(fileId);
+  get pendingFiles(): Array<{ fileId: string; file: File }> {
+    return Array.from(this.uploadStates.entries())
+      .filter(([_fileId, state]) => state.status === 'pending')
+      .map(([fileId, state]) => ({ fileId, file: state.file }));
   }
 
   /**
-   * Получает список файлов со статусом pending.
+   * Устанавливает статус uploading для указанных файлов по их UUID.
    */
-  private getPendingFiles(): File[] {
-    return Array.from(this.uploadStates.values())
-      .filter(state => state.status === 'pending')
-      .map(state => state.file);
-  }
-
-  /**
-   * Устанавливает статус uploading для указанных файлов.
-   */
-  private setUploadingStatus(files: File[]): void {
-    files.forEach(file => {
-      const fileId = this.getFileId(file);
+  private setUploadingStatus(fileIds: string[]): void {
+    fileIds.forEach(fileId => {
       const existingState = this.uploadStates.get(fileId);
       if (existingState) {
         this.uploadStates.set(fileId, {
@@ -174,32 +118,15 @@ export class MediaUploadStore {
   }
 
   /**
-   * Находит медиа-файл по имени файла в массиве результатов.
-   */
-  private findMediaByFileName(
-    mediaArray: ZMedia[],
-    fileName: string,
-    index: number
-  ): ZMedia | undefined {
-    // Сначала пытаемся найти по индексу (если порядок сохранен)
-    if (index < mediaArray.length) {
-      const mediaByIndex = mediaArray[index];
-      if (mediaByIndex.name === fileName) {
-        return mediaByIndex;
-      }
-    }
-
-    // Если не нашли по индексу, ищем по имени
-    return mediaArray.find(m => m.name === fileName);
-  }
-
-  /**
    * Обрабатывает успешную загрузку файла.
    */
-  private handleFileSuccess(file: File, media: ZMedia): void {
-    const fileId = this.getFileId(file);
+  private handleFileSuccess(fileId: string, media: ZMedia): void {
+    const existingState = this.uploadStates.get(fileId);
+    if (!existingState) {
+      return;
+    }
     this.uploadStates.set(fileId, {
-      file,
+      ...existingState,
       progress: 100,
       status: 'success',
       media,
@@ -210,29 +137,36 @@ export class MediaUploadStore {
   /**
    * Обрабатывает ошибку загрузки файла.
    */
-  private handleFileError(file: File, error: Error): void {
-    const fileId = this.getFileId(file);
+  private handleFileError(fileId: string, error: Error): void {
+    const existingState = this.uploadStates.get(fileId);
+    if (!existingState) {
+      return;
+    }
     this.uploadStates.set(fileId, {
-      file,
+      ...existingState,
       progress: 0,
       status: 'error',
       error: error.message,
     });
-    this.callbacks.onError?.(error, file);
+    this.callbacks.onError?.(error, existingState.file);
   }
 
   /**
    * Обрабатывает успешно загруженный батч файлов.
+   * Использует индекс для сопоставления файлов с результатами (порядок сохранен API).
    */
-  private processBatchResults(batch: File[], mediaArray: ZMedia[]): void {
-    batch.forEach((file, index) => {
-      const media = this.findMediaByFileName(mediaArray, file.name, index);
+  private processBatchResults(
+    batch: Array<{ fileId: string; file: File }>,
+    mediaArray: ZMedia[]
+  ): void {
+    batch.forEach(({ fileId }, index) => {
+      const media = mediaArray[index];
 
       if (media) {
-        this.handleFileSuccess(file, media);
+        this.handleFileSuccess(fileId, media);
       } else {
         const error = new Error('Файл не был загружен');
-        this.handleFileError(file, error);
+        this.handleFileError(fileId, error);
       }
     });
 
@@ -242,12 +176,12 @@ export class MediaUploadStore {
   /**
    * Обрабатывает ошибку загрузки батча.
    */
-  private processBatchError(batch: File[], error: unknown): void {
+  private processBatchError(batch: Array<{ fileId: string; file: File }>, error: unknown): void {
     const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки файлов';
     const err = error instanceof Error ? error : new Error(errorMessage);
 
-    batch.forEach(file => {
-      this.handleFileError(file, err);
+    batch.forEach(({ fileId }) => {
+      this.handleFileError(fileId, err);
     });
 
     onError(error);
@@ -256,9 +190,10 @@ export class MediaUploadStore {
   /**
    * Загружает один батч файлов.
    */
-  private async uploadBatch(batch: File[]): Promise<void> {
+  private async uploadBatch(batch: Array<{ fileId: string; file: File }>): Promise<void> {
     try {
-      const mediaArray = await bulkUploadMedia(batch);
+      const files = batch.map(item => item.file);
+      const mediaArray = await bulkUploadMedia(files);
       this.processBatchResults(batch, mediaArray);
     } catch (error) {
       this.processBatchError(batch, error);
@@ -269,7 +204,7 @@ export class MediaUploadStore {
    * Загружает все файлы со статусом pending.
    */
   async startUpload(): Promise<void> {
-    const pendingFiles = this.getPendingFiles();
+    const pendingFiles = this.pendingFiles;
 
     if (pendingFiles.length === 0) {
       return;
@@ -277,7 +212,8 @@ export class MediaUploadStore {
 
     this.isUploading = true;
     this.callbacks.onUploadingChange?.(true);
-    this.setUploadingStatus(pendingFiles);
+    const fileIds = pendingFiles.map(item => item.fileId);
+    this.setUploadingStatus(fileIds);
 
     try {
       // Загружаем файлы батчами
@@ -302,53 +238,23 @@ export class MediaUploadStore {
   }
 
   /**
-   * Проверяет наличие активных загрузок.
-   */
-  get hasActiveUploads(): boolean {
-    return Array.from(this.uploadStates.values()).some(state => state.status === 'uploading');
-  }
-
-  /**
-   * Преобразует статус файла в статус для Upload компонента.
-   */
-  private mapStatusToUploadStatus(status: FileUploadStatus): UploadFile['status'] {
-    switch (status) {
-      case 'uploading':
-        return 'uploading';
-      case 'success':
-        return 'done';
-      case 'error':
-        return 'error';
-      default:
-        return undefined;
-    }
-  }
-
-  /**
    * Возвращает список файлов для Upload компонента.
    */
   get fileList(): UploadFile[] {
-    return Array.from(this.uploadStates.values()).map(state => ({
-      uid: this.getFileId(state.file),
+    return Array.from(this.uploadStates.entries()).map(([fileId, state]) => ({
+      uid: fileId,
       name: state.file.name,
-      status: this.mapStatusToUploadStatus(state.status),
+      status: mapStatusToUploadStatus(state.status),
       percent: state.progress,
       error: state.error,
     }));
   }
 
   /**
-   * Получает состояние файла по его ID.
+   * Возвращает массив пар [fileId, state] для всех файлов.
+   * @returns Массив записей состояний файлов.
    */
-  getFileState(fileId: string): FileUploadState | undefined {
-    return this.uploadStates.get(fileId);
-  }
-
-  /**
-   * Очищает все состояния загрузки.
-   */
-  clear(): void {
-    this.uploadStates.clear();
-    this.isUploading = false;
+  get uploadStatesEntries(): Array<[string, FileUploadState]> {
+    return Array.from(this.uploadStates.entries());
   }
 }

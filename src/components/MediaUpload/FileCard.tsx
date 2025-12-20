@@ -2,7 +2,7 @@ import { Button, Progress } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { formatFileSize } from '@/utils/fileUtils';
 import { joinClassNames } from '@/utils/joinClassNames';
-import type { FileUploadState } from './MediaUploadStore';
+import type { FileUploadState } from './types';
 
 /** Классы CSS для различных статусов файла. */
 const STATUS_CLASSES: Record<FileUploadState['status'], string> = {

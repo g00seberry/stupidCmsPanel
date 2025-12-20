@@ -78,7 +78,7 @@ export const MediaUpload = observer<PropsMediaUpload>(
     const handleChange = useCallback(
       (info: UploadChangeParam) => {
         if (info.file.status === 'removed') {
-          const fileId = `${info.file.name}-${info.file.size || 0}-${info.file.uid}`;
+          const fileId = info.file.uid;
           store.removeFile(fileId);
         }
       },
@@ -156,7 +156,7 @@ export const MediaUpload = observer<PropsMediaUpload>(
         {/* Список выбранных файлов с прогрессом */}
         {store.uploadStates.size > 0 && (
           <div className="space-y-2">
-            {Array.from(store.uploadStates.entries()).map(([fileId, state]) => (
+            {store.uploadStatesEntries.map(([fileId, state]) => (
               <FileCard key={fileId} fileId={fileId} state={state} onRemove={handleRemoveFile} />
             ))}
           </div>
