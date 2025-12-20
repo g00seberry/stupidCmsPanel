@@ -4,7 +4,7 @@ import { MediaUpload } from '@/components/MediaUpload';
 import { PageLayout } from '@/components/PageLayout';
 import { BulkSelectPanel } from '@/pages/MediaListPage/BulkSelectPanel';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import type { ZMedia, ZMediaListParams } from '@/types/media';
+import type { ZMedia, ZMediaListFilters } from '@/types/media';
 import { App, Button, Modal, Pagination, Popconfirm } from 'antd';
 import { Archive, Trash2, Upload } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -18,15 +18,15 @@ import { MediaListStore } from './MediaListStore';
  * @param values Значения формы фильтров.
  * @returns Параметры фильтрации для API.
  */
-const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaListParams> => {
-  const filters: Partial<ZMediaListParams> = {};
+const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaListFilters> => {
+  const filters: Partial<ZMediaListFilters> = {};
 
   if (values.q && typeof values.q === 'string' && values.q.trim()) {
     filters.q = values.q.trim();
   }
 
   if (values.kind && typeof values.kind === 'string') {
-    filters.kind = values.kind as ZMediaListParams['kind'];
+    filters.kind = values.kind as ZMediaListFilters['kind'];
   }
 
   if (values.mime && typeof values.mime === 'string' && values.mime.trim()) {
@@ -34,29 +34,10 @@ const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaL
   }
 
   if (values.deleted && typeof values.deleted === 'string') {
-    filters.deleted = values.deleted as ZMediaListParams['deleted'];
+    filters.deleted = values.deleted as ZMediaListFilters['deleted'];
   }
 
   return filters;
-};
-
-/**
- * Преобразует значения формы в параметры пагинации и сортировки.
- * @param values Значения формы фильтров.
- * @returns Параметры пагинации и сортировки для API.
- */
-const convertToMediaPagination = (values: Record<string, unknown>): Partial<ZMediaListParams> => {
-  const pagination: Partial<ZMediaListParams> = {};
-
-  if (values.sort && typeof values.sort === 'string') {
-    pagination.sort = values.sort as ZMediaListParams['sort'];
-  }
-
-  if (values.order && typeof values.order === 'string') {
-    pagination.order = values.order as ZMediaListParams['order'];
-  }
-
-  return pagination;
 };
 
 /**
@@ -72,8 +53,7 @@ export const MediaListPageMain = observer(() => {
   // Отслеживание изменений фильтров и вызов onApply с дебаунсингом
   useEffect(() => {
     const filters = convertToMediaFilters(store.filterStore.values);
-    const pagination = convertToMediaPagination(store.filterStore.values);
-    handleApplyFilters(filters, pagination);
+    handleApplyFilters(filters);
   }, [store.filterStore.values]);
 
   /**
@@ -164,17 +144,12 @@ export const MediaListPageMain = observer(() => {
    * @param filters Параметры фильтрации (без пагинации и сортировки).
    * @param pagination Параметры пагинации и сортировки.
    */
-  const handleApplyFilters = (
-    filters: Partial<ZMediaListParams>,
-    pagination?: Partial<ZMediaListParams>
-  ) => {
+  const handleApplyFilters = (filters: Partial<ZMediaListFilters>) => {
     store.loader.setFilters(filters);
-    if (pagination && Object.keys(pagination).length > 0) {
-      store.loader.setPagination(pagination);
-    }
   };
 
   const breadcrumbs = ['Медиа-файлы'];
+  const paginationMeta = store.loader.resp?.meta;
 
   const extra = (
     <>
@@ -234,7 +209,7 @@ export const MediaListPageMain = observer(() => {
 
       {/* Сетка медиа-файлов */}
       <MediaGrid
-        media={store.loader.data}
+        media={store.loader.resp?.data || []}
         loading={store.loader.pending}
         initialLoading={store.loader.initialLoading}
         selectable
@@ -246,12 +221,12 @@ export const MediaListPageMain = observer(() => {
       />
 
       {/* Пагинация */}
-      {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
+      {paginationMeta && paginationMeta.total > 0 && (
         <div className="mt-6 flex justify-center">
           <Pagination
-            current={store.loader.paginationMeta.current_page}
-            total={store.loader.paginationMeta.total}
-            pageSize={store.loader.paginationMeta.per_page}
+            current={paginationMeta.current_page}
+            total={paginationMeta.total}
+            pageSize={paginationMeta.per_page}
             showSizeChanger={false}
             showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
             onChange={handlePageChange}

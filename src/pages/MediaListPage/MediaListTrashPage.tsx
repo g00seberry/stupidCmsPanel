@@ -24,8 +24,6 @@ export const MediaListPageTrash = () => {
     s.loader.setPagination({
       page: 1,
       per_page: 15,
-      sort: 'created_at',
-      order: 'desc',
     });
     return s;
   }, []);
@@ -100,8 +98,8 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
     await handleClearTrash(store, modal, message);
   };
 
-  const totalCount = store.loader.paginationMeta?.total || 0;
-
+  const totalCount = store.loader.resp?.meta?.total || 0;
+  const paginationMeta = store.loader.resp?.meta;
   const breadcrumbs = [{ label: 'Медиа-файлы', onClick: () => navigate(PageUrl.Media) }, 'Корзина'];
 
   const extra = (
@@ -151,7 +149,7 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
 
       {/* Сетка медиа-файлов */}
       <MediaGrid
-        media={store.loader.data}
+        media={store.loader.resp?.data || []}
         loading={store.loader.pending}
         initialLoading={store.loader.initialLoading}
         selectable
@@ -164,12 +162,12 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
       />
 
       {/* Пагинация */}
-      {store.loader.paginationMeta && store.loader.paginationMeta.total > 0 && (
+      {paginationMeta && paginationMeta.total > 0 && (
         <div className="mt-6 flex justify-center">
           <Pagination
-            current={store.loader.paginationMeta.current_page}
-            total={store.loader.paginationMeta.total}
-            pageSize={store.loader.paginationMeta.per_page}
+            current={paginationMeta.current_page}
+            total={paginationMeta.total}
+            pageSize={paginationMeta.per_page}
             showSizeChanger={false}
             showTotal={(total, range) => `${range[0]}-${range[1]} из ${total} файлов`}
             onChange={handlePageChange}

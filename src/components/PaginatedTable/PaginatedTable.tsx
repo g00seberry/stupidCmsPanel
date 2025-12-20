@@ -2,16 +2,15 @@ import { observer } from 'mobx-react-lite';
 import { Card, Empty, Pagination, Spin, Table } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
-import type { BasePaginationParams } from '@/components/PaginatedTable/paginatedDataLoader';
 
 /**
  * Пропсы компонента пагинированной таблицы.
  * @template TData Тип элемента данных.
- * @template TParams Тип параметров запроса.
+ * @template TFilters Тип фильтров запроса.
  */
-export type PropsPaginatedTable<TData, TParams extends BasePaginationParams> = {
+export type PropsPaginatedTable<TData, TFilters extends {}> = {
   /** Загрузчик пагинированных данных. */
-  loader: PaginatedDataLoader<TData, TParams>;
+  loader: PaginatedDataLoader<TData, TFilters>;
   /** Колонки таблицы. */
   columns: ColumnsType<TData>;
   /** Опциональный обработчик изменения страницы пагинации. Если не передан, используется loader.goToPage(). */
@@ -39,9 +38,9 @@ export type PropsPaginatedTable<TData, TParams extends BasePaginationParams> = {
  * Объединяет таблицу Ant Design, состояние загрузки, пустое состояние и пагинацию.
  * Работает с PaginatedDataLoader для управления данными.
  * @template TData Тип элемента данных.
- * @template TParams Тип параметров запроса.
+ * @template TFilters Тип фильтров запроса.
  * @example
- * const loader = new PaginatedDataLoader(listEntries, { page: 1, per_page: 15 });
+ * const loader = new PaginatedDataLoader(listEntries, { filters: {}, pagination: { page: 1, per_page: 15 } });
  * await loader.initialize();
  *
  * <PaginatedTable
@@ -52,7 +51,7 @@ export type PropsPaginatedTable<TData, TParams extends BasePaginationParams> = {
  * />
  */
 export const PaginatedTable = observer(
-  <TData, TParams extends BasePaginationParams>({
+  <TData, TFilters extends {}>({
     loader,
     columns,
     onPageChange,
@@ -60,7 +59,7 @@ export const PaginatedTable = observer(
     emptyText = 'Данные отсутствуют',
     tableProps,
     paginationProps = {},
-  }: PropsPaginatedTable<TData, TParams>) => {
+  }: PropsPaginatedTable<TData, TFilters>) => {
     const { showSizeChanger = false, showTotal = true } = paginationProps;
 
     /**
@@ -81,7 +80,7 @@ export const PaginatedTable = observer(
       );
     }
 
-    if (loader.data.length === 0) {
+    if (loader.resp?.data.length === 0) {
       return (
         <Card>
           <Empty description={emptyText} />
@@ -89,7 +88,7 @@ export const PaginatedTable = observer(
       );
     }
 
-    const paginationMeta = loader.paginationMeta;
+    const paginationMeta = loader.resp?.meta;
     const hasPagination = paginationMeta && paginationMeta.last_page > 1;
 
     const defaultShowTotal = (total: number, range: [number, number]) =>
@@ -101,7 +100,7 @@ export const PaginatedTable = observer(
           <Table
             {...tableProps}
             columns={columns}
-            dataSource={loader.data}
+            dataSource={loader.resp?.data}
             rowKey={rowKey}
             loading={loader.pending}
             pagination={false}

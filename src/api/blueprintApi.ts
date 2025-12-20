@@ -1,4 +1,8 @@
 import { rest } from '@/api/rest';
+import type {
+  LoaderParams,
+  LoadPaginatedDataFn,
+} from '@/components/PaginatedTable/paginatedDataLoader';
 import {
   zBlueprint,
   zBlueprintListItem,
@@ -9,7 +13,12 @@ import {
   zBlueprintDependencies,
   zEmbeddableBlueprints,
 } from '@/types/blueprint';
-import type { ZBlueprint, ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
+import type {
+  ZBlueprint,
+  ZBlueprintListItem,
+  ZCreateBlueprintDto,
+  ZUpdateBlueprintDto,
+} from '@/types/blueprint';
 import { zBlueprintSchema } from '@/types/blueprintSchema';
 import type { ZBlueprintSchema } from '@/types/blueprintSchema';
 import type { ZId } from '@/types/ZId';
@@ -30,37 +39,34 @@ const zBlueprintResponse = z.object({
 });
 
 /**
+ * Фильтры для списка Blueprint (без параметров пагинации).
+ */
+export type BlueprintListFilters = {
+  /** Поисковый запрос. */
+  search?: string;
+  /** Поле сортировки. */
+  sort_by?: string;
+  /** Направление сортировки. */
+  sort_dir?: 'asc' | 'desc';
+};
+
+/**
  * Получить список Blueprint с пагинацией и фильтрацией.
  * @param params Параметры фильтрации и пагинации.
  * @returns Пагинированный список Blueprint.
  * @example
  * const result = await listBlueprints({
- *   search: 'article',
- *   sort_by: 'name',
- *   sort_dir: 'asc',
- *   per_page: 25,
- *   page: 1
+ *   filters: { search: 'article', sort_by: 'name', sort_dir: 'asc' },
+ *   pagination: { per_page: 25, page: 1 }
  * });
  * console.log(result.data); // Массив Blueprint
  * console.log(result.meta.total); // Общее количество
  */
-export const listBlueprints = async (params?: {
-  search?: string;
-  sort_by?: string;
-  sort_dir?: 'asc' | 'desc';
-  per_page?: number;
-  page?: number;
-}): Promise<z.infer<typeof zBlueprintsResponse>> => {
-  const queryParams = new URLSearchParams();
-  if (params?.search) queryParams.append('search', params.search);
-  if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
-  if (params?.sort_dir) queryParams.append('sort_dir', params.sort_dir);
-  if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
-  if (params?.page) queryParams.append('page', params.page.toString());
-
-  const queryString = queryParams.toString();
-  const url = getAdminBlueprintsUrl(queryString ? `?${queryString}` : '');
-  const response = await rest.get(url);
+export const listBlueprints: LoadPaginatedDataFn<ZBlueprintListItem, BlueprintListFilters> = async (
+  params: LoaderParams<BlueprintListFilters>
+) => {
+  const url = getAdminBlueprintsUrl('');
+  const response = await rest.get(url, { params });
   return zBlueprintsResponse.parse(response.data);
 };
 

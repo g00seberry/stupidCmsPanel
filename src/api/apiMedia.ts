@@ -1,21 +1,24 @@
 import { rest } from '@/api/rest';
-import {
-  zMediaResponse,
-  zMediaListResponse,
-  zMediaConfigResponse,
-  zMediaUpdatePayload,
-  zMediaBulkPayload,
-  zMediaArrayResponse,
-} from '@/types/media';
+import type {
+  LoaderParams,
+  LoadPaginatedDataFn,
+} from '@/components/PaginatedTable/paginatedDataLoader';
 import type {
   ZMedia,
-  ZMediaListParams,
-  ZMediaUpdatePayload,
-  ZMediaConfig,
   ZMediaBulkPayload,
+  ZMediaConfig,
   ZMediaImage,
+  ZMediaListFilters,
+  ZMediaUpdatePayload,
 } from '@/types/media';
-import type { ZPaginationMeta } from '@/types/pagination';
+import {
+  zMediaArrayResponse,
+  zMediaBulkPayload,
+  zMediaConfigResponse,
+  zMediaListResponse,
+  zMediaResponse,
+  zMediaUpdatePayload,
+} from '@/types/media';
 import { normalizeMediaUrl } from '@/utils/mediaUtils';
 
 const getAdminMediaUrl = (path: string): string => `/api/v1/admin/media${path}`;
@@ -51,51 +54,6 @@ const normalizeMedia = (media: ZMedia): ZMedia => {
 };
 
 /**
- * Преобразует параметры запроса в query-параметры для URL.
- * @param params Параметры запроса списка медиа-файлов.
- * @returns Объект с query-параметрами для Axios.
- */
-const buildQueryParams = (
-  params: ZMediaListParams
-): Record<string, string | number | undefined> => {
-  const queryParams: Record<string, string | number | undefined> = {};
-
-  if (params.q) {
-    queryParams.q = params.q;
-  }
-
-  if (params.kind) {
-    queryParams.kind = params.kind;
-  }
-
-  if (params.mime) {
-    queryParams.mime = params.mime;
-  }
-
-  if (params.deleted) {
-    queryParams.deleted = params.deleted;
-  }
-
-  if (params.sort) {
-    queryParams.sort = params.sort;
-  }
-
-  if (params.order) {
-    queryParams.order = params.order;
-  }
-
-  if (params.per_page !== undefined) {
-    queryParams.per_page = params.per_page;
-  }
-
-  if (params.page !== undefined) {
-    queryParams.page = params.page;
-  }
-
-  return queryParams;
-};
-
-/**
  * Загружает конфигурацию системы медиа-файлов.
  * @returns Конфигурация с разрешенными типами файлов, максимальным размером и вариантами изображений.
  * @example
@@ -122,16 +80,11 @@ export const getMediaConfig = async (): Promise<ZMediaConfig> => {
  * console.log(result.data); // Массив медиа-файлов
  * console.log(result.meta.total); // Общее количество
  */
-export const listMedia = async (
-  params: ZMediaListParams = {}
-): Promise<{
-  data: ZMedia[];
-  meta: ZPaginationMeta;
-}> => {
-  const queryParams = buildQueryParams(params);
-  const response = await rest.get(getAdminMediaUrl(''), { params: queryParams });
+export const listMedia: LoadPaginatedDataFn<ZMedia, ZMediaListFilters> = async (
+  params: LoaderParams<ZMediaListFilters>
+) => {
+  const response = await rest.get(getAdminMediaUrl(''), { params: params });
   const result = zMediaListResponse.parse(response.data);
-
   return {
     data: result.data.map(normalizeMedia),
     meta: result.meta,
@@ -289,4 +242,16 @@ export const bulkForceDeleteMedia = async (ids: string[]): Promise<void> => {
   const payload: ZMediaBulkPayload = { ids };
   const parsedPayload = zMediaBulkPayload.parse(payload);
   await rest.delete(getAdminMediaUrl('/bulk/force'), { data: parsedPayload });
+};
+
+/**
+ * Очищает всю корзину медиа-файлов (окончательное удаление всех файлов из корзины).
+ * Операция необратима - удаляет физические файлы с диска и записи из базы данных.
+ * Требует права доступа `media.forceDelete` для каждого файла в корзине.
+ * @throws {Error} Если нет авторизации (401), нет прав доступа (403) или превышен лимит запросов (429).
+ * @example
+ * await emptyMediaTrash();
+ */
+export const emptyMediaTrash = async (): Promise<void> => {
+  await rest.delete(getAdminMediaUrl('/trash/empty'));
 };

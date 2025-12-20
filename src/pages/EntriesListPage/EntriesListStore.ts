@@ -1,6 +1,6 @@
 import { getEntriesStatuses, listEntries } from '@/api/apiEntries';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
-import type { ZEntriesListParams, ZEntry } from '@/types/entries';
+import type { ZEntriesListFilters, ZEntry } from '@/types/entries';
 import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
@@ -12,7 +12,7 @@ import { makeAutoObservable } from 'mobx';
  */
 export class EntriesListStore {
   /** Универсальный загрузчик пагинированных данных. */
-  private readonly loader: PaginatedDataLoader<ZEntry, ZEntriesListParams>;
+  readonly loader: PaginatedDataLoader<ZEntry, ZEntriesListFilters>;
 
   /** Массив возможных статусов записей. */
   statuses: string[] = [];
@@ -21,24 +21,28 @@ export class EntriesListStore {
   statusesPending = false;
 
   constructor() {
-    const defaultFilters: ZEntriesListParams = {
-      page: 1,
-      per_page: 15,
-      status: 'all',
+    const defaultParams = {
+      filters: {
+        status: 'all',
+      } as ZEntriesListFilters,
+      pagination: {
+        page: 1,
+        per_page: 15,
+      },
     };
 
-    this.loader = new PaginatedDataLoader(listEntries, defaultFilters);
+    this.loader = new PaginatedDataLoader(listEntries, defaultParams);
     makeAutoObservable(this);
   }
 
   /** Массив загруженных записей. */
   get entries(): ZEntry[] {
-    return this.loader.data;
+    return this.loader.resp?.data || [];
   }
 
   /** Метаданные пагинации. */
   get paginationMeta(): ZPaginationMeta | null {
-    return this.loader.paginationMeta;
+    return this.loader.resp?.meta || null;
   }
 
   /** Флаг выполнения запроса загрузки. */
@@ -52,13 +56,8 @@ export class EntriesListStore {
   }
 
   /** Текущие параметры фильтрации. */
-  get filters(): ZEntriesListParams {
-    return this.loader.filters;
-  }
-
-  /** Универсальный загрузчик пагинированных данных. */
-  get paginatedLoader(): PaginatedDataLoader<ZEntry, ZEntriesListParams> {
-    return this.loader;
+  get filters(): ZEntriesListFilters {
+    return this.loader.params.filters;
   }
 
   /**
@@ -67,7 +66,7 @@ export class EntriesListStore {
    */
   async loadEntries(postTypeId?: ZId): Promise<void> {
     if (postTypeId !== undefined) {
-      await this.loader.setFilters({ post_type_id: postTypeId } as Partial<ZEntriesListParams>);
+      await this.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
     } else {
       await this.loader.load();
     }
@@ -78,15 +77,12 @@ export class EntriesListStore {
    * @param filters Новые параметры фильтрации (без пагинации и сортировки).
    * @param postTypeId ID типа контента для фильтрации.
    */
-  async setFilters(filters: Partial<ZEntriesListParams>, postTypeId?: ZId): Promise<void> {
-    const updatedFilters: Partial<ZEntriesListParams> = { ...filters };
+  async setFilters(filters: Partial<ZEntriesListFilters>, postTypeId?: ZId): Promise<void> {
+    const updatedFilters: Partial<ZEntriesListFilters> = { ...filters };
     if (postTypeId !== undefined) {
       updatedFilters.post_type_id = postTypeId;
     }
-    // Удаляем параметры пагинации из фильтров
-    delete updatedFilters.page;
-    delete updatedFilters.per_page;
-    await this.loader.setFilters(updatedFilters);
+    await this.loader.setFilters(updatedFilters as ZEntriesListFilters);
   }
 
   /**
@@ -97,7 +93,7 @@ export class EntriesListStore {
   async goToPage(page: number, postTypeId?: ZId): Promise<void> {
     if (postTypeId !== undefined) {
       // Сначала устанавливаем фильтр post_type_id, если нужно
-      await this.loader.setFilters({ post_type_id: postTypeId } as Partial<ZEntriesListParams>);
+      await this.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
     }
     await this.loader.goToPage(page);
   }
@@ -107,13 +103,17 @@ export class EntriesListStore {
    * @param postTypeId ID типа контента для фильтрации.
    */
   async resetFilters(postTypeId?: ZId): Promise<void> {
-    const defaultFilters: ZEntriesListParams = {
-      page: 1,
-      per_page: 15,
-      status: 'all',
-      ...(postTypeId !== undefined && { post_type_id: postTypeId }),
+    const defaultParams = {
+      filters: {
+        status: 'all',
+        ...(postTypeId !== undefined && { post_type_id: postTypeId }),
+      } as ZEntriesListFilters,
+      pagination: {
+        page: 1,
+        per_page: 15,
+      },
     };
-    await this.loader.resetFilters(defaultFilters);
+    await this.loader.resetFilters(defaultParams);
   }
 
   /**
@@ -125,7 +125,9 @@ export class EntriesListStore {
       this.loadStatuses(),
       this.loader.initialize(
         postTypeId !== undefined
-          ? ({ post_type_id: postTypeId } as Partial<ZEntriesListParams>)
+          ? {
+              filters: { post_type_id: postTypeId } as Partial<ZEntriesListFilters>,
+            }
           : undefined
       ),
     ]);

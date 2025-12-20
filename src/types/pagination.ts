@@ -20,14 +20,27 @@ export const zPaginationMeta = z.object({
 export type ZPaginationMeta = z.infer<typeof zPaginationMeta>;
 
 /**
+ * Тип пагинированного ответа API.
+ * @template T Тип элемента данных в массиве.
+ */
+export type ZPaginatedResponse<T> = {
+  /** Массив данных. */
+  data: T[];
+  /** Метаданные пагинации. */
+  meta: ZPaginationMeta;
+};
+
+/**
  * Создаёт схему валидации пагинированного ответа API.
  * @param dataSchema Схема валидации одного элемента данных.
  * @returns Схема валидации пагинированного ответа с массивом данных и метаданными пагинации.
  */
-export const zPaginatedResponse = <T extends z.ZodTypeAny>(dataSchema: T) =>
+export const zPaginatedResponse = <T extends z.ZodTypeAny>(
+  dataSchema: T
+): z.ZodType<ZPaginatedResponse<z.infer<T>>> =>
   z.object({
     /** Массив данных. */
     data: z.array(dataSchema),
     /** Метаданные пагинации. */
     meta: zPaginationMeta,
-  });
+  }) as z.ZodType<ZPaginatedResponse<z.infer<T>>>;

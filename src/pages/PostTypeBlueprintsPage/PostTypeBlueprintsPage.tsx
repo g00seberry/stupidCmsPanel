@@ -42,7 +42,7 @@ export const PostTypeBlueprintsPage = observer(() => {
     try {
       const [postTypeData, blueprintsData] = await Promise.all([
         getPostType(postTypeId),
-        listBlueprints({ per_page: 1000 }),
+        listBlueprints({ filters: {}, pagination: { per_page: 1000, page: 1 } }),
       ]);
 
       setPostType(postTypeData);

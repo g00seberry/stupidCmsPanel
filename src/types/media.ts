@@ -285,7 +285,7 @@ export type ZMediaArrayResponse = z.infer<typeof zMediaArrayResponse>;
 /**
  * Параметры запроса списка медиа-файлов.
  */
-export type ZMediaListParams = {
+export type ZMediaListFilters = {
   /** Поиск по названию и исходному имени файла. */
   q?: string;
   /** Фильтр по типу медиа: image, video, audio, document. */
@@ -294,14 +294,6 @@ export type ZMediaListParams = {
   mime?: string;
   /** Управление soft-deleted: with (включая удаленные), only (только удаленные). */
   deleted?: 'with' | 'only';
-  /** Поле сортировки: created_at, size_bytes, mime. По умолчанию: created_at. */
-  sort?: 'created_at' | 'size_bytes' | 'mime';
-  /** Направление сортировки: asc, desc. По умолчанию: desc. */
-  order?: 'asc' | 'desc';
-  /** Размер страницы (1-100). По умолчанию: 15. */
-  per_page?: number;
-  /** Номер страницы (>=1). По умолчанию: 1. */
-  page?: number;
 };
 
 /**

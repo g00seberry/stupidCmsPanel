@@ -102,7 +102,7 @@ export type ZEntriesStatusesResponse = z.infer<typeof zEntriesStatusesResponse>;
 /**
  * Параметры запроса списка записей.
  */
-export type ZEntriesListParams = {
+export type ZEntriesListFilters = {
   /** Фильтр по ID типа контента. */
   post_type_id?: ZId;
   /** Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all. */
@@ -119,18 +119,6 @@ export type ZEntriesListParams = {
   date_from?: string;
   /** Конечная дата диапазона (ISO 8601, >= date_from). */
   date_to?: string;
-  /** Поле сортировки: updated_at.desc, updated_at.asc, published_at.desc, published_at.asc, title.asc, title.desc. По умолчанию: updated_at.desc. */
-  sort?:
-    | 'updated_at.desc'
-    | 'updated_at.asc'
-    | 'published_at.desc'
-    | 'published_at.asc'
-    | 'title.asc'
-    | 'title.desc';
-  /** Количество элементов на странице (10-100). По умолчанию: 15. */
-  per_page?: number;
-  /** Номер страницы (>=1). По умолчанию: 1. */
-  page?: number;
 };
 
 /**

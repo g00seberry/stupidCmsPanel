@@ -26,9 +26,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
     const loadData = async () => {
       setLoading(true);
       try {
-        const params = { per_page: 100 };
-
-        const result = await listEntries(params);
+        const result = await listEntries({
+          filters: {},
+          pagination: { per_page: 100, page: 1 },
+        });
         const entries = result.data.map((entry: ZEntry) => ({
           label: entry.title || `Entry #${entry.id}`,
           value: entry.id,
@@ -62,9 +63,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
       const loadDefault = async () => {
         setLoading(true);
         try {
-          const params = { per_page: 100 };
-
-          const result = await listEntries(params);
+          const result = await listEntries({
+            filters: {},
+            pagination: { per_page: 100, page: 1 },
+          });
           const entries = result.data.map((entry: ZEntry) => ({
             label: entry.title || `Entry #${entry.id}`,
             value: entry.id,
@@ -88,9 +90,10 @@ export const RefFieldWidget: React.FC<FieldRendererProps> = observer(({ model, n
     searchTimeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const params = { per_page: 100, q: value };
-
-        const result = await listEntries(params);
+        const result = await listEntries({
+          filters: { q: value },
+          pagination: { per_page: 100, page: 1 },
+        });
         const entries = result.data.map((entry: ZEntry) => ({
           label: entry.title || `Entry #${entry.id}`,
           value: entry.id,

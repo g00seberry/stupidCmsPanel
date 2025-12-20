@@ -2,18 +2,13 @@ import { makeAutoObservable } from 'mobx';
 import type { ZBlueprintListItem } from '@/types/blueprint';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
-import { listBlueprints, deleteBlueprint as deleteBlueprintApi } from '@/api/blueprintApi';
+import {
+  listBlueprints,
+  deleteBlueprint as deleteBlueprintApi,
+  type BlueprintListFilters,
+} from '@/api/blueprintApi';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import { FilterFormStore } from '@/components/FilterForm';
-import type { BasePaginationParams } from '@/components/PaginatedTable/paginatedDataLoader';
-
-/**
- * Параметры запроса списка Blueprint.
- */
-export type BlueprintListParams = BasePaginationParams & {
-  /** Поисковый запрос. */
-  search?: string;
-};
 
 /**
  * Store для управления списком Blueprint.
@@ -21,16 +16,19 @@ export type BlueprintListParams = BasePaginationParams & {
  */
 export class BlueprintListStore {
   /** Универсальный загрузчик пагинированных данных. */
-  readonly loader = new PaginatedDataLoader<ZBlueprintListItem, BlueprintListParams>(
+  readonly loader = new PaginatedDataLoader<ZBlueprintListItem, BlueprintListFilters>(
     listBlueprints,
     {
-      page: 1,
-      per_page: 15,
+      filters: {},
+      pagination: {
+        page: 1,
+        per_page: 15,
+      },
     }
   );
 
   /** Store для управления формой фильтрации. */
-  readonly filterStore = new FilterFormStore<BlueprintListParams>();
+  readonly filterStore = new FilterFormStore<BlueprintListFilters>();
 
   /** Флаг выполнения запроса удаления. */
   deleting = false;

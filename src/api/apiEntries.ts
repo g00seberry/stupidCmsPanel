@@ -1,6 +1,10 @@
 import { rest } from '@/api/rest';
 import type {
-  ZEntriesListParams,
+  LoaderParams,
+  LoadPaginatedDataFn,
+} from '@/components/PaginatedTable/paginatedDataLoader';
+import type {
+  ZEntriesListFilters,
   ZEntry,
   ZEntryPayload,
   ZEntryTermsData,
@@ -13,97 +17,27 @@ import {
   zEntryTermsPayload,
   zEntryTermsResponse,
 } from '@/types/entries';
-import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
 
 /**
- * Преобразует параметры запроса в query-параметры для URL.
- * @param params Параметры запроса списка записей.
- * @returns Объект с query-параметрами для Axios.
- */
-const buildQueryParams = (
-  params: ZEntriesListParams
-): Record<string, number | ZId | number[] | ZId[]> => {
-  const queryParams: Record<string, number | ZId | number[] | ZId[]> = {};
-
-  if (params.post_type_id) {
-    queryParams.post_type_id = params.post_type_id;
-  }
-
-  if (params.status && params.status !== 'all') {
-    queryParams.status = params.status;
-  }
-
-  if (params.q) {
-    queryParams.q = params.q;
-  }
-
-  if (params.author_id !== undefined) {
-    queryParams.author_id = params.author_id;
-  }
-
-  if (params.term && params.term.length > 0) {
-    // Используем специальный формат для массива term[] согласно API
-    // Axios автоматически преобразует массив в формат term[]=1&term[]=2 при использовании paramsSerializer
-    queryParams.term = params.term;
-  }
-
-  if (params.date_field) {
-    queryParams.date_field = params.date_field;
-  }
-
-  if (params.date_from) {
-    queryParams.date_from = params.date_from;
-  }
-
-  if (params.date_to) {
-    queryParams.date_to = params.date_to;
-  }
-
-  if (params.sort) {
-    queryParams.sort = params.sort;
-  }
-
-  if (params.per_page !== undefined) {
-    queryParams.per_page = params.per_page;
-  }
-
-  if (params.page !== undefined) {
-    queryParams.page = params.page;
-  }
-
-  return queryParams;
-};
-
-/**
  * Загружает список записей с фильтрами и пагинацией.
  * @param params Параметры фильтрации и пагинации.
- * @returns Объект с массивом записей, метаданными пагинации и ссылками.
+ * @returns Объект с массивом записей и метаданными пагинации.
  * @example
  * const result = await listEntries({
- *   post_type_id: 1,
- *   status: 'published',
- *   per_page: 20,
- *   page: 1
+ *   filters: { post_type_id: 1, status: 'published' },
+ *   pagination: { per_page: 20, page: 1 }
  * });
  * console.log(result.data); // Массив записей
  * console.log(result.meta.total); // Общее количество
  */
-export const listEntries = async (
-  params: ZEntriesListParams = {}
-): Promise<{
-  data: ZEntry[];
-  meta: ZPaginationMeta;
-}> => {
-  const queryParams = buildQueryParams(params);
-  const response = await rest.get(getAdminEntriesUrl(''), { params: queryParams });
-  const parsed = zEntriesResponse.parse(response.data);
-  return {
-    data: parsed.data,
-    meta: parsed.meta,
-  };
+export const listEntries: LoadPaginatedDataFn<ZEntry, ZEntriesListFilters> = async (
+  params: LoaderParams<ZEntriesListFilters>
+) => {
+  const response = await rest.get(getAdminEntriesUrl(''), { params });
+  return zEntriesResponse.parse(response.data);
 };
 
 /**

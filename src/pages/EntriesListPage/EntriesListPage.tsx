@@ -231,7 +231,7 @@ export const EntriesListPage = observer(() => {
 
       {/* Таблица */}
       <PaginatedTable
-        loader={store.paginatedLoader}
+        loader={store.loader}
         columns={columns}
         rowKey="id"
         emptyText="Записи отсутствуют"

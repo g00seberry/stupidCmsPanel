@@ -5,18 +5,11 @@ import {
   getMediaConfig,
   listMedia,
 } from '@/api/apiMedia';
-import type { ZMediaConfig, ZMediaListParams } from '@/types/media';
-import { onError } from '@/utils/onError';
-import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import { FilterFormStore } from '@/components/FilterForm';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import type { ZMediaConfig } from '@/types/media';
+import { onError } from '@/utils/onError';
 import { makeAutoObservable, observable } from 'mobx';
-
-const defaultFilters: ZMediaListParams = {
-  page: 1,
-  per_page: 15,
-  sort: 'created_at',
-  order: 'desc',
-};
 
 /**
  * Store для управления состоянием списка медиа-файлов.
@@ -24,7 +17,10 @@ const defaultFilters: ZMediaListParams = {
  */
 export class MediaListStore {
   /** Универсальный загрузчик пагинированных данных. */
-  readonly loader = new PaginatedDataLoader(listMedia, defaultFilters);
+  readonly loader = new PaginatedDataLoader(listMedia, {
+    filters: {},
+    pagination: { page: 1, per_page: 15 },
+  });
 
   /** Конфигурация системы медиа-файлов. */
   config: ZMediaConfig | null = null;
@@ -122,7 +118,7 @@ export class MediaListStore {
    * Выбирает все медиа-файлы на текущей странице.
    */
   selectAll(): void {
-    this.loader.data.forEach(item => {
+    this.loader.resp?.data.forEach(item => {
       this.selectedIds.add(item.id);
     });
   }
