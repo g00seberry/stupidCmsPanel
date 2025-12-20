@@ -1,7 +1,8 @@
 import { BlueprintList } from '@/pages/BlueprintListPage/BlueprintList';
 import { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore';
+import { DeleteButton } from '@/pages/BlueprintListPage/DeleteButton';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { Button } from 'antd';
+import { Button, Space } from 'antd';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
@@ -22,11 +23,19 @@ export const BlueprintListPage = observer(() => {
     <PageLayout
       breadcrumbs={['Blueprint']}
       extra={
-        <Link to={buildUrl(PageUrl.BlueprintsEdit, { id: 'new' })}>
-          <Button type="primary" icon={<Plus className="w-4 h-4" />}>
-            Создать
-          </Button>
-        </Link>
+        <Space>
+          <DeleteButton
+            onDelete={() => store.bulkDelete()}
+            selectedCount={store.selectedCount}
+            loading={store.deleting}
+            itemName="Blueprint"
+          />
+          <Link to={buildUrl(PageUrl.BlueprintsEdit, { id: 'new' })}>
+            <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+              Создать
+            </Button>
+          </Link>
+        </Space>
       }
     >
       <BlueprintList store={store} />

@@ -1,28 +1,16 @@
-import { Button, Tag, Typography } from 'antd';
+import { Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ZBlueprintListItem } from '@/types/blueprint';
-import type { ZId } from '@/types/ZId';
 import { buildUrl, PageUrl } from '@/PageUrl';
 
 /**
- * Параметры для построения колонок таблицы Blueprint.
- */
-export type BuildColumnsParams = {
-  /** Обработчик удаления Blueprint. */
-  onDelete?: (id: ZId) => void;
-};
-
-/**
  * Строит конфигурацию колонок для таблицы списка Blueprint.
- * @param params Параметры для построения колонок.
  * @returns Конфигурация колонок таблицы.
  * @example
- * const columns = buildColumns({ onDelete: handleDelete, editUrl: id => `/blueprints/${id}` });
+ * const columns = buildColumns();
  */
-export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprintListItem> => {
-  const { onDelete } = params;
+export const buildColumns = (): ColumnsType<ZBlueprintListItem> => {
 
   return [
     {
@@ -75,23 +63,6 @@ export const buildColumns = (params: BuildColumnsParams): ColumnsType<ZBlueprint
       key: 'created_at',
       width: 150,
       render: (date: string) => new Date(date).toLocaleDateString('ru-RU'),
-    },
-    {
-      title: 'Действия',
-      key: 'actions',
-      width: 150,
-      fixed: 'right',
-      render: (_: unknown, record: ZBlueprintListItem) => (
-        <Button
-          type="link"
-          danger
-          size="small"
-          icon={<Trash2 className="w-4 h-4" />}
-          onClick={() => onDelete?.(record.id)}
-        >
-          Удалить
-        </Button>
-      ),
     },
   ];
 };

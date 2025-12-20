@@ -7,7 +7,7 @@ import { notificationService } from '@/services/notificationService';
  * @param error Ошибка, которую необходимо отобразить.
  */
 export const onError = (error: unknown): void => {
-  let description: string | undefined;
+  let description: string | React.ReactNode | undefined;
   let notificationMessage = 'Ошибка';
   console.error(error);
   if (axios.isAxiosError(error)) {
@@ -16,6 +16,18 @@ export const onError = (error: unknown): void => {
       const problem = problemResult.data;
       notificationMessage = problem.title ?? problem.code ?? notificationMessage;
       description = problem.detail ?? error.message;
+      if (problem.meta?.reasons) {
+        description = (
+          <div>
+            <h2>{description}</h2>
+            <ul>
+              {problem.meta.reasons.map(r => (
+                <li>{r}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
     } else {
       description = error.message;
     }

@@ -19,6 +19,7 @@ export type PropsPaginatedTable<TData, TFilters extends {}> = {
   rowKey?: string | ((record: TData) => string);
   /** Текст для пустого состояния. По умолчанию: 'Данные отсутствуют'. */
   emptyText?: string;
+
   /** Дополнительные пропсы для таблицы Ant Design. */
   tableProps?: Omit<
     TableProps<TData>,
@@ -57,6 +58,7 @@ export const PaginatedTable = observer(
     onPageChange,
     rowKey = 'id',
     emptyText = 'Данные отсутствуют',
+
     tableProps,
     paginationProps = {},
   }: PropsPaginatedTable<TData, TFilters>) => {

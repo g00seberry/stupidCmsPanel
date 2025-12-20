@@ -44,10 +44,6 @@ const zBlueprintResponse = z.object({
 export type BlueprintListFilters = {
   /** Поисковый запрос. */
   search?: string;
-  /** Поле сортировки. */
-  sort_by?: string;
-  /** Направление сортировки. */
-  sort_dir?: 'asc' | 'desc';
 };
 
 /**

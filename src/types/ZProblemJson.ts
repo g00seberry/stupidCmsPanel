@@ -9,7 +9,7 @@ export const zProblemJsonMeta = z
     /** Уникальный идентификатор запроса для отслеживания в логах. */
     request_id: z.string().optional(),
     /** Причина ошибки в человекочитаемом формате. */
-    reason: z.string().optional(),
+    reasons: z.string().array().optional(),
     /** Требуемое разрешение для выполнения операции. */
     permission: z.string().optional(),
     /** Количество секунд до следующей попытки (для rate limiting). */

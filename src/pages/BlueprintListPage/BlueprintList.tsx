@@ -1,7 +1,7 @@
 import { FilterForm } from '@/components/FilterForm';
 import { PaginatedTable } from '@/components/PaginatedTable/PaginatedTable';
 import type { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore';
-import type { ZId } from '@/types/ZId';
+import type { ZBlueprintListItem } from '@/types/blueprint';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { buildColumns } from './buildColumns';
@@ -20,15 +20,7 @@ export type PropsBlueprintList = {
  * Отображает таблицу с колонками: name, code, description, paths_count, embeds_count, post_types_count, created_at и действиями.
  */
 export const BlueprintList: React.FC<PropsBlueprintList> = observer(({ store }) => {
-  const columns = useMemo(
-    () =>
-      buildColumns({
-        onDelete: (id: ZId) => {
-          void store.deleteBlueprint(id);
-        },
-      }),
-    [store]
-  );
+  const columns = useMemo(() => buildColumns(), []);
   const filterFields = useMemo(() => getBlueprintFilterFields(), []);
 
   /**
@@ -47,6 +39,26 @@ export const BlueprintList: React.FC<PropsBlueprintList> = observer(({ store }) 
         columns={columns}
         rowKey="id"
         emptyText="Blueprint отсутствуют"
+        tableProps={{
+          rowSelection: {
+            selectedRowKeys: Array.from(store.selectedIds),
+            onSelectAll: (selected: boolean) => {
+              if (selected) {
+                store.selectAll();
+              } else {
+                store.deselectAll();
+              }
+            },
+            onSelect: (record: ZBlueprintListItem, selected: boolean) => {
+              if (selected) {
+                store.selectedIds.add(record.id);
+              } else {
+                store.selectedIds.delete(record.id);
+              }
+            },
+            getCheckboxProps: () => ({}),
+          },
+        }}
       />
     </div>
   );
