@@ -20,20 +20,14 @@ export const zPaginationMeta = z.object({
 export type ZPaginationMeta = z.infer<typeof zPaginationMeta>;
 
 /**
- * Схема валидации ссылок пагинации.
+ * Создаёт схему валидации пагинированного ответа API.
+ * @param dataSchema Схема валидации одного элемента данных.
+ * @returns Схема валидации пагинированного ответа с массивом данных и метаданными пагинации.
  */
-export const zPaginationLinks = z.object({
-  /** Ссылка на первую страницу. */
-  first: z.string().nullable(),
-  /** Ссылка на последнюю страницу. */
-  last: z.string().nullable(),
-  /** Ссылка на предыдущую страницу. */
-  prev: z.string().nullable(),
-  /** Ссылка на следующую страницу. */
-  next: z.string().nullable(),
-});
-
-/**
- * Тип ссылок пагинации.
- */
-export type ZPaginationLinks = z.infer<typeof zPaginationLinks>;
+export const zPaginatedResponse = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    /** Массив данных. */
+    data: z.array(dataSchema),
+    /** Метаданные пагинации. */
+    meta: zPaginationMeta,
+  });

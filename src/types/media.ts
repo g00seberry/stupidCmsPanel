@@ -1,4 +1,4 @@
-import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
+import { zPaginatedResponse } from '@/types/pagination';
 import { z } from 'zod';
 
 /**
@@ -247,16 +247,9 @@ export const zMedia = z.discriminatedUnion('kind', [
 export type ZMedia = z.infer<typeof zMedia>;
 
 /**
- * Схема валидации ответа API со списком медиа-файлов.
+ * Схема валидации ответа API со списком медиа-файлов. PAGED
  */
-export const zMediaListResponse = z.object({
-  /** Массив медиа-файлов. */
-  data: zMedia.array(),
-  /** Ссылки пагинации. */
-  links: zPaginationLinks,
-  /** Метаданные пагинации. */
-  meta: zPaginationMeta,
-});
+export const zMediaListResponse = zPaginatedResponse(zMedia);
 
 /**
  * Тип ответа API со списком медиа-файлов.

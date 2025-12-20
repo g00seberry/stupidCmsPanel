@@ -1,15 +1,15 @@
 import { makeAutoObservable } from 'mobx';
 import { onError } from '@/utils/onError';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import type { ZPaginationMeta } from '@/types/pagination';
 
 /** Значение страницы по умолчанию. */
-const DEFAULT_PAGE = 1;
+const defaultPage = 1;
 
 /** Значение количества элементов на странице по умолчанию. */
-const DEFAULT_PER_PAGE = 15;
+const defaultPerPage = 15;
 
 /** Множество ключевых слов для определения полей сортировки. */
-const SORT_KEYWORDS = new Set(['sort', 'order']);
+const sortKeywords = new Set(['sort', 'order']);
 
 /**
  * Базовые параметры пагинации для любого запроса.
@@ -41,8 +41,6 @@ export type PaginatedResult<TData> = {
   data: TData[];
   /** Метаданные пагинации. */
   meta: ZPaginationMeta;
-  /** Ссылки пагинации. */
-  links: ZPaginationLinks;
 };
 
 /**
@@ -73,7 +71,7 @@ export type PaginationAndSortParams<T extends BasePaginationParams> = Pick<T, 'p
  */
 const isSortField = (key: string): boolean => {
   const lowerKey = key.toLowerCase();
-  for (const keyword of SORT_KEYWORDS) {
+  for (const keyword of sortKeywords) {
     if (lowerKey.includes(keyword)) {
       return true;
     }
@@ -90,8 +88,8 @@ const isSortField = (key: string): boolean => {
 const splitParams = <T extends BasePaginationParams>(params: T) => {
   const filters: Record<string, unknown> = {};
   const pagination: Record<string, unknown> = {
-    page: params.page ?? DEFAULT_PAGE,
-    per_page: params.per_page ?? DEFAULT_PER_PAGE,
+    page: params.page ?? defaultPage,
+    per_page: params.per_page ?? defaultPerPage,
   };
 
   for (const [key, value] of Object.entries(params)) {
@@ -130,8 +128,6 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
   data: TData[] = [];
   /** Метаданные пагинации. */
   paginationMeta: ZPaginationMeta | null = null;
-  /** Ссылки пагинации. */
-  paginationLinks: ZPaginationLinks | null = null;
   /** Флаг выполнения запроса загрузки. */
   pending = false;
   /** Флаг начальной загрузки данных. */
@@ -164,8 +160,8 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
     return {
       ...this.filters,
       ...this.pagination,
-      page: this.pagination.page ?? DEFAULT_PAGE,
-      per_page: this.pagination.per_page ?? DEFAULT_PER_PAGE,
+      page: this.pagination.page ?? defaultPage,
+      per_page: this.pagination.per_page ?? defaultPerPage,
     } as TParams;
   }
 
@@ -176,7 +172,6 @@ export class PaginatedDataLoader<TData, TParams extends BasePaginationParams> {
   private updateState(result: PaginatedResult<TData>): void {
     this.data = result.data;
     this.paginationMeta = result.meta;
-    this.paginationLinks = result.links;
   }
 
   /**

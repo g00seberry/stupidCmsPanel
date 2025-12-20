@@ -1,4 +1,4 @@
-import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
+import { zPaginatedResponse } from '@/types/pagination';
 import { zTerm } from '@/types/terms';
 import { zTaxonomy } from '@/types/taxonomies';
 import { z } from 'zod';
@@ -77,16 +77,9 @@ export const zEntry = z.object({
 export type ZEntry = z.infer<typeof zEntry>;
 
 /**
- * Схема валидации ответа API со списком записей.
+ * Схема валидации ответа API со списком записей. PAGED
  */
-export const zEntriesResponse = z.object({
-  /** Массив записей. */
-  data: z.array(zEntry),
-  /** Ссылки пагинации. */
-  links: zPaginationLinks,
-  /** Метаданные пагинации. */
-  meta: zPaginationMeta,
-});
+export const zEntriesResponse = zPaginatedResponse(zEntry);
 
 /**
  * Тип ответа API со списком записей.

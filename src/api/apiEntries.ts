@@ -13,7 +13,7 @@ import {
   zEntryTermsPayload,
   zEntryTermsResponse,
 } from '@/types/entries';
-import type { ZPaginationLinks, ZPaginationMeta } from '@/types/pagination';
+import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 
 const getAdminEntriesUrl = (path: string): string => `/api/v1/admin/entries${path}`;
@@ -95,7 +95,6 @@ export const listEntries = async (
   params: ZEntriesListParams = {}
 ): Promise<{
   data: ZEntry[];
-  links: ZPaginationLinks;
   meta: ZPaginationMeta;
 }> => {
   const queryParams = buildQueryParams(params);
@@ -103,7 +102,6 @@ export const listEntries = async (
   const parsed = zEntriesResponse.parse(response.data);
   return {
     data: parsed.data,
-    links: parsed.links,
     meta: parsed.meta,
   };
 };

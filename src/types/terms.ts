@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { zId } from '@/types/ZId';
-import { zPaginationLinks, zPaginationMeta } from '@/types/pagination';
+import { zPaginatedResponse } from '@/types/pagination';
 
 /**
  * Базовая схема валидации термина таксономии CMS.
@@ -123,16 +123,9 @@ export type ListTermsParams = {
 };
 
 /**
- * Ответ API со списком терминов.
+ * Ответ API со списком терминов. PAGED
  */
-export const zTermsResponse = z.object({
-  /** Массив терминов. */
-  data: z.array(zTerm),
-  /** Ссылки пагинации. */
-  links: zPaginationLinks,
-  /** Метаданные пагинации. */
-  meta: zPaginationMeta,
-});
+export const zTermsResponse = zPaginatedResponse(zTerm);
 
 /**
  * Ответ API с данными одного термина.

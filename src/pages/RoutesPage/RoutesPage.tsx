@@ -1,14 +1,11 @@
-import { useEffect, useMemo } from 'react';
-import { observer } from 'mobx-react-lite';
-import { Button, Modal, Tree, Typography } from 'antd';
-import { Plus } from 'lucide-react';
-import { PageLayout } from '@/components/PageLayout';
-import { RoutesListStore } from './RoutesListStore';
-import { useNavigate } from 'react-router-dom';
 import { buildUrl, PageUrl } from '@/PageUrl';
-import { updateRoute, deleteRoute } from '@/api/apiRoutes';
-import { notificationService } from '@/services/notificationService';
-import { onError } from '@/utils/onError';
+import { PageLayout } from '@/components/PageLayout';
+import { Button, Tree, Typography } from 'antd';
+import { Plus } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { RoutesListStore } from './RoutesListStore';
 
 const { Title, Paragraph } = Typography;
 
@@ -31,42 +28,42 @@ export const RoutesPage = observer(() => {
     navigate(buildUrl(PageUrl.RouteEdit, { id: String(id) }));
   };
 
-  /**
-   * Обработчик удаления маршрута.
-   */
-  const handleDelete = (id: number): void => {
-    Modal.confirm({
-      title: 'Удалить маршрут?',
-      content: 'Это действие приведёт к каскадному удалению всех дочерних узлов. Продолжить?',
-      okText: 'Удалить',
-      okType: 'danger',
-      cancelText: 'Отмена',
-      onOk: async () => {
-        try {
-          await deleteRoute(id);
-          notificationService.showSuccess({ message: 'Маршрут удалён' });
-          await store.loadRoutes();
-        } catch (error) {
-          onError(error);
-        }
-      },
-    });
-  };
+  // /**
+  //  * Обработчик удаления маршрута.
+  //  */
+  // const handleDelete = (id: number): void => {
+  //   Modal.confirm({
+  //     title: 'Удалить маршрут?',
+  //     content: 'Это действие приведёт к каскадному удалению всех дочерних узлов. Продолжить?',
+  //     okText: 'Удалить',
+  //     okType: 'danger',
+  //     cancelText: 'Отмена',
+  //     onOk: async () => {
+  //       try {
+  //         await deleteRoute(id);
+  //         notificationService.showSuccess({ message: 'Маршрут удалён' });
+  //         await store.loadRoutes();
+  //       } catch (error) {
+  //         onError(error);
+  //       }
+  //     },
+  //   });
+  // };
 
-  /**
-   * Обработчик переключения статуса enabled.
-   */
-  const handleToggleEnabled = async (id: number, enabled: boolean): Promise<void> => {
-    try {
-      await updateRoute(id, { enabled });
-      notificationService.showSuccess({
-        message: enabled ? 'Маршрут включён' : 'Маршрут выключен',
-      });
-      await store.loadRoutes();
-    } catch (error) {
-      onError(error);
-    }
-  };
+  // /**
+  //  * Обработчик переключения статуса enabled.
+  //  */
+  // const handleToggleEnabled = async (id: number, enabled: boolean): Promise<void> => {
+  //   try {
+  //     await updateRoute(id, { enabled });
+  //     notificationService.showSuccess({
+  //       message: enabled ? 'Маршрут включён' : 'Маршрут выключен',
+  //     });
+  //     await store.loadRoutes();
+  //   } catch (error) {
+  //     onError(error);
+  //   }
+  // };
 
   return (
     <PageLayout
@@ -94,13 +91,6 @@ export const RoutesPage = observer(() => {
       </div>
 
       <Tree treeData={store.treeData} onSelect={([id]) => handleEdit(Number(id))} />
-      {/* Таблица */}
-      {/* <RoutesTable
-          store={store}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleEnabled={handleToggleEnabled}
-        /> */}
     </PageLayout>
   );
 });

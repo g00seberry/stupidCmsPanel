@@ -15,7 +15,7 @@ import type {
   ZMediaBulkPayload,
   ZMediaImage,
 } from '@/types/media';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import type { ZPaginationMeta } from '@/types/pagination';
 import { normalizeMediaUrl } from '@/utils/mediaUtils';
 
 const getAdminMediaUrl = (path: string): string => `/api/v1/admin/media${path}`;
@@ -126,7 +126,6 @@ export const listMedia = async (
   params: ZMediaListParams = {}
 ): Promise<{
   data: ZMedia[];
-  links: ZPaginationLinks;
   meta: ZPaginationMeta;
 }> => {
   const queryParams = buildQueryParams(params);
@@ -135,7 +134,6 @@ export const listMedia = async (
 
   return {
     data: result.data.map(normalizeMedia),
-    links: result.links,
     meta: result.meta,
   };
 };

@@ -1,10 +1,10 @@
-import { makeAutoObservable } from 'mobx';
-import { listEntries, getEntriesStatuses } from '@/api/apiEntries';
-import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
-import { onError } from '@/utils/onError';
-import type { ZEntry, ZEntriesListParams } from '@/types/entries';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import { getEntriesStatuses, listEntries } from '@/api/apiEntries';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import type { ZEntriesListParams, ZEntry } from '@/types/entries';
+import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
+import { onError } from '@/utils/onError';
+import { makeAutoObservable } from 'mobx';
 
 /**
  * Store для управления состоянием списка записей CMS.
@@ -39,11 +39,6 @@ export class EntriesListStore {
   /** Метаданные пагинации. */
   get paginationMeta(): ZPaginationMeta | null {
     return this.loader.paginationMeta;
-  }
-
-  /** Ссылки пагинации. */
-  get paginationLinks(): ZPaginationLinks | null {
-    return this.loader.paginationLinks;
   }
 
   /** Флаг выполнения запроса загрузки. */

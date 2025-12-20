@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { zPostType } from './postTypes';
-import { zPaginationLinks, zPaginationMeta } from './pagination';
+import { zPaginationMeta } from './pagination';
 import { zId } from './ZId';
 
 /**
@@ -276,8 +276,6 @@ export const zPaginatedResponse = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     /** Массив данных текущей страницы. */
     data: z.array(dataSchema),
-    /** Ссылки навигации по страницам. */
-    links: zPaginationLinks,
     /** Метаданные пагинации. */
     meta: zPaginationMeta,
   });

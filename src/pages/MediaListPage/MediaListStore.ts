@@ -7,7 +7,7 @@ import {
 } from '@/api/apiMedia';
 import type { ZMediaConfig, ZMediaListParams } from '@/types/media';
 import { onError } from '@/utils/onError';
-import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import { FilterFormStore } from '@/components/FilterForm';
 import { makeAutoObservable, observable } from 'mobx';
 

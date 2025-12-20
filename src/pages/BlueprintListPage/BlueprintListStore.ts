@@ -3,9 +3,9 @@ import type { ZBlueprintListItem } from '@/types/blueprint';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { listBlueprints, deleteBlueprint as deleteBlueprintApi } from '@/api/blueprintApi';
-import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import { FilterFormStore } from '@/components/FilterForm';
-import type { BasePaginationParams } from '@/utils/paginatedDataLoader';
+import type { BasePaginationParams } from '@/components/PaginatedTable/paginatedDataLoader';
 
 /**
  * Параметры запроса списка Blueprint.

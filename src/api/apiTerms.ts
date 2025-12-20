@@ -1,7 +1,7 @@
 import { rest } from '@/api/rest';
 import { zTermsResponse, zTermResponse, zTermPayload, zTermsTreeResponse } from '@/types/terms';
 import type { ZTerm, ZTermPayload, ListTermsParams, ZTermTree } from '@/types/terms';
-import type { ZPaginationMeta, ZPaginationLinks } from '@/types/pagination';
+import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
 
 const getAdminTermsUrl = (path: string): string => `/api/v1/admin/taxonomies${path}`;
@@ -21,14 +21,12 @@ export const listTerms = async (
   params?: ListTermsParams
 ): Promise<{
   data: ZTerm[];
-  links: ZPaginationLinks;
   meta: ZPaginationMeta;
 }> => {
   const response = await rest.get(getAdminTermsUrl(`/${taxonomyId}/terms`), { params });
   const parsed = zTermsResponse.parse(response.data);
   return {
     data: parsed.data,
-    links: parsed.links,
     meta: parsed.meta,
   };
 };

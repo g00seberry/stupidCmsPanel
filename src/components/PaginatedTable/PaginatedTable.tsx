@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { Card, Empty, Pagination, Spin, Table } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { PaginatedDataLoader } from '@/utils/paginatedDataLoader';
-import type { BasePaginationParams } from '@/utils/paginatedDataLoader';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import type { BasePaginationParams } from '@/components/PaginatedTable/paginatedDataLoader';
 
 /**
  * Пропсы компонента пагинированной таблицы.
