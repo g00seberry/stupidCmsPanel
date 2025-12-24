@@ -1,4 +1,5 @@
 import { getEntriesStatuses, listEntries } from '@/api/apiEntries';
+import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import type { ZEntriesListFilters, ZEntry } from '@/types/entries';
 import type { ZPaginationMeta } from '@/types/pagination';
@@ -11,8 +12,8 @@ import { makeAutoObservable } from 'mobx';
  * Обеспечивает загрузку, фильтрацию и пагинацию записей.
  */
 export class EntriesListStore {
-  /** Универсальный загрузчик пагинированных данных. */
-  readonly loader: PaginatedDataLoader<ZEntry, ZEntriesListFilters>;
+  /** Универсальный стор пагинированной таблицы. */
+  readonly tableStore: PaginatedTableStore<ZEntry, ZEntriesListFilters>;
 
   /** Массив возможных статусов записей. */
   statuses: string[] = [];
@@ -31,33 +32,36 @@ export class EntriesListStore {
       },
     };
 
-    this.loader = new PaginatedDataLoader(listEntries, defaultParams);
+    this.tableStore = new PaginatedTableStore<ZEntry, ZEntriesListFilters>(
+      new PaginatedDataLoader<ZEntry, ZEntriesListFilters>(listEntries, defaultParams),
+      'id'
+    );
     makeAutoObservable(this);
   }
 
   /** Массив загруженных записей. */
   get entries(): ZEntry[] {
-    return this.loader.resp?.data || [];
+    return this.tableStore.loader.resp?.data || [];
   }
 
   /** Метаданные пагинации. */
   get paginationMeta(): ZPaginationMeta | null {
-    return this.loader.resp?.meta || null;
+    return this.tableStore.loader.resp?.meta || null;
   }
 
   /** Флаг выполнения запроса загрузки. */
   get pending(): boolean {
-    return this.loader.pending;
+    return this.tableStore.loader.pending;
   }
 
   /** Флаг начальной загрузки данных. */
   get initialLoading(): boolean {
-    return this.loader.initialLoading;
+    return this.tableStore.loader.initialLoading;
   }
 
   /** Текущие параметры фильтрации. */
   get filters(): ZEntriesListFilters {
-    return this.loader.params.filters;
+    return this.tableStore.loader.params.filters;
   }
 
   /**
@@ -66,9 +70,9 @@ export class EntriesListStore {
    */
   async loadEntries(postTypeId?: ZId): Promise<void> {
     if (postTypeId !== undefined) {
-      await this.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
+      await this.tableStore.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
     } else {
-      await this.loader.load();
+      await this.tableStore.loader.load();
     }
   }
 
@@ -82,7 +86,7 @@ export class EntriesListStore {
     if (postTypeId !== undefined) {
       updatedFilters.post_type_id = postTypeId;
     }
-    await this.loader.setFilters(updatedFilters as ZEntriesListFilters);
+    await this.tableStore.loader.setFilters(updatedFilters as ZEntriesListFilters);
   }
 
   /**
@@ -93,9 +97,9 @@ export class EntriesListStore {
   async goToPage(page: number, postTypeId?: ZId): Promise<void> {
     if (postTypeId !== undefined) {
       // Сначала устанавливаем фильтр post_type_id, если нужно
-      await this.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
+      await this.tableStore.loader.setFilters({ post_type_id: postTypeId } as ZEntriesListFilters);
     }
-    await this.loader.goToPage(page);
+    await this.tableStore.loader.goToPage(page);
   }
 
   /**
@@ -113,7 +117,7 @@ export class EntriesListStore {
         per_page: 15,
       },
     };
-    await this.loader.resetFilters(defaultParams);
+    await this.tableStore.loader.resetFilters(defaultParams);
   }
 
   /**
@@ -123,7 +127,7 @@ export class EntriesListStore {
   async initialize(postTypeId?: ZId): Promise<void> {
     await Promise.all([
       this.loadStatuses(),
-      this.loader.initialize(
+      this.tableStore.loader.initialize(
         postTypeId !== undefined
           ? {
               filters: { post_type_id: postTypeId } as Partial<ZEntriesListFilters>,

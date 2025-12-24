@@ -83,7 +83,7 @@ export const getMediaConfig = async (): Promise<ZMediaConfig> => {
 export const listMedia: LoadPaginatedDataFn<ZMedia, ZMediaListFilters> = async (
   params: LoaderParams<ZMediaListFilters>
 ) => {
-  const response = await rest.get(getAdminMediaUrl(''), { params: params });
+  const response = await rest.get(getAdminMediaUrl(''), { params });
   const result = zMediaListResponse.parse(response.data);
   return {
     data: result.data.map(normalizeMedia),

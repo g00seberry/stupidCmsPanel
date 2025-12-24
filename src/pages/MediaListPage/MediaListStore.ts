@@ -6,30 +6,31 @@ import {
   listMedia,
 } from '@/api/apiMedia';
 import { FilterFormStore } from '@/components/FilterForm';
+import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
-import type { ZMediaConfig } from '@/types/media';
+import type { ZMedia, ZMediaListFilters, ZMediaConfig } from '@/types/media';
 import { onError } from '@/utils/onError';
-import { makeAutoObservable, observable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 
 /**
  * Store для управления состоянием списка медиа-файлов.
  * Обеспечивает загрузку, фильтрацию, пагинацию и массовые операции с медиа.
  */
 export class MediaListStore {
-  /** Универсальный загрузчик пагинированных данных. */
-  readonly loader = new PaginatedDataLoader(listMedia, {
-    filters: {},
-    pagination: { page: 1, per_page: 15 },
-  });
+  /** Универсальный стор пагинированной таблицы. */
+  readonly tableStore = new PaginatedTableStore<ZMedia, ZMediaListFilters>(
+    new PaginatedDataLoader(listMedia, {
+      filters: {},
+      pagination: { page: 1, per_page: 15 },
+    }),
+    'id'
+  );
 
   /** Конфигурация системы медиа-файлов. */
   config: ZMediaConfig | null = null;
 
   /** Флаг выполнения запроса загрузки конфигурации. */
   configPending = false;
-
-  /** Множество выбранных идентификаторов медиа-файлов. */
-  selectedIds = observable.set<string>();
 
   /** Store для управления формой фильтрации. */
   readonly filterStore = new FilterFormStore();
@@ -41,19 +42,19 @@ export class MediaListStore {
 
   /** Количество выбранных медиа-файлов. */
   get selectedCount(): number {
-    return this.selectedIds.size;
+    return this.tableStore.getSelectedCount();
   }
 
   /** Флаг наличия выбранных элементов. */
   get hasSelection(): boolean {
-    return this.selectedIds.size > 0;
+    return this.tableStore.hasSelection();
   }
 
   /**
    * Загружает список медиа-файлов с текущими фильтрами.
    */
   async loadMedia(): Promise<void> {
-    await this.loader.load();
+    await this.tableStore.loader.load();
   }
 
   /**
@@ -103,7 +104,7 @@ export class MediaListStore {
    * @param id ULID идентификатор медиа-файла.
    */
   selectMedia(id: string): void {
-    this.selectedIds.add(id);
+    this.tableStore.selectRow(id);
   }
 
   /**
@@ -111,23 +112,21 @@ export class MediaListStore {
    * @param id ULID идентификатор медиа-файла.
    */
   deselectMedia(id: string): void {
-    this.selectedIds.delete(id);
+    this.tableStore.deselectRow(id);
   }
 
   /**
    * Выбирает все медиа-файлы на текущей странице.
    */
   selectAll(): void {
-    this.loader.resp?.data.forEach(item => {
-      this.selectedIds.add(item.id);
-    });
+    this.tableStore.selectAllOnCurrentPage();
   }
 
   /**
    * Снимает выбор со всех медиа-файлов.
    */
   deselectAll(): void {
-    this.selectedIds.clear();
+    this.tableStore.clearSelection();
   }
 
   /**
@@ -135,7 +134,7 @@ export class MediaListStore {
    * @returns Массив ULID идентификаторов выбранных медиа-файлов.
    */
   getSelectedIds(): string[] {
-    return Array.from(this.selectedIds);
+    return this.tableStore.getSelectedKeys() as string[];
   }
 
   /**

@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Card, Empty, Pagination, Spin, Table } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 
 /**
  * Пропсы компонента пагинированной таблицы.
@@ -9,72 +9,87 @@ import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLo
  * @template TFilters Тип фильтров запроса.
  */
 export type PropsPaginatedTable<TData, TFilters extends {}> = {
-  /** Загрузчик пагинированных данных. */
-  loader: PaginatedDataLoader<TData, TFilters>;
+  /** Стор пагинированной таблицы. */
+  store: PaginatedTableStore<TData, TFilters>;
   /** Колонки таблицы. */
   columns: ColumnsType<TData>;
-  /** Опциональный обработчик изменения страницы пагинации. Если не передан, используется loader.goToPage(). */
-  onPageChange?: (page: number) => void;
-  /** Ключ для строк таблицы. По умолчанию: 'id'. */
-  rowKey?: string | ((record: TData) => string);
   /** Текст для пустого состояния. По умолчанию: 'Данные отсутствуют'. */
   emptyText?: string;
-
+  /** Тип выбора строк. Если указан, включается выбор строк. */
+  selectionType?: 'checkbox' | 'radio';
   /** Дополнительные пропсы для таблицы Ant Design. */
   tableProps?: Omit<
     TableProps<TData>,
-    'dataSource' | 'columns' | 'loading' | 'pagination' | 'rowKey'
+    'dataSource' | 'columns' | 'loading' | 'pagination' | 'rowKey' | 'rowSelection'
   >;
-  /** Дополнительные пропсы для компонента пагинации. */
-  paginationProps?: {
-    /** Показывать селектор размера страницы. По умолчанию: false. */
-    showSizeChanger?: boolean;
-    /** Показывать общее количество элементов. По умолчанию: true. */
-    showTotal?: boolean | ((total: number, range: [number, number]) => string);
-  };
 };
 
 /**
  * Универсальный компонент таблицы с пагинацией.
  * Объединяет таблицу Ant Design, состояние загрузки, пустое состояние и пагинацию.
- * Работает с PaginatedDataLoader для управления данными.
+ * Работает с PaginatedTableStore для управления данными и выбором строк.
  * @template TData Тип элемента данных.
  * @template TFilters Тип фильтров запроса.
  * @example
  * const loader = new PaginatedDataLoader(listEntries, { filters: {}, pagination: { page: 1, per_page: 15 } });
- * await loader.initialize();
+ * const store = new PaginatedTableStore(loader, 'id');
+ * await store.loader.initialize();
  *
  * <PaginatedTable
- *   loader={loader}
+ *   store={store}
  *   columns={columns}
- *   rowKey="id"
  *   emptyText="Записи отсутствуют"
  * />
  */
 export const PaginatedTable = observer(
   <TData, TFilters extends {}>({
-    loader,
+    store,
     columns,
-    onPageChange,
-    rowKey = 'id',
     emptyText = 'Данные отсутствуют',
-
+    selectionType,
     tableProps,
-    paginationProps = {},
   }: PropsPaginatedTable<TData, TFilters>) => {
-    const { showSizeChanger = false, showTotal = true } = paginationProps;
-
     /**
      * Обработчик изменения страницы пагинации.
      */
     const handlePageChange = (page: number): void => {
-      void loader.goToPage(page);
-      if (onPageChange) {
-        onPageChange(page);
+      void store.loader.goToPage(page);
+    };
+
+    /**
+     * Получает ключ строки из записи.
+     */
+    const getRecordKey = (record: TData): string | number => {
+      if (typeof store.rowKey === 'string') {
+        return (record as any)[store.rowKey];
+      }
+      return store.rowKey(record);
+    };
+
+    /**
+     * Обработчик выбора/снятия выбора строки.
+     */
+    const handleSelect = (record: TData, selected: boolean): void => {
+      const key = getRecordKey(record);
+      if (selected) {
+        store.selectRow(key);
+      } else {
+        store.deselectRow(key);
       }
     };
 
-    if (loader.initialLoading) {
+    /**
+     * Обработчик выбора/снятия выбора всех строк на текущей странице.
+     */
+    const handleSelectAll = (selected: boolean): void => {
+      if (selected) {
+        store.selectAllOnCurrentPage();
+      } else {
+        store.deselectAllOnCurrentPage();
+      }
+    };
+
+    if (store.loader.initialLoading) {
       return (
         <div className="flex justify-center py-12">
           <Spin size="large" />
@@ -82,7 +97,7 @@ export const PaginatedTable = observer(
       );
     }
 
-    if (loader.resp?.data.length === 0) {
+    if (store.loader.resp?.data.length === 0) {
       return (
         <Card>
           <Empty description={emptyText} />
@@ -90,11 +105,22 @@ export const PaginatedTable = observer(
       );
     }
 
-    const paginationMeta = loader.resp?.meta;
+    const paginationMeta = store.loader.resp?.meta;
     const hasPagination = paginationMeta && paginationMeta.last_page > 1;
 
     const defaultShowTotal = (total: number, range: [number, number]) =>
       `${range[0]}-${range[1]} из ${total} записей`;
+
+    // Настройка rowSelection, если указан selectionType
+    const rowSelection = selectionType
+      ? {
+          type: selectionType,
+          selectedRowKeys: Array.from(store.selectedRowKeys),
+          onSelect: handleSelect,
+          onSelectAll: handleSelectAll,
+          getCheckboxProps: () => ({}),
+        }
+      : undefined;
 
     return (
       <>
@@ -102,10 +128,11 @@ export const PaginatedTable = observer(
           <Table
             {...tableProps}
             columns={columns}
-            dataSource={loader.resp?.data}
-            rowKey={rowKey}
-            loading={loader.pending}
+            dataSource={store.loader.resp?.data}
+            rowKey={store.rowKey}
+            loading={store.loader.pending}
             pagination={false}
+            rowSelection={rowSelection}
           />
         </Card>
         {hasPagination && (
@@ -114,8 +141,7 @@ export const PaginatedTable = observer(
               current={paginationMeta.current_page}
               total={paginationMeta.total}
               pageSize={paginationMeta.per_page}
-              showSizeChanger={showSizeChanger}
-              showTotal={showTotal === true ? defaultShowTotal : showTotal || undefined}
+              showTotal={defaultShowTotal}
               onChange={handlePageChange}
             />
           </div>

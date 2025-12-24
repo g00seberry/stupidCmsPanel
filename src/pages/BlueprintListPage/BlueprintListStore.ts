@@ -1,37 +1,35 @@
-import { makeAutoObservable, observable } from 'mobx';
+import {
+  deleteBlueprint as deleteBlueprintApi,
+  listBlueprints,
+  type BlueprintListFilters,
+} from '@/api/blueprintApi';
+import { FilterFormStore } from '@/components/FilterForm';
+import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 import type { ZBlueprintListItem } from '@/types/blueprint';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
-import {
-  listBlueprints,
-  deleteBlueprint as deleteBlueprintApi,
-  type BlueprintListFilters,
-} from '@/api/blueprintApi';
-import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
-import { FilterFormStore } from '@/components/FilterForm';
+import { makeAutoObservable } from 'mobx';
 
 /**
  * Store для управления списком Blueprint.
  * Обеспечивает загрузку списка с пагинацией, поиском, сортировкой и удалением элементов.
  */
 export class BlueprintListStore {
-  /** Универсальный загрузчик пагинированных данных. */
-  readonly loader = new PaginatedDataLoader<ZBlueprintListItem, BlueprintListFilters>(
-    listBlueprints,
-    {
+  /** Универсальный стор пагинированной таблицы. */
+  readonly tableStore = new PaginatedTableStore<ZBlueprintListItem, BlueprintListFilters>(
+    new PaginatedDataLoader<ZBlueprintListItem, BlueprintListFilters>(listBlueprints, {
       filters: {},
       pagination: {
         page: 1,
         per_page: 15,
       },
-    }
+    }),
+    'id'
   );
 
   /** Store для управления формой фильтрации. */
   readonly filterStore = new FilterFormStore<BlueprintListFilters>();
-
-  /** Множество выбранных идентификаторов Blueprint. */
-  selectedIds = observable.set<ZId>();
 
   /** Флаг выполнения запроса удаления. */
   deleting = false;
@@ -42,35 +40,20 @@ export class BlueprintListStore {
 
   /** Количество выбранных Blueprint. */
   get selectedCount(): number {
-    return this.selectedIds.size;
+    return this.tableStore.selectedRowKeys.size;
   }
 
   /** Флаг наличия выбранных элементов. */
   get hasSelection(): boolean {
-    return this.selectedIds.size > 0;
+    return this.selectedCount > 0;
   }
 
   /**
    * Получить массив выбранных идентификаторов.
    * @returns Массив выбранных ID.
    */
-  getSelectedIds(): ZId[] {
-    return Array.from(this.selectedIds);
-  }
-
-  /**
-   * Выбрать все элементы на текущей странице.
-   */
-  selectAll(): void {
-    const data = this.loader.resp?.data || [];
-    data.forEach(item => this.selectedIds.add(item.id));
-  }
-
-  /**
-   * Снять выбор со всех элементов.
-   */
-  deselectAll(): void {
-    this.selectedIds.clear();
+  getSelectedIds(): (string | number)[] {
+    return Array.from(this.tableStore.selectedRowKeys);
   }
 
   /**
@@ -85,7 +68,7 @@ export class BlueprintListStore {
    * Инициализирует загрузку данных при первом открытии страницы.
    */
   async initialize(): Promise<void> {
-    await this.loader.initialize();
+    await this.tableStore.loader.initialize();
   }
 
   /**
@@ -96,8 +79,9 @@ export class BlueprintListStore {
     this.setDeleting(true);
     try {
       await deleteBlueprintApi(id);
-      this.selectedIds.delete(id);
-      void this.loader.load();
+      this.tableStore.deselectRow(id);
+      this.tableStore.deselectRow(id);
+      void this.tableStore.loader.load();
     } catch (error) {
       onError(error);
     } finally {
@@ -116,9 +100,10 @@ export class BlueprintListStore {
 
     this.setDeleting(true);
     try {
-      await Promise.all(ids.map(id => deleteBlueprintApi(id)));
-      this.deselectAll();
-      void this.loader.load();
+      await Promise.all(ids.map(id => deleteBlueprintApi(String(id))));
+      this.tableStore.deselectAllOnCurrentPage();
+      this.tableStore.clearSelection();
+      void this.tableStore.loader.load();
     } catch (error) {
       onError(error);
     } finally {

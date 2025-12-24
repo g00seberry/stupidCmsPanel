@@ -230,12 +230,7 @@ export const EntriesListPage = observer(() => {
       />
 
       {/* Таблица */}
-      <PaginatedTable
-        loader={store.loader}
-        columns={columns}
-        rowKey="id"
-        emptyText="Записи отсутствуют"
-      />
+      <PaginatedTable store={store.tableStore} columns={columns} emptyText="Записи отсутствуют" />
     </PageLayout>
   );
 });

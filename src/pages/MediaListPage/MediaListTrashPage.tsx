@@ -20,8 +20,8 @@ export const MediaListPageTrash = () => {
   const store = useMemo(() => {
     const s = new MediaListStore();
     // Разделяем параметры на фильтры и пагинацию
-    s.loader.setFilters({ deleted: 'only' });
-    s.loader.setPagination({
+    s.tableStore.loader.setFilters({ deleted: 'only' });
+    s.tableStore.loader.setPagination({
       page: 1,
       per_page: 15,
     });
@@ -49,7 +49,7 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
    * Обрабатывает изменение страницы пагинации.
    */
   const handlePageChange = async (page: number) => {
-    await store.loader.goToPage(page);
+    await store.tableStore.loader.goToPage(page);
   };
 
   /**
@@ -98,8 +98,8 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
     await handleClearTrash(store, modal, message);
   };
 
-  const totalCount = store.loader.resp?.meta?.total || 0;
-  const paginationMeta = store.loader.resp?.meta;
+  const totalCount = store.tableStore.loader.resp?.meta?.total || 0;
+  const paginationMeta = store.tableStore.loader.resp?.meta;
   const breadcrumbs = [{ label: 'Медиа-файлы', onClick: () => navigate(PageUrl.Media) }, 'Корзина'];
 
   const extra = (
@@ -149,11 +149,11 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
 
       {/* Сетка медиа-файлов */}
       <MediaGrid
-        media={store.loader.resp?.data || []}
-        loading={store.loader.pending}
-        initialLoading={store.loader.initialLoading}
+        media={store.tableStore.loader.resp?.data || []}
+        loading={store.tableStore.loader.pending}
+        initialLoading={store.tableStore.loader.initialLoading}
         selectable
-        selectedIds={store.selectedIds}
+        selectedIds={new Set(Array.from(store.tableStore.selectedRowKeys).filter((id): id is string => typeof id === 'string'))}
         onSelectChange={handleSelectChange}
         onCardClick={handleCardClick}
         onRestore={handleRestore}

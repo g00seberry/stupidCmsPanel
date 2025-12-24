@@ -17,13 +17,13 @@ export interface PropsBulkSelectPanel {
  * Отображает чекбокс для выбора всех элементов на странице и счетчик выбранных элементов.
  */
 export const BulkSelectPanel = observer<PropsBulkSelectPanel>(({ store, className }) => {
-  const data = store.loader.resp?.data || [];
+  const data = store.tableStore.loader.resp?.data || [];
   if (data.length === 0) {
     return null;
   }
 
-  const allSelected = data.every(item => store.selectedIds.has(item.id));
-  const someSelected = data.some(item => store.selectedIds.has(item.id));
+  const allSelected = store.tableStore.areAllOnCurrentPageSelected();
+  const someSelected = store.tableStore.areSomeOnCurrentPageSelected();
 
   return (
     <div className={`mb-4 flex items-center justify-between ${className || ''}`}>

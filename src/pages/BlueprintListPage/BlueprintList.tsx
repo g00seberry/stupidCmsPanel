@@ -1,7 +1,6 @@
 import { FilterForm } from '@/components/FilterForm';
 import { PaginatedTable } from '@/components/PaginatedTable/PaginatedTable';
 import type { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore';
-import type { ZBlueprintListItem } from '@/types/blueprint';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { buildColumns } from './buildColumns';
@@ -27,7 +26,7 @@ export const BlueprintList: React.FC<PropsBlueprintList> = observer(({ store }) 
    * Отслеживание изменений фильтров и применение их к загрузчику.
    */
   useEffect(() => {
-    void store.loader.setFilters(store.filterStore.values);
+    void store.tableStore.loader.setFilters(store.filterStore.values);
   }, [store.filterStore.values]);
 
   return (
@@ -35,30 +34,10 @@ export const BlueprintList: React.FC<PropsBlueprintList> = observer(({ store }) 
       <FilterForm store={store.filterStore} fields={filterFields} />
 
       <PaginatedTable
-        loader={store.loader}
+        store={store.tableStore}
         columns={columns}
-        rowKey="id"
         emptyText="Blueprint отсутствуют"
-        tableProps={{
-          rowSelection: {
-            selectedRowKeys: Array.from(store.selectedIds),
-            onSelectAll: (selected: boolean) => {
-              if (selected) {
-                store.selectAll();
-              } else {
-                store.deselectAll();
-              }
-            },
-            onSelect: (record: ZBlueprintListItem, selected: boolean) => {
-              if (selected) {
-                store.selectedIds.add(record.id);
-              } else {
-                store.selectedIds.delete(record.id);
-              }
-            },
-            getCheckboxProps: () => ({}),
-          },
-        }}
+        selectionType="checkbox"
       />
     </div>
   );

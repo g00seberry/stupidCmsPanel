@@ -20,12 +20,13 @@ import type { MediaListStore } from './MediaListStore';
 export const handleDeleteMedia = async (store: MediaListStore, id: string): Promise<void> => {
   try {
     await store.bulkDelete([id]);
-    const { resp } = store.loader;
+    store.tableStore.deselectRow(id);
+    const { resp } = store.tableStore.loader;
     notificationService.showSuccess({ message: 'Медиа-файл удалён' });
     // Если удалили последний элемент на странице, переходим на предыдущую
     const currentPage = resp?.meta?.current_page || 1;
     if (currentPage > 1 && resp?.data.length === 1) {
-      await store.loader.goToPage(currentPage - 1);
+      await store.tableStore.loader.goToPage(currentPage - 1);
     } else {
       await store.loadMedia();
     }
@@ -48,11 +49,11 @@ export const handleBulkDeleteMedia = async (store: MediaListStore): Promise<void
     await store.bulkDelete(selectedIds);
     notificationService.showSuccess({ message: `Удалено медиа-файлов: ${selectedIds.length}` });
     store.deselectAll();
-    const { resp } = store.loader;
+    const { resp } = store.tableStore.loader;
     // Если удалили все элементы на текущей странице, переходим на предыдущую
     const currentPage = resp?.meta?.current_page || 1;
     if (currentPage > 1 && resp?.data.length === selectedIds.length) {
-      await store.loader.goToPage(currentPage - 1);
+      await store.tableStore.loader.goToPage(currentPage - 1);
     } else {
       await store.loadMedia();
     }
@@ -74,12 +75,12 @@ export const handleRestoreMedia = async (
 ): Promise<void> => {
   try {
     await restoreMedia(id);
-    const { resp } = store.loader;
+    const { resp } = store.tableStore.loader;
     messageApi.success('Медиа-файл восстановлен');
     // Если восстановили последний элемент на странице, переходим на предыдущую
     const currentPage = resp?.meta?.current_page || 1;
     if (currentPage > 1 && resp?.data.length === 1) {
-      await store.loader.goToPage(currentPage - 1);
+      await store.tableStore.loader.goToPage(currentPage - 1);
     } else {
       await store.loadMedia();
     }
@@ -106,11 +107,11 @@ export const handleBulkRestoreMedia = async (
     await bulkRestoreMedia(selectedIds);
     messageApi.success(`Восстановлено медиа-файлов: ${selectedIds.length}`);
     store.deselectAll();
-    const { resp } = store.loader;
+    const { resp } = store.tableStore.loader;
     // Если восстановили все элементы на текущей странице, переходим на предыдущую
     const currentPage = resp?.meta?.current_page || 1;
     if (currentPage > 1 && resp?.data.length === selectedIds.length) {
-      await store.loader.goToPage(currentPage - 1);
+      await store.tableStore.loader.goToPage(currentPage - 1);
     } else {
       await store.loadMedia();
     }
@@ -145,13 +146,13 @@ export const handleBulkForceDeleteMedia = async (
     onOk: async () => {
       try {
         await bulkForceDeleteMedia(selectedIds);
-        const { resp } = store.loader;
+        const { resp } = store.tableStore.loader;
         messageApi.success(`Удалено медиа-файлов: ${selectedIds.length}`);
         store.deselectAll();
         // Если удалили все элементы на текущей странице, переходим на предыдущую
         const currentPage = resp?.meta?.current_page || 1;
         if (currentPage > 1 && resp?.data.length === selectedIds.length) {
-          await store.loader.goToPage(currentPage - 1);
+          await store.tableStore.loader.goToPage(currentPage - 1);
         } else {
           await store.loadMedia();
         }
@@ -173,7 +174,7 @@ export const handleClearTrash = async (
   modalApi: Omit<ModalStaticFunctions, 'warn'>,
   messageApi: MessageInstance
 ): Promise<void> => {
-  const totalCount = store.loader.resp?.meta?.total || 0;
+  const totalCount = store.tableStore.loader.resp?.meta?.total || 0;
   if (totalCount === 0) {
     return;
   }
@@ -191,7 +192,7 @@ export const handleClearTrash = async (
         messageApi.success(`Корзина очищена. Удалено ${totalCount} медиа-файлов`);
         store.deselectAll();
         // После очистки корзины возвращаемся на первую страницу
-        await store.loader.goToPage(1);
+        await store.tableStore.loader.goToPage(1);
         await store.loadMedia();
       } catch (error) {
         onError(error);

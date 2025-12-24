@@ -14,33 +14,6 @@ import { handleBulkDeleteMedia, handleDeleteMedia } from './mediaListHandlers';
 import { MediaListStore } from './MediaListStore';
 
 /**
- * Преобразует значения формы в параметры фильтрации медиа (без пагинации и сортировки).
- * @param values Значения формы фильтров.
- * @returns Параметры фильтрации для API.
- */
-const convertToMediaFilters = (values: Record<string, unknown>): Partial<ZMediaListFilters> => {
-  const filters: Partial<ZMediaListFilters> = {};
-
-  if (values.q && typeof values.q === 'string' && values.q.trim()) {
-    filters.q = values.q.trim();
-  }
-
-  if (values.kind && typeof values.kind === 'string') {
-    filters.kind = values.kind as ZMediaListFilters['kind'];
-  }
-
-  if (values.mime && typeof values.mime === 'string' && values.mime.trim()) {
-    filters.mime = values.mime.trim();
-  }
-
-  if (values.deleted && typeof values.deleted === 'string') {
-    filters.deleted = values.deleted as ZMediaListFilters['deleted'];
-  }
-
-  return filters;
-};
-
-/**
  * Компонент основного списка медиа-файлов.
  */
 export const MediaListPageMain = observer(() => {
@@ -52,15 +25,14 @@ export const MediaListPageMain = observer(() => {
 
   // Отслеживание изменений фильтров и вызов onApply с дебаунсингом
   useEffect(() => {
-    const filters = convertToMediaFilters(store.filterStore.values);
-    handleApplyFilters(filters);
+    handleApplyFilters(store.filterStore.values);
   }, [store.filterStore.values]);
 
   /**
    * Обрабатывает изменение страницы пагинации.
    */
   const handlePageChange = async (page: number) => {
-    await store.loader.goToPage(page);
+    await store.tableStore.loader.goToPage(page);
   };
 
   /**
@@ -145,11 +117,11 @@ export const MediaListPageMain = observer(() => {
    * @param pagination Параметры пагинации и сортировки.
    */
   const handleApplyFilters = (filters: Partial<ZMediaListFilters>) => {
-    store.loader.setFilters(filters);
+    store.tableStore.loader.setFilters(filters);
   };
 
   const breadcrumbs = ['Медиа-файлы'];
-  const paginationMeta = store.loader.resp?.meta;
+  const paginationMeta = store.tableStore.loader.resp?.meta;
 
   const extra = (
     <>
@@ -209,11 +181,17 @@ export const MediaListPageMain = observer(() => {
 
       {/* Сетка медиа-файлов */}
       <MediaGrid
-        media={store.loader.resp?.data || []}
-        loading={store.loader.pending}
-        initialLoading={store.loader.initialLoading}
+        media={store.tableStore.loader.resp?.data || []}
+        loading={store.tableStore.loader.pending}
+        initialLoading={store.tableStore.loader.initialLoading}
         selectable
-        selectedIds={store.selectedIds}
+        selectedIds={
+          new Set(
+            Array.from(store.tableStore.selectedRowKeys).filter(
+              (id): id is string => typeof id === 'string'
+            )
+          )
+        }
         onSelectChange={handleSelectChange}
         onCardClick={handleCardClick}
         onDelete={handleDelete}
