@@ -1,19 +1,14 @@
+import { validateBlueprintCode } from '@/utils/blueprintValidation';
 import { Form, Input } from 'antd';
-import type { ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
-import { useEffect } from 'react';
 import type { FormInstance } from 'antd/es/form';
-import { validateBlueprintCode, formatBlueprintCode } from '@/utils/blueprintValidation';
+import { SlugInput } from '../../components/SlugInput';
 
 /**
  * Пропсы компонента формы Blueprint.
  */
 export type PropsBlueprintForm = {
   /** Экземпляр формы Ant Design. */
-  form: FormInstance<ZCreateBlueprintDto | ZUpdateBlueprintDto>;
-  /** Начальные значения формы (для режима редактирования). */
-  initialValues?: Partial<ZCreateBlueprintDto | ZUpdateBlueprintDto>;
-  /** Обработчик отправки формы. */
-  onSubmit?: (values: ZCreateBlueprintDto | ZUpdateBlueprintDto) => void;
+  form: FormInstance;
   /** Флаг режима редактирования. */
   isEditMode?: boolean;
 };
@@ -22,25 +17,10 @@ export type PropsBlueprintForm = {
  * Форма создания и редактирования Blueprint.
  * Включает валидацию через Zod схемы и отображение ошибок валидации из API.
  */
-export const BlueprintForm: React.FC<PropsBlueprintForm> = ({
-  form,
-  initialValues,
-  onSubmit,
-  isEditMode = false,
-}) => {
-  useEffect(() => {
-    if (initialValues) {
-      form.setFieldsValue(initialValues);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialValues]);
-
-  const handleFinish = (values: ZCreateBlueprintDto | ZUpdateBlueprintDto) => {
-    onSubmit?.(values);
-  };
-
+export const BlueprintForm: React.FC<PropsBlueprintForm> = ({ form, isEditMode = false }) => {
+  const name = Form.useWatch('name', form);
   return (
-    <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={initialValues}>
+    <Form form={form} layout="vertical">
       <Form.Item
         label="Название"
         name="name"
@@ -56,7 +36,7 @@ export const BlueprintForm: React.FC<PropsBlueprintForm> = ({
         label="Код"
         name="code"
         rules={[
-          { required: !isEditMode, message: 'Код обязателен' },
+          { required: true, message: 'Код обязателен' },
           {
             validator: (_rule, value) => {
               if (!value) return Promise.resolve();
@@ -69,19 +49,7 @@ export const BlueprintForm: React.FC<PropsBlueprintForm> = ({
         ]}
         tooltip="Уникальный код Blueprint (URL-friendly строка). Только строчные буквы, цифры и подчёркивание."
       >
-        <Input
-          placeholder="article"
-          disabled={isEditMode}
-          style={{ fontFamily: 'monospace' }}
-          onChange={e => {
-            if (!isEditMode) {
-              const formatted = formatBlueprintCode(e.target.value);
-              if (formatted !== e.target.value) {
-                form.setFieldValue('code', formatted);
-              }
-            }
-          }}
-        />
+        <Input placeholder="Введите код Blueprint" disabled={isEditMode} />
       </Form.Item>
 
       <Form.Item

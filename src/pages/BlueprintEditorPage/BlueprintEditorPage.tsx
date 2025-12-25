@@ -1,113 +1,28 @@
-import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Button, Card, Form, message } from 'antd';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Save } from 'lucide-react';
-import { PageLayout } from '@/components/PageLayout';
-import { BlueprintForm } from '@/components/blueprints/BlueprintForm';
-import { BlueprintEditorStore } from '@/pages/BlueprintEditorPage/BlueprintEditorStore';
-import type { ZCreateBlueprintDto, ZUpdateBlueprintDto } from '@/types/blueprint';
 import type { ZId } from '@/types/ZId';
-import { buildUrl, PageUrl } from '@/PageUrl';
-import { onError } from '@/utils/onError';
-import { setFormValidationErrors } from '@/utils/blueprintFormErrors';
+import { observer } from 'mobx-react-lite';
+import { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { BlueprintEditorStore } from './BlueprintEditorStore';
+import { BlueprintEditorInner } from './BlueprintEditorInner';
+import { BlueprintEditorInnerNew } from './BlueprintEditorInnerNew';
+import { BlueprintStore } from './stores/BlueprintStore';
+import { PathStore } from './stores/PathStore';
+import { BlueprintEmbedStore } from './stores/BlueprintEmbedStore';
 
+const buildInner = (id: ZId) => {
+  if (id === 'new') return <BlueprintEditorInnerNew />;
+  const blueprintStore = new BlueprintStore(id);
+  const pathStore = new PathStore(id);
+  const embedStore = new BlueprintEmbedStore(id);
+  const editorStore = new BlueprintEditorStore(pathStore, embedStore, blueprintStore);
+  return <BlueprintEditorInner store={editorStore} />;
+};
 /**
  * Страница редактирования Blueprint.
  * Включает форму основной информации о Blueprint.
  */
 export const BlueprintEditorPage = observer(() => {
-  const { id } = useParams<{ id: string }>();
-  const [form] = Form.useForm<ZCreateBlueprintDto | ZUpdateBlueprintDto>();
-  const navigate = useNavigate();
-
-  const isEditMode = id !== 'new' && id !== undefined;
-  const blueprintId: ZId | null = isEditMode ? id : null;
-
-  const blueprintStore = useMemo(() => new BlueprintEditorStore(), []);
-
-  // Загрузка Blueprint при редактировании
-  useEffect(() => {
-    if (blueprintId) {
-      void blueprintStore.loadBlueprint(blueprintId);
-    }
-  }, [blueprintId, blueprintStore]);
-
-  // Синхронизация формы со стором
-  useEffect(() => {
-    if (blueprintStore.currentBlueprint) {
-      form.setFieldsValue({
-        name: blueprintStore.currentBlueprint.name,
-        code: blueprintStore.currentBlueprint.code,
-        description: blueprintStore.currentBlueprint.description ?? undefined,
-      });
-    }
-  }, [blueprintStore.currentBlueprint, form]);
-
-  /**
-   * Сохраняет Blueprint (создание или обновление).
-   */
-  const handleSave = useCallback(async () => {
-    try {
-      const values = await form.validateFields();
-      if (isEditMode && blueprintId) {
-        await blueprintStore.updateBlueprint(blueprintId, values as ZUpdateBlueprintDto);
-        message.success('Blueprint обновлён');
-      } else {
-        const newBlueprint = await blueprintStore.createBlueprint(values as ZCreateBlueprintDto);
-        if (newBlueprint) {
-          message.success('Blueprint создан');
-          navigate(buildUrl(PageUrl.BlueprintsEdit, { id: String(newBlueprint.id) }), {
-            replace: true,
-          });
-        }
-      }
-    } catch (error) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as Parameters<typeof setFormValidationErrors>[0];
-        if (!setFormValidationErrors(axiosError, form)) {
-          onError(error);
-        }
-      } else {
-        onError(error);
-      }
-    }
-  }, [form, isEditMode, blueprintId, blueprintStore, navigate]);
-
-  return (
-    <PageLayout
-      breadcrumbs={[
-        { label: 'Blueprint', onClick: () => navigate(PageUrl.Blueprints) },
-        isEditMode ? blueprintStore.currentBlueprint?.name || 'Редактирование' : 'Создание',
-      ]}
-      extra={
-        <>
-          {isEditMode && blueprintId && (
-            <Link to={buildUrl(PageUrl.BlueprintsSchema, { id: blueprintId })}>
-              <Button>Схема</Button>
-            </Link>
-          )}
-          <Button type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>
-            Сохранить
-          </Button>
-        </>
-      }
-    >
-      <Card className="mb-6">
-        <BlueprintForm
-          form={form}
-          initialValues={
-            blueprintStore.currentBlueprint
-              ? {
-                  name: blueprintStore.currentBlueprint.name,
-                  code: blueprintStore.currentBlueprint.code,
-                  description: blueprintStore.currentBlueprint.description ?? undefined,
-                }
-              : undefined
-          }
-          isEditMode={isEditMode}
-        />
-      </Card>
-    </PageLayout>
-  );
+  const { id: blueprintId = 'new' } = useParams<{ id: ZId }>();
+  const inner = useMemo(() => buildInner(blueprintId), [blueprintId]);
+  return inner;
 });

@@ -1,6 +1,6 @@
 import { BlueprintList } from '@/pages/BlueprintListPage/BlueprintList';
 import { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore';
-import { DeleteButton } from '@/pages/BlueprintListPage/DeleteButton';
+import { DeleteButton } from '@/components/DeleteButton';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { Button, Space } from 'antd';
 import { Plus } from 'lucide-react';

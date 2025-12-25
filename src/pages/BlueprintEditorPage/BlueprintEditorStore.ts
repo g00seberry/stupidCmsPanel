@@ -1,176 +1,100 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import type {
-  ZBlueprint,
-  ZCreateBlueprintDto,
-  ZUpdateBlueprintDto,
-  ZCanDeleteBlueprint,
-  ZBlueprintDependencies,
-  ZEmbeddableBlueprints,
-} from '@/types/blueprint';
+import { notificationService } from '@/services/notificationService';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
-import {
-  getBlueprint,
-  createBlueprint as createBlueprintApi,
-  updateBlueprint as updateBlueprintApi,
-  deleteBlueprint as deleteBlueprintApi,
-  canDeleteBlueprint as canDeleteBlueprintApi,
-  getBlueprintDependencies as getBlueprintDependenciesApi,
-  getEmbeddableBlueprints as getEmbeddableBlueprintsApi,
-} from '@/api/blueprintApi';
+import { makeAutoObservable } from 'mobx';
+import { BlueprintEmbedStore } from './stores/BlueprintEmbedStore';
+import { BlueprintStore } from './stores/BlueprintStore';
+import { PathStore } from './stores/PathStore';
 
-/**
- * Store для управления редактированием отдельного Blueprint.
- * Обеспечивает загрузку, создание, обновление и удаление Blueprint,
- * а также работу с зависимостями и встраиваниями.
- */
+export type ContextMenuPosition = { x: number; y: number };
+
+export type NodeMenuCtx = {
+  nodeId: ZId | null;
+  position: ContextMenuPosition | null;
+};
+
 export class BlueprintEditorStore {
-  /** Текущий редактируемый Blueprint с полной информацией. */
-  currentBlueprint: ZBlueprint | null = null;
+  modalMode: 'node' | 'embed' | 'ctx' | null = null;
 
-  /** Флаг выполнения запроса загрузки. */
-  pending = false;
-  /** Флаг выполнения запроса создания. */
-  creating = false;
-  /** Флаг выполнения запроса обновления. */
-  updating = false;
-  /** Флаг выполнения запроса удаления. */
-  deleting = false;
+  ctx: NodeMenuCtx = {
+    nodeId: null,
+    position: null,
+  };
 
-  constructor() {
+  constructor(
+    readonly pathStore: PathStore,
+    readonly embedStore: BlueprintEmbedStore,
+    readonly blueprintStore: BlueprintStore
+  ) {
+    this.init();
     makeAutoObservable(this);
   }
 
-  /**
-   * Загрузить Blueprint по ID.
-   * @param id Идентификатор Blueprint.
-   */
-  async loadBlueprint(id: ZId): Promise<void> {
-    this.pending = true;
+  private async init() {
     try {
-      const blueprint = await getBlueprint(id);
-      runInAction(() => {
-        this.currentBlueprint = blueprint;
+      await Promise.all([
+        this.blueprintStore.init(),
+        this.pathStore.init(),
+        this.embedStore.init(),
+      ]);
+    } catch (err) {
+      onError(err);
+    }
+  }
+  get paths() {
+    return this.pathStore.paths;
+  }
+
+  get pending() {
+    return this.pathStore.loading || this.embedStore.loading || this.blueprintStore.loading;
+  }
+
+  setCtx(ctx: NodeMenuCtx) {
+    this.ctx = ctx;
+  }
+
+  setModalMode(mode: 'node' | 'embed' | 'ctx' | null) {
+    this.modalMode = mode;
+  }
+
+  clearContext() {
+    this.setCtx({ nodeId: null, position: null });
+  }
+
+  closeModal() {
+    this.setModalMode(null);
+    this.clearContext();
+  }
+
+  async saveEmbed(values: { embedded_blueprint_id: ZId }) {
+    try {
+      const embedDto = {
+        embedded_blueprint_id: values.embedded_blueprint_id,
+        host_path_id: this.ctx.nodeId ?? undefined,
+      };
+      await this.embedStore.createEmbed(embedDto);
+      await this.init();
+      this.closeModal();
+      notificationService.showSuccess({
+        message: 'Blueprint встроен',
       });
     } catch (error) {
       onError(error);
-      runInAction(() => {
-        this.currentBlueprint = null;
-      });
-    } finally {
-      runInAction(() => {
-        this.pending = false;
-      });
     }
   }
 
-  /**
-   * Создать новый Blueprint.
-   * @param dto Данные для создания Blueprint.
-   * @returns Созданный Blueprint.
-   */
-  async createBlueprint(dto: ZCreateBlueprintDto): Promise<ZBlueprint> {
-    this.creating = true;
-    try {
-      const blueprint = await createBlueprintApi(dto);
-      runInAction(() => {
-        this.currentBlueprint = blueprint;
-      });
-      return blueprint;
-    } catch (error) {
-      onError(error);
-      throw error;
-    } finally {
-      runInAction(() => {
-        this.creating = false;
-      });
-    }
+  async savePathNode(values: ZUpdatePathDto) {
+    if (!this.ctx.nodeId) return;
+    await this.pathStore.updatePath(this.ctx.nodeId, values);
+    await this.pathStore.init();
   }
 
-  /**
-   * Обновить Blueprint.
-   * @param id Идентификатор Blueprint.
-   * @param dto Данные для обновления.
-   */
-  async updateBlueprint(id: ZId, dto: ZUpdateBlueprintDto): Promise<void> {
-    this.updating = true;
-    try {
-      const updated = await updateBlueprintApi(id, dto);
-      runInAction(() => {
-        this.currentBlueprint = updated;
-      });
-    } catch (error) {
-      onError(error);
-      throw error;
-    } finally {
-      runInAction(() => {
-        this.updating = false;
-      });
-    }
-  }
-
-  /**
-   * Удалить Blueprint.
-   * @param id Идентификатор Blueprint для удаления.
-   */
-  async deleteBlueprint(id: ZId): Promise<void> {
-    this.deleting = true;
-    try {
-      await deleteBlueprintApi(id);
-      runInAction(() => {
-        if (this.currentBlueprint?.id === id) {
-          this.currentBlueprint = null;
-        }
-      });
-    } catch (error) {
-      onError(error);
-      throw error;
-    } finally {
-      runInAction(() => {
-        this.deleting = false;
-      });
-    }
-  }
-
-  /**
-   * Проверить возможность удаления Blueprint.
-   * @param id Идентификатор Blueprint.
-   * @returns Результат проверки с флагом can_delete и списком причин.
-   */
-  async checkCanDelete(id: ZId): Promise<ZCanDeleteBlueprint> {
-    try {
-      return await canDeleteBlueprintApi(id);
-    } catch (error) {
-      onError(error);
-      throw error;
-    }
-  }
-
-  /**
-   * Получить граф зависимостей Blueprint.
-   * @param id Идентификатор Blueprint.
-   * @returns Граф зависимостей (depends_on и depended_by).
-   */
-  async loadDependencies(id: ZId): Promise<ZBlueprintDependencies> {
-    try {
-      return await getBlueprintDependenciesApi(id);
-    } catch (error) {
-      onError(error);
-      throw error;
-    }
-  }
-
-  /**
-   * Получить список Blueprint для безопасного встраивания.
-   * @param id Идентификатор Blueprint, в который планируется встраивание.
-   * @returns Список Blueprint, которые можно безопасно встроить.
-   */
-  async loadEmbeddable(id: ZId): Promise<ZEmbeddableBlueprints> {
-    try {
-      return await getEmbeddableBlueprintsApi(id);
-    } catch (error) {
-      onError(error);
-      throw error;
-    }
+  async createPathNode(values: ZCreatePathDto) {
+    const createDto = {
+      ...values,
+      parent_id: this.ctx.nodeId,
+    };
+    await this.pathStore.createPath(createDto);
   }
 }

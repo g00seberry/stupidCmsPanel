@@ -3,24 +3,22 @@ import type {
   LoaderParams,
   LoadPaginatedDataFn,
 } from '@/components/PaginatedTable/paginatedDataLoader';
-import {
-  zBlueprint,
-  zBlueprintListItem,
-  zCreateBlueprintDto,
-  zUpdateBlueprintDto,
-  zPaginatedResponse,
-  zCanDeleteBlueprint,
-  zBlueprintDependencies,
-  zEmbeddableBlueprints,
-} from '@/types/blueprint';
 import type {
   ZBlueprint,
   ZBlueprintListItem,
   ZCreateBlueprintDto,
   ZUpdateBlueprintDto,
 } from '@/types/blueprint';
-import { zBlueprintSchema } from '@/types/blueprintSchema';
+import {
+  zBlueprint,
+  zBlueprintListItem,
+  zCreateBlueprintDto,
+  zEmbeddableBlueprints,
+  zPaginatedResponse,
+  zUpdateBlueprintDto,
+} from '@/types/blueprint';
 import type { ZBlueprintSchema } from '@/types/blueprintSchema';
+import { zBlueprintSchema } from '@/types/blueprintSchema';
 import type { ZId } from '@/types/ZId';
 import { z } from 'zod';
 
@@ -125,37 +123,6 @@ export const updateBlueprint = async (id: ZId, dto: ZUpdateBlueprintDto): Promis
  */
 export const deleteBlueprint = async (id: ZId): Promise<void> => {
   await rest.delete(getAdminBlueprintsUrl(`/${id}`));
-};
-
-/**
- * Проверить возможность удаления Blueprint.
- * @param id Идентификатор Blueprint.
- * @returns Результат проверки с флагом can_delete и списком причин (если нельзя удалить).
- * @example
- * const check = await canDeleteBlueprint(1);
- * if (!check.can_delete) {
- *   console.log('Нельзя удалить:', check.reasons);
- * }
- */
-export const canDeleteBlueprint = async (id: ZId): Promise<z.infer<typeof zCanDeleteBlueprint>> => {
-  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/can-delete`));
-  return zCanDeleteBlueprint.parse(response.data);
-};
-
-/**
- * Получить граф зависимостей Blueprint.
- * @param id Идентификатор Blueprint.
- * @returns Граф зависимостей (depends_on и depended_by).
- * @example
- * const deps = await getBlueprintDependencies(1);
- * console.log('Зависит от:', deps.depends_on);
- * console.log('Зависят от него:', deps.depended_by);
- */
-export const getBlueprintDependencies = async (
-  id: ZId
-): Promise<z.infer<typeof zBlueprintDependencies>> => {
-  const response = await rest.get(getAdminBlueprintsUrl(`/${id}/dependencies`));
-  return zBlueprintDependencies.parse(response.data);
 };
 
 /**

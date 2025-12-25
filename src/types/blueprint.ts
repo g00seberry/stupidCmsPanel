@@ -165,54 +165,6 @@ const zBlueprintInfo = z.object({
 });
 
 /**
- * Схема валидации графа зависимостей Blueprint.
- * Показывает, от каких Blueprint зависит текущий и какие Blueprint зависят от текущего.
- * @example
- * const dependencies: ZBlueprintDependencies = {
- *   depends_on: [
- *     { id: 2, code: 'address', name: 'Address' }
- *   ],
- *   depended_by: [
- *     { id: 3, code: 'company', name: 'Company' }
- *   ]
- * };
- */
-export const zBlueprintDependencies = z.object({
-  /** Список Blueprint, от которых зависит текущий Blueprint. */
-  depends_on: z.array(zBlueprintInfo),
-  /** Список Blueprint, которые зависят от текущего Blueprint. */
-  depended_by: z.array(zBlueprintInfo),
-});
-
-/**
- * Тип данных графа зависимостей Blueprint.
- */
-export type ZBlueprintDependencies = z.infer<typeof zBlueprintDependencies>;
-
-/**
- * Схема валидации результата проверки возможности удаления Blueprint.
- * @example
- * const canDelete: ZCanDeleteBlueprint = {
- *   can_delete: false,
- *   reasons: [
- *     'Blueprint используется в 3 типах контента',
- *     'Blueprint встроен в другие Blueprint'
- *   ]
- * };
- */
-export const zCanDeleteBlueprint = z.object({
-  /** Флаг возможности удаления Blueprint. */
-  can_delete: z.boolean(),
-  /** Список причин, по которым нельзя удалить Blueprint (если can_delete = false). */
-  reasons: z.array(z.string()),
-});
-
-/**
- * Тип данных результата проверки возможности удаления Blueprint.
- */
-export type ZCanDeleteBlueprint = z.infer<typeof zCanDeleteBlueprint>;
-
-/**
  * Схема валидации списка Blueprint, доступных для встраивания.
  * @example
  * const embeddable: ZEmbeddableBlueprints = {
