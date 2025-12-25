@@ -11,6 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BlueprintEditorStore } from './BlueprintEditorStore';
+import { BlueprintPathsPanel } from './components/BlueprintPathsPanel';
 
 type Props = {
   store: BlueprintEditorStore;
@@ -70,6 +71,7 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
       }
     >
       <BlueprintForm form={form} isEditMode={true} />
+      <BlueprintPathsPanel paths={store.paths} pending={store.pending} />
     </PageLayout>
   );
 });
