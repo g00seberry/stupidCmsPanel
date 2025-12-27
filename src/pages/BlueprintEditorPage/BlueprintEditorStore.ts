@@ -3,31 +3,22 @@ import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
+import type { PathContextMenuContext } from './components/PathContextMenu';
 import { BlueprintEmbedStore } from './stores/BlueprintEmbedStore';
 import { BlueprintStore } from './stores/BlueprintStore';
 import { PathStore } from './stores/PathStore';
 
-export type ContextMenuPosition = { x: number; y: number };
-
-export type NodeMenuCtx = {
-  nodeId: ZId | null;
-  position: ContextMenuPosition | null;
-};
+export type EditCtx = { type: 'edit'; nodeId: ZId } | { type: 'create'; parentNodeId: ZId | null };
 
 export class BlueprintEditorStore {
-  modalMode: 'node' | 'embed' | 'ctx' | null = null;
-
-  ctx: NodeMenuCtx = {
-    nodeId: null,
-    position: null,
-  };
+  menuContext: PathContextMenuContext = null;
+  editContext: EditCtx | null = null;
 
   constructor(
     readonly pathStore: PathStore,
     readonly embedStore: BlueprintEmbedStore,
     readonly blueprintStore: BlueprintStore
   ) {
-    this.init();
     makeAutoObservable(this);
   }
 
@@ -42,6 +33,7 @@ export class BlueprintEditorStore {
       onError(err);
     }
   }
+
   get paths() {
     return this.pathStore.paths;
   }
@@ -50,32 +42,40 @@ export class BlueprintEditorStore {
     return this.pathStore.loading || this.embedStore.loading || this.blueprintStore.loading;
   }
 
-  setCtx(ctx: NodeMenuCtx) {
-    this.ctx = ctx;
+  openNodeContextMenu(pathId: string, position: { x: number; y: number }) {
+    this.menuContext = { type: 'node', pathId, position };
   }
 
-  setModalMode(mode: 'node' | 'embed' | 'ctx' | null) {
-    this.modalMode = mode;
+  openPaneContextMenu(position: { x: number; y: number }) {
+    this.menuContext = { type: 'pane', position };
   }
 
-  clearContext() {
-    this.setCtx({ nodeId: null, position: null });
+  closeContextMenu() {
+    this.menuContext = null;
   }
 
-  closeModal() {
-    this.setModalMode(null);
-    this.clearContext();
+  openNodeEdit(nodeId: ZId) {
+    this.editContext = { nodeId, type: 'edit' };
+  }
+
+  openNodeCreate(parentNodeId: ZId | null) {
+    this.editContext = { parentNodeId, type: 'create' };
+  }
+
+  closeEditorWindow() {
+    this.editContext = null;
   }
 
   async saveEmbed(values: { embedded_blueprint_id: ZId }) {
     try {
+      const hostPathId = this.menuContext?.type === 'node' ? this.menuContext.pathId : undefined;
       const embedDto = {
         embedded_blueprint_id: values.embedded_blueprint_id,
-        host_path_id: this.ctx.nodeId ?? undefined,
+        host_path_id: hostPathId,
       };
       await this.embedStore.createEmbed(embedDto);
       await this.init();
-      this.closeModal();
+      this.closeEditorWindow();
       notificationService.showSuccess({
         message: 'Blueprint встроен',
       });
@@ -85,16 +85,16 @@ export class BlueprintEditorStore {
   }
 
   async savePathNode(values: ZUpdatePathDto) {
-    if (!this.ctx.nodeId) return;
-    await this.pathStore.updatePath(this.ctx.nodeId, values);
+    if (this.editContext?.type !== 'edit') return;
+    await this.pathStore.updatePath(this.editContext.nodeId, values);
     await this.pathStore.init();
   }
 
   async createPathNode(values: ZCreatePathDto) {
-    const createDto = {
+    if (this.editContext?.type !== 'create') return;
+    await this.pathStore.createPath({
       ...values,
-      parent_id: this.ctx.nodeId,
-    };
-    await this.pathStore.createPath(createDto);
+      parent_id: this.editContext.parentNodeId,
+    });
   }
 }

@@ -12,6 +12,8 @@ import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BlueprintEditorStore } from './BlueprintEditorStore';
 import { BlueprintPathsPanel } from './components/BlueprintPathsPanel';
+import { NodeEditorDrawer } from './components/NodeEditorDrawer';
+import { PathContextMenuContainer } from './components/PathContextMenuContainer';
 
 type Props = {
   store: BlueprintEditorStore;
@@ -24,6 +26,7 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
   } = store;
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [pathForm] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue(blueprintStore.currentBlueprint);
@@ -49,6 +52,38 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
     }
   }, [blueprintStore, form]);
 
+  // === Обработчики контекстного меню ===
+  const handleNodeContextMenu = useCallback(
+    (pathId: string, event: React.MouseEvent) => {
+      store.openNodeContextMenu(pathId, { x: event.clientX, y: event.clientY });
+    },
+    [store]
+  );
+
+  const handlePaneContextMenu = useCallback(
+    (event: React.MouseEvent) => {
+      store.openPaneContextMenu({ x: event.clientX, y: event.clientY });
+    },
+    [store]
+  );
+
+  const handleNodeCancel = useCallback(() => {
+    store.closeEditorWindow();
+  }, [store]);
+
+  const handleNodeSave = useCallback(
+    async (values: unknown) => {
+      if (store.editContext?.type === 'edit') {
+        await store.savePathNode(values as Parameters<typeof store.savePathNode>[0]);
+      } else if (store.editContext?.type === 'create') {
+        await store.createPathNode(values as Parameters<typeof store.createPathNode>[0]);
+      }
+      await store.pathStore.init();
+      store.closeEditorWindow();
+    },
+    [store]
+  );
+
   return (
     <PageLayout
       breadcrumbs={[
@@ -71,7 +106,22 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
       }
     >
       <BlueprintForm form={form} isEditMode={true} />
-      <BlueprintPathsPanel paths={store.paths} pending={store.pending} />
+      <BlueprintPathsPanel
+        paths={store.paths}
+        pending={store.pending}
+        onNodeContextMenu={handleNodeContextMenu}
+        onPaneContextMenu={handlePaneContextMenu}
+      />
+      <PathContextMenuContainer store={store} />
+      {store.editContext && (
+        <NodeEditorDrawer
+          editContext={store.editContext}
+          pathForm={pathForm}
+          paths={store.pathStore.paths}
+          onCancel={handleNodeCancel}
+          onSave={handleNodeSave}
+        />
+      )}
     </PageLayout>
   );
 });

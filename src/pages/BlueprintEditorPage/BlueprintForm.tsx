@@ -1,7 +1,6 @@
 import { validateBlueprintCode } from '@/utils/blueprintValidation';
 import { Form, Input } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import { SlugInput } from '../../components/SlugInput';
 
 /**
  * Пропсы компонента формы Blueprint.
@@ -18,7 +17,6 @@ export type PropsBlueprintForm = {
  * Включает валидацию через Zod схемы и отображение ошибок валидации из API.
  */
 export const BlueprintForm: React.FC<PropsBlueprintForm> = ({ form, isEditMode = false }) => {
-  const name = Form.useWatch('name', form);
   return (
     <Form form={form} layout="vertical">
       <Form.Item

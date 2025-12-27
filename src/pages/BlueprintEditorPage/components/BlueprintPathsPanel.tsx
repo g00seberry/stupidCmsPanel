@@ -33,6 +33,9 @@ export type PropsBlueprintPathsPanel = {
   draggable?: boolean;
   showMiniMap?: boolean;
   showControls?: boolean;
+  onNodeClick?: (pathId: string) => void;
+  onNodeContextMenu?: (pathId: string, event: React.MouseEvent) => void;
+  onPaneContextMenu?: (event: React.MouseEvent) => void;
 };
 
 type RFNode = Node<FlowNode['data']>;
@@ -68,6 +71,9 @@ export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
   draggable = true,
   showMiniMap = true,
   showControls = true,
+  onNodeClick,
+  onNodeContextMenu,
+  onPaneContextMenu,
 }) => {
   const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
   const [nodes, setNodes] = useState<RFNode[]>([]);
@@ -153,6 +159,15 @@ export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
             nodeTypes={nodeTypes}
             onNodesChange={changes => setNodes(prev => applyNodeChanges(changes, prev))}
             onEdgesChange={changes => setEdges(prev => applyEdgeChanges(changes, prev))}
+            onNodeClick={(_, node) => onNodeClick?.(node.id)}
+            onNodeContextMenu={(event, node) => {
+              event.preventDefault();
+              onNodeContextMenu?.(node.id, event);
+            }}
+            onPaneContextMenu={event => {
+              event.preventDefault();
+              onPaneContextMenu?.(event);
+            }}
             onInit={instance => {
               reactFlowInstanceRef.current = instance;
             }}
