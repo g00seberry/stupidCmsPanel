@@ -56,7 +56,7 @@ export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
       <Form.Item
         label="Тип данных"
         name="data_type"
-        rules={[{ required: true, message: 'Выберите тип данных' }]}
+        rules={isNew ? [{ required: true, message: 'Выберите тип данных' }] : []}
       >
         <Select
           placeholder="Выберите тип данных"
@@ -75,7 +75,7 @@ export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
         })}
         tooltip="Включите, если поле должно содержать массив значений, а не одно значение."
       >
-        <Switch disabled={isReadonly} checkedChildren="Да" unCheckedChildren="Нет" />
+        <Switch disabled={isReadonly || !isNew} checkedChildren="Да" unCheckedChildren="Нет" />
       </Form.Item>
 
       {dataType && dataType !== 'json' && (

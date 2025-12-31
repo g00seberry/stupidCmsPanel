@@ -1,5 +1,10 @@
 import { notificationService } from '@/services/notificationService';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import {
+  zCreatePathDto,
+  zUpdatePathDto,
+  type ZCreatePathDto,
+  type ZUpdatePathDto,
+} from '@/types/path';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';
@@ -85,16 +90,24 @@ export class BlueprintEditorStore {
   }
 
   async savePathNode(values: ZUpdatePathDto) {
-    if (this.editContext?.type !== 'edit') return;
-    await this.pathStore.updatePath(this.editContext.nodeId, values);
-    await this.pathStore.init();
+    try {
+      if (this.editContext?.type !== 'edit') return;
+      const safeVals = zUpdatePathDto.parse(values);
+      await this.pathStore.updatePath(this.editContext.nodeId, safeVals);
+      this.pathStore.init();
+    } catch (error) {}
   }
 
   async createPathNode(values: ZCreatePathDto) {
-    if (this.editContext?.type !== 'create') return;
-    await this.pathStore.createPath({
-      ...values,
-      parent_id: this.editContext.parentNodeId,
-    });
+    try {
+      if (this.editContext?.type !== 'create') return;
+      const safeVals = zCreatePathDto.parse(values);
+      await this.pathStore.createPath({
+        ...safeVals,
+        parent_id: this.editContext.parentNodeId,
+      });
+    } catch (error) {
+      onError(error);
+    }
   }
 }

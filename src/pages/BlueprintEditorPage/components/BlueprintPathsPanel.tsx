@@ -27,7 +27,6 @@ const nodeTypes = {
 export type PropsBlueprintPathsPanel = {
   paths: ZPath[];
   pending?: boolean;
-  title?: string;
   height?: number;
   direction?: 'TB' | 'LR';
   draggable?: boolean;
@@ -65,7 +64,6 @@ const toReactFlowGraph = (graph: {
 export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
   paths,
   pending = false,
-  title = 'Paths',
   height = 600,
   direction = 'TB',
   draggable = true,
@@ -128,7 +126,7 @@ export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
 
   return (
     <Card
-      title={title}
+      title={'Управление структурой данных'}
       className="mt-4 lg:mt-0"
       styles={{
         header: { borderBottom: '1px solid #f0f0f0' },

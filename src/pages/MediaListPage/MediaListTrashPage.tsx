@@ -153,7 +153,13 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
         loading={store.tableStore.loader.pending}
         initialLoading={store.tableStore.loader.initialLoading}
         selectable
-        selectedIds={new Set(Array.from(store.tableStore.selectedRowKeys).filter((id): id is string => typeof id === 'string'))}
+        selectedIds={
+          new Set(
+            Array.from(store.tableStore.selectedRowKeys).filter(
+              (id): id is string => typeof id === 'string'
+            )
+          )
+        }
         onSelectChange={handleSelectChange}
         onCardClick={handleCardClick}
         onRestore={handleRestore}

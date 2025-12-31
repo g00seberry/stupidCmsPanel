@@ -14,6 +14,7 @@ import { BlueprintEditorStore } from './BlueprintEditorStore';
 import { BlueprintPathsPanel } from './components/BlueprintPathsPanel';
 import { NodeEditorDrawer } from './components/NodeEditorDrawer';
 import { PathContextMenuContainer } from './components/PathContextMenuContainer';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
 
 type Props = {
   store: BlueprintEditorStore;
@@ -72,11 +73,11 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
   }, [store]);
 
   const handleNodeSave = useCallback(
-    async (values: unknown) => {
+    async (values: ZCreatePathDto | ZUpdatePathDto) => {
       if (store.editContext?.type === 'edit') {
-        await store.savePathNode(values as Parameters<typeof store.savePathNode>[0]);
+        await store.savePathNode(values as ZUpdatePathDto);
       } else if (store.editContext?.type === 'create') {
-        await store.createPathNode(values as Parameters<typeof store.createPathNode>[0]);
+        await store.createPathNode(values as ZCreatePathDto);
       }
       await store.pathStore.init();
       store.closeEditorWindow();
@@ -104,6 +105,7 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
           </Button>
         </>
       }
+      loading={blueprintStore.loading}
     >
       <BlueprintForm form={form} isEditMode={true} />
       <BlueprintPathsPanel
@@ -115,6 +117,7 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
       <PathContextMenuContainer store={store} />
       {store.editContext && (
         <NodeEditorDrawer
+          loading={store.pending}
           editContext={store.editContext}
           pathForm={pathForm}
           paths={store.pathStore.paths}

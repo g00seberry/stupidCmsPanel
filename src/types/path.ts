@@ -314,7 +314,7 @@ export type ZCreatePathDto = z.infer<typeof zCreatePathDto>;
  *   validation_rules: { required: true }
  * };
  */
-export const zUpdatePathDto = zCreatePathDto.partial();
+export const zUpdatePathDto = zCreatePathDto.partial().omit({ data_type: true });
 
 /**
  * Тип данных для обновления поля Path.

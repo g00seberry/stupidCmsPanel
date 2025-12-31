@@ -1,8 +1,8 @@
-import { Button, Drawer, Space, type FormInstance } from 'antd';
+import { Button, Drawer, Space, Spin, type FormInstance } from 'antd';
 import { useEffect, useMemo } from 'react';
 import type React from 'react';
 import type { EditCtx } from '../BlueprintEditorStore';
-import type { ZPath } from '@/types/path';
+import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path';
 import { findPathInTree } from '@/utils/pathUtils';
 import { NodeForm } from './NodeForm/NodeForm';
 
@@ -10,8 +10,9 @@ type NodeEditorDrawerProps = {
   editContext: EditCtx;
   pathForm: FormInstance;
   paths: ZPath[];
+  loading?: boolean;
   onCancel: () => void;
-  onSave: (values: unknown) => void | Promise<void>;
+  onSave: (values: ZCreatePathDto | ZUpdatePathDto) => void | Promise<void>;
 };
 
 const DrawerActions: React.FC<{
@@ -33,6 +34,7 @@ export const NodeEditorDrawer: React.FC<NodeEditorDrawerProps> = ({
   editContext,
   pathForm,
   paths,
+  loading,
   onCancel,
   onSave,
 }) => {
@@ -85,7 +87,7 @@ export const NodeEditorDrawer: React.FC<NodeEditorDrawerProps> = ({
     <Drawer
       open
       onClose={onCancel}
-      width="80%"
+      width="40%"
       title={title}
       extra={
         <DrawerActions
@@ -95,7 +97,9 @@ export const NodeEditorDrawer: React.FC<NodeEditorDrawerProps> = ({
         />
       }
     >
-      <NodeForm form={pathForm} path={path || undefined} />
+      <Spin spinning={loading}>
+        <NodeForm form={pathForm} path={path || undefined} />
+      </Spin>
     </Drawer>
   );
 };
