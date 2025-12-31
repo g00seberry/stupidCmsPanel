@@ -1,16 +1,12 @@
 import type { ZDataType } from '@/types/path/path';
-import {
-  zPatMediaConstraints,
-  zPatRefConstraints,
-  type ZPathConstraintDescriptior,
-} from '@/types/path/pathConstraints';
+import { type ZPathConstraints } from '@/types/path/pathConstraints';
 import { MediaConstraintsForm } from './MediaConstraintsForm';
 import { MediaConstraintsStore } from './MediaConstraintsStore';
 import { RefConstraintsForm } from './RefConstraintsForm';
 import { RefConstraintsStore } from './RefConstraintsStore';
 
 type ConstraintsFormProps = {
-  value?: ZPathConstraintDescriptior | null;
+  value?: ZPathConstraints | null;
   dataType?: ZDataType;
   disabled?: boolean;
 };

@@ -4,9 +4,8 @@ import { Checkbox, Form, Input, Select, Switch, type FormInstance } from 'antd';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import { useEffect } from 'react';
-import { ValidationEditor } from './ValidationEditor';
-import { zPathConstraintDescriptior } from '@/types/path/pathConstraints';
 import { ConstraintsForm } from './components/constraints/ConstraintsForm';
+import { ValidationEditor } from './ValidationEditor';
 
 const validateName = (_rule: unknown, value: string) => {
   if (!value) return Promise.resolve();

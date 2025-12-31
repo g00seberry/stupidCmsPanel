@@ -17,10 +17,3 @@ export const zPatMediaConstraintDescriptior = z.object({
 
 export const zPathConstraints = z.union([zPatRefConstraints, zPatMediaConstraints]);
 export type ZPathConstraints = z.infer<typeof zPathConstraints>;
-
-export const zPathConstraintDescriptior = z.discriminatedUnion('data_type', [
-  zPatRefConstraintDescriptior,
-  zPatMediaConstraintDescriptior,
-]);
-
-export type ZPathConstraintDescriptior = z.infer<typeof zPathConstraintDescriptior>;
