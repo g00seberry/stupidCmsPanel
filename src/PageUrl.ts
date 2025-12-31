@@ -22,7 +22,6 @@ export const PageUrl = {
   EntryEdit: '/entries/:postTypeId/:id',
   Blueprints: '/blueprints',
   BlueprintsEdit: '/blueprints/:id',
-  BlueprintsSchema: '/blueprints/:id/schema',
   Routes: '/routes',
   RouteNew: '/routes/new',
   RouteEdit: '/routes/:id',

@@ -12,7 +12,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ZPath } from '@/types/path/path';
-import { GraphControls } from '@/components/paths/GraphControls';
+import { GraphControls } from '@/pages/BlueprintEditorPage/GraphControls';
 import { applyDagreLayout, pathTreeToGraph, type FlowEdge, type FlowNode } from './pathToGraph';
 import { EmbeddedBlueprintNode } from './nodes/EmbeddedBlueprintNode';
 import { JsonGroupNode } from './nodes/JsonGroupNode';
