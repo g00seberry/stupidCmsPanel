@@ -1,18 +1,26 @@
 import z from 'zod';
 import { zId } from '../ZId';
 
-export const zPatRefConstraint = z.object({
-  type: z.literal('ref'),
-  constraints: z.object({ allowed_post_type_ids: zId.array() }),
+export const zPatRefConstraints = z.object({ allowed_post_type_ids: zId.array() });
+export type ZPatRefConstraints = z.infer<typeof zPatRefConstraints>;
+export const zPatMediaConstraints = z.object({ allowed_mimes: z.string().array() });
+export type ZPatMediaConstraints = z.infer<typeof zPatMediaConstraints>;
+
+export const zPatRefConstraintDescriptior = z.object({
+  data_type: z.literal('ref'),
+  constraints: zPatRefConstraints,
 });
-export const zPatMediaConstraint = z.object({
-  type: z.literal('media'),
-  constraints: z.object({ allowed_mimes: z.string().array() }),
+export const zPatMediaConstraintDescriptior = z.object({
+  data_type: z.literal('media'),
+  constraints: zPatMediaConstraints,
 });
 
-export const zPathConstraint = z.discriminatedUnion('type', [
-  zPatRefConstraint,
-  zPatMediaConstraint,
+export const zPathConstraints = z.union([zPatRefConstraints, zPatMediaConstraints]);
+export type ZPathConstraints = z.infer<typeof zPathConstraints>;
+
+export const zPathConstraintDescriptior = z.discriminatedUnion('data_type', [
+  zPatRefConstraintDescriptior,
+  zPatMediaConstraintDescriptior,
 ]);
 
-export type ZPathConstraint = z.infer<typeof zPathConstraint>;
+export type ZPathConstraintDescriptior = z.infer<typeof zPathConstraintDescriptior>;

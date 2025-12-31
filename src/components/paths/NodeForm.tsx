@@ -20,6 +20,7 @@ const DATA_TYPE_LABELS: Record<ZDataType, string> = {
   datetime: 'Дата и время',
   json: 'JSON-объект',
   ref: 'Ссылка',
+  media: 'Медиа файл',
 };
 
 const CARDINALITY_OPTIONS = [

@@ -1,24 +1,38 @@
 import { z } from 'zod';
 import { zId } from '../ZId';
 import { zValidationRules } from './pathValidationRules';
+import { zPathConstraints } from './pathConstraints';
 
 // ============================================================================
 // Константы и базовые типы данных
 // ============================================================================
 
+export enum DataTypesEnum {
+  string = 'string',
+  text = 'text',
+  int = 'int',
+  float = 'float',
+  bool = 'bool',
+  datetime = 'datetime',
+  json = 'json',
+  ref = 'ref',
+  media = 'media',
+}
+
 /**
- * Допустимые типы данных для полей Path.
+ * Допустимые типы данных для полей Path (массив значений enum для zod).
  */
-export const DATA_TYPES = [
-  'string',
-  'text',
-  'int',
-  'float',
-  'bool',
-  'datetime',
-  'json',
-  'ref',
-] as const;
+const DataTypes = [
+  DataTypesEnum.string,
+  DataTypesEnum.text,
+  DataTypesEnum.int,
+  DataTypesEnum.float,
+  DataTypesEnum.bool,
+  DataTypesEnum.datetime,
+  DataTypesEnum.json,
+  DataTypesEnum.ref,
+  DataTypesEnum.media,
+];
 
 /**
  * Схема валидации типа данных поля Path.
@@ -26,7 +40,7 @@ export const DATA_TYPES = [
  * @example
  * const dataType: ZDataType = 'string';
  */
-export const zDataType = z.enum(DATA_TYPES);
+export const zDataType = z.enum(DataTypes);
 
 /**
  * Тип данных поля Path.
@@ -129,6 +143,7 @@ export const zPathBase = z.object({
   created_at: z.string(),
   /** Дата последнего обновления в формате ISO 8601. */
   updated_at: z.string(),
+  constraints: zPathConstraints.nullish(),
 });
 
 /**

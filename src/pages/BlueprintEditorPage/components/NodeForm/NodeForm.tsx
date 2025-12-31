@@ -5,6 +5,8 @@ import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import { useEffect } from 'react';
 import { ValidationEditor } from './ValidationEditor';
+import { zPathConstraintDescriptior } from '@/types/path/pathConstraints';
+import { ConstraintsForm } from './components/constraints/ConstraintsForm';
 
 const validateName = (_rule: unknown, value: string) => {
   if (!value) return Promise.resolve();
@@ -23,6 +25,7 @@ const DATA_TYPE_LABELS: Record<ZDataType, string> = {
   datetime: 'Дата и время',
   json: 'JSON-объект',
   ref: 'Ссылка на entry',
+  media: 'Медиа файл',
 };
 
 const dataTypeOptions = zDataType.options.map(type => ({
@@ -37,7 +40,6 @@ export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
   const dataType = path?.data_type;
   const isNew = !path;
 
-  // Инициализация формы из path
   useEffect(() => {
     form.setFieldsValue(path);
   }, [path, form]);
@@ -64,6 +66,8 @@ export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
           disabled={isReadonly || !isNew}
         />
       </Form.Item>
+
+      <ConstraintsForm dataType={dataType} />
 
       <Form.Item
         label="Массив"

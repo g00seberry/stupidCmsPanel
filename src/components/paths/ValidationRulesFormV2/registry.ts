@@ -1,4 +1,4 @@
-import type { ZDataType, ZCardinality } from '@/types/path/path';
+import { type ZDataType, type ZCardinality, DataTypesEnum } from '@/types/path/path';
 import type { RuleKey, RuleConfig, RuleCategory } from './types';
 import { RequiredRuleRenderer } from './renderers/basic/RequiredRuleRenderer';
 import { MinMaxRuleRenderer } from './renderers/basic/MinMaxRuleRenderer';
@@ -27,7 +27,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Минимальное значение/длина',
       description: 'Минимальное значение для чисел или минимальная длина для строк',
       category: 'basic',
-      dataTypes: ['string', 'text', 'int', 'float'],
+      dataTypes: [DataTypesEnum.string, DataTypesEnum.text, DataTypesEnum.int, DataTypesEnum.float],
     },
     renderer: MinMaxRuleRenderer,
   },
@@ -37,7 +37,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Максимальное значение/длина',
       description: 'Максимальное значение для чисел или максимальная длина для строк',
       category: 'basic',
-      dataTypes: ['string', 'text', 'int', 'float'],
+      dataTypes: [DataTypesEnum.string, DataTypesEnum.text, DataTypesEnum.int, DataTypesEnum.float],
     },
     renderer: MinMaxRuleRenderer,
   },
@@ -47,7 +47,7 @@ export const validationRuleRegistry: Record<RuleKey, RuleConfig> = {
       label: 'Регулярное выражение',
       description: 'Регулярное выражение для валидации строки',
       category: 'basic',
-      dataTypes: ['string', 'text'],
+      dataTypes: [DataTypesEnum.string, DataTypesEnum.text],
     },
     renderer: PatternRuleRenderer,
   },
