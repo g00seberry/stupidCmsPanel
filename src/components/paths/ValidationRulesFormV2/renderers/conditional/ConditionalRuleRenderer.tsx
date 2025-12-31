@@ -1,7 +1,7 @@
 import { Form, Input, Select, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import type { ZConditionalRule } from '@/types/path';
+import type { ZConditionalRule } from '@/types/path/pathValidationRules';
 import type { RuleRendererProps } from '../../types';
 
 /**

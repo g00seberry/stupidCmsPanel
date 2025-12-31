@@ -1,4 +1,4 @@
-import type { ZConditionalRule, ZFieldComparisonRule } from '@/types/path';
+import type { ZConditionalRule, ZFieldComparisonRule } from '@/types/path/pathValidationRules';
 
 export type PathValidationRule =
   | { type: 'required'; value: boolean }

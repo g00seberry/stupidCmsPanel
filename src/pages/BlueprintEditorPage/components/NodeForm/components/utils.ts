@@ -1,4 +1,4 @@
-import type { ZValidationRules } from '@/types/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import type { PathValidationRule } from './types';
 
 export const listValidationRules = (value: ZValidationRules): PathValidationRule[] => {
@@ -6,4 +6,3 @@ export const listValidationRules = (value: ZValidationRules): PathValidationRule
     .filter(([, val]) => val !== undefined)
     .map(([type, val]) => ({ type, value: val }) as PathValidationRule);
 };
-

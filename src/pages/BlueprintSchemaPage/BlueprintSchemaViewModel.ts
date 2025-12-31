@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path/path';
 import type { ZId } from '@/types/ZId';
 import { buildPathWayToRoot, findPathInTree } from '@/utils/pathUtils';
 import { PathStore } from './PathStore';

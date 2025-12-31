@@ -4,7 +4,7 @@ import {
   zUpdatePathDto,
   type ZCreatePathDto,
   type ZUpdatePathDto,
-} from '@/types/path';
+} from '@/types/path/path';
 import type { ZId } from '@/types/ZId';
 import { onError } from '@/utils/onError';
 import { makeAutoObservable } from 'mobx';

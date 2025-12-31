@@ -1,5 +1,5 @@
 import type { RuleKey } from '../types';
-import type { ZValidationRules } from '@/types/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 
 /**
  * Маппинг значений по умолчанию для правил валидации.

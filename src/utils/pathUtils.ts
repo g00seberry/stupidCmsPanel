@@ -1,4 +1,4 @@
-import type { ZPath } from '@/types/path';
+import type { ZPath } from '@/types/path/path';
 import type { ZId } from '@/types/ZId';
 
 /**

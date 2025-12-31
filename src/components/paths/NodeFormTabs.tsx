@@ -9,7 +9,7 @@ import type {
   ZPath,
   ZSourceBlueprint,
   ZUpdatePathDto,
-} from '@/types/path';
+} from '@/types/path/path';
 import { Button, Form, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';

@@ -1,4 +1,5 @@
-import type { ZDataType, ZCardinality, ZValidationRules } from '@/types/path';
+import type { ZDataType, ZCardinality } from '@/types/path/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import type { ReactNode } from 'react';
 import type { ValidationRulesStore } from './ValidationRulesStore';
 

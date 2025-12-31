@@ -8,7 +8,7 @@ import { BlueprintSchemaViewModel } from '@/pages/BlueprintSchemaPage/BlueprintS
 import { EmbedForm } from '@/pages/BlueprintSchemaPage/EmbedForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZId } from '@/types/ZId';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path/path';
 import { onError } from '@/utils/onError';
 import { App, Card, Drawer, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';

@@ -1,6 +1,6 @@
 import { rest } from '@/api/rest';
-import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path';
-import { zPathResponse, zPathsResponse } from '@/types/path';
+import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path/path';
+import { zPathResponse, zPathsResponse } from '@/types/path/path';
 import type { ZId } from '@/types/ZId';
 
 const getAdminPathsUrl = (path: string): string => `/api/v1/admin/paths${path}`;

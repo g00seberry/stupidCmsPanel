@@ -3,7 +3,7 @@ import type { FormInstance } from 'antd/es/form';
 import type { BlueprintEmbedStore } from '@/pages/BlueprintSchemaPage/BlueprintEmbedStore';
 import type { PathStore } from '@/pages/BlueprintSchemaPage/PathStore';
 import type { ZId } from '@/types/ZId';
-import type { ZPath } from '@/types/path';
+import type { ZPath } from '@/types/path/path';
 import { useMemo, useCallback } from 'react';
 import { canEmbedInPath } from '@/utils/blueprintValidation';
 

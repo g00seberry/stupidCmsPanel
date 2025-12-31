@@ -1,11 +1,6 @@
 import { z } from 'zod';
-import {
-  zCardinality,
-  zDataType,
-  type ZCardinality,
-  type ZDataType,
-  zValidationRules,
-} from './path';
+import { zCardinality, zDataType, type ZCardinality, type ZDataType } from './path/path';
+import { zValidationRules } from './path/pathValidationRules';
 
 // Локальные типы для старого формата правил валидации (используются только в blueprintSchema)
 const zValidationRuleMinMax = z.object({

@@ -1,4 +1,4 @@
-import type { ZValidationRules } from '@/types/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { Button, List, Modal, Space } from 'antd';

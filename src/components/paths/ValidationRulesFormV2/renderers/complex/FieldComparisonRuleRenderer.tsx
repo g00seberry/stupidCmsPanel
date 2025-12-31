@@ -1,7 +1,7 @@
 import { Form, Input, Radio, Select, Space } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import type { ZFieldComparisonRule } from '@/types/path';
+import type { ZFieldComparisonRule } from '@/types/path/pathValidationRules';
 import type { RuleRendererProps } from '../../types';
 
 /**

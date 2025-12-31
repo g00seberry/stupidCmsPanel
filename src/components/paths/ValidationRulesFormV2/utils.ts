@@ -1,5 +1,5 @@
 import type { FormInstance } from 'antd/es/form';
-import type { ZValidationRules } from '@/types/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import type { RuleCategory, RuleKey } from './types';
 
 /**

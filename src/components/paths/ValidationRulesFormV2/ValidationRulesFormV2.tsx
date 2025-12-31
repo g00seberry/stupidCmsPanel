@@ -1,4 +1,4 @@
-import type { ZCardinality, ZDataType } from '@/types/path';
+import type { ZCardinality, ZDataType } from '@/types/path/path';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { observer } from 'mobx-react-lite';

@@ -1,4 +1,4 @@
-import { zDataType, type ZDataType, type ZPath } from '@/types/path';
+import { zDataType, type ZDataType, type ZPath } from '@/types/path/path';
 import { validateFieldName } from '@/utils/blueprintValidation';
 import { Checkbox, Form, Input, Select, Switch, type FormInstance } from 'antd';
 import { observer } from 'mobx-react-lite';

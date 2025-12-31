@@ -1,4 +1,4 @@
-import type { ZDataType, ZCardinality } from '@/types/path';
+import type { ZDataType, ZCardinality } from '@/types/path/path';
 import type { RuleKey, RuleConfig, RuleCategory } from './types';
 import { RequiredRuleRenderer } from './renderers/basic/RequiredRuleRenderer';
 import { MinMaxRuleRenderer } from './renderers/basic/MinMaxRuleRenderer';

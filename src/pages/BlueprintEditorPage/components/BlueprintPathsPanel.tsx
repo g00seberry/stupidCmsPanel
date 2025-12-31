@@ -11,7 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ZPath } from '@/types/path';
+import type { ZPath } from '@/types/path/path';
 import { GraphControls } from '@/components/paths/GraphControls';
 import { applyDagreLayout, pathTreeToGraph, type FlowEdge, type FlowNode } from './pathToGraph';
 import { EmbeddedBlueprintNode } from './nodes/EmbeddedBlueprintNode';

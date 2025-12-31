@@ -14,7 +14,7 @@ import { BlueprintEditorStore } from './BlueprintEditorStore';
 import { BlueprintPathsPanel } from './components/BlueprintPathsPanel';
 import { NodeEditorDrawer } from './components/NodeEditorDrawer';
 import { PathContextMenuContainer } from './components/PathContextMenuContainer';
-import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path';
+import type { ZCreatePathDto, ZUpdatePathDto } from '@/types/path/path';
 
 type Props = {
   store: BlueprintEditorStore;

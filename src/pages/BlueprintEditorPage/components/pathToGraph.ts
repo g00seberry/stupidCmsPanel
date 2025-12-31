@@ -1,4 +1,4 @@
-import type { ZPath } from '@/types/path';
+import type { ZPath } from '@/types/path/path';
 import dagre from 'dagre';
 
 /**

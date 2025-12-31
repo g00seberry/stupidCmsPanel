@@ -1,5 +1,5 @@
-import type { ZDataType } from '@/types/path';
-import { zDataType } from '@/types/path';
+import type { ZDataType } from '@/types/path/path';
+import { zDataType } from '@/types/path/path';
 import { validateFieldName } from '@/utils/blueprintValidation';
 import { Checkbox, Form, Input, Radio, Select } from 'antd';
 import { useMemo } from 'react';

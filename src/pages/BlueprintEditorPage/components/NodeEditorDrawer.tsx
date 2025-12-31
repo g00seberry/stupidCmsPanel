@@ -2,7 +2,7 @@ import { Button, Drawer, Space, Spin, type FormInstance } from 'antd';
 import { useEffect, useMemo } from 'react';
 import type React from 'react';
 import type { EditCtx } from '../BlueprintEditorStore';
-import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path';
+import type { ZCreatePathDto, ZPath, ZUpdatePathDto } from '@/types/path/path';
 import { findPathInTree } from '@/utils/pathUtils';
 import { NodeForm } from './NodeForm/NodeForm';
 

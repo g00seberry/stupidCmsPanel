@@ -1,4 +1,4 @@
-import type { ZValidationRules } from '@/types/path';
+import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import { makeAutoObservable } from 'mobx';
 import type { RuleKey } from './types';
 
