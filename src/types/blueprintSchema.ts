@@ -2,56 +2,6 @@ import { z } from 'zod';
 import { zCardinality, zDataType, type ZCardinality, type ZDataType } from './path/path';
 import { zValidationRules } from './path/pathValidationRules';
 
-// Локальные типы для старого формата правил валидации (используются только в blueprintSchema)
-const zValidationRuleMinMax = z.object({
-  type: z.literal('min').or(z.literal('max')),
-  value: z.number(),
-});
-
-const zValidationRuleRegex = z.object({
-  type: z.literal('regex'),
-  pattern: z.string(),
-});
-
-const zValidationRuleLength = z.object({
-  type: z.literal('length'),
-  min: z.number().optional(),
-  max: z.number().optional(),
-});
-
-const zValidationRuleEnum = z.object({
-  type: z.literal('enum'),
-  values: z.array(z.union([z.string(), z.number()])),
-});
-
-const zValidationRuleCustom = z.object({
-  type: z.literal('custom'),
-  validator: z.string(),
-  message: z.string().optional(),
-});
-
-const zValidationRuleObject = z.discriminatedUnion('type', [
-  zValidationRuleMinMax,
-  zValidationRuleRegex,
-  zValidationRuleLength,
-  zValidationRuleEnum,
-  zValidationRuleCustom,
-]);
-
-const zValidationRule = z.union([zValidationRuleObject, z.string()]);
-
-/**
- * Тип правила валидации для blueprintSchema (старый формат - массив правил).
- * Используется только в blueprintSchema, не в Path.
- */
-export type ZValidationRule = z.infer<typeof zValidationRule>;
-
-/**
- * Тип объекта правила валидации для blueprintSchema.
- * Используется только в blueprintSchema, не в Path.
- */
-export type ZValidationRuleObject = z.infer<typeof zValidationRuleObject>;
-
 /**
  * Тип данных поля в JSON схеме Blueprint.
  */
