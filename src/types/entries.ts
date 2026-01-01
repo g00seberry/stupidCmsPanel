@@ -1,8 +1,38 @@
-import { zPaginatedResponse } from '@/types/pagination';
+import { zPaginationMeta } from '@/types/pagination';
 import { zTerm } from '@/types/terms';
 import { zTaxonomy } from '@/types/taxonomies';
 import { z } from 'zod';
 import { zId, type ZId } from './ZId';
+
+/**
+ * Схема валидации метаданных связанной записи.
+ * Используется для предоставления информации о записях, на которые ссылаются ref-поля.
+ */
+const zEntryRelatedEntryData = z.object({
+  /** Заголовок связанной записи. Может быть `null`. */
+  entryTitle: z.string().nullable(),
+  /** Название типа контента связанной записи. Может быть `null`. */
+  entryPostType: z.string().nullable(),
+});
+
+/**
+ * Тип метаданных связанной записи.
+ */
+export type ZEntryRelatedEntryData = z.infer<typeof zEntryRelatedEntryData>;
+
+/**
+ * Схема валидации связанных данных записи.
+ * Содержит метаданные о записях, на которые ссылаются ref-поля в data_json.
+ */
+export const zEntryRelatedData = z.object({
+  /** Метаданные связанных записей, ключ - ID записи (строка), значение - метаданные записи. */
+  entryData: z.record(zId, zEntryRelatedEntryData).optional(),
+});
+
+/**
+ * Тип связанных данных записи.
+ */
+export type ZEntryRelatedData = z.infer<typeof zEntryRelatedData>;
 
 /**
  * Схема валидации Blueprint в контексте Entry.
@@ -63,6 +93,8 @@ export const zEntry = z.object({
   template_override: z.string().nullable().optional(),
   /** Blueprint, назначенный в PostType. Присутствует только если PostType имеет blueprint_id. */
   blueprint: zEntryBlueprint.optional(),
+  /** Связанные данные записи. Присутствует только если запись имеет ref-поля с валидными ссылками. */
+  related: zEntryRelatedData.optional(),
   /** Дата создания в формате ISO 8601. */
   created_at: z.string().optional(),
   /** Дата последнего обновления в формате ISO 8601. */
@@ -77,9 +109,17 @@ export const zEntry = z.object({
 export type ZEntry = z.infer<typeof zEntry>;
 
 /**
- * Схема валидации ответа API со списком записей. PAGED
+ * Схема валидации ответа API со списком записей с поддержкой related данных.
+ * Related данные находятся на верхнем уровне ответа для оптимизации (избежание дублирования).
  */
-export const zEntriesResponse = zPaginatedResponse(zEntry);
+export const zEntriesResponse = z.object({
+  /** Массив данных. */
+  data: z.array(zEntry),
+  /** Метаданные пагинации. */
+  meta: zPaginationMeta,
+  /** Связанные данные записей. Присутствует только если записи имеют ref-поля с валидными ссылками. */
+  related: zEntryRelatedData.optional(),
+});
 
 /**
  * Тип ответа API со списком записей.
@@ -119,6 +159,17 @@ export type ZEntriesListFilters = {
   date_from?: string;
   /** Конечная дата диапазона (ISO 8601, >= date_from). */
   date_to?: string;
+};
+
+/**
+ * Параметры запроса поиска записей (упрощённый API).
+ * Используется для поиска с фильтрацией по массиву типов контента.
+ */
+export type ZEntriesSearchFilters = {
+  /** Поиск по заголовку (LIKE, max 500 символов). */
+  title?: string;
+  /** Массив ID типов записей для фильтрации. */
+  post_type_ids?: ZId[];
 };
 
 /**

@@ -114,11 +114,13 @@ export class EntryEditorStore {
       const templates = await getTemplates();
       this.setTemplates(templates);
 
+      let entry: ZEntry | null = null;
       if (this.isEditMode) {
-        const [entry, entryTerms] = await Promise.all([
+        const [entryData, entryTerms] = await Promise.all([
           getEntry(this.entryId),
           getEntryTerms(this.entryId),
         ]);
+        entry = entryData;
 
         const termIds = entryTerms.terms_by_taxonomy.flatMap(group =>
           group.terms.map(term => term.id)
@@ -129,10 +131,12 @@ export class EntryEditorStore {
       // Инициализируем Blueprint форму
       if (postType.blueprint_id) {
         const initialValues: any = this.initialFormValues.data_json;
+        const relatedData = entry?.related ?? null;
         const model = await createFormModelFromBlueprintSchema(
           postType.blueprint_id,
           initialValues,
-          this.postTypeId
+          this.postTypeId,
+          relatedData
         );
         this.setBlueprintModel(model);
       }

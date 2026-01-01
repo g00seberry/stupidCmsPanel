@@ -40,8 +40,8 @@ const componentsOptionsRegistry: Record<
   },
   /** Ссылочные поля (ref). */
   ref: {
-    one: ['select'],
-    many: ['selectMultiple'],
+    one: ['refField'],
+    many: ['refField'],
   },
   /** JSON объекты. */
   json: {

@@ -5,6 +5,7 @@ import type {
 } from '@/components/PaginatedTable/paginatedDataLoader';
 import type {
   ZEntriesListFilters,
+  ZEntriesSearchFilters,
   ZEntry,
   ZEntryPayload,
   ZEntryTermsData,
@@ -37,6 +38,26 @@ export const listEntries: LoadPaginatedDataFn<ZEntry, ZEntriesListFilters> = asy
   params: LoaderParams<ZEntriesListFilters>
 ) => {
   const response = await rest.get(getAdminEntriesUrl(''), { params });
+  return zEntriesResponse.parse(response.data);
+};
+
+/**
+ * Поиск записей с упрощёнными фильтрами.
+ * Поддерживает фильтрацию по массиву типов контента и поиск по заголовку.
+ * @param params Параметры поиска и пагинации.
+ * @returns Объект с массивом записей и метаданными пагинации.
+ * @example
+ * const result = await searchEntries({
+ *   filters: { title: 'landing', post_type_ids: [1, 2] },
+ *   pagination: { per_page: 100, page: 1 }
+ * });
+ * console.log(result.data); // Массив записей
+ * console.log(result.meta.total); // Общее количество
+ */
+export const searchEntries: LoadPaginatedDataFn<ZEntry, ZEntriesSearchFilters> = async (
+  params: LoaderParams<ZEntriesSearchFilters>
+) => {
+  const response = await rest.get(getAdminEntriesUrl('/search'), { params });
   return zEntriesResponse.parse(response.data);
 };
 

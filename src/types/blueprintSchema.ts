@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { zCardinality, zDataType, type ZCardinality, type ZDataType } from './path/path';
 import { zValidationRules } from './path/pathValidationRules';
+import { zPathConstraints, type ZPathConstraints } from './path/pathConstraints';
 
 /**
  * Тип данных поля в JSON схеме Blueprint.
@@ -10,6 +11,7 @@ export type ZBlueprintSchemaField = {
   indexed: boolean;
   cardinality: ZCardinality;
   validation: z.infer<typeof zValidationRules> | null;
+  constraints?: ZPathConstraints | null;
   children?: Record<string, ZBlueprintSchemaField>;
 };
 
@@ -35,6 +37,7 @@ const zBlueprintSchemaField: z.ZodType<ZBlueprintSchemaField> = z.lazy(() =>
     cardinality: zCardinality,
     /** Правила валидации поля (JSON объект). Включает required, min, max и другие правила. */
     validation: zValidationRules.nullable(),
+    constraints: zPathConstraints.nullish(),
     /** Вложенные поля (только для типа json). */
     children: z.record(z.string(), zBlueprintSchemaField).optional(),
   })

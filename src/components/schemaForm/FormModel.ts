@@ -1,6 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import type { FormValues } from './types';
 import type { ZBlueprintSchema, ZBlueprintSchemaField } from '@/types/blueprintSchema';
+import type { ZPathConstraints } from '@/types/path/pathConstraints';
+import type { ZEntryRelatedData } from '@/types/entries';
 import { createDefaultValues, flatSchema } from '@/components/schemaForm/formModelUtils';
 import { getValueByPath, setValueByPath, type PathSegment } from '@/utils/pathUtils';
 import type { ZEditComponent } from './ZComponent';
@@ -29,23 +31,28 @@ export class FormModel {
   errors: Map<string, string[]>;
   /** Конфигурация компонентов формы по путям полей. */
   formConfig: Record<string, ZEditComponent>;
+  /** Связанные данные записи (related) для отображения метаданных ref-полей. */
+  relatedData: ZEntryRelatedData | null = null;
 
   /**
    * Создаёт экземпляр модели формы.
    * @param schema Схема сущности для формы.
    * @param initial Опциональные начальные значения (частичные).
    * @param formConfig Опциональная конфигурация компонентов формы по путям полей.
+   * @param relatedData Опциональные связанные данные записи (related) для отображения метаданных ref-полей.
    */
   constructor(
     schema: ZBlueprintSchema,
     initial?: Partial<FormValues>,
-    formConfig?: Record<string, ZEditComponent>
+    formConfig?: Record<string, ZEditComponent>,
+    relatedData?: ZEntryRelatedData | null
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
     this.schema = schema;
     this.values = createDefaultValues(schema, initial);
     this.errors = new Map();
     this.formConfig = formConfig ?? {};
+    this.relatedData = relatedData ?? null;
   }
 
   /**
@@ -260,5 +267,27 @@ export class FormModel {
     for (const path of outdatedPaths) {
       this.refreshField(path);
     }
+  }
+
+  /**
+   * Получает constraints (ограничения) поля по указанному пути.
+   * Используется для получения ограничений на значения полей (например, allowed_post_type_ids для ref полей).
+   * @param path Массив сегментов пути к полю.
+   * @returns Constraints поля или `undefined`, если поле не найдено или constraints не заданы.
+   * @example
+   * const constraints = model.getConstraints(['author']);
+   * // { allowed_post_type_ids: [1, 2, 3] } для ref поля
+   * if (constraints && 'allowed_post_type_ids' in constraints) {
+   *   // Фильтруем записи по allowed_post_type_ids
+   * }
+   */
+  getConstraints(path: PathSegment[]): ZPathConstraints | null | undefined {
+    const schemaLikePath = path.filter(item => typeof item === 'string');
+    const flattenedSchema = flatSchema(this.schema);
+    const finalSchema = flattenedSchema.find(
+      item => item.path.join('.') === schemaLikePath.join('.')
+    )?.schema;
+
+    return finalSchema?.constraints;
   }
 }

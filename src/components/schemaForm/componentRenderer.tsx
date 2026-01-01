@@ -21,6 +21,7 @@ import { InputTextListWidget } from './widgets/InputTextListWidget';
 import { InputTextWidget } from './widgets/InputTextWidget';
 import { JsonArrayWidget } from './widgets/JsonArrayWidget';
 import { JsonObjectWidget } from './widgets/JsonObjectWidget';
+import { RefFieldWidget } from './widgets/RefFieldWidget';
 import { SelectMultipleWidget } from './widgets/SelectMultipleWidget';
 import { SelectWidget } from './widgets/SelectWidget';
 import { TextareaListWidget } from './widgets/TextareaListWidget';
@@ -62,6 +63,8 @@ const componentRendererRegistry: {
   select: SelectWidget,
   /** Компонент множественного выбора из списка. */
   selectMultiple: SelectMultipleWidget,
+  /** Компонент выбора записи через Drawer с таблицей. */
+  refField: RefFieldWidget,
   /** Компонент JSON объекта. */
   jsonObject: JsonObjectWidget,
   /** Компонент массива JSON объектов. */

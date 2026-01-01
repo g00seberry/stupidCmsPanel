@@ -4,6 +4,7 @@ import { FormModel } from '@/components/schemaForm/FormModel';
 import type { FormValues } from './types';
 import type { ZEditComponent } from './ZComponent';
 import type { ZId } from '@/types/ZId';
+import type { ZEntryRelatedData } from '@/types/entries';
 
 /**
  * Создаёт FormModel из Blueprint схемы.
@@ -12,6 +13,7 @@ import type { ZId } from '@/types/ZId';
  * @param blueprintId Идентификатор Blueprint.
  * @param initial Опциональные начальные значения (частичные).
  * @param postTypeId Опциональный ID типа контента для загрузки конфигурации формы.
+ * @param relatedData Опциональные связанные данные записи (related) для отображения метаданных ref-полей.
  * @returns Готовый FormModel для использования в SchemaForm.
  * @example
  * const model = await createFormModelFromBlueprintSchema(1, { title: 'Initial Title' }, 1);
@@ -20,7 +22,8 @@ import type { ZId } from '@/types/ZId';
 export const createFormModelFromBlueprintSchema = async (
   blueprintId: ZId,
   initial?: Partial<FormValues>,
-  postTypeId?: ZId
+  postTypeId?: ZId,
+  relatedData?: ZEntryRelatedData | null
 ): Promise<FormModel> => {
   // Загружаем схему Blueprint из API
   const blueprintSchema = await getBlueprintSchema(blueprintId);
@@ -37,5 +40,5 @@ export const createFormModelFromBlueprintSchema = async (
     }
   }
 
-  return new FormModel(blueprintSchema, initial, formConfig);
+  return new FormModel(blueprintSchema, initial, formConfig, relatedData);
 };

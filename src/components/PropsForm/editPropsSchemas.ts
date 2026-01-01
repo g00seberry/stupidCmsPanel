@@ -13,6 +13,7 @@ import {
   zEditInputTextList,
   zEditJsonArray,
   zEditJsonObject,
+  zEditRefField,
   zEditSelect,
   zEditSelectMultiple,
   zEditTextarea,
@@ -41,6 +42,7 @@ export const propsSchemasByName = {
   dateTimePickerList: zEditDateTimePickerList.shape.props,
   selectMultiple: zEditSelectMultiple.shape.props,
   jsonArray: zEditJsonArray.shape.props,
+  refField: zEditRefField.shape.props,
 } as const satisfies Record<EditComponentName, z.ZodObject<any>>;
 
 export const getPropsSchemaByName = (name: EditComponentName) => propsSchemasByName[name];

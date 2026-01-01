@@ -263,6 +263,17 @@ export const zEditSelectMultiple = z.object({
 export type ZEditSelectMultiple = z.infer<typeof zEditSelectMultiple>;
 
 /**
+ * Схема валидации компонента выбора записи через Drawer с таблицей (RefFieldWidget).
+ * Используется для полей типа 'ref' с любой кардинальностью.
+ */
+export const zEditRefField = z.object({
+  name: z.literal('refField'),
+  props: zBaseProps,
+});
+
+export type ZEditRefField = z.infer<typeof zEditRefField>;
+
+/**
  * Схема валидации компонента JSON объекта.
  * Используется для полей типа 'json'.
  */
@@ -308,6 +319,7 @@ export const zEditComponent = z.discriminatedUnion('name', [
   zEditDatePickerList,
   zEditDateTimePickerList,
   zEditSelectMultiple,
+  zEditRefField,
   zEditJsonArray,
 ]);
 
