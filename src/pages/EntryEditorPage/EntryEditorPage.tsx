@@ -4,7 +4,7 @@ import { SchemaForm } from '@/components/schemaForm/SchemaForm';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZId } from '@/types/ZId';
 import { viewDate } from '@/utils/dateUtils';
-import { Button, Card, Collapse, DatePicker, Form, Input, Select, Spin, Switch, Tag } from 'antd';
+import { Button, Card, Collapse, DatePicker, Form, Input, Select, Spin, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { Calendar, Check, FileText, Settings, Tag as TagIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -37,7 +37,7 @@ interface PropsInner {
 const Inner = observer(({ store }: PropsInner) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const isPublished = Form.useWatch('is_published', form) ?? false;
+  const status = Form.useWatch('status', form) ?? 'draft';
   const publishedAt = Form.useWatch('published_at', form);
   const isEditMode = store?.isEditMode ?? false;
   const postType = store.postType;
@@ -82,13 +82,16 @@ const Inner = observer(({ store }: PropsInner) => {
     form.submit();
   }, [form]);
   const getPublicationStatus = () => {
-    if (!isPublished) {
+    if (status === 'draft') {
       return { text: 'Черновик', color: 'default' as const };
     }
-    if (publishedAt && publishedAt.isBefore(dayjs())) {
+    if (status === 'published') {
+      if (publishedAt && publishedAt.isBefore(dayjs())) {
+        return { text: 'Опубликовано', color: 'success' as const };
+      }
       return { text: 'Опубликовано', color: 'success' as const };
     }
-    return { text: 'Запланировано', color: 'processing' as const };
+    return { text: 'Черновик', color: 'default' as const };
   };
 
   const publicationStatus = getPublicationStatus();
@@ -120,176 +123,171 @@ const Inner = observer(({ store }: PropsInner) => {
           </Button>
         </>
       }
+      loading={store.loading}
     >
-      <div className="w-full max-w-7xl mx-auto">
-        {store.loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Spin size="large" />
-            <p className="mt-4 text-sm text-muted-foreground">
-              {isEditMode ? 'Загрузка записи...' : 'Подготовка формы...'}
-            </p>
-          </div>
-        ) : (
-          <Form<EntryEditorFormValues> form={form} layout="vertical" onFinish={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Основной контент */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Основные поля */}
-                <Card className="p-6 shadow-sm">
-                  <div className="space-y-6">
-                    {/* Заголовок */}
-                    <div className="space-y-2">
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Основной контент */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Основные поля */}
+            <Card className="p-6 shadow-sm">
+              <div className="space-y-6">
+                {/* Заголовок */}
+                <div className="space-y-2">
+                  <Form.Item
+                    label={
+                      <span className="text-base font-semibold flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Заголовок
+                      </span>
+                    }
+                    name="title"
+                    rules={[
+                      { required: true, message: 'Заголовок обязателен.' },
+                      { max: 255, message: 'Заголовок не должен превышать 255 символов.' },
+                    ]}
+                    className="mb-0"
+                  >
+                    <Input
+                      placeholder="Введите заголовок записи"
+                      className="text-lg"
+                      size="large"
+                      autoFocus
+                    />
+                  </Form.Item>
+                  <p className="text-sm text-muted-foreground ml-6">
+                    Заголовок записи, отображаемый в интерфейсе и поисковых системах
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Продвинутые настройки */}
+            <Collapse
+              activeKey={advancedSettingsOpen ? ['advanced'] : []}
+              onChange={keys => setAdvancedSettingsOpen(keys.includes('advanced'))}
+              items={[
+                {
+                  key: 'advanced',
+                  label: (
+                    <span className="flex items-center gap-2 text-base font-medium">
+                      <Settings className="w-4 h-4" />
+                      Продвинутые настройки
+                    </span>
+                  ),
+                  children: (
+                    <div className="pt-4">
                       <Form.Item
-                        label={
-                          <span className="text-base font-semibold flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            Заголовок
-                          </span>
-                        }
-                        name="title"
-                        rules={[
-                          { required: true, message: 'Заголовок обязателен.' },
-                          { max: 255, message: 'Заголовок не должен превышать 255 символов.' },
-                        ]}
+                        label="Переопределение шаблона"
+                        name="template_override"
                         className="mb-0"
+                        tooltip="Позволяет использовать другой шаблон для этой записи вместо шаблона типа контента"
                       >
-                        <Input
-                          placeholder="Введите заголовок записи"
-                          className="text-lg"
-                          size="large"
-                          autoFocus
+                        <Select
+                          placeholder="Выберите шаблон (необязательно)"
+                          allowClear
+                          showSearch
+                          loading={store.loading}
+                          filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                          }
+                          options={store.templates.map(({ name }) => ({
+                            value: name,
+                            label: name,
+                          }))}
                         />
                       </Form.Item>
-                      <p className="text-sm text-muted-foreground ml-6">
-                        Заголовок записи, отображаемый в интерфейсе и поисковых системах
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Имя шаблона для переопределения шаблона типа контента. Оставьте пустым,
+                        чтобы использовать шаблон по умолчанию.
                       </p>
                     </div>
-                  </div>
-                </Card>
+                  ),
+                },
+              ]}
+              className="bg-card"
+            />
 
-                {/* Продвинутые настройки */}
-                <Collapse
-                  activeKey={advancedSettingsOpen ? ['advanced'] : []}
-                  onChange={keys => setAdvancedSettingsOpen(keys.includes('advanced'))}
-                  items={[
-                    {
-                      key: 'advanced',
-                      label: (
-                        <span className="flex items-center gap-2 text-base font-medium">
-                          <Settings className="w-4 h-4" />
-                          Продвинутые настройки
-                        </span>
-                      ),
-                      children: (
-                        <div className="pt-4">
-                          <Form.Item
-                            label="Переопределение шаблона"
-                            name="template_override"
-                            className="mb-0"
-                            tooltip="Позволяет использовать другой шаблон для этой записи вместо шаблона типа контента"
-                          >
-                            <Select
-                              placeholder="Выберите шаблон (необязательно)"
-                              allowClear
-                              showSearch
-                              loading={store.loading}
-                              filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                              }
-                              options={store.templates.map(({ name }) => ({
-                                value: name,
-                                label: name,
-                              }))}
-                            />
-                          </Form.Item>
-                          <p className="text-sm text-muted-foreground mt-2">
-                            Имя шаблона для переопределения шаблона типа контента. Оставьте пустым,
-                            чтобы использовать шаблон по умолчанию.
-                          </p>
-                        </div>
-                      ),
-                    },
-                  ]}
-                  className="bg-card"
-                />
+            {/* Blueprint данные */}
+            {store.postType?.blueprint_id && store.blueprintModel && (
+              <Card className="p-6 shadow-sm">
+                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Содержимое записи
+                </h2>
+                <SchemaForm model={store.blueprintModel} />
+              </Card>
+            )}
+          </div>
 
-                {/* Blueprint данные */}
-                {!store.loading && store.postType?.blueprint_id && store.blueprintModel && (
-                  <Card className="p-6 shadow-sm">
-                    <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      Содержимое записи
-                    </h2>
-                    <SchemaForm model={store.blueprintModel} />
-                  </Card>
+          {/* Боковая панель */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Публикация */}
+            <Card className="p-6 shadow-sm">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Публикация
+                  </h2>
+                  <Tag color={publicationStatus.color}>{publicationStatus.text}</Tag>
+                </div>
+
+                <Form.Item
+                  label="Статус"
+                  name="status"
+                  className="mb-4"
+                  tooltip="Опубликованные записи видны пользователям. Черновики доступны только редакторам."
+                >
+                  <Select
+                    size="large"
+                    options={[
+                      { value: 'draft', label: 'Черновик' },
+                      { value: 'published', label: 'Опубликовано' },
+                    ]}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Дата публикации"
+                  name="published_at"
+                  className="mb-0"
+                  tooltip="Записи можно запланировать на будущее. Если дата не указана, используется текущее время."
+                >
+                  <DatePicker
+                    showTime
+                    format="YYYY-MM-DD HH:mm"
+                    style={{ width: '100%' }}
+                    placeholder="Выберите дату и время"
+                    size="large"
+                    className="w-full"
+                  />
+                </Form.Item>
+                {publishedAt && (
+                  <p className="text-xs text-muted-foreground">
+                    {publishedAt.isBefore(dayjs())
+                      ? 'Запись будет опубликована сразу'
+                      : `Запись будет опубликована ${publishedAt.format('DD.MM.YYYY в HH:mm')}`}
+                  </p>
                 )}
               </div>
+            </Card>
 
-              {/* Боковая панель */}
-              <div className="lg:col-span-1 space-y-6">
-                {/* Публикация */}
-                <Card className="p-6 shadow-sm">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Публикация
-                      </h2>
-                      <Tag color={publicationStatus.color}>{publicationStatus.text}</Tag>
-                    </div>
-
-                    <Form.Item
-                      label="Опубликовано"
-                      name="is_published"
-                      valuePropName="checked"
-                      className="mb-4"
-                      tooltip="Опубликованные записи видны пользователям. Черновики доступны только редакторам."
-                    >
-                      <Switch size="default" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Дата публикации"
-                      name="published_at"
-                      className="mb-0"
-                      tooltip="Записи можно запланировать на будущее. Если дата не указана, используется текущее время."
-                    >
-                      <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm"
-                        style={{ width: '100%' }}
-                        placeholder="Выберите дату и время"
-                        size="large"
-                        className="w-full"
-                      />
-                    </Form.Item>
-                    {publishedAt && (
-                      <p className="text-xs text-muted-foreground">
-                        {publishedAt.isBefore(dayjs())
-                          ? 'Запись будет опубликована сразу'
-                          : `Запись будет опубликована ${publishedAt.format('DD.MM.YYYY в HH:mm')}`}
-                      </p>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Термы */}
-                {isEditMode && store.termsManagerStore && (
-                  <Card className="p-6 shadow-sm">
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <TagIcon className="w-5 h-5" />
-                      Категории и теги
-                    </h2>
-                    <Form.Item name="term_ids" className="mb-0">
-                      <EntryTermsManager store={store.termsManagerStore} disabled={store.loading} />
-                    </Form.Item>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </Form>
-        )}
-      </div>
+            {/* Термы */}
+            {isEditMode && store.termsManagerStore && (
+              <Card className="p-6 shadow-sm">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <TagIcon className="w-5 h-5" />
+                  Категории и теги
+                </h2>
+                <Form.Item name="term_ids" className="mb-0">
+                  <EntryTermsManager store={store.termsManagerStore} disabled={store.loading} />
+                </Form.Item>
+              </Card>
+            )}
+          </div>
+        </div>
+      </Form>
     </PageLayout>
   );
 });

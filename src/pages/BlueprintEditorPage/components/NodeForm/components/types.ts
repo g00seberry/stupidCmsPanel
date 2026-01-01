@@ -15,6 +15,7 @@ export type PathValidationRule =
 export type RuleListRendererProps = {
   rule: PathValidationRule;
   onEdit: () => void;
+  onDelete: () => void;
 };
 
 export type RuleFormRendererProps = {

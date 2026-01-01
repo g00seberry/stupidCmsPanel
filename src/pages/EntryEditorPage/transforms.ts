@@ -8,7 +8,7 @@ import type { Dayjs } from 'dayjs';
  */
 export interface EntryEditorFormValues {
   readonly title: string;
-  readonly is_published: boolean;
+  readonly status: 'draft' | 'published';
   readonly published_at: Dayjs | null;
   readonly template_override: string;
   readonly term_ids: ZId[];
@@ -25,7 +25,7 @@ export interface EntryEditorFormValues {
 export const entry2formValues = (entry: ZEntry, termIds: ZId[] = []): EntryEditorFormValues => {
   return {
     title: entry.title,
-    is_published: entry.is_published,
+    status: entry.status,
     published_at: viewDate(entry.published_at),
     template_override: entry.template_override ?? '',
     term_ids: termIds,
@@ -40,7 +40,7 @@ export const formValues2entryPayload = (
   return {
     post_type_id: postTypeId,
     title: values.title,
-    is_published: values.is_published,
+    status: values.status,
     published_at: serverDate(values.published_at),
     template_override: values.template_override,
     term_ids: values.term_ids,

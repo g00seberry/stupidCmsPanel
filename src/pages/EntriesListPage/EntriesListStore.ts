@@ -1,6 +1,6 @@
 import { getEntriesStatuses, listEntries } from '@/api/apiEntries';
-import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
+import { PaginatedTableStore } from '@/components/PaginatedTable/PaginatedTableStore';
 import type { ZEntriesListFilters, ZEntry } from '@/types/entries';
 import type { ZPaginationMeta } from '@/types/pagination';
 import type { ZId } from '@/types/ZId';
@@ -23,9 +23,7 @@ export class EntriesListStore {
 
   constructor() {
     const defaultParams = {
-      filters: {
-        status: 'all',
-      } as ZEntriesListFilters,
+      filters: {},
       pagination: {
         page: 1,
         per_page: 15,
@@ -109,7 +107,6 @@ export class EntriesListStore {
   async resetFilters(postTypeId?: ZId): Promise<void> {
     const defaultParams = {
       filters: {
-        status: 'all',
         ...(postTypeId !== undefined && { post_type_id: postTypeId }),
       } as ZEntriesListFilters,
       pagination: {

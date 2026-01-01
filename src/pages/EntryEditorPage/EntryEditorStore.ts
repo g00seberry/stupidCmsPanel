@@ -23,7 +23,7 @@ const idNew = 'new';
 
 const defaultFormValues: EntryEditorFormValues = {
   title: '',
-  is_published: false,
+  status: 'draft',
   published_at: null,
   template_override: '',
   term_ids: [],

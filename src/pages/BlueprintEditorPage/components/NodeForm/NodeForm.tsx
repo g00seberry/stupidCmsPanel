@@ -36,7 +36,7 @@ type PropsNodeForm = { path?: ZPath; form: FormInstance };
 
 export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
   const isReadonly = !!path?.source_blueprint_id;
-  const dataType = path?.data_type;
+  const dataType = Form.useWatch('data_type', form);
   const isNew = !path;
 
   useEffect(() => {

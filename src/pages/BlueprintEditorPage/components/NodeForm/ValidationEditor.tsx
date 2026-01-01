@@ -1,7 +1,7 @@
 import type { ZValidationRules } from '@/types/path/pathValidationRules';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { Button, List, Modal, Space } from 'antd';
+import { Button, Modal, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import type { PathValidationRule } from './components/types';
 import { listValidationRules } from './components/utils';
@@ -105,6 +105,16 @@ export const ValidationEditor = observer(({ value, onChange }: PropValidationEdi
     setEditingRule(null);
   };
 
+  const handleDelete = (ruleType: PathValidationRule['type']) => {
+    if (!onChange) return;
+
+    const currentRules = value || {};
+    const newRules = { ...currentRules };
+    delete newRules[ruleType as keyof typeof newRules];
+
+    onChange(newRules);
+  };
+
   const handleAddRule = (ruleType: PathValidationRule['type']) => {
     const newRule = createDefaultRule(ruleType);
     setEditingRule(newRule);
@@ -146,13 +156,20 @@ export const ValidationEditor = observer(({ value, onChange }: PropValidationEdi
         >
           Добавить правило
         </Button>
-        <List
-          dataSource={activeRules}
-          renderItem={rule => {
+        <div className="flex flex-col gap-2">
+          {activeRules.map(rule => {
             const ListRenderer = ruleListRenderers[rule.type];
-            return <ListRenderer rule={rule} onEdit={() => handleEdit(rule)} />;
-          }}
-        />
+            return (
+              <div key={rule.type}>
+                <ListRenderer
+                  rule={rule}
+                  onEdit={() => handleEdit(rule)}
+                  onDelete={() => handleDelete(rule.type)}
+                />
+              </div>
+            );
+          })}
+        </div>
       </Space>
 
       <Modal
@@ -162,14 +179,18 @@ export const ValidationEditor = observer(({ value, onChange }: PropValidationEdi
         width={600}
         title="Выберите правило для добавления"
       >
-        <List
-          dataSource={availableRules}
-          renderItem={rule => (
-            <List.Item onClick={() => handleAddRule(rule.type)} style={{ cursor: 'pointer' }}>
-              <List.Item.Meta title={rule.label} description={rule.description} />
-            </List.Item>
-          )}
-        />
+        <div className="flex flex-col gap-2">
+          {availableRules.map(rule => (
+            <div
+              key={rule.type}
+              onClick={() => handleAddRule(rule.type)}
+              className="cursor-pointer p-3 border border-gray-300 rounded transition-all hover:bg-gray-50 hover:border-blue-400"
+            >
+              <div className="font-medium mb-1">{rule.label}</div>
+              <div className="text-xs text-gray-500">{rule.description}</div>
+            </div>
+          ))}
+        </div>
       </Modal>
 
       {editingRule && FormRenderer && (

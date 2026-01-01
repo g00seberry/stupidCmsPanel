@@ -37,7 +37,7 @@ export const PageLayout: React.FC<PropsPageLayout> = ({
     <div className="bg-background w-full">
       {loading && (
         <div className={styles.loaderBox}>
-          <Spin spinning={loading} />
+          <Spin spinning />
         </div>
       )}
 

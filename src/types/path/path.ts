@@ -222,6 +222,7 @@ export const zCreatePathDto = z.object({
   sort_order: z.number().int().min(0, 'Минимум 0').default(0),
   /** Правила валидации поля (новый формат - объект JSON). */
   validation_rules: zValidationRules.optional().nullable(),
+  constraints: zPathConstraints.nullish(),
 });
 
 /**

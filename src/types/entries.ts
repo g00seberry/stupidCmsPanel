@@ -3,6 +3,7 @@ import { zTerm } from '@/types/terms';
 import { zTaxonomy } from '@/types/taxonomies';
 import { z } from 'zod';
 import { zId, type ZId } from './ZId';
+import { zIdName } from './ZIdName';
 
 /**
  * Схема валидации метаданных связанной записи.
@@ -59,10 +60,9 @@ const zEntryBlueprint = z.object({
  * @example
  * const entry: ZEntry = {
  *   id: 42,
- *   post_type_id: 1,
+ *   post_type: { id: 1, name: 'Articles' },
  *   title: 'Headless CMS launch checklist',
  *   status: 'published',
- *   is_published: true,
  *   published_at: '2025-02-10T08:00:00+00:00',
  *   data_json: { hero: { title: 'Launch' } },
  *   meta_json: { title: 'Launch', description: 'Checklist' },
@@ -75,24 +75,20 @@ const zEntryBlueprint = z.object({
 export const zEntry = z.object({
   /** Уникальный идентификатор записи. */
   id: zId,
-  /** ID типа контента записи. */
-  post_type_id: z.number(),
+  /** Тип контента записи. Может быть `null`, если post type не загружен (в Entry API всегда загружен). */
+  post_type: zIdName.nullable(),
+  /** Автор */
+  author: zIdName.nullable(),
   /** Заголовок записи. */
   title: z.string(),
-  /** Статус записи: draft, published, scheduled, trashed. */
-  status: z.enum(['draft', 'published', 'scheduled', 'trashed']),
-  /** Флаг публикации записи. */
-  is_published: z.boolean(),
+  /** Статус записи:'draft','published'. */
+  status: z.enum(['draft', 'published']),
   /** Дата публикации в формате ISO 8601. Может быть `null`. */
   published_at: z.string().nullable(),
   /** Содержимое записи в формате JSON. */
   data_json: z.record(z.string(), z.unknown()).nullish().default(null),
-  /** Метаданные записи в формате JSON. */
-  meta_json: z.record(z.string(), z.unknown()).nullish().default(null),
   /** Переопределение шаблона для записи. Может быть `null`. */
   template_override: z.string().nullable().optional(),
-  /** Blueprint, назначенный в PostType. Присутствует только если PostType имеет blueprint_id. */
-  blueprint: zEntryBlueprint.optional(),
   /** Связанные данные записи. Присутствует только если запись имеет ref-поля с валидными ссылками. */
   related: zEntryRelatedData.optional(),
   /** Дата создания в формате ISO 8601. */
@@ -145,8 +141,8 @@ export type ZEntriesStatusesResponse = z.infer<typeof zEntriesStatusesResponse>;
 export type ZEntriesListFilters = {
   /** Фильтр по ID типа контента. */
   post_type_id?: ZId;
-  /** Фильтр по статусу: all, draft, published, scheduled, trashed. По умолчанию: all. */
-  status?: 'all' | 'draft' | 'published' | 'scheduled' | 'trashed';
+  /** Фильтр по статусу: draft, published. По умолчанию: all. */
+  status?: 'draft' | 'published';
   /** Поиск по названию. */
   q?: string;
   /** ID автора. */
@@ -193,7 +189,7 @@ export type ZEntryResponse = z.infer<typeof zEntryResponse>;
  *   title: 'Headless CMS launch checklist',
  *   data_json: { hero: { title: 'Launch' } },
  *   meta_json: { title: 'Launch', description: 'Checklist' },
- *   is_published: false,
+ *   status: 'draft',
  *   published_at: '2025-02-10T08:00:00Z',
  *   template_override: 'templates.landing',
  *   term_ids: [3, 8]
@@ -208,8 +204,8 @@ export const zEntryPayload = z.object({
   data_json: z.record(z.string(), z.unknown()).nullish().optional(),
   /** Метаданные записи в формате JSON. */
   meta_json: z.record(z.string(), z.unknown()).nullish().optional(),
-  /** Флаг публикации записи. */
-  is_published: z.boolean().optional(),
+  /** Статус записи: draft, published. */
+  status: z.enum(['draft', 'published']).optional(),
   /** Дата публикации в формате ISO 8601. Может быть `null`. */
   published_at: z.string().nullable().optional(),
   /** Переопределение шаблона для записи. Может быть `null`. */

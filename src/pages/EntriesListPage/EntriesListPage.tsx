@@ -73,8 +73,6 @@ export const EntriesListPage = observer(() => {
   const statusMap: Record<string, { text: string; color: string }> = {
     draft: { text: 'Черновик', color: 'default' },
     published: { text: 'Опубликовано', color: 'success' },
-    scheduled: { text: 'Запланировано', color: 'processing' },
-    trashed: { text: 'Удалено', color: 'error' },
   };
 
   /**
