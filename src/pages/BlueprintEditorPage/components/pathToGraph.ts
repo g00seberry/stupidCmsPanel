@@ -77,7 +77,7 @@ const DEFAULT_DAGRE_OPTIONS: Required<DagreLayoutOptions> = {
 const toNodeId = (id: ZPath['id']): string => String(id);
 
 const computeNodeType = (path: ZPath): PathNodeType => {
-  if (path.is_readonly && path.source_blueprint_id) return 'embeddedBlueprint';
+  if (path.source_blueprint_id) return 'embeddedBlueprint';
   if (path.data_type === 'json') return 'jsonGroup';
   return 'simpleField';
 };
@@ -87,7 +87,7 @@ const buildNodeData = (path: ZPath): FlowNodeData => ({
   label: path.name,
   dataType: path.data_type,
   isIndexed: path.is_indexed,
-  isReadonly: path.is_readonly,
+  isReadonly: !!path.source_blueprint_id,
   sourceBlueprintName: path.source_blueprint?.name,
 });
 
@@ -121,7 +121,7 @@ export const pathTreeToGraph = (
         source: parentId,
         target: id,
         type: 'smoothstep',
-        animated: path.is_readonly,
+        animated: !!path.source_blueprint_id,
       });
     }
 

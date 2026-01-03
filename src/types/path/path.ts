@@ -101,7 +101,6 @@ export type ZSourceBlueprint = z.infer<typeof zSourceBlueprint>;
  *   cardinality: 'one',
  *   is_indexed: true,
  *   is_readonly: false,
- *   sort_order: 0,
  *   validation_rules: { required: true, min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
@@ -127,10 +126,6 @@ export const zPathBase = z.object({
   cardinality: zCardinality,
   /** Флаг индексации поля для поиска. */
   is_indexed: z.boolean(),
-  /** Флаг только для чтения. `true` для полей, скопированных из встроенных Blueprint. */
-  is_readonly: z.boolean(),
-  /** Порядок сортировки поля среди полей одного уровня. */
-  sort_order: z.number(),
   /** Правила валидации поля. Может быть `null`. */
   validation_rules: zValidationRules.nullable(),
   /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
@@ -165,7 +160,6 @@ export type ZPathBase = z.infer<typeof zPathBase>;
  *   cardinality: 'one',
  *   is_indexed: true,
  *   is_readonly: false,
- *   sort_order: 0,
  *   validation_rules: { required: true, min: 5, max: 500 },
  *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
@@ -199,7 +193,6 @@ export type ZPath = z.infer<typeof zPath>;
  *   data_type: 'string',
  *   cardinality: 'one',
  *   is_indexed: true,
- *   sort_order: 0,
  *   validation_rules: { required: true, min: 5, max: 500 }
  * };
  */
@@ -218,8 +211,6 @@ export const zCreatePathDto = z.object({
   cardinality: zCardinality.default('one'),
   /** Флаг индексации поля для поиска. По умолчанию `false`. */
   is_indexed: z.boolean().default(false),
-  /** Порядок сортировки поля среди полей одного уровня. Минимум 0. По умолчанию 0. */
-  sort_order: z.number().int().min(0, 'Минимум 0').default(0),
   /** Правила валидации поля (новый формат - объект JSON). */
   validation_rules: zValidationRules.optional().nullable(),
   constraints: zPathConstraints.nullish(),
