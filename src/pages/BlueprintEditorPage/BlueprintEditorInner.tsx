@@ -110,7 +110,6 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
       <BlueprintForm form={form} isEditMode={true} />
       <BlueprintPathsPanel
         paths={store.paths}
-        pending={store.pending}
         onNodeContextMenu={handleNodeContextMenu}
         onPaneContextMenu={handlePaneContextMenu}
       />

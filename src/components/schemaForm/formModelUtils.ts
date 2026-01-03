@@ -23,6 +23,7 @@ const getDefaultFieldValue = (field: ZBlueprintSchemaField): any => {
     case 'bool':
       return false;
     case 'ref':
+    case 'media':
       return undefined;
     case 'json':
       // Для json полей создаём объект из children

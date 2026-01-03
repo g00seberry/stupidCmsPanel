@@ -27,16 +27,16 @@ API responses for Entry endpoints now include `related` data for ref-type fields
     "related": {
       "entryData": {
         "42": {
-          "entryTitle": "John Doe",
-          "entryPostType": "Author"
+          "title": "John Doe",
+          "post_type": "Author"
         },
         "43": {
-          "entryTitle": "Related Article 1",
-          "entryPostType": "Article"
+          "title": "Related Article 1",
+          "post_type": "Article"
         },
         "44": {
-          "entryTitle": "Related Article 2",
-          "entryPostType": "Article"
+          "title": "Related Article 2",
+          "post_type": "Article"
         }
       }
     }
@@ -61,12 +61,12 @@ API responses for Entry endpoints now include `related` data for ref-type fields
   "related": {
     "entryData": {
       "42": {
-        "entryTitle": "Shared Author",
-        "entryPostType": "Author"
+        "title": "Shared Author",
+        "post_type": "Author"
       },
       "43": {
-        "entryTitle": "Related Entry",
-        "entryPostType": "Article"
+        "title": "Related Entry",
+        "post_type": "Article"
       }
     }
   },
@@ -84,10 +84,11 @@ Top-level object containing related data. Only present if there are ref-type fie
 ### `related.entryData` (object)
 
 Mapping of entry IDs to entry metadata:
+
 - **Key**: Entry ID (string representation of integer)
 - **Value**: Object with:
-  - `entryTitle` (string|null): Title of the referenced entry
-  - `entryPostType` (string|null): Post type name of the referenced entry
+  - `title` (string|null): Title of the referenced entry
+  - `post_type` (string|null): Post type name of the referenced entry
 
 ## Behavior
 
@@ -107,6 +108,7 @@ Mapping of entry IDs to entry metadata:
 ### Single Ref Field
 
 **Request:**
+
 ```json
 {
   "data_json": {
@@ -116,6 +118,7 @@ Mapping of entry IDs to entry metadata:
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -123,8 +126,8 @@ Mapping of entry IDs to entry metadata:
     "related": {
       "entryData": {
         "42": {
-          "entryTitle": "John Doe",
-          "entryPostType": "Author"
+          "title": "John Doe",
+          "post_type": "Author"
         }
       }
     }
@@ -135,6 +138,7 @@ Mapping of entry IDs to entry metadata:
 ### Array Ref Field
 
 **Request:**
+
 ```json
 {
   "data_json": {
@@ -144,15 +148,16 @@ Mapping of entry IDs to entry metadata:
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
     "data_json": { "relatedArticles": [43, 44, 45] },
     "related": {
       "entryData": {
-        "43": { "entryTitle": "Article 1", "entryPostType": "Article" },
-        "44": { "entryTitle": "Article 2", "entryPostType": "Article" },
-        "45": { "entryTitle": "Article 3", "entryPostType": "Article" }
+        "43": { "title": "Article 1", "post_type": "Article" },
+        "44": { "title": "Article 2", "post_type": "Article" },
+        "45": { "title": "Article 3", "post_type": "Article" }
       }
     }
   }
@@ -162,6 +167,7 @@ Mapping of entry IDs to entry metadata:
 ### Nested Ref Field
 
 **Request:**
+
 ```json
 {
   "data_json": {
@@ -173,6 +179,7 @@ Mapping of entry IDs to entry metadata:
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -180,8 +187,8 @@ Mapping of entry IDs to entry metadata:
     "related": {
       "entryData": {
         "42": {
-          "entryTitle": "User Profile",
-          "entryPostType": "Profile"
+          "title": "User Profile",
+          "post_type": "Profile"
         }
       }
     }
@@ -192,6 +199,7 @@ Mapping of entry IDs to entry metadata:
 ### Deleted Entry Reference
 
 **Request:**
+
 ```json
 {
   "data_json": {
@@ -201,6 +209,7 @@ Mapping of entry IDs to entry metadata:
 ```
 
 **Response** (if entry 42 is deleted):
+
 ```json
 {
   "data": {
@@ -215,10 +224,13 @@ Note: `related` is absent or `related.entryData` is empty.
 
 ```typescript
 interface EntryRelatedData {
-  entryData?: Record<string, {
-    entryTitle: string | null;
-    entryPostType: string | null;
-  }>;
+  entryData?: Record<
+    string,
+    {
+      title: string | null;
+      post_type: string | null;
+    }
+  >;
 }
 
 interface EntryResponse {
@@ -253,9 +265,9 @@ interface EntryCollectionResponse {
 ## Future Extensibility
 
 The `related` structure is designed to be extensible. Future versions may include:
+
 - `related.mediaData` - Media file metadata
 - `related.termData` - Taxonomy term information
 - Other related data types
 
 Always check for the presence of keys before accessing them.
-

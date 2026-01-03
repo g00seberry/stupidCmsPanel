@@ -15,3 +15,4 @@ export { DateTimePickerListWidget } from './DateTimePickerListWidget';
 export { TextareaListWidget } from './TextareaListWidget';
 export { JsonObjectWidget } from './JsonObjectWidget';
 export { JsonArrayWidget } from './JsonArrayWidget';
+export { MediaFieldWidget } from './MediaFieldWidget';

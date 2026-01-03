@@ -1,9 +1,9 @@
 import z from 'zod';
 import { zId } from '../ZId';
 
-export const zPatRefConstraints = z.object({ allowed_post_type_ids: zId.array() });
-export type ZPatRefConstraints = z.infer<typeof zPatRefConstraints>;
-export const zPatMediaConstraints = z.object({ allowed_mimes: z.string().array() });
-export type ZPatMediaConstraints = z.infer<typeof zPatMediaConstraints>;
-export const zPathConstraints = z.union([zPatRefConstraints, zPatMediaConstraints]);
+export const zPathRefConstraints = z.object({ allowed_post_type_ids: zId.array() });
+export type ZPathRefConstraints = z.infer<typeof zPathRefConstraints>;
+export const zPathMediaConstraints = z.object({ allowed_mimes: z.string().array() });
+export type ZPathMediaConstraints = z.infer<typeof zPathMediaConstraints>;
+export const zPathConstraints = z.union([zPathRefConstraints, zPathMediaConstraints]);
 export type ZPathConstraints = z.infer<typeof zPathConstraints>;

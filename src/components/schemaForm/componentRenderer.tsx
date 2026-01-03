@@ -2,7 +2,6 @@ import type { ZBlueprintSchemaField } from '@/types/blueprintSchema';
 import type { PathSegment } from '@/utils/pathUtils';
 import type React from 'react';
 import { getAllowedComponents } from './getAllowedComponents';
-import type { ZEditComponent } from './ZComponent';
 import type {
   ComponentRendererProps,
   ExtractedComponentConfig,
@@ -21,11 +20,13 @@ import { InputTextListWidget } from './widgets/InputTextListWidget';
 import { InputTextWidget } from './widgets/InputTextWidget';
 import { JsonArrayWidget } from './widgets/JsonArrayWidget';
 import { JsonObjectWidget } from './widgets/JsonObjectWidget';
+import { MediaFieldWidget } from './widgets/MediaFieldWidget';
 import { RefFieldWidget } from './widgets/RefFieldWidget';
 import { SelectMultipleWidget } from './widgets/SelectMultipleWidget';
 import { SelectWidget } from './widgets/SelectWidget';
 import { TextareaListWidget } from './widgets/TextareaListWidget';
 import { TextareaWidget } from './widgets/TextareaWidget';
+import type { ZEditComponent } from './ZComponent';
 
 /**
  * Регистр компонентов по имени компонента из formConfig.
@@ -69,6 +70,8 @@ const componentRendererRegistry: {
   jsonObject: JsonObjectWidget,
   /** Компонент массива JSON объектов. */
   jsonArray: JsonArrayWidget,
+  /** Компонент выбора медиа-файла. */
+  mediaField: MediaFieldWidget,
 };
 
 /**

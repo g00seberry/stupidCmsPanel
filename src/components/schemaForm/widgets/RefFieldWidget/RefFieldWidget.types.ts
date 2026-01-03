@@ -1,5 +1,7 @@
 import type { FieldRendererProps } from '../../types';
 import type { ZEditRefField } from '../../ZComponent';
+import type { FormModel } from '../../FormModel';
+import type { PathSegment } from '@/utils/pathUtils';
 
 /**
  * Пропсы компонента RefFieldWidget.
@@ -10,10 +12,11 @@ export type RefFieldWidgetProps = FieldRendererProps & {
 };
 
 /**
- * Параметры для создания store таблицы.
+ * Опции для создания RefFieldWidgetStore.
  */
-export type StoreParams = {
-  /** Массив разрешённых ID типов контента для фильтрации. */
-  allowedPostTypeIds: number[];
+export type RefFieldWidgetStoreOptions = {
+  /** Модель формы. */
+  model: FormModel;
+  /** Путь к полю в форме. */
+  namePath: PathSegment[];
 };
-

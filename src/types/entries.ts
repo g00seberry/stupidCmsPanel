@@ -1,9 +1,10 @@
 import { zPaginationMeta } from '@/types/pagination';
-import { zTerm } from '@/types/terms';
 import { zTaxonomy } from '@/types/taxonomies';
+import { zTerm } from '@/types/terms';
 import { z } from 'zod';
 import { zId, type ZId } from './ZId';
 import { zIdName } from './ZIdName';
+import { zMedia } from './media';
 
 /**
  * Схема валидации метаданных связанной записи.
@@ -11,9 +12,9 @@ import { zIdName } from './ZIdName';
  */
 const zEntryRelatedEntryData = z.object({
   /** Заголовок связанной записи. Может быть `null`. */
-  entryTitle: z.string().nullable(),
+  title: z.string(),
   /** Название типа контента связанной записи. Может быть `null`. */
-  entryPostType: z.string().nullable(),
+  post_type: zIdName,
 });
 
 /**
@@ -23,36 +24,19 @@ export type ZEntryRelatedEntryData = z.infer<typeof zEntryRelatedEntryData>;
 
 /**
  * Схема валидации связанных данных записи.
- * Содержит метаданные о записях, на которые ссылаются ref-поля в data_json.
+ * Содержит метаданные о записях и медиа-файлах, на которые ссылаются ref- и media-поля в data_json.
  */
 export const zEntryRelatedData = z.object({
   /** Метаданные связанных записей, ключ - ID записи (строка), значение - метаданные записи. */
   entryData: z.record(zId, zEntryRelatedEntryData).optional(),
+  /** Метаданные связанных медиа-файлов, ключ - ULID медиа-файла (строка), значение - метаданные медиа-файла. */
+  mediaData: z.record(zId, zMedia).optional(),
 });
 
 /**
  * Тип связанных данных записи.
  */
 export type ZEntryRelatedData = z.infer<typeof zEntryRelatedData>;
-
-/**
- * Схема валидации Blueprint в контексте Entry.
- * Упрощённая версия Blueprint, возвращаемая в ответе Entry.
- */
-const zEntryBlueprint = z.object({
-  /** Уникальный идентификатор Blueprint. */
-  id: zId,
-  /** Отображаемое название Blueprint. */
-  name: z.string(),
-  /** Уникальный код Blueprint (URL-friendly строка). */
-  code: z.string(),
-  /** Описание Blueprint. Может быть `null`. */
-  description: z.string().nullable(),
-  /** Дата создания в формате ISO 8601. Может быть `null`. */
-  created_at: z.string().nullable(),
-  /** Дата последнего обновления в формате ISO 8601. Может быть `null`. */
-  updated_at: z.string().nullable(),
-});
 
 /**
  * Схема валидации записи CMS.

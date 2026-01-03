@@ -295,6 +295,17 @@ export const zEditJsonArray = zEditJsonObject.extend({
 export type ZEditJsonArray = z.infer<typeof zEditJsonArray>;
 
 /**
+ * Схема валидации компонента выбора медиа-файла (MediaFieldWidget).
+ * Используется для полей типа 'media' с кардинальностью 'one'.
+ */
+export const zEditMediaField = z.object({
+  name: z.literal('mediaField'),
+  props: zBaseProps,
+});
+
+export type ZEditMediaField = z.infer<typeof zEditMediaField>;
+
+/**
  * Схема валидации конфигурации компонента формы редактирования.
  * Определяет все доступные типы компонентов и их свойства.
  * @example
@@ -321,6 +332,7 @@ export const zEditComponent = z.discriminatedUnion('name', [
   zEditSelectMultiple,
   zEditRefField,
   zEditJsonArray,
+  zEditMediaField,
 ]);
 
 /**

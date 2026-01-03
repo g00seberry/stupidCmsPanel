@@ -35,7 +35,7 @@ const zMediaId = z.string().min(1);
  * Схема валидации вариантов превью изображения.
  * Содержит URL для разных размеров изображения.
  */
-const zMediaPreviewUrls = z.object({
+export const zMediaPreviewUrls = z.object({
   /** URL миниатюры изображения. */
   thumbnail: z.string(),
   /** URL среднего размера изображения. */

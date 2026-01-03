@@ -48,6 +48,11 @@ const componentsOptionsRegistry: Record<
     one: ['jsonObject'],
     many: ['jsonArray'],
   },
+  /** Медиа-файлы. */
+  media: {
+    one: ['mediaField'],
+    many: ['mediaField'],
+  },
   /** Числовые поля (устаревший тип, используйте 'int' или 'float'). */
   number: {
     one: ['inputNumber'],

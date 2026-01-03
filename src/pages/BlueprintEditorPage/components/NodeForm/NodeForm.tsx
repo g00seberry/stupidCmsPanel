@@ -66,7 +66,7 @@ export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
         />
       </Form.Item>
 
-      <ConstraintsForm dataType={dataType} />
+      <ConstraintsForm dataType={dataType} disabled={isReadonly} />
 
       <Form.Item
         label="Массив"

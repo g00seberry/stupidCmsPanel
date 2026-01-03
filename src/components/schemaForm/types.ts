@@ -43,7 +43,9 @@ type InferFieldValue<F extends ZBlueprintSchemaField> = F['type'] extends 'json'
           ? string
           : F['type'] extends 'ref'
             ? string | number
-            : unknown;
+            : F['type'] extends 'media'
+              ? string
+              : unknown;
 /**
  * Выводит тип значений формы на основе схемы полей.
  * Рекурсивно обрабатывает все поля и учитывает cardinality для массивов.

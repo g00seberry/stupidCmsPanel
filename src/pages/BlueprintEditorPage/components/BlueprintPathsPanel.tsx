@@ -26,7 +26,6 @@ const nodeTypes = {
 
 export type PropsBlueprintPathsPanel = {
   paths: ZPath[];
-  pending?: boolean;
   height?: number;
   direction?: 'TB' | 'LR';
   draggable?: boolean;
@@ -63,7 +62,6 @@ const toReactFlowGraph = (graph: {
 
 export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
   paths,
-  pending = false,
   height = 600,
   direction = 'TB',
   draggable = true,
@@ -141,45 +139,35 @@ export const BlueprintPathsPanel: React.FC<PropsBlueprintPathsPanel> = ({
         onResetZoom={handleResetZoom}
       />
 
-      {pending ? (
-        <div className="w-full flex items-center justify-center text-gray-500" style={{ height }}>
-          Загрузка...
-        </div>
-      ) : paths.length === 0 ? (
-        <div className="w-full flex items-center justify-center text-gray-500" style={{ height }}>
-          Нет полей (paths)
-        </div>
-      ) : (
-        <div className="w-full" style={{ height }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            onNodesChange={changes => setNodes(prev => applyNodeChanges(changes, prev))}
-            onEdgesChange={changes => setEdges(prev => applyEdgeChanges(changes, prev))}
-            onNodeClick={(_, node) => onNodeClick?.(node.id)}
-            onNodeContextMenu={(event, node) => {
-              event.preventDefault();
-              onNodeContextMenu?.(node.id, event);
-            }}
-            onPaneContextMenu={event => {
-              event.preventDefault();
-              onPaneContextMenu?.(event);
-            }}
-            onInit={instance => {
-              reactFlowInstanceRef.current = instance;
-            }}
-            nodesDraggable={draggable}
-            nodesConnectable={false}
-            elementsSelectable
-            fitView
-          >
-            <Background />
-            {showControls && <Controls />}
-            {showMiniMap && <MiniMap />}
-          </ReactFlow>
-        </div>
-      )}
+      <div className="w-full" style={{ height }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodesChange={changes => setNodes(prev => applyNodeChanges(changes, prev))}
+          onEdgesChange={changes => setEdges(prev => applyEdgeChanges(changes, prev))}
+          onNodeClick={(_, node) => onNodeClick?.(node.id)}
+          onNodeContextMenu={(event, node) => {
+            event.preventDefault();
+            onNodeContextMenu?.(node.id, event);
+          }}
+          onPaneContextMenu={event => {
+            event.preventDefault();
+            onPaneContextMenu?.(event);
+          }}
+          onInit={instance => {
+            reactFlowInstanceRef.current = instance;
+          }}
+          nodesDraggable={draggable}
+          nodesConnectable={false}
+          elementsSelectable
+          fitView
+        >
+          <Background />
+          {showControls && <Controls />}
+          {showMiniMap && <MiniMap />}
+        </ReactFlow>
+      </div>
     </Card>
   );
 };
