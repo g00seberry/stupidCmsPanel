@@ -39,12 +39,17 @@ export const MediaFilters = observer<PropsMediaFilters>(({ store, cardClassName 
       {
         name: 'kind',
         element: (
-          <Select placeholder="Тип медиа" allowClear style={{ width: 150 }}>
-            <Select.Option value="image">Изображение</Select.Option>
-            <Select.Option value="video">Видео</Select.Option>
-            <Select.Option value="audio">Аудио</Select.Option>
-            <Select.Option value="document">Документ</Select.Option>
-          </Select>
+          <Select
+            placeholder="Тип медиа"
+            allowClear
+            style={{ width: 150 }}
+            options={[
+              { label: 'Изображение', value: 'image' },
+              { label: 'Видео', value: 'video' },
+              { label: 'Аудио', value: 'audio' },
+              { label: 'Документ', value: 'document' },
+            ]}
+          />
         ),
       },
       {
@@ -54,30 +59,43 @@ export const MediaFilters = observer<PropsMediaFilters>(({ store, cardClassName 
       {
         name: 'deleted',
         element: (
-          <Select placeholder="Статус удаления" allowClear style={{ width: 180 }}>
-            <Select.Option value="with">Включая удаленные</Select.Option>
-            <Select.Option value="only">Только удаленные</Select.Option>
-          </Select>
+          <Select
+            placeholder="Статус удаления"
+            allowClear
+            style={{ width: 180 }}
+            options={[
+              { label: 'Включая удаленные', value: 'with' },
+              { label: 'Только удаленные', value: 'only' },
+            ]}
+          />
         ),
       },
       {
         name: 'sort',
         element: (
-          <Select placeholder="Сортировка" style={{ width: 150 }}>
-            <Select.Option value="created_at">По дате создания</Select.Option>
-            <Select.Option value="size_bytes">По размеру</Select.Option>
-            <Select.Option value="mime">По MIME-типу</Select.Option>
-          </Select>
+          <Select
+            placeholder="Сортировка"
+            style={{ width: 150 }}
+            options={[
+              { label: 'По дате создания', value: 'created_at' },
+              { label: 'По размеру', value: 'size_bytes' },
+              { label: 'По MIME-типу', value: 'mime' },
+            ]}
+          />
         ),
         formItemProps: { initialValue: 'created_at' },
       },
       {
         name: 'order',
         element: (
-          <Select placeholder="Направление" style={{ width: 120 }}>
-            <Select.Option value="desc">По убыванию</Select.Option>
-            <Select.Option value="asc">По возрастанию</Select.Option>
-          </Select>
+          <Select
+            placeholder="Направление"
+            style={{ width: 120 }}
+            options={[
+              { label: 'По убыванию', value: 'desc' },
+              { label: 'По возрастанию', value: 'asc' },
+            ]}
+          />
         ),
         formItemProps: { initialValue: 'desc' },
       },

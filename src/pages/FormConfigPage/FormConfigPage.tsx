@@ -136,13 +136,11 @@ export const FormConfigPage = observer(() => {
         placeholder="Выберите компонент"
         className="w-full"
         allowClear
-      >
-        {availableComponents.map(componentName => (
-          <Select.Option key={componentName} value={componentName}>
-            {componentName}
-          </Select.Option>
-        ))}
-      </Select>
+        options={availableComponents.map(componentName => ({
+          label: componentName,
+          value: componentName,
+        }))}
+      />
     </div>
   );
 

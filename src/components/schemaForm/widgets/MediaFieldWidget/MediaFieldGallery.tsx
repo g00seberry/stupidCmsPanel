@@ -1,8 +1,9 @@
 import type { ZMedia } from '@/types/media';
 import type { ZId } from '@/types/ZId';
-import { Badge, Button } from 'antd';
+import { Button, Masonry } from 'antd';
 import { ImagePlus } from 'lucide-react';
 import type React from 'react';
+import { useMemo } from 'react';
 import { MediaFieldCard } from './MediaFieldCard';
 import { mediaFieldTexts } from './MediaFieldWidget.constants';
 
@@ -29,6 +30,16 @@ export const MediaFieldGallery: React.FC<MediaFieldGalleryProps> = ({
   onOpenSelector,
 }) => {
   const hasMedia = mediaList.length > 0;
+
+  const masonryItems = useMemo(
+    () =>
+      mediaList.map(media => ({
+        key: media.id,
+        data: media,
+        children: <MediaFieldCard key={media.id} media={media} onRemoveMedia={onRemoveMedia} />,
+      })),
+    [mediaList, onRemoveMedia]
+  );
 
   return (
     <div className="space-y-4">
@@ -65,11 +76,7 @@ export const MediaFieldGallery: React.FC<MediaFieldGalleryProps> = ({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {mediaList.map(media => (
-            <MediaFieldCard key={media.id} media={media} onRemoveMedia={onRemoveMedia} />
-          ))}
-        </div>
+        <Masonry items={masonryItems} columns={{ xs: 2, sm: 3, md: 4 }} gutter={16} />
       )}
     </div>
   );

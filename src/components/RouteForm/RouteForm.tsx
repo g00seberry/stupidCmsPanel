@@ -70,10 +70,12 @@ export const RouteForm: React.FC<PropsRouteForm> = ({
         label="Тип узла"
         rules={[{ required: true, message: 'Выберите тип узла' }]}
       >
-        <Select>
-          <Select.Option value="group">Группа</Select.Option>
-          <Select.Option value="route">Маршрут</Select.Option>
-        </Select>
+        <Select
+          options={[
+            { label: 'Группа', value: 'group' },
+            { label: 'Маршрут', value: 'route' },
+          ]}
+        />
       </Form.Item>
 
       <Form.Item
@@ -81,10 +83,12 @@ export const RouteForm: React.FC<PropsRouteForm> = ({
         label="Тип действия"
         rules={[{ required: true, message: 'Выберите тип действия' }]}
       >
-        <Select>
-          <Select.Option value="controller">Контроллер</Select.Option>
-          <Select.Option value="entry">Entry</Select.Option>
-        </Select>
+        <Select
+          options={[
+            { label: 'Контроллер', value: 'controller' },
+            { label: 'Entry', value: 'entry' },
+          ]}
+        />
       </Form.Item>
 
       <Form.Item name="name" label="Имя маршрута">
@@ -114,13 +118,14 @@ export const RouteForm: React.FC<PropsRouteForm> = ({
             label="HTTP методы"
             rules={[{ required: true, message: 'Выберите хотя бы один метод' }]}
           >
-            <Select mode="multiple" placeholder="Выберите методы">
-              {HTTP_METHODS.map(method => (
-                <Select.Option key={method} value={method}>
-                  {method}
-                </Select.Option>
-              ))}
-            </Select>
+            <Select
+              mode="multiple"
+              placeholder="Выберите методы"
+              options={HTTP_METHODS.map(method => ({
+                label: method,
+                value: method,
+              }))}
+            />
           </Form.Item>
         </>
       )}

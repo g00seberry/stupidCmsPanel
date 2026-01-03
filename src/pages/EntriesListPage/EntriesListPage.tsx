@@ -94,14 +94,16 @@ export const EntriesListPage = observer(() => {
       {
         name: 'status',
         element: (
-          <Select style={{ width: 180 }}>
-            <Select.Option value="all">Все статусы</Select.Option>
-            {store.statuses.map(status => (
-              <Select.Option key={status} value={status}>
-                {statusMap[status]?.text || status}
-              </Select.Option>
-            ))}
-          </Select>
+          <Select
+            style={{ width: 180 }}
+            options={[
+              { label: 'Все статусы', value: 'all' },
+              ...store.statuses.map(status => ({
+                label: statusMap[status]?.text || status,
+                value: status,
+              })),
+            ]}
+          />
         ),
         formItemProps: { initialValue: 'all' },
       },
