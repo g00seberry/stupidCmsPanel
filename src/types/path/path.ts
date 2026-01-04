@@ -102,7 +102,6 @@ export type ZSourceBlueprint = z.infer<typeof zSourceBlueprint>;
  *   is_indexed: true,
  *   is_readonly: false,
  *   validation_rules: { required: true, min: 5, max: 500 },
- *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
  *   created_at: '2025-01-10T12:45:00+00:00',
@@ -128,8 +127,6 @@ export const zPathBase = z.object({
   is_indexed: z.boolean(),
   /** Правила валидации поля. Может быть `null`. */
   validation_rules: zValidationRules.nullable(),
-  /** Идентификатор исходного Blueprint, из которого было скопировано поле. `null` для обычных полей. */
-  source_blueprint_id: zId.nullable(),
   /** Идентификатор встраивания Blueprint, к которому относится поле. `null` для обычных полей. */
   blueprint_embed_id: zId.nullable(),
   /** Информация об исходном Blueprint (для readonly полей). Может быть `null` или `undefined`. */
@@ -161,7 +158,6 @@ export type ZPathBase = z.infer<typeof zPathBase>;
  *   is_indexed: true,
  *   is_readonly: false,
  *   validation_rules: { required: true, min: 5, max: 500 },
- *   source_blueprint_id: null,
  *   blueprint_embed_id: null,
  *   source_blueprint: undefined,
  *   children: undefined,

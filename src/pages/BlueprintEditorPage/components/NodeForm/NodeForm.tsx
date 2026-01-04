@@ -35,7 +35,7 @@ const dataTypeOptions = zDataType.options.map(type => ({
 type PropsNodeForm = { path?: ZPath; form: FormInstance };
 
 export const NodeForm: React.FC<PropsNodeForm> = observer(({ path, form }) => {
-  const isReadonly = !!path?.source_blueprint_id;
+  const isReadonly = !!path?.blueprint_embed_id;
   const dataType = Form.useWatch('data_type', form);
   const isNew = !path;
 

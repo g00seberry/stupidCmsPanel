@@ -27,10 +27,10 @@ export const PathContextMenuContainer: React.FC<PropsPathContextMenuContainer> =
 
     const menuPermissions = useMemo(
       () => ({
-        canEdit: !selectedPath?.source_blueprint_id,
-        canAddChild: selectedPath?.data_type === 'json' && !selectedPath?.source_blueprint_id,
-        canEmbed: selectedPath?.data_type === 'json' && !selectedPath?.source_blueprint_id,
-        canDelete: !selectedPath?.source_blueprint_id,
+        canEdit: !selectedPath?.blueprint_embed_id,
+        canAddChild: selectedPath?.data_type === 'json' && !selectedPath?.blueprint_embed_id,
+        canEmbed: selectedPath?.data_type === 'json' && !selectedPath?.blueprint_embed_id,
+        canDelete: !selectedPath?.blueprint_embed_id,
       }),
       [selectedPath]
     );
