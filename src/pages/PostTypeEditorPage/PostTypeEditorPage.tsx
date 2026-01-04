@@ -82,17 +82,11 @@ export const PostTypeEditorPage = observer(() => {
           // Обработка ошибки 409 (CONFLICT) - тип содержит записи
           if (axios.isAxiosError(error) && error.response?.status === 409) {
             const problemResult = zProblemJson.safeParse(error.response?.data);
-            const entriesCount =
-              problemResult.success && typeof problemResult.data.meta?.entries_count === 'number'
-                ? problemResult.data.meta.entries_count
-                : null;
 
             modal.confirm({
-              title: 'Невозможно удалить тип контента',
-              content: entriesCount
-                ? `Тип контента содержит ${entriesCount} ${entriesCount === 1 ? 'запись' : 'записей'}. Вы можете удалить тип контента вместе со всеми записями.`
-                : 'Тип контента содержит записи. Вы можете удалить тип контента вместе со всеми записями.',
-              okText: 'Удалить всё',
+              title: problemResult.data?.detail,
+              content: problemResult.data?.meta?.reasons?.map(r => <div>{r}</div>),
+              okText: 'Всё равно удалить ',
               okType: 'danger',
               cancelText: 'Отмена',
               onOk: async () => {
