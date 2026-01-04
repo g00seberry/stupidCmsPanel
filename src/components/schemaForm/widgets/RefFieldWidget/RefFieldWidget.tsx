@@ -13,7 +13,7 @@ import { searchEntries } from '@/api/apiEntries';
 import { PaginatedDataLoader } from '@/components/PaginatedTable/paginatedDataLoader';
 import type { ZEntry, ZEntriesSearchFilters } from '@/types/entries';
 import type { ZId } from '@/types/ZId';
-import { getValueByPath } from '@/utils/pathUtils';
+import { getValueByPath, pathToString } from '@/utils/pathUtils';
 
 /**
  * Создаёт экземпляр store для пагинированной таблицы выбора записей.
@@ -123,10 +123,15 @@ export const RefFieldWidget: React.FC<RefFieldWidgetProps> = observer(
       }
     };
 
-    const options = Object.entries(widgetStore.entryInfo).map(([entryId, entryData]) => ({
-      label: `${entryData.title} | ${entryData.post_type.name}`,
-      value: String(entryId),
-    }));
+    const options = Object.entries(widgetStore.entryInfo).map(([entryId, entryData], index) => {
+      const error = model.errorFor(pathToString([...namePath, index]));
+      const label = `${entryData.title} | ${entryData.post_type.name}`;
+      return {
+        label: error ? <span className="text-red-500">{label}</span> : label,
+        value: String(entryId),
+      };
+    });
+
     return (
       <>
         <FormField model={model} namePath={namePath} componentConfig={componentConfig}>
@@ -135,8 +140,7 @@ export const RefFieldWidget: React.FC<RefFieldWidgetProps> = observer(
             allowClear
             value={value}
             style={{ width: '100%' }}
-            mode={selectionType === 'checkbox' ? 'tags' : undefined}
-            maxTagCount="responsive"
+            mode="tags"
             onClick={handleOpen}
             placeholder={refFieldConstants.inputPlaceholder}
             className="cursor-pointer"
@@ -149,7 +153,7 @@ export const RefFieldWidget: React.FC<RefFieldWidgetProps> = observer(
         <Drawer
           open={widgetStore.selectorOpen}
           onClose={handleCancel}
-          width={refFieldConstants.drawerWidth}
+          size="large"
           title={refFieldConstants.drawerTitle}
           extra={
             <Space>
