@@ -15,6 +15,9 @@ export class NotificationService {
   showSuccess(config: NotificationArgsProps) {
     this.api?.success(config);
   }
+  showWarning(config: NotificationArgsProps) {
+    this.api?.warning(config);
+  }
 }
 
 export const notificationService = new NotificationService();

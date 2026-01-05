@@ -6,6 +6,8 @@ import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoutesListStore } from './RoutesListStore';
+import { findInTree } from '@/utils/treeUtils';
+import { notificationService } from '@/services/notificationService';
 
 /**
  * Страница со списком маршрутов.
@@ -21,7 +23,13 @@ export const RoutesPage = observer(() => {
   /**
    * Обработчик редактирования маршрута.
    */
-  const handleEdit = (id: number): void => {
+  const handleEdit = (id: string): void => {
+    if (!store.routes) return;
+    const node = findInTree(store.routes, Number(id), 'id');
+    if (node?.readonly) {
+      notificationService.showWarning({ message: 'Системные роуты нельзя редактировать' });
+      return;
+    }
     navigate(buildUrl(PageUrl.RouteEdit, { id: String(id) }));
   };
 
@@ -40,7 +48,7 @@ export const RoutesPage = observer(() => {
         </Button>
       }
     >
-      <Tree treeData={store.treeData} onSelect={([id]) => handleEdit(Number(id))} />
+      <Tree treeData={store.treeData} onSelect={([id]) => handleEdit(String(id))} />
     </PageLayout>
   );
 });
