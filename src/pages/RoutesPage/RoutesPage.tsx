@@ -16,7 +16,7 @@ export const RoutesPage = observer(() => {
   const navigate = useNavigate();
   const store = useMemo(() => {
     const s = new RoutesListStore();
-    s.initialize();
+    s.loadRoutes();
     return s;
   }, []);
 
@@ -47,6 +47,7 @@ export const RoutesPage = observer(() => {
           Создать маршрут
         </Button>
       }
+      loading={store.pending}
     >
       <Tree treeData={store.treeData} onSelect={([id]) => handleEdit(String(id))} />
     </PageLayout>

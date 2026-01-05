@@ -15,9 +15,6 @@ export class RoutesListStore {
   /** Флаг выполнения запроса загрузки. */
   pending = false;
 
-  /** Флаг начальной загрузки данных. */
-  initialLoading = false;
-
   constructor() {
     makeAutoObservable(this);
   }
@@ -31,14 +28,6 @@ export class RoutesListStore {
    */
   setPending(value: boolean): void {
     this.pending = value;
-  }
-
-  /**
-   * Устанавливает флаг начальной загрузки данных.
-   * @param value Новое значение флага.
-   */
-  setInitialLoading(value: boolean): void {
-    this.initialLoading = value;
   }
 
   /**
@@ -65,15 +54,6 @@ export class RoutesListStore {
       onError(error);
     } finally {
       this.setPending(false);
-      this.setInitialLoading(false);
     }
-  }
-
-  /**
-   * Инициализирует загрузку данных при первом открытии страницы.
-   */
-  async initialize(): Promise<void> {
-    this.setInitialLoading(true);
-    await this.loadRoutes();
   }
 }
