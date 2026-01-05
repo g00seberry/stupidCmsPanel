@@ -1,6 +1,6 @@
 import { PageLayout } from '@/components/PageLayout';
 import { RouteForm } from '@/pages/RouteEditorPage/RouteForm';
-import { buildUrl, PageUrl } from '@/PageUrl';
+import { PageUrl } from '@/PageUrl';
 import { CheckOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import { observer } from 'mobx-react-lite';
@@ -31,10 +31,7 @@ export const RouteEditorInner: React.FC<PropsRouteEditorInner> = observer(({ sto
    */
   const handleSave = async () => {
     const values = await form.validateFields();
-    const result = await store.createRoute(values);
-    if (result) {
-      navigate(buildUrl(PageUrl.RouteEdit, { id: String(result.id) }), { replace: true });
-    }
+    store.updateRoute(store.routeId, values);
   };
 
   return (
