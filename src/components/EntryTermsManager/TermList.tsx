@@ -1,7 +1,7 @@
 import type { ZEntryTermsData } from '@/types/entries';
 import type { ZId } from '@/types/ZId';
 import { Tag } from 'antd';
-import { Plus } from 'lucide-react';
+import { PlusOutlined } from '@ant-design/icons';
 
 /**
  * Пропсы компонента отображения списка термов.
@@ -64,7 +64,7 @@ export const TermList: React.FC<PropsTermList> = ({
               className="flex items-center justify-center w-5 h-5 rounded hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label={`Добавить термы в таксономию ${group.taxonomy.label}`}
             >
-              <Plus className="w-4 h-4 text-muted-foreground" />
+              <PlusOutlined className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
           <div className="flex flex-wrap gap-2">

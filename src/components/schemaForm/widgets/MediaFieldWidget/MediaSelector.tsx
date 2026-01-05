@@ -2,7 +2,7 @@ import { FilterForm } from '@/components/FilterForm';
 import { MediaGrid } from '@/components/MediaGrid';
 import { MediaUpload } from '@/components/MediaUpload';
 import { Alert, Button, Drawer, Input, Space, Spin, Tooltip } from 'antd';
-import { Info, Search, Upload } from 'lucide-react';
+import { InfoCircleOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import type React from 'react';
 import { useEffect, useMemo } from 'react';
@@ -65,7 +65,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = observer(
         extra={
           <Space>
             <Tooltip title="Загрузить новые файлы в библиотеку">
-              <Button icon={<Upload className="w-4 h-4" />} onClick={store.openUpload}>
+              <Button icon={<UploadOutlined />} onClick={store.openUpload}>
                 {mediaFieldTexts.uploadButtonText}
               </Button>
             </Tooltip>
@@ -101,7 +101,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = observer(
                   </div>
                 }
                 type="info"
-                icon={<Info className="w-4 h-4" />}
+                icon={<InfoCircleOutlined />}
                 showIcon
                 closable
                 className="mb-2"
@@ -118,7 +118,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = observer(
                     element: (
                       <Input
                         placeholder="Поиск по названию или имени файла"
-                        prefix={<Search className="w-4 h-4 text-muted-foreground" />}
+                        prefix={<SearchOutlined className="text-muted-foreground" />}
                         allowClear
                         size="large"
                         autoFocus

@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { Copy, Lock } from 'lucide-react';
+import { CopyOutlined, LockOutlined } from '@ant-design/icons';
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import type { FlowNode } from '../pathToGraph';
@@ -45,8 +45,8 @@ export const EmbeddedBlueprintNode = memo(({ data, selected }: NodeProps<FlowNod
       >
         <Handle type="target" position={Position.Top} />
         <div className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-gray-700" />
-          <Copy className="w-4 h-4 text-gray-700" />
+          <LockOutlined className="w-4 h-4 text-gray-700" />
+          <CopyOutlined className="w-4 h-4 text-gray-700" />
           <span className="font-semibold text-sm text-gray-900">{label}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 border border-black/10 text-gray-700">
             readonly

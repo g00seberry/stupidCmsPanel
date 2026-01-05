@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Select, Spin, Tree, Empty } from 'antd';
-import { ArrowLeft, Check, AlertTriangle } from 'lucide-react';
+import { ArrowLeftOutlined, CheckOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import type { ZId } from '@/types/ZId';
@@ -166,7 +166,7 @@ export const FormConfigPage = observer(() => {
             title="Выбранный компонент не соответствует доступным компонентам для этого типа поля"
             placement="right"
           >
-            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <ExclamationCircleOutlined className="w-4 h-4 text-amber-500 flex-shrink-0" />
           </Tooltip>
         </div>
       );
@@ -244,13 +244,13 @@ export const FormConfigPage = observer(() => {
       extra={
         <>
           <Link to={buildUrl(PageUrl.ContentTypesEdit, { id: store.postType.id })}>
-            <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            <Button icon={<ArrowLeftOutlined />}>Назад</Button>
           </Link>
           <Button
             type="primary"
             onClick={handleSave}
             loading={store.pending}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>

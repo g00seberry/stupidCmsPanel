@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { App, Button, Card, Empty, Spin, Tag, Input } from 'antd';
 import { Link } from 'react-router-dom';
-import { Plus, Search, List, Trash2 } from 'lucide-react';
+import { PlusOutlined, SearchOutlined, UnorderedListOutlined, DeleteOutlined } from '@ant-design/icons';
 import { PageLayout } from '@/components/PageLayout';
 import { deleteTaxonomy, listTaxonomies } from '@/api/apiTaxonomies';
 import type { ZTaxonomy } from '@/types/taxonomies';
@@ -103,7 +103,7 @@ export const TaxonomiesPage = () => {
       breadcrumbs={['Таксономии']}
       extra={
         <Link to={buildUrl(PageUrl.TaxonomiesEdit, { id: 'new' })}>
-          <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+          <Button type="primary" icon={<PlusOutlined />}>
             Создать таксономию
           </Button>
         </Link>
@@ -113,7 +113,7 @@ export const TaxonomiesPage = () => {
       <div className="mb-6">
         <Input
           placeholder="Поиск по названию"
-          prefix={<Search className="w-4 h-4 text-muted-foreground" />}
+          prefix={<SearchOutlined className="text-muted-foreground" />}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           allowClear
@@ -152,7 +152,7 @@ export const TaxonomiesPage = () => {
                 )}
                 <div className="flex gap-2 pt-2">
                   <Link to={buildUrl(PageUrl.TermsByTaxonomy, { taxonomyId: String(taxonomy.id) })}>
-                    <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
+                    <Button type="primary" size="small" icon={<UnorderedListOutlined />}>
                       Термины
                     </Button>
                   </Link>
@@ -162,7 +162,7 @@ export const TaxonomiesPage = () => {
                   <Button
                     danger
                     size="small"
-                    icon={<Trash2 className="w-4 h-4" />}
+                    icon={<DeleteOutlined />}
                     onClick={e => {
                       e.preventDefault();
                       void handleDelete(taxonomy);

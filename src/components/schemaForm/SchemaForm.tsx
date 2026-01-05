@@ -5,7 +5,7 @@ import type { FormModel } from '@/components/schemaForm/FormModel';
 import { pathToString, type PathSegment } from '@/utils/pathUtils';
 import { renderComponentFromConfig } from './componentRenderer';
 import { Button } from 'antd';
-import { RefreshCcwIcon } from 'lucide-react';
+import { ReloadOutlined } from '@ant-design/icons';
 
 /**
  * Пропсы компонента SchemaForm.
@@ -64,7 +64,7 @@ export const SchemaForm = observer(({ model }: PropsSchemaForm) => {
     <div>
       {hasOutdatedFields && (
         <div className="mb-4 flex justify-end">
-          <Button icon={<RefreshCcwIcon />} onClick={handleRefreshAll}>
+          <Button icon={<ReloadOutlined />} onClick={handleRefreshAll}>
             Обновить все устаревшие поля ({outdatedPaths.length})
           </Button>
         </div>

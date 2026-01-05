@@ -1,6 +1,6 @@
 import type { SidebarLink } from '@/layouts/layoutNavigation';
 import { joinClassNames } from '@/utils/joinClassNames';
-import { ChevronLeft } from 'lucide-react';
+import { LeftOutlined } from '@ant-design/icons';
 import type { FC } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -59,7 +59,7 @@ export const MainSidebar: FC<PropsMainSidebar> = props => {
           aria-label={isCollapsed ? 'Развернуть меню' : 'Свернуть меню'}
           aria-pressed={isCollapsed}
         >
-          <ChevronLeft
+          <LeftOutlined
             className={joinClassNames(
               'h-5 w-5 transition-transform text-foreground',
               isCollapsed && 'rotate-180'

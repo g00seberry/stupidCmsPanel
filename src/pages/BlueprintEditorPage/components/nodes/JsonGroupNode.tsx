@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { Braces, Lock } from 'lucide-react';
+import { CodeOutlined, LockOutlined } from '@ant-design/icons';
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import type { FlowNode } from '../pathToGraph';
@@ -43,7 +43,7 @@ export const JsonGroupNode = memo(({ data, selected }: NodeProps<FlowNode['data'
       >
         <Handle type="target" position={Position.Top} />
         <div className="flex items-center gap-2">
-          <Braces className="w-4 h-4 text-gray-700" />
+          <CodeOutlined className="w-4 h-4 text-gray-700" />
           <span className="font-semibold text-sm text-gray-900">{label}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 border border-black/10 text-gray-700">
             json
@@ -55,7 +55,7 @@ export const JsonGroupNode = memo(({ data, selected }: NodeProps<FlowNode['data'
           )}
           {isReadonly && (
             <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-white/70 border border-black/10 text-gray-700">
-              <Lock className="w-3 h-3" />
+              <LockOutlined className="w-3 h-3" />
               ro
             </span>
           )}

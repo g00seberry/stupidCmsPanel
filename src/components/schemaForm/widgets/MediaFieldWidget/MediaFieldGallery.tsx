@@ -1,7 +1,7 @@
 import type { ZMedia } from '@/types/media';
 import type { ZId } from '@/types/ZId';
 import { Button, Masonry } from 'antd';
-import { ImagePlus } from 'lucide-react';
+import { PictureOutlined } from '@ant-design/icons';
 import type React from 'react';
 import { useMemo } from 'react';
 import { MediaFieldCard } from './MediaFieldCard';
@@ -48,7 +48,7 @@ export const MediaFieldGallery: React.FC<MediaFieldGalleryProps> = ({
           <Button
             type="primary"
             size="large"
-            icon={<ImagePlus className="w-4 h-4" />}
+            icon={<PictureOutlined />}
             onClick={onOpenSelector}
           >
             {mediaFieldTexts.addButtonText}
@@ -65,7 +65,7 @@ export const MediaFieldGallery: React.FC<MediaFieldGalleryProps> = ({
         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center bg-muted/30">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-              <ImagePlus className="w-8 h-8 text-muted-foreground" />
+              <PictureOutlined className="w-8 h-8 text-muted-foreground" />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">{mediaFieldTexts.emptyGalleryStateTitle}</h3>

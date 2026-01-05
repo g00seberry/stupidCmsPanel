@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, Form, Input, Spin, Tag, Typography, Popconfirm } from 'antd';
-import { Save, Trash2, RotateCcw } from 'lucide-react';
+import { SaveOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { MediaEditorStore } from './MediaEditorStore';
 import { PageUrl } from '@/PageUrl';
 import { PageLayout } from '@/components/PageLayout';
@@ -118,7 +118,7 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
       extra={
         <>
           {isDeleted && (
-            <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleRestore}>
+            <Button icon={<ReloadOutlined />} onClick={handleRestore}>
               Восстановить
             </Button>
           )}
@@ -130,14 +130,14 @@ const Inner = observer(({ store, navigate }: PropsInner) => {
               okText="Удалить"
               cancelText="Отмена"
             >
-              <Button danger icon={<Trash2 className="w-4 h-4" />}>
+              <Button danger icon={<DeleteOutlined />}>
                 Удалить
               </Button>
             </Popconfirm>
           )}
           <Button
             type="primary"
-            icon={<Save className="w-4 h-4" />}
+            icon={<SaveOutlined />}
             onClick={handleSave}
             loading={store.saving}
           >

@@ -1,6 +1,6 @@
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { App, Button, Card, Empty, Form, Input, Spin } from 'antd';
-import { Check, Trash2 } from 'lucide-react';
+import { CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -152,7 +152,7 @@ export const TermEditorPage = observer(() => {
               danger
               onClick={handleDelete}
               loading={store.pending}
-              icon={<Trash2 className="w-4 h-4" />}
+              icon={<DeleteOutlined />}
             >
               Удалить
             </Button>
@@ -162,7 +162,7 @@ export const TermEditorPage = observer(() => {
             type="primary"
             onClick={() => form.submit()}
             loading={store.pending}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>

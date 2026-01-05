@@ -1,5 +1,5 @@
 import { App, Button } from 'antd';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { ExclamationCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import React from 'react';
 
 /**
@@ -48,7 +48,7 @@ export const DeleteButton: React.FC<PropsDeleteButton> = ({
   const handleClick = () => {
     modal.confirm({
       title: title || defaultTitle,
-      icon: React.createElement(AlertTriangle, { className: 'w-5 h-5 text-red-500' }),
+      icon: React.createElement(ExclamationCircleOutlined, { className: 'text-red-500' }),
       content: `Вы уверены, что хотите удалить ${selectedCount} ${itemName}${selectedCount > 1 ? 'ов' : ''}? Это действие нельзя отменить.`,
       okText,
       okType: 'danger',
@@ -60,7 +60,7 @@ export const DeleteButton: React.FC<PropsDeleteButton> = ({
   };
 
   return (
-    <Button danger icon={<Trash2 className="w-4 h-4" />} onClick={handleClick} loading={loading}>
+    <Button danger icon={<DeleteOutlined />} onClick={handleClick} loading={loading}>
       {buttonText || defaultButtonText}
     </Button>
   );

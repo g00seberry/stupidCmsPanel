@@ -6,7 +6,7 @@ import { notificationService } from '@/services/notificationService';
 import type { ZUpdateBlueprintDto } from '@/types/blueprint';
 import { onError } from '@/utils/onError';
 import { Button, Form } from 'antd';
-import { Save } from 'lucide-react';
+import { SaveOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -100,7 +100,7 @@ export const BlueprintEditorInner: React.FC<Props> = observer(({ store }) => {
             itemName="Blueprint"
             buttonText="Удалить"
           />
-          <Button type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>
+          <Button type="primary" icon={<SaveOutlined />} onClick={handleSave}>
             Сохранить
           </Button>
         </>

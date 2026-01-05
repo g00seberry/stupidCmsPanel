@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Button, Input, Select, Typography, Tag } from 'antd';
-import { Plus, Search } from 'lucide-react';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { PageLayout } from '@/components/PageLayout';
 import { EntriesListStore } from './EntriesListStore';
 import { getPostType } from '@/api/apiPostTypes';
@@ -85,7 +85,7 @@ export const EntriesListPage = observer(() => {
         element: (
           <Input
             placeholder="Поиск по названию "
-            prefix={<Search className="w-4 h-4 text-muted-foreground" />}
+            prefix={<SearchOutlined className="text-muted-foreground" />}
             allowClear
           />
         ),
@@ -201,7 +201,7 @@ export const EntriesListPage = observer(() => {
         postTypeId ? (
           <Button
             type="primary"
-            icon={<Plus className="w-4 h-4" />}
+            icon={<PlusOutlined />}
             onClick={() => {
               navigate(buildUrl(PageUrl.EntryEdit, { postTypeId, id: 'new' }));
             }}

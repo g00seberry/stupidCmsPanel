@@ -1,5 +1,5 @@
 import { Button, Space } from 'antd';
-import { Maximize2, Layout, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { FullscreenOutlined, AppstoreOutlined, ZoomInOutlined, ZoomOutOutlined, ReloadOutlined } from '@ant-design/icons';
 
 /**
  * Пропсы компонента панели управления графом.
@@ -35,13 +35,13 @@ export const GraphControls: React.FC<PropsGraphControls> = ({
     <div className="flex items-center justify-end p-4 border-b bg-card">
       <Space>
         {onCenter && (
-          <Button icon={<Maximize2 className="w-4 h-4" />} onClick={onCenter} title="Центрировать">
+          <Button icon={<FullscreenOutlined />} onClick={onCenter} title="Центрировать">
             Центр
           </Button>
         )}
         {onAutoLayout && (
           <Button
-            icon={<Layout className="w-4 h-4" />}
+            icon={<AppstoreOutlined />}
             onClick={onAutoLayout}
             title="Авто-компоновка"
           >
@@ -49,14 +49,14 @@ export const GraphControls: React.FC<PropsGraphControls> = ({
           </Button>
         )}
         {onZoomIn && (
-          <Button icon={<ZoomIn className="w-4 h-4" />} onClick={onZoomIn} title="Увеличить" />
+          <Button icon={<ZoomInOutlined />} onClick={onZoomIn} title="Увеличить" />
         )}
         {onZoomOut && (
-          <Button icon={<ZoomOut className="w-4 h-4" />} onClick={onZoomOut} title="Уменьшить" />
+          <Button icon={<ZoomOutOutlined />} onClick={onZoomOut} title="Уменьшить" />
         )}
         {onResetZoom && (
           <Button
-            icon={<RotateCcw className="w-4 h-4" />}
+            icon={<ReloadOutlined />}
             onClick={onResetZoom}
             title="Сбросить масштаб"
           >

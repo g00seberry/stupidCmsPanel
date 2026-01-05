@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { Calendar, CheckSquare, FileText, Hash, Link2, Lock, Search } from 'lucide-react';
+import { CalendarOutlined, CheckSquareOutlined, FileTextOutlined, NumberOutlined, LinkOutlined, LockOutlined, SearchOutlined } from '@ant-design/icons';
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import type { FlowNode } from '../pathToGraph';
@@ -11,18 +11,18 @@ const getDataTypeIcon = (dataType: string) => {
   switch (dataType) {
     case 'string':
     case 'text':
-      return <FileText className="w-4 h-4" />;
+      return <FileTextOutlined className="w-4 h-4" />;
     case 'int':
     case 'float':
-      return <Hash className="w-4 h-4" />;
+      return <NumberOutlined className="w-4 h-4" />;
     case 'bool':
-      return <CheckSquare className="w-4 h-4" />;
+      return <CheckSquareOutlined className="w-4 h-4" />;
     case 'datetime':
-      return <Calendar className="w-4 h-4" />;
+      return <CalendarOutlined className="w-4 h-4" />;
     case 'ref':
-      return <Link2 className="w-4 h-4" />;
+      return <LinkOutlined className="w-4 h-4" />;
     default:
-      return <FileText className="w-4 h-4" />;
+      return <FileTextOutlined className="w-4 h-4" />;
   }
 };
 
@@ -106,14 +106,14 @@ export const SimpleFieldNode = memo(({ data, selected }: NodeProps<FlowNode['dat
 
           {isIndexed && (
             <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-white/70 border border-black/10 text-gray-700">
-              <Search className="w-3 h-3" />
+              <SearchOutlined className="w-3 h-3" />
               indexed
             </span>
           )}
 
           {isReadonly && (
             <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-white/70 border border-black/10 text-gray-700">
-              <Lock className="w-3 h-3" />
+              <LockOutlined className="w-3 h-3" />
               ro
             </span>
           )}

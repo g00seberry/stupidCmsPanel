@@ -6,7 +6,7 @@ import { onError } from '@/utils/onError';
 import { App, Button, Card, Empty, Spin, Tag, Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import axios from 'axios';
-import { ArrowLeft, Edit, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeftOutlined, EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -66,13 +66,13 @@ const convertTermsTreeToTreeData = (
                 id: String(node.id),
               })}
             >
-              <Button type="text" size="small" icon={<Edit className="w-3 h-3" />} />
+              <Button type="text" size="small" icon={<EditOutlined />} />
             </Link>
             <Button
               type="text"
               danger
               size="small"
-              icon={<Trash2 className="w-3 h-3" />}
+              icon={<DeleteOutlined />}
               onClick={e => {
                 e.stopPropagation();
                 onDelete(node);
@@ -271,10 +271,10 @@ export const TermsPage = observer(() => {
       extra={
         <>
           <Link to={PageUrl.Taxonomies}>
-            <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            <Button icon={<ArrowLeftOutlined />}>Назад</Button>
           </Link>
           <Link to={buildUrl(PageUrl.TermEdit, { taxonomyId, id: 'new' })}>
-            <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+            <Button type="primary" icon={<PlusOutlined />}>
               Создать термин
             </Button>
           </Link>

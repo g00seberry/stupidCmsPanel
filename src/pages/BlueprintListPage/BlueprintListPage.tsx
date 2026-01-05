@@ -3,7 +3,7 @@ import { BlueprintListStore } from '@/pages/BlueprintListPage/BlueprintListStore
 import { DeleteButton } from '@/components/DeleteButton';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { Button, Space } from 'antd';
-import { Plus } from 'lucide-react';
+import { PlusOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -31,7 +31,7 @@ export const BlueprintListPage = observer(() => {
             itemName="Blueprint"
           />
           <Link to={buildUrl(PageUrl.BlueprintsEdit, { id: 'new' })}>
-            <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+            <Button type="primary" icon={<PlusOutlined />}>
               Создать
             </Button>
           </Link>

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { listRoutes } from '@/api/apiRoutes';
 import { onError } from '@/utils/onError';
-import type { ZRouteNode, ZRouteNodeListItem } from '@/types/routes';
+import type { ZRouteNode } from '@/types/routes';
 import type { TreeDataNode } from 'antd';
 
 /**
@@ -10,7 +10,7 @@ import type { TreeDataNode } from 'antd';
  */
 export class RoutesListStore {
   /** Массив загруженных маршрутов. */
-  routes: ZRouteNodeListItem[] = [];
+  routes: ZRouteNode[] = [];
 
   /** Флаг выполнения запроса загрузки. */
   pending = false;
@@ -120,7 +120,7 @@ export class RoutesListStore {
    * Устанавливает массив маршрутов.
    * @param routes Новый массив маршрутов.
    */
-  setRoutes(routes: ZRouteNodeListItem[]): void {
+  setRoutes(routes: ZRouteNode[]): void {
     this.routes = routes;
   }
 

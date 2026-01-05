@@ -4,7 +4,7 @@ import { BulkSelectPanel } from '@/pages/MediaListPage/BulkSelectPanel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia } from '@/types/media';
 import { App, Button, Pagination, Popconfirm } from 'antd';
-import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react';
+import { ExclamationCircleOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -106,7 +106,7 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
     <>
       {store.hasSelection && (
         <>
-          <Button icon={<RotateCcw className="w-4 h-4" />} onClick={handleBulkRestore}>
+          <Button icon={<ReloadOutlined />} onClick={handleBulkRestore}>
             Восстановить выбранные ({store.selectedCount})
           </Button>
           <Popconfirm
@@ -116,9 +116,9 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
             okText="Удалить"
             okType="danger"
             cancelText="Отмена"
-            icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
+            icon={<ExclamationCircleOutlined className="text-red-500" />}
           >
-            <Button danger icon={<Trash2 className="w-4 h-4" />}>
+            <Button danger icon={<DeleteOutlined />}>
               Удалить окончательно ({store.selectedCount})
             </Button>
           </Popconfirm>
@@ -132,9 +132,9 @@ const MediaListTrashPageInner = observer(({ store }: PropsMediaListTrashPageInne
           okText="Очистить"
           okType="danger"
           cancelText="Отмена"
-          icon={<AlertTriangle className="w-4 h-4 text-red-500" />}
+            icon={<ExclamationCircleOutlined className="text-red-500" />}
         >
-          <Button danger icon={<Trash2 className="w-4 h-4" />}>
+          <Button danger icon={<DeleteOutlined />}>
             Очистить корзину
           </Button>
         </Popconfirm>

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ZMedia } from '@/types/media';
 import { Card, Checkbox, Image, Tag, Tooltip } from 'antd';
-import { Trash2, RotateCcw } from 'lucide-react';
+import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { joinClassNames } from '@/utils/joinClassNames';
 import { formatFileSize } from '@/utils/fileUtils';
 import { getMediaIcon, getKindTagColor, getKindLabel } from '@/utils/mediaUtils';
@@ -155,7 +155,7 @@ export const MediaCard: React.FC<PropsMediaCard> = ({
             >
               <Tooltip title="Удалить">
                 <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors">
-                  <Trash2 className="w-4 h-4 text-white" />
+                  <DeleteOutlined className="w-4 h-4 text-white" />
                 </div>
               </Tooltip>
             </div>
@@ -180,7 +180,7 @@ export const MediaCard: React.FC<PropsMediaCard> = ({
             >
               <Tooltip title="Восстановить">
                 <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors">
-                  <RotateCcw className="w-4 h-4 text-white" />
+                  <ReloadOutlined className="w-4 h-4 text-white" />
                 </div>
               </Tooltip>
             </div>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Card, Form, Space, Button } from 'antd';
-import { Filter } from 'lucide-react';
+import { FilterOutlined } from '@ant-design/icons';
 import type { FormItemProps } from 'antd/es/form';
 import type { ReactNode } from 'react';
 import { FilterFormStore } from './FilterFormStore';
@@ -121,7 +121,7 @@ export const FilterForm = observer(
                 <Button
                   type="primary"
                   htmlType="submit"
-                  icon={showFilterIcon ? <Filter className="w-4 h-4" /> : undefined}
+                  icon={showFilterIcon ? <FilterOutlined /> : undefined}
                 >
                   {applyText}
                 </Button>

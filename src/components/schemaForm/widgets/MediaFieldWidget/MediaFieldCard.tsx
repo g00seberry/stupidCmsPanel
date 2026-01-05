@@ -2,7 +2,7 @@ import { MediaPreview } from '@/components/MediaPreview';
 import type { ZMedia } from '@/types/media';
 import type { ZId } from '@/types/ZId';
 import { Button, Popconfirm, Tooltip } from 'antd';
-import { Edit, Trash2 } from 'lucide-react';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type React from 'react';
 import { mediaFieldTexts } from './MediaFieldWidget.constants';
 
@@ -54,7 +54,7 @@ export const MediaFieldCard: React.FC<MediaFieldCardProps> = ({
             <Tooltip title={mediaFieldTexts.replaceButtonText}>
               <Button
                 type="primary"
-                icon={<Edit className="w-4 h-4" />}
+                icon={<EditOutlined />}
                 size="large"
                 onClick={e => {
                   e.stopPropagation();
@@ -85,7 +85,7 @@ export const MediaFieldCard: React.FC<MediaFieldCardProps> = ({
           <Button
             type="primary"
             danger
-            icon={<Trash2 className="w-4 h-4" />}
+            icon={<DeleteOutlined />}
             size="small"
             onClick={e => e.stopPropagation()}
             aria-label={mediaFieldTexts.removeButtonText}

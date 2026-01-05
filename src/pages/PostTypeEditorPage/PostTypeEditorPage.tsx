@@ -4,7 +4,12 @@ import { buildUrl, PageUrl } from '@/PageUrl';
 import { zProblemJson } from '@/types/ZProblemJson';
 import { App, Button, Card, Form, Input, Select, Spin } from 'antd';
 import axios from 'axios';
-import { Check, Info, Trash2, Settings } from 'lucide-react';
+import {
+  CheckOutlined,
+  InfoCircleOutlined,
+  DeleteOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -113,7 +118,7 @@ export const PostTypeEditorPage = observer(() => {
           {isEditMode && postTypeId && (
             <>
               <Link to={buildUrl(PageUrl.ContentTypesBlueprints, { id: postTypeId })}>
-                <Button icon={<Settings className="w-4 h-4" />}>Настроить Blueprints</Button>
+                <Button icon={<SettingOutlined />}>Настроить Blueprints</Button>
               </Link>
               {store.currentPostType?.blueprint_id && (
                 <Link
@@ -122,14 +127,14 @@ export const PostTypeEditorPage = observer(() => {
                     blueprintId: String(store.currentPostType.blueprint_id),
                   })}
                 >
-                  <Button icon={<Settings className="w-4 h-4" />}>Настроить форму</Button>
+                  <Button icon={<SettingOutlined />}>Настроить форму</Button>
                 </Link>
               )}
               <Button
                 danger
                 onClick={handleDelete}
                 loading={store.pending}
-                icon={<Trash2 className="w-4 h-4" />}
+                icon={<DeleteOutlined />}
               >
                 Удалить
               </Button>
@@ -140,7 +145,7 @@ export const PostTypeEditorPage = observer(() => {
             type="primary"
             onClick={() => form.submit()}
             loading={store.pending}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>
@@ -201,7 +206,7 @@ export const PostTypeEditorPage = observer(() => {
                       />
                     </Form.Item>
                     <p className="text-sm text-muted-foreground flex items-start gap-1">
-                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <InfoCircleOutlined className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <span>Имя шаблона Blade для этого типа контента. Опциональное поле.</span>
                     </p>
                   </div>

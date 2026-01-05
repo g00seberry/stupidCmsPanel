@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileAudio, FileImage, FileText, FileVideo } from 'lucide-react';
+import { SoundOutlined, PictureOutlined, FileTextOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import type { ZMedia } from '@/types/media';
 import { MediaKind, type MediaKindValue } from '@/types/media';
 
@@ -7,10 +7,10 @@ import { MediaKind, type MediaKindValue } from '@/types/media';
  * Маппинг типов медиа на компоненты иконок.
  */
 const MEDIA_ICON_MAP: Record<MediaKindValue, React.ComponentType<{ className?: string }>> = {
-  [MediaKind.Image]: FileImage,
-  [MediaKind.Video]: FileVideo,
-  [MediaKind.Audio]: FileAudio,
-  [MediaKind.Document]: FileText,
+  [MediaKind.Image]: PictureOutlined,
+  [MediaKind.Video]: VideoCameraOutlined,
+  [MediaKind.Audio]: SoundOutlined,
+  [MediaKind.Document]: FileTextOutlined,
 };
 
 /**

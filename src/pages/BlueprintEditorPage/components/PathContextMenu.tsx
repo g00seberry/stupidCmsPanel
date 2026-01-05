@@ -1,5 +1,5 @@
 import { Menu, type MenuProps } from 'antd';
-import { Edit, Plus, Trash2, PackagePlus } from 'lucide-react';
+import { EditOutlined, PlusOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
 
 export type PathContextMenuPosition = {
@@ -48,21 +48,21 @@ const createNodeMenuItems = (
     {
       key: 'edit',
       label: 'Редактировать',
-      icon: <Edit className="w-4 h-4" />,
+      icon: <EditOutlined />,
       onClick: () => actions.onEdit?.(pathId),
       disabled: !canEdit,
     },
     {
       key: 'addChild',
       label: 'Добавить дочернее поле',
-      icon: <Plus className="w-4 h-4" />,
+      icon: <PlusOutlined />,
       onClick: () => actions.onAddChild?.(pathId),
       disabled: !canAddChild,
     },
     {
       key: 'embed',
       label: 'Встроить Blueprint',
-      icon: <PackagePlus className="w-4 h-4" />,
+      icon: <PlusCircleOutlined />,
       onClick: () => actions.onEmbed?.(pathId),
       disabled: !canEmbed,
     },
@@ -72,7 +72,7 @@ const createNodeMenuItems = (
     {
       key: 'delete',
       label: 'Удалить',
-      icon: <Trash2 className="w-4 h-4" />,
+      icon: <DeleteOutlined />,
       danger: true,
       onClick: () => actions.onDelete?.(pathId),
       disabled: !canDelete,
@@ -88,13 +88,13 @@ const createPaneMenuItems = (actions: PathContextMenuActions): MenuProps['items'
     {
       key: 'addRoot',
       label: 'Добавить корневое поле',
-      icon: <Plus className="w-4 h-4" />,
+      icon: <PlusOutlined />,
       onClick: () => actions.onAddRoot?.(),
     },
     {
       key: 'embedRoot',
       label: 'Встроить Blueprint',
-      icon: <PackagePlus className="w-4 h-4" />,
+      icon: <PlusCircleOutlined />,
       onClick: () => actions.onEmbed?.(null),
     },
   ];

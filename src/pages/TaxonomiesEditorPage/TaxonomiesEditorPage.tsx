@@ -1,6 +1,6 @@
 import { buildUrl, PageUrl } from '@/PageUrl';
 import { App, Button, Card, Form, Input, Spin, Switch } from 'antd';
-import { Check, Trash2 } from 'lucide-react';
+import { CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -116,7 +116,7 @@ export const TaxonomiesEditorPage = observer(() => {
               danger
               onClick={handleDelete}
               loading={store.pending}
-              icon={<Trash2 className="w-4 h-4" />}
+              icon={<DeleteOutlined />}
             >
               Удалить
             </Button>
@@ -126,7 +126,7 @@ export const TaxonomiesEditorPage = observer(() => {
             type="primary"
             onClick={() => form.submit()}
             loading={store.pending}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>

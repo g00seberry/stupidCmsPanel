@@ -202,31 +202,6 @@ export type ZRouteNode = ZRouteNodeBase & { children?: ZRouteNode[] | null };
 export const zRouteNode: z.ZodType<ZRouteNode> = zRouteNodeBase.extend({
   children: z.lazy(() => zRouteNode.array().nullish()),
 });
-// ============================================================================
-// Схема для списка маршрутов (с полем source)
-// ============================================================================
-
-/**
- * Схема валидации элемента списка маршрутов.
- * Упрощённая версия RouteNode с полем source для плоского списка.
- * @example
- * const listItem: ZRouteNodeListItem = {
- *   id: 1,
- *   uri: '/about',
- *   methods: ['GET'],
- *   name: 'about',
- *   action_type: 'entry',
- *   entry_id: 5,
- *   enabled: true,
- *   readonly: false,
- *   source: 'database'
- * };
- */
-export const zRouteNodeListItem = zRouteNode;
-/**
- * Тип элемента списка маршрутов.
- */
-export type ZRouteNodeListItem = ZRouteNode;
 
 /**
  * Схема валидации ответа API со списком маршрутов.
@@ -238,7 +213,7 @@ export type ZRouteNodeListItem = ZRouteNode;
  */
 export const zRouteNodeListResponse = z.object({
   /** Массив узлов маршрутов (плоский список). */
-  data: z.array(zRouteNodeListItem),
+  data: z.array(zRouteNode),
 });
 
 /**

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Spin } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, List } from 'lucide-react';
+import { PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { PageLayout } from '@/components/PageLayout';
 import { listPostTypes } from '@/api/apiPostTypes';
 import type { ZPostType } from '@/types/postTypes';
@@ -43,7 +43,7 @@ export const PostTypesPage = () => {
         <Button
           type="primary"
           onClick={() => navigate(buildUrl(PageUrl.ContentTypesEdit, { id: 'new' }))}
-          icon={<Plus className="w-4 h-4" />}
+          icon={<PlusOutlined />}
         >
           Создать тип
         </Button>
@@ -75,7 +75,7 @@ export const PostTypesPage = () => {
                 )}
                 <div className="flex gap-2 pt-2">
                   <Link to={buildUrl(PageUrl.EntriesByType, { postTypeId: postType.id })}>
-                    <Button type="primary" size="small" icon={<List className="w-4 h-4" />}>
+                    <Button type="primary" size="small" icon={<UnorderedListOutlined />}>
                       Записи
                     </Button>
                   </Link>

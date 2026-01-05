@@ -8,7 +8,7 @@ import { notificationService } from '@/services/notificationService';
 import { onError } from '@/utils/onError';
 import type { MessageInstance } from 'antd/es/message/interface';
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm';
-import { AlertTriangle } from 'lucide-react';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import React from 'react';
 import type { MediaListStore } from './MediaListStore';
 
@@ -138,7 +138,7 @@ export const handleBulkForceDeleteMedia = async (
 
   modalApi.confirm({
     title: 'Окончательное удаление',
-    icon: React.createElement(AlertTriangle, { className: 'w-5 h-5 text-red-500' }),
+    icon: React.createElement(ExclamationCircleOutlined, { className: 'text-red-500' }),
     content: `Вы уверены, что хотите окончательно удалить ${selectedIds.length} медиа-файлов? Это действие нельзя отменить.`,
     okText: 'Удалить окончательно',
     okType: 'danger',
@@ -181,7 +181,7 @@ export const handleClearTrash = async (
 
   modalApi.confirm({
     title: 'Очистить корзину',
-    icon: React.createElement(AlertTriangle, { className: 'w-5 h-5 text-red-500' }),
+    icon: React.createElement(ExclamationCircleOutlined, { className: 'text-red-500' }),
     content: `Вы уверены, что хотите окончательно удалить все медиа-файлы из корзины? Это действие нельзя отменить.`,
     okText: 'Очистить корзину',
     okType: 'danger',

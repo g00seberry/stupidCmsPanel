@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Empty, Radio, Spin } from 'antd';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Check, ArrowLeft } from 'lucide-react';
+import { CheckOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { PageLayout } from '@/components/PageLayout';
 import { listBlueprints } from '@/api/blueprintApi';
 import { getPostType, updatePostType } from '@/api/apiPostTypes';
@@ -125,14 +125,14 @@ export const PostTypeBlueprintsPage = observer(() => {
                 : PageUrl.ContentTypes
             }
           >
-            <Button icon={<ArrowLeft className="w-4 h-4" />}>Назад</Button>
+            <Button icon={<ArrowLeftOutlined />}>Назад</Button>
           </Link>
           <Button
             type="primary"
             onClick={handleSave}
             loading={saving}
             disabled={!hasChanges}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>

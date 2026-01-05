@@ -6,7 +6,7 @@ import { notificationService } from '@/services/notificationService';
 import type { ZCreateBlueprintDto } from '@/types/blueprint';
 import { onError } from '@/utils/onError';
 import { Button, Form } from 'antd';
-import { Save } from 'lucide-react';
+import { SaveOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ export const BlueprintEditorInnerNew: React.FC = observer(() => {
         'Создание',
       ]}
       extra={
-        <Button type="primary" icon={<Save />} onClick={handleSave}>
+        <Button type="primary" icon={<SaveOutlined />} onClick={handleSave}>
           Создать
         </Button>
       }

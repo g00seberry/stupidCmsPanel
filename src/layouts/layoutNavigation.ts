@@ -1,6 +1,14 @@
 import { PageUrl } from '@/PageUrl';
-import type { LucideIcon } from 'lucide-react';
-import { FileType, Image, LayoutDashboard, Settings, Tags, Box, Route } from 'lucide-react';
+import type { ComponentType } from 'react';
+import {
+  FileOutlined,
+  PictureOutlined,
+  DashboardOutlined,
+  SettingOutlined,
+  TagsOutlined,
+  BoxPlotOutlined,
+  BranchesOutlined,
+} from '@ant-design/icons';
 
 /**
  * Пункт навигации сайдбара.
@@ -17,7 +25,7 @@ export interface SidebarLink {
   /**
    * Иконка, отображаемая слева от подписи.
    */
-  readonly icon: LucideIcon;
+  readonly icon: ComponentType<{ className?: string }>;
   /**
    * Требуется точное совпадение маршрута.
    */
@@ -46,17 +54,17 @@ export interface HeaderLink {
  * Основные ссылки в разделе «Управление контентом».
  */
 export const sidebarLinks: readonly SidebarLink[] = [
-  { title: 'Dashboard', url: PageUrl.Dashboard, icon: LayoutDashboard, exact: true },
-  { title: 'Media', url: PageUrl.Media, icon: Image },
-  { title: 'Taxonomies', url: PageUrl.Taxonomies, icon: Tags },
-  { title: 'Content Types', url: PageUrl.ContentTypes, icon: FileType },
-  { title: 'Blueprints', url: PageUrl.Blueprints, icon: Box },
-  { title: 'Routes', url: PageUrl.Routes, icon: Route },
+  { title: 'Dashboard', url: PageUrl.Dashboard, icon: DashboardOutlined, exact: true },
+  { title: 'Media', url: PageUrl.Media, icon: PictureOutlined },
+  { title: 'Taxonomies', url: PageUrl.Taxonomies, icon: TagsOutlined },
+  { title: 'Content Types', url: PageUrl.ContentTypes, icon: FileOutlined },
+  { title: 'Blueprints', url: PageUrl.Blueprints, icon: BoxPlotOutlined },
+  { title: 'Routes', url: PageUrl.Routes, icon: BranchesOutlined },
 ] as const;
 
 /**
  * Системные ссылки в нижнем блоке сайдбара.
  */
 export const systemSidebarLinks: readonly SidebarLink[] = [
-  { title: 'Настройки', url: PageUrl.Settings, icon: Settings },
+  { title: 'Настройки', url: PageUrl.Settings, icon: SettingOutlined },
 ] as const;

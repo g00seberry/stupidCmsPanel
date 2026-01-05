@@ -6,7 +6,7 @@ import type { ZId } from '@/types/ZId';
 import { viewDate } from '@/utils/dateUtils';
 import { Button, Card, Collapse, DatePicker, Form, Input, Select, Tag } from 'antd';
 import dayjs from 'dayjs';
-import { Calendar, Check, FileText, Settings, Tag as TagIcon } from 'lucide-react';
+import { CalendarOutlined, CheckOutlined, FileTextOutlined, SettingOutlined, TagOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -117,7 +117,7 @@ const Inner = observer(({ store }: PropsInner) => {
             type="primary"
             onClick={handleSave}
             loading={store.loading}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>
@@ -137,7 +137,7 @@ const Inner = observer(({ store }: PropsInner) => {
                   <Form.Item
                     label={
                       <span className="text-base font-semibold flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
+                        <FileTextOutlined />
                         Заголовок
                       </span>
                     }
@@ -171,7 +171,7 @@ const Inner = observer(({ store }: PropsInner) => {
                   key: 'advanced',
                   label: (
                     <span className="flex items-center gap-2 text-base font-medium">
-                      <Settings className="w-4 h-4" />
+                      <SettingOutlined />
                       Продвинутые настройки
                     </span>
                   ),
@@ -212,7 +212,7 @@ const Inner = observer(({ store }: PropsInner) => {
             {store.postType?.blueprint_id && store.blueprintModel && (
               <Card className="p-6 shadow-sm">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+                  <FileTextOutlined />
                   Содержимое записи
                 </h2>
                 <SchemaForm model={store.blueprintModel} />
@@ -227,7 +227,7 @@ const Inner = observer(({ store }: PropsInner) => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+                    <CalendarOutlined />
                     Публикация
                   </h2>
                   <Tag color={publicationStatus.color}>{publicationStatus.text}</Tag>
@@ -277,7 +277,7 @@ const Inner = observer(({ store }: PropsInner) => {
             {isEditMode && store.termsManagerStore && (
               <Card className="p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <TagIcon className="w-5 h-5" />
+                  <TagOutlined />
                   Категории и теги
                 </h2>
                 <Form.Item name="term_ids" className="mb-0">

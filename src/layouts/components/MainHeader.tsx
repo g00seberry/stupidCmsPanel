@@ -1,5 +1,5 @@
 import { authStore } from '@/AuthStore';
-import { ChevronDown, LogOut, Sliders } from 'lucide-react';
+import { DownOutlined, LogoutOutlined, SlidersOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -50,7 +50,7 @@ export const MainHeader = observer(() => {
     <header className="z-50 w-full border-b bg-primary text-primary-foreground">
       <div className="flex h-14 items-center px-4 gap-4">
         <div className="flex items-center gap-2">
-          <Sliders className="h-5 w-5" aria-hidden />
+          <SlidersOutlined className="h-5 w-5" aria-hidden />
           <span className="font-semibold text-lg">CMS</span>
         </div>
 
@@ -63,7 +63,7 @@ export const MainHeader = observer(() => {
             aria-expanded={isProfileMenuOpen}
           >
             <span className="text-sm font-medium">{userName ?? 'Administrator'}</span>
-            <ChevronDown className="h-4 w-4" aria-hidden />
+            <DownOutlined className="h-4 w-4" aria-hidden />
           </button>
           {isProfileMenuOpen ? (
             <div
@@ -80,7 +80,7 @@ export const MainHeader = observer(() => {
                 onClick={handleLogout}
                 role="menuitem"
               >
-                <LogOut className="h-4 w-4" aria-hidden />
+                <LogoutOutlined className="h-4 w-4" aria-hidden />
                 Выйти
               </button>
             </div>

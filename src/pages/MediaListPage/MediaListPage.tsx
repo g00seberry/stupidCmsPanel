@@ -6,7 +6,7 @@ import { BulkSelectPanel } from '@/pages/MediaListPage/BulkSelectPanel';
 import { buildUrl, PageUrl } from '@/PageUrl';
 import type { ZMedia, ZMediaListFilters } from '@/types/media';
 import { App, Button, Modal, Pagination, Popconfirm } from 'antd';
-import { Archive, Trash2, Upload } from 'lucide-react';
+import { InboxOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -126,13 +126,9 @@ export const MediaListPageMain = observer(() => {
   const extra = (
     <>
       <Link to={PageUrl.MediaTrash}>
-        <Button icon={<Archive className="w-4 h-4" />}>Корзина</Button>
+        <Button icon={<InboxOutlined />}>Корзина</Button>
       </Link>
-      <Button
-        type="primary"
-        icon={<Upload className="w-4 h-4" />}
-        onClick={() => setUploadVisible(true)}
-      >
+      <Button type="primary" icon={<UploadOutlined />} onClick={() => setUploadVisible(true)}>
         Загрузить файлы
       </Button>
       {store.hasSelection && (
@@ -143,7 +139,7 @@ export const MediaListPageMain = observer(() => {
           okText="Удалить"
           cancelText="Отмена"
         >
-          <Button danger icon={<Trash2 className="w-4 h-4" />}>
+          <Button danger icon={<DeleteOutlined />}>
             Удалить выбранные ({store.selectedCount})
           </Button>
         </Popconfirm>

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Button, Card, Form, Spin } from 'antd';
-import { Check } from 'lucide-react';
+import { CheckOutlined } from '@ant-design/icons';
 import { PageLayout } from '@/components/PageLayout';
 import { RouteEditorStore } from './RouteEditorStore';
 import { RouteForm } from '@/components/RouteForm';
@@ -71,7 +71,7 @@ export const RouteEditorPage = observer(() => {
             type="primary"
             onClick={handleSave}
             loading={store.saving}
-            icon={<Check className="w-4 h-4" />}
+            icon={<CheckOutlined />}
           >
             Сохранить
           </Button>

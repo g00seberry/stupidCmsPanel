@@ -1,6 +1,6 @@
 import { FilterForm, FilterFormStore, type FilterFieldConfig } from '@/components/FilterForm';
 import { Input, Select } from 'antd';
-import { Search } from 'lucide-react';
+import { SearchOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 
@@ -30,7 +30,7 @@ export const MediaFilters = observer<PropsMediaFilters>(({ store, cardClassName 
         element: (
           <Input
             placeholder="Поиск по названию или имени файла"
-            prefix={<Search className="w-4 h-4 text-muted-foreground" />}
+            prefix={<SearchOutlined className="text-muted-foreground" />}
             allowClear
           />
         ),

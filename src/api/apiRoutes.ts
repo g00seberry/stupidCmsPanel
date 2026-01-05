@@ -2,7 +2,6 @@ import { rest } from '@/api/rest';
 import type {
   ZCreateRouteNodeDto,
   ZRouteNode,
-  ZRouteNodeListItem,
   ZReorderRouteNode,
   ZUpdateRouteNodeDto,
 } from '@/types/routes';
@@ -26,7 +25,7 @@ const getAdminRoutesUrl = (path: string): string => `/api/v1/admin/routes${path}
  *   console.log(`${route.uri} (${route.source})`);
  * });
  */
-export const listRoutes = async (): Promise<ZRouteNodeListItem[]> => {
+export const listRoutes = async (): Promise<ZRouteNode[]> => {
   const response = await rest.get(getAdminRoutesUrl(''));
   const parsed = zRouteNodeListResponse.parse(response.data);
   return parsed.data;
