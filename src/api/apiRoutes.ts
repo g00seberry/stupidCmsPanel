@@ -42,7 +42,7 @@ export const listRoutes = async (): Promise<ZRouteNode[]> => {
  *   console.log(`Дочерних узлов: ${route.children.length}`);
  * }
  */
-export const getRoute = async (id: number): Promise<ZRouteNode> => {
+export const getRoute = async (id: string): Promise<ZRouteNode> => {
   const response = await rest.get(getAdminRoutesUrl(`/${id}`));
   const parsed = zRouteNodeResponse.parse(response.data);
   return parsed.data;
@@ -85,7 +85,7 @@ export const createRoute = async (payload: ZCreateRouteNodeDto): Promise<ZRouteN
  * });
  */
 export const updateRoute = async (
-  id: number,
+  id: string,
   payload: ZUpdateRouteNodeDto
 ): Promise<ZRouteNode> => {
   const parsedPayload = zUpdateRouteNodeDto.parse(payload);
@@ -104,7 +104,7 @@ export const updateRoute = async (
  * await deleteRoute(1);
  * // Внимание: удаление узла приводит к каскадному удалению всех дочерних узлов
  */
-export const deleteRoute = async (id: number): Promise<void> => {
+export const deleteRoute = async (id: string): Promise<void> => {
   await rest.delete(getAdminRoutesUrl(`/${id}`));
 };
 
